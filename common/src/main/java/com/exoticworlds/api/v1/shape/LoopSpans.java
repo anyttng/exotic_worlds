@@ -1,9 +1,6 @@
 package com.exoticworlds.api.v1.shape;
 
-import com.exoticworlds.core.FlatShape;
-import com.exoticworlds.core.WorldLoopBounds;
-import com.exoticworlds.core.WorldLoopBounds.AxisBounds;
-import com.exoticworlds.core.WorldLoopSizes;
+import com.exoticworlds.bridge.v1.shape.SpansBridge;
 
 import net.minecraft.core.Direction;
 
@@ -21,24 +18,13 @@ import net.minecraft.core.Direction;
  * hands back a new instance.</p>
  */
 public final class LoopSpans {
-    private static final String DOES_NOT_LOOP = " does not loop — check loops(axis) first";
-    private static final String AXIS = "Axis ";
-    private static final String POSITIVE_SCALE_REQUIRED = "A scale is positive, got ";
-    private static final String SKEW_NOT_DIVISIBLE = "A skew of %d chunks does not divide by the scale %d";
-
     /** Neither axis loops — an ordinary world. */
-    public static final LoopSpans NONE = new LoopSpans(WorldLoopBounds.UNBOUNDED);
+    public static final LoopSpans NONE = new LoopSpans(SpansBridge.none());
 
-    private final WorldLoopBounds bounds;
-    private final int skewChunks;
+    private final SpansBridge.Spans spans;
 
-    LoopSpans(WorldLoopBounds bounds) {
-        this(bounds, FlatShape.NO_SKEW);
-    }
-
-    LoopSpans(WorldLoopBounds bounds, int skewChunks) {
-        this.bounds = bounds;
-        this.skewChunks = FlatShape.latticeTorus(bounds, skewChunks).skewChunks();
+    private LoopSpans(SpansBridge.Spans spans) {
+        this.spans = spans;
     }
 
     /**
@@ -46,22 +32,22 @@ public final class LoopSpans {
      * under it, so scale a nether down only as far as this allows.
      */
     public static int minChunkWidth() {
-        return WorldLoopSizes.MIN_CHUNK_WIDTH;
+        return SpansBridge.getMinWidthChunks();
     }
 
     /** Both axes looping over {@code chunkWidth} chunks, centered on the origin. */
     public static LoopSpans ofWidth(int chunkWidth) {
-        return new LoopSpans(WorldLoopBounds.ofWidth(chunkWidth));
+        return new LoopSpans(SpansBridge.ofWidth(chunkWidth));
     }
 
     /** X looping over {@code xChunkWidth} chunks and Z over {@code zChunkWidth}, both centered on the origin. */
     public static LoopSpans ofWidths(int xChunkWidth, int zChunkWidth) {
-        return new LoopSpans(WorldLoopBounds.ofWidths(xChunkWidth, zChunkWidth));
+        return new LoopSpans(SpansBridge.ofWidths(xChunkWidth, zChunkWidth));
     }
 
     /** One axis looping over {@code chunkWidth} chunks, centered on the origin; the other stays unbounded. */
     public static LoopSpans ofWidth(Direction.Axis axis, int chunkWidth) {
-        return new LoopSpans(WorldLoopBounds.ofWidth(axis, chunkWidth));
+        return new LoopSpans(SpansBridge.ofWidth(axis, chunkWidth));
     }
 
     /** One axis looping over the half-open chunk span {@code [minChunk, maxChunk)}; the other stays unbounded. */
@@ -71,7 +57,7 @@ public final class LoopSpans {
 
     /** These spans with {@code axis} looping over {@code [minChunk, maxChunk)} as well. */
     public LoopSpans and(Direction.Axis axis, int minChunk, int maxChunk) {
-        return new LoopSpans(this.bounds.with(axis, new AxisBounds.Looped(minChunk, maxChunk)), this.skewChunks);
+        return new LoopSpans(SpansBridge.and(this.spans, axis, minChunk, maxChunk));
     }
 
     /**
@@ -82,17 +68,17 @@ public final class LoopSpans {
      * @throws IllegalArgumentException if {@code skewChunks} is not {@code 0} and either axis does not loop
      */
     public LoopSpans withSkew(int skewChunks) {
-        return new LoopSpans(this.bounds, skewChunks);
+        return new LoopSpans(SpansBridge.withSkew(this.spans, skewChunks));
     }
 
     /** How far crossing the Z seam shifts X, in chunks, within {@code (-xWidth/2, xWidth/2]}; {@code 0} unskewed. */
     public int skewChunks() {
-        return this.skewChunks;
+        return this.spans.skewChunks();
     }
 
     /** Whether this axis loops. {@link Direction.Axis#Y} always answers {@code false}. */
     public boolean loops(Direction.Axis axis) {
-        return axis != Direction.Axis.Y && this.bounds.loops(axis);
+        return SpansBridge.loops(this.spans, axis);
     }
 
     /**
@@ -101,7 +87,7 @@ public final class LoopSpans {
      * @throws IllegalArgumentException if {@code axis} does not loop
      */
     public int minChunk(Direction.Axis axis) {
-        return looping(axis).minChunk();
+        return SpansBridge.minChunk(this.spans, axis);
     }
 
     /**
@@ -110,7 +96,7 @@ public final class LoopSpans {
      * @throws IllegalArgumentException if {@code axis} does not loop
      */
     public int maxChunk(Direction.Axis axis) {
-        return looping(axis).maxChunk();
+        return SpansBridge.maxChunk(this.spans, axis);
     }
 
     /**
@@ -119,12 +105,12 @@ public final class LoopSpans {
      * @throws IllegalArgumentException if {@code axis} does not loop
      */
     public int chunkWidth(Direction.Axis axis) {
-        return looping(axis).chunkWidth();
+        return SpansBridge.getWidthChunks(this.spans, axis);
     }
 
     /** Whether both axes loop over the same number of chunks. */
     public boolean isSquare() {
-        return this.bounds.isSquare();
+        return SpansBridge.isSquare(this.spans);
     }
 
     /**
@@ -136,43 +122,21 @@ public final class LoopSpans {
      *         or does not divide the skew
      */
     public LoopSpans scaledDown(int scale) {
-        if (scale <= 0) {
-            throw new IllegalArgumentException(POSITIVE_SCALE_REQUIRED + scale);
-        }
-
-        if (this.skewChunks % scale != 0) {
-            throw new IllegalArgumentException(String.format(SKEW_NOT_DIVISIBLE, this.skewChunks, scale));
-        }
-
-        return new LoopSpans(this.bounds.scaledDown(scale), this.skewChunks / scale);
+        return new LoopSpans(SpansBridge.scaledDown(this.spans, scale));
     }
 
     @Override
     public boolean equals(Object other) {
-        return other instanceof LoopSpans spans && this.bounds.equals(spans.bounds)
-                && this.skewChunks == spans.skewChunks;
+        return other instanceof LoopSpans loopSpans && this.spans.equals(loopSpans.spans);
     }
 
     @Override
     public int hashCode() {
-        return 31 * this.bounds.hashCode() + this.skewChunks;
+        return this.spans.hashCode();
     }
 
     @Override
     public String toString() {
-        return "LoopSpans[x=" + this.bounds.x().spanText() + ", z=" + this.bounds.z().spanText()
-                + ", skew=" + this.skewChunks + "]";
-    }
-
-    WorldLoopBounds bounds() {
-        return this.bounds;
-    }
-
-    private AxisBounds.Looped looping(Direction.Axis axis) {
-        if (this.bounds.axis(axis) instanceof AxisBounds.Looped looped) {
-            return looped;
-        }
-
-        throw new IllegalArgumentException(AXIS + axis + DOES_NOT_LOOP);
+        return SpansBridge.text(this.spans);
     }
 }

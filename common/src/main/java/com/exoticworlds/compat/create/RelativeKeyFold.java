@@ -2,8 +2,8 @@ package com.exoticworlds.compat.create;
 
 import org.jspecify.annotations.Nullable;
 
-import com.exoticworlds.core.WorldFold;
-import com.exoticworlds.core.WorldLoopAttachments;
+import com.exoticworlds.core.fold.WorldFold;
+import com.exoticworlds.core.fold.WorldLoopAttachments;
 import com.exoticworlds.engine.fold.NearestCopy;
 
 import net.minecraft.core.BlockPos;
@@ -16,7 +16,7 @@ public final class RelativeKeyFold {
             return rawKey;
         }
 
-        return shortWay(WorldLoopAttachments.wrappedFoldOfReader(level), owner, partner, rawKey);
+        return shortWay(WorldLoopAttachments.getWrappedFoldOfReader(level), owner, partner, rawKey);
     }
 
     static BlockPos shortWay(@Nullable WorldFold fold, BlockPos owner, Vec3i partner, BlockPos rawKey) {
@@ -34,7 +34,7 @@ public final class RelativeKeyFold {
             return storedKey;
         }
 
-        return normalize(WorldLoopAttachments.wrappedFoldOfReader(level), owner, storedKey);
+        return normalize(WorldLoopAttachments.getWrappedFoldOfReader(level), owner, storedKey);
     }
 
     static BlockPos normalize(@Nullable WorldFold fold, BlockPos owner, BlockPos storedKey) {

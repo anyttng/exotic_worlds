@@ -3,13 +3,14 @@ package com.exoticworlds.compat.preview;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.exoticworlds.api.v1.ToroidalShape;
 import com.exoticworlds.compat.map.AxisCopies;
 import com.exoticworlds.compat.map.FullscreenZoomFloor;
 import com.exoticworlds.compat.map.MapCopies;
 import com.exoticworlds.compat.map.MapViewSpan;
 import com.exoticworlds.compat.map.SeamLine;
 import com.exoticworlds.compat.map.WorldCopies;
+import com.exoticworlds.core.fold.RectangleCopies;
+import com.exoticworlds.core.fold.WorldFold;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -17,23 +18,23 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.phys.AABB;
 
 // mc/1.21: FreeTerraForged and ReTerraForged previews read their maps through it, FreeTerraForged's 3D marker through blockCopiesOf.
-public record PreviewView(ToroidalShape shape, MapCopies copies, float centerX, float centerZ, float zoom) {
+public record PreviewView(WorldFold fold, MapCopies copies, float centerX, float centerZ, float zoom) {
     public static final int PREVIEW_PIXELS = 256;
 
     private static final float HALF_PREVIEW_PIXELS = PREVIEW_PIXELS / 2.0F;
 
     private static final double BLOCK_CENTER = 0.5;
 
-    public static float zoomCeiling(ToroidalShape shape, MapCopies copies, int widgetPixels) {
+    public static float zoomCeiling(WorldFold fold, MapCopies copies, int widgetPixels) {
         return copies == MapCopies.SINGLE
-                ? FullscreenZoomFloor.ultraTerraForgedCoverZoom(shape, PREVIEW_PIXELS)
-                : FullscreenZoomFloor.ultraTerraForgedZoom(shape, widgetPixels, PREVIEW_PIXELS);
+                ? FullscreenZoomFloor.ultraTerraForgedCoverZoom(fold, PREVIEW_PIXELS)
+                : FullscreenZoomFloor.ultraTerraForgedZoom(fold, widgetPixels, PREVIEW_PIXELS);
     }
 
-    public static float heldCenter(ToroidalShape shape, MapCopies copies, Direction.Axis axis, float center,
+    public static float heldCenter(WorldFold fold, MapCopies copies, Direction.Axis axis, float center,
             float zoom) {
         return copies == MapCopies.SINGLE
-                ? (float) AxisCopies.of(shape, axis).clampView(center, PREVIEW_PIXELS / 2.0 * zoom)
+                ? (float) AxisCopies.of(fold, axis).clampView(center, PREVIEW_PIXELS / 2.0 * zoom)
                 : center;
     }
 
@@ -45,7 +46,7 @@ public record PreviewView(ToroidalShape shape, MapCopies copies, float centerX, 
         int originX = widgetX + (int) Math.round(widgetPixels / 2.0 - this.centerX * pixelsPerBlock);
         int originY = widgetY + (int) Math.round(widgetPixels / 2.0 - this.centerZ * pixelsPerBlock);
         List<SeamLine> lines = new ArrayList<>();
-        for (WorldCopies.Edge edge : WorldCopies.seams(this.shape, spanX[0], spanZ[0], spanX[1], spanZ[1])) {
+        for (WorldCopies.Edge edge : WorldCopies.seams(this.fold, spanX[0], spanZ[0], spanX[1], spanZ[1])) {
             lines.add(SeamLine.of(edge, originX, originY, pixelsPerBlock));
         }
 
@@ -53,7 +54,7 @@ public record PreviewView(ToroidalShape shape, MapCopies copies, float centerX, 
     }
 
     public BlockPos inside(int blockX, int blockZ) {
-        return this.shape.fold(new BlockPos(blockX, 0, blockZ));
+        return this.fold.fold(new BlockPos(blockX, 0, blockZ));
     }
 
     public BlockPos blockAt(int widgetX, int widgetY, int widgetPixels, double mouseX, double mouseY) {
@@ -71,7 +72,7 @@ public record PreviewView(ToroidalShape shape, MapCopies copies, float centerX, 
         AABB window = new AABB(this.centerX - halfBlocks, 0, this.centerZ - halfBlocks,
                 this.centerX + halfBlocks, 1, this.centerZ + halfBlocks);
         List<BlockPos> blocks = new ArrayList<>();
-        for (ToroidalShape.Oriented<BlockPos> copy : this.shape.copiesInside(window, point)) {
+        for (WorldFold.Folded<BlockPos> copy : RectangleCopies.inside(this.fold, window, point, WorldFold.Folded::new)) {
             blocks.add(copy.value());
         }
 

@@ -5,7 +5,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
 
 import com.zurrtum.create.content.equipment.blueprint.BlueprintEntity;
-import com.exoticworlds.core.WorldLoopAttachments;
+import com.exoticworlds.core.fold.WorldLoopAttachments;
 import com.exoticworlds.engine.fold.FoldedBoxQuery;
 
 import net.minecraft.world.entity.player.Player;
@@ -16,6 +16,6 @@ public class BlueprintReachMixin {
     @ModifyVariable(method = "canPlayerUse", at = @At("STORE"), ordinal = 0)
     private AABB exotic_worlds$foldBlueprintBox(AABB box, Player player) {
         return FoldedBoxQuery.toward(
-                WorldLoopAttachments.wrappedFoldOfReader(player.level()), player.position(), box);
+                WorldLoopAttachments.getWrappedFoldOfReader(player.level()), player.position(), box);
     }
 }

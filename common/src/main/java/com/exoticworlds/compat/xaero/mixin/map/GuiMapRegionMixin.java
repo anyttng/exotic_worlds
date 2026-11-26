@@ -145,9 +145,9 @@ public abstract class GuiMapRegionMixin {
             slice = @Slice(
                     from = @At(value = "INVOKE", target = MAP_PROCESSOR_GET_LEVELED_REGION, ordinal = 1),
                     to = @At(value = "INVOKE", target = MAP_PROCESSOR_GET_LEVELED_REGION, ordinal = 2)))
-    private boolean exotic_worlds$fannedLeafExists(boolean exists, @Local(name = "regX") int regX,
+    private boolean exotic_worlds$fannedLeafExists(boolean isExisting, @Local(name = "regX") int regX,
             @Local(name = "regZ") int regZ) {
-        return this.exotic_worlds$loads.fannedLeafExists(exists, regX, regZ);
+        return this.exotic_worlds$loads.isFannedLeafExisting(isExisting, regX, regZ);
     }
 
     @ModifyExpressionValue(
@@ -159,7 +159,7 @@ public abstract class GuiMapRegionMixin {
     private @Nullable MapRegion exotic_worlds$fetchLoopLeaf(@Nullable MapRegion existing,
             @Local(name = "renderedCaveLayer") int caveLayer, @Local(name = "regX") int regX,
             @Local(name = "regZ") int regZ) {
-        return this.exotic_worlds$loads.loopLeaf(this.mapProcessor, existing, caveLayer, regX, regZ);
+        return this.exotic_worlds$loads.getLoopLeaf(this.mapProcessor, existing, caveLayer, regX, regZ);
     }
 
     @ModifyExpressionValue(
@@ -167,7 +167,7 @@ public abstract class GuiMapRegionMixin {
             at = @At(value = "INVOKE", target = XaeroInjectionTargets.MAP_PROCESSOR_GET_LEAF_MAP_REGION, ordinal = 0))
     private @Nullable MapRegion exotic_worlds$fetchHoverLeaf(@Nullable MapRegion existing,
             @Local(name = "renderedCaveLayer") int caveLayer) {
-        return this.exotic_worlds$loads.hoverLeaf(this.mapProcessor, existing, caveLayer, this.mouseBlockPosX,
+        return this.exotic_worlds$loads.getHoverLeaf(this.mapProcessor, existing, caveLayer, this.mouseBlockPosX,
                 this.mouseBlockPosZ);
     }
 
@@ -177,7 +177,7 @@ public abstract class GuiMapRegionMixin {
     private @Nullable MapRegion exotic_worlds$fetchDebugLeaf(@Nullable MapRegion existing,
             @Local(name = "renderedCaveLayer") int caveLayer, @Local(name = "regX") int regX,
             @Local(name = "regZ") int regZ) {
-        return this.exotic_worlds$loads.leafOrFold(this.mapProcessor, existing, caveLayer, regX, regZ);
+        return this.exotic_worlds$loads.getLeafOrFold(this.mapProcessor, existing, caveLayer, regX, regZ);
     }
 
     @WrapOperation(
@@ -195,7 +195,7 @@ public abstract class GuiMapRegionMixin {
             method = "extractRenderState",
             at = @At(value = "INVOKE", target = LEVELED_REGION_GET_TEXTURE, ordinal = 0))
     private @Nullable RegionTexture<?> exotic_worlds$foldHoverTexture(@Nullable RegionTexture<?> texture) {
-        return this.exotic_worlds$frame.hoverTexture(this.mapProcessor, texture, this.mouseBlockPosX,
+        return this.exotic_worlds$frame.getHoverTexture(this.mapProcessor, texture, this.mouseBlockPosX,
                 this.mouseBlockPosZ);
     }
 

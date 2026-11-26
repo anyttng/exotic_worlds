@@ -25,7 +25,7 @@ public abstract class FullscreenMixin {
 
     @ModifyVariable(method = "setZoom(I)V", at = @At("HEAD"), argsOnly = true)
     private int exotic_worlds$keepSingleZoomOnTheLevels(int zoom) {
-        if (MapCopies.current() != MapCopies.SINGLE) {
+        if (MapCopies.getCurrent() != MapCopies.SINGLE) {
             return zoom;
         }
 
@@ -34,7 +34,7 @@ public abstract class FullscreenMixin {
 
     @ModifyReturnValue(method = "getMouseDrag", at = @At("RETURN"))
     private Point2D.Double exotic_worlds$stopDragAtTheEdge(Point2D.Double drag) {
-        if (MapCopies.current() != MapCopies.SINGLE || !JourneyMapFold.active()) {
+        if (MapCopies.getCurrent() != MapCopies.SINGLE || !JourneyMapFold.isActive()) {
             return drag;
         }
 

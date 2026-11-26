@@ -10,7 +10,7 @@ import java.util.Map;
 import org.jspecify.annotations.Nullable;
 
 final class ClassFiles {
-    record Loaded(boolean present, @Nullable ClassModel model) {
+    record Loaded(boolean isPresent, @Nullable ClassModel model) {
     }
 
     private static final String CLASS_SUFFIX = ".class";

@@ -1,5 +1,7 @@
 package com.exoticworlds.accessors;
 
+import com.exoticworlds.core.fold.DeckTransformation;
+
 public interface NavigationShifter {
-    void exotic_worlds$shiftBy(int shiftX, int shiftZ);
+    void exotic_worlds$carry(DeckTransformation lap);
 }

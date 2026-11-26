@@ -17,7 +17,7 @@ public final class NaturalWaveCells implements WaveCells {
 
     @Override
     public double value(long seed, long cell) {
-        return 2.0 * MathUtilsAccessor.exotic_worlds$random01(seed, cell, MathUtilsAccessor.exotic_worlds$valueSalt())
+        return 2.0 * MathUtilsAccessor.exotic_worlds$random01(seed, cell, MathUtilsAccessor.exotic_worlds$getValueSalt())
                 - 1.0;
     }
 }

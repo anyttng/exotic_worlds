@@ -33,11 +33,11 @@ public final class PinnedSample implements DensitySampler {
         return field.sampler() instanceof PinnedSample pinned ? pinned : null;
     }
 
-    public ClimateLap lap() {
+    public ClimateLap getLap() {
         return this.lap;
     }
 
-    public int blockZ() {
+    public int getBlockZ() {
         return this.blockZ;
     }
 

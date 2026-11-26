@@ -40,8 +40,8 @@ public class PainterCoreMixin {
             return original.call(noise, x, z, scale);
         }
 
-        return sample.lap().noise(((BandNoises) noise).exotic_worlds$large(), scale, sample.signedX(), z,
-                sample.blockZ());
+        return sample.getLap().noise(((BandNoises) noise).exotic_worlds$getLarge(), scale, sample.signedX(), z,
+                sample.getBlockZ());
     }
 
     @WrapOperation(
@@ -57,8 +57,8 @@ public class PainterCoreMixin {
             return original.call(noise, x, z, scale);
         }
 
-        return sample.lap().noise(((BandNoises) noise).exotic_worlds$detail(), scale, sample.signedX(), z,
-                sample.blockZ());
+        return sample.getLap().noise(((BandNoises) noise).exotic_worlds$getDetail(), scale, sample.signedX(), z,
+                sample.getBlockZ());
     }
 
     @WrapOperation(
@@ -68,11 +68,11 @@ public class PainterCoreMixin {
             Operation<Double> original, @Local(argsOnly = true, ordinal = 0) DensitySampler.Bound rawTemperature,
             @Local(name = WAVE_FREQUENCY) double waveFrequency, @Local(name = MAGNIFICATION) double magnification) {
         PinnedSample sample = PinnedSample.of(rawTemperature);
-        if (sample == null || !sample.lap().closesXWave()) {
+        if (sample == null || !sample.getLap().isXWaveClosed()) {
             return original.call(x, amplitude, frequency, seed);
         }
 
-        return sample.lap().xWave(NaturalWaveCells.INSTANCE, seed, sample.signedX(), amplitude,
+        return sample.getLap().xWave(NaturalWaveCells.INSTANCE, seed, sample.signedX(), amplitude,
                 waveFrequency / magnification);
     }
 
@@ -81,11 +81,11 @@ public class PainterCoreMixin {
             Operation<Double> original, @Local(argsOnly = true, ordinal = 0) DensitySampler.Bound rawTemperature,
             @Local(name = WAVE_FREQUENCY) double waveFrequency, @Local(name = MAGNIFICATION) double magnification) {
         PinnedSample sample = PinnedSample.of(rawTemperature);
-        if (sample == null || !sample.lap().closesZWave()) {
+        if (sample == null || !sample.getLap().isZWaveClosed()) {
             return original.call(z, amplitude, frequency, seed);
         }
 
-        return sample.lap().zWave(NaturalWaveCells.INSTANCE, seed, sample.blockZ(), amplitude,
+        return sample.getLap().zWave(NaturalWaveCells.INSTANCE, seed, sample.getBlockZ(), amplitude,
                 waveFrequency / magnification);
     }
 
@@ -94,7 +94,7 @@ public class PainterCoreMixin {
             @Local(argsOnly = true, ordinal = 0) DensitySampler.Bound rawTemperature,
             @Local(argsOnly = true, ordinal = 2) int z, @Local(name = "distorsion") double distortion) {
         PinnedSample sample = PinnedSample.of(rawTemperature);
-        return sample == null ? wave : sample.lap().carriedWave(sample.blockZ(), z, wave, distortion);
+        return sample == null ? wave : sample.getLap().carriedWave(sample.getBlockZ(), z, wave, distortion);
     }
 
     @ModifyVariable(method = HUMIDITY, at = @At(value = "LOAD", ordinal = 0), name = "uwave")
@@ -106,9 +106,9 @@ public class PainterCoreMixin {
     }
 
     @ModifyVariable(method = HUMIDITY, at = @At("STORE"), name = "hbw")
-    private static double exotic_worlds$bandsOnTheLap(double width,
+    private static double exotic_worlds$bandsOnTheLap(double widthBlocks,
             @Local(argsOnly = true, ordinal = 0) DensitySampler.Bound rawTemperature) {
         PinnedSample sample = PinnedSample.of(rawTemperature);
-        return sample == null ? width : sample.lap().lapBandWidth(width);
+        return sample == null ? widthBlocks : sample.getLap().lapBandWidthBlocks(widthBlocks);
     }
 }

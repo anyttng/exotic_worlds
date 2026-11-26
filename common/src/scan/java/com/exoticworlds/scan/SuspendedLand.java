@@ -1,10 +1,10 @@
 package com.exoticworlds.scan;
 
-import com.exoticworlds.core.WorldFold;
+import com.exoticworlds.core.fold.WorldFold;
+import com.exoticworlds.engine.gen.terrain.TerrainCeiling;
 import com.exoticworlds.engine.noise.ClimateScanFixture;
 import com.exoticworlds.engine.noise.ClimateScanFixture.WorldType;
 import com.exoticworlds.engine.noise.GenerationFoldContext;
-import com.exoticworlds.engine.noise.TerrainCeiling;
 import static com.exoticworlds.engine.noise.ClimateScanFixture.SEED_BASE;
 import static com.exoticworlds.engine.noise.ClimateScanFixture.randomState;
 import static com.exoticworlds.engine.noise.ClimateScanFixture.settingsOf;

@@ -1,10 +1,9 @@
 package com.exoticworlds.shape.layout;
 
 import com.exoticworlds.ExoticWorlds;
-import com.exoticworlds.client.shape.layout.LayoutShapeSetup;
-import com.exoticworlds.core.SpawnPoint;
 import com.exoticworlds.shape.WorldShape;
 import com.exoticworlds.shape.WorldShapes;
+import com.exoticworlds.shape.feature.OptionFeature;
 
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.level.levelgen.WorldDimensions;
@@ -14,9 +13,9 @@ public final class LayoutShape {
 
     public static final Identifier ID = Identifier.fromNamespaceAndPath(ExoticWorlds.MODID, LAYOUT_PATH);
 
-    private static WorldLayout chosen = WorldLayout.DEFAULT;
+    private static WorldLayout chosen = WorldLayout.newWorld();
 
-    public static WorldLayout layout() {
+    public static WorldLayout getLayout() {
         return chosen;
     }
 
@@ -24,19 +23,15 @@ public final class LayoutShape {
         chosen = layout;
     }
 
-    public static void register(boolean client) {
-        WorldShapes.register(WorldShape.of(ID, WorldShape.label(ID), WorldShape.hint(ID),
+    public static void register() {
+        chosen = WorldLayout.newWorld();
+        WorldShapes.register(WorldShape.of(ID,
                 (registries, dimensions) -> LayoutDimensions.apply(dimensions, chosen),
-                () -> chosen = WorldLayout.DEFAULT,
-                (registries, dimensions) -> adopt(dimensions)));
-        WorldShapes.takesSpawn(ID, LayoutShape::moveSpawn);
-
-        if (client) {
-            LayoutShapeSetup.register();
-        }
+                () -> chosen = WorldLayout.newWorld(),
+                (registries, dimensions) -> tryAdopt(dimensions)));
     }
 
-    private static boolean adopt(WorldDimensions dimensions) {
+    private static boolean tryAdopt(WorldDimensions dimensions) {
         WorldLayout read = LayoutDimensions.read(dimensions);
         if (read == null) {
             return false;
@@ -46,13 +41,13 @@ public final class LayoutShape {
         return true;
     }
 
-    private static boolean moveSpawn(SpawnPoint spawn) {
-        WorldLayout moved = chosen.withSpawn(spawn);
-        if (moved == null) {
+    public static <T> boolean trySetOverworldValue(OptionFeature<T> feature, T value) {
+        WorldLayout changed = chosen.withOverworldValue(feature, value);
+        if (changed == null) {
             return false;
         }
 
-        chosen = moved;
+        chosen = changed;
         return true;
     }
 

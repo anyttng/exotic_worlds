@@ -67,7 +67,6 @@
   "gui.exotic_worlds.world_shape_settings.shape.hint.torus": "loops east to west and north to south. Walk far enough in any direction and you return to where you started.",
   "gui.exotic_worlds.world_shape_settings.shape.hint.cylinder": "one horizontal axis loops, the other goes on forever like vanilla.",
   "gui.exotic_worlds.world_shape_settings.shape.hint.from_overworld": "takes the Overworld's shape at this dimension's own size.",
-  "gui.exotic_worlds.world_shape_settings.shape.hint.declared": "a shape added by another mod; its description is shown under this button.",
   "gui.exotic_worlds.world_shape_settings.shape.size_error": "This shape comes out %s chunks wide; this dimension takes %s to %s.",
   "gui.exotic_worlds.world_shape_settings.nether_scale": "Nether scale",
   "gui.exotic_worlds.world_shape_settings.size": "World size in chunks (%s-%s)",
@@ -104,8 +103,6 @@
   "gui.exotic_worlds.world_shape_settings.guaranteed_nether_complexes.hint.intro": "Makes the Nether hold at least one nether fortress and one bastion remnant, each in a biome it can stand in. Without it a small Nether often has neither.",
   "gui.exotic_worlds.world_shape_settings.guaranteed_nether_complexes.hint.on": "a Nether that would have neither gets one nether fortress and one bastion remnant.",
   "gui.exotic_worlds.world_shape_settings.guaranteed_nether_complexes.hint.off": "a small Nether may have neither.",
-  "gui.exotic_worlds.world_shape.normal": "Normal",
-  "gui.exotic_worlds.world_shape.normal.hint": "The vanilla world: an endless plane in every direction.",
   "gui.exotic_worlds.world_shape.seam_warning": "This world type brings a world generator of its own: a World Shape still bounds and loops the world, but the terrain will not line up at the world's edge.",
 
   "gui.exotic_worlds.settings.title": "Exotic Worlds Settings",

@@ -43,7 +43,7 @@ public class FollowMobGoalMixin {
                     target = "Lnet/minecraft/world/entity/ai/control/LookControl;getWantedX()D"))
     private double exotic_worlds$wantedLookXThroughSeam(LookControl lookControl, Operation<Double> original) {
         double wantedX = original.call(lookControl);
-        return exotic_worlds$folds()
+        return exotic_worlds$isFolding()
                 ? exotic_worlds$wantedNearTheMob(wantedX, lookControl.getWantedZ()).x
                 : wantedX;
     }
@@ -54,7 +54,7 @@ public class FollowMobGoalMixin {
                     target = "Lnet/minecraft/world/entity/ai/control/LookControl;getWantedZ()D"))
     private double exotic_worlds$wantedLookZThroughSeam(LookControl lookControl, Operation<Double> original) {
         double wantedZ = original.call(lookControl);
-        return exotic_worlds$folds()
+        return exotic_worlds$isFolding()
                 ? exotic_worlds$wantedNearTheMob(lookControl.getWantedX(), wantedZ).z
                 : wantedZ;
     }
@@ -65,8 +65,8 @@ public class FollowMobGoalMixin {
     }
 
     @Unique
-    private boolean exotic_worlds$folds() {
-        return ((FoldSource) this.mob).exotic_worlds$wrappedFold() != null;
+    private boolean exotic_worlds$isFolding() {
+        return ((FoldSource) this.mob).exotic_worlds$getWrappedFold() != null;
     }
 
     @Unique

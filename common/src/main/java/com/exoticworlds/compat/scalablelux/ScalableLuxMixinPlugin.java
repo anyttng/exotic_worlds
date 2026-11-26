@@ -19,7 +19,7 @@ public class ScalableLuxMixinPlugin extends ModPresenceGatePlugin {
             .probing("ca/spottedleaf/starlight/common/light/StarLightInterface.class")
             .checking("exotic_worlds.compat.scalablelux.mixins.json")
             .modPackages(STARLIGHT_PACKAGE)
-            .withholding(SCHEDULING_LOCK_MIXIN, ScalableLuxMixinPlugin::c2meOwnsTheLock)
+            .withholding(SCHEDULING_LOCK_MIXIN, ScalableLuxMixinPlugin::isLockOwnedByC2me)
             .bodyFrom(SCHEDULING_TOKENS_MIXIN, C2meLightingLock.OVERWRITE_CLASS)
             .build();
 
@@ -27,7 +27,7 @@ public class ScalableLuxMixinPlugin extends ModPresenceGatePlugin {
         super(SCALABLELUX);
     }
 
-    private static boolean c2meOwnsTheLock() {
-        return ModPresence.probe(C2meLightingLock.OVERWRITE_RESOURCE);
+    private static boolean isLockOwnedByC2me() {
+        return ModPresence.hasResource(C2meLightingLock.OVERWRITE_RESOURCE);
     }
 }

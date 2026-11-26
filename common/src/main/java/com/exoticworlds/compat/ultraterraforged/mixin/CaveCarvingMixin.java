@@ -31,12 +31,12 @@ public abstract class CaveCarvingMixin implements CaveFrame {
     private int exotic_worlds$shiftZ;
 
     @Override
-    public int exotic_worlds$shiftX() {
+    public int exotic_worlds$getShiftX() {
         return this.exotic_worlds$shiftX;
     }
 
     @Override
-    public int exotic_worlds$shiftZ() {
+    public int exotic_worlds$getShiftZ() {
         return this.exotic_worlds$shiftZ;
     }
 

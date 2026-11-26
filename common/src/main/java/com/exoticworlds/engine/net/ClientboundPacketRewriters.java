@@ -1,7 +1,9 @@
 package com.exoticworlds.engine.net;
 
 import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
@@ -9,8 +11,8 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.function.UnaryOperator;
 
-import com.exoticworlds.api.v1.net.ParticleRewriter;
-import com.exoticworlds.core.WorldFold;
+import com.exoticworlds.core.fold.FoldOrientation;
+import com.exoticworlds.core.fold.WorldFold;
 import com.exoticworlds.engine.fold.SeamDelta;
 import com.exoticworlds.engine.seam.ClientPosition;
 import com.exoticworlds.engine.seam.ClientPosition.BorderCenter;
@@ -24,6 +26,7 @@ import com.exoticworlds.mixin.Vec3iWaypointAccessor;
 import com.google.common.base.Suppliers;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.core.GlobalPos;
 import net.minecraft.core.PositionAndRotation;
 import net.minecraft.core.SectionPos;
@@ -57,6 +60,7 @@ import net.minecraft.network.protocol.game.ClientboundMoveVehiclePacket;
 import net.minecraft.network.protocol.game.ClientboundOpenSignEditorPacket;
 import net.minecraft.network.protocol.game.ClientboundPlayerLookAtPacket;
 import net.minecraft.network.protocol.game.ClientboundPlayerPositionPacket;
+import net.minecraft.network.protocol.game.ClientboundPlayerRotationPacket;
 import net.minecraft.network.protocol.game.ClientboundSectionBlocksUpdatePacket;
 import net.minecraft.network.protocol.game.ClientboundSetChunkCacheCenterPacket;
 import net.minecraft.network.protocol.game.ClientboundSetDefaultSpawnPositionPacket;
@@ -100,14 +104,24 @@ final class ClientboundPacketRewriters {
     private static final int DEFAULT_BUFFER_CAPACITY = 256;
 
     static ClientboundLevelChunkWithLightPacket levelChunk(ClientboundLevelChunkWithLightPacket packet, TranslationContext context) {
-        ChunkPos clientPos = context.toClient(new ChunkPos(packet.x(), packet.z()));
+        ChunkPos serverPos = new ChunkPos(packet.x(), packet.z());
+        ChunkPos clientPos = context.toClient(serverPos);
+        FoldOrientation orientation = orientation(context, serverPos, clientPos);
         return new ClientboundLevelChunkWithLightPacket(
-                clientPos.x(), clientPos.z(), packet.chunkData(), packet.lightData());
+                clientPos.x(), clientPos.z(),
+                TurnedChunkData.turned(packet.chunkData(), orientation, () -> buffer(context).registryAccess()),
+                TurnedChunkData.turned(packet.lightData(), orientation));
     }
 
     static ClientboundLightUpdatePacket lightUpdate(ClientboundLightUpdatePacket packet, TranslationContext context) {
-        ChunkPos clientPos = context.toClient(new ChunkPos(packet.x(), packet.z()));
-        return new ClientboundLightUpdatePacket(clientPos.x(), clientPos.z(), packet.lightData());
+        ChunkPos serverPos = new ChunkPos(packet.x(), packet.z());
+        ChunkPos clientPos = context.toClient(serverPos);
+        return new ClientboundLightUpdatePacket(clientPos.x(), clientPos.z(),
+                TurnedChunkData.turned(packet.lightData(), orientation(context, serverPos, clientPos)));
+    }
+
+    private static FoldOrientation orientation(TranslationContext context, ChunkPos serverPos, ChunkPos clientPos) {
+        return context.fold().deckTransformation(serverPos, clientPos).getOrientation();
     }
 
     static Packet<?> forgetChunk(ClientboundForgetLevelChunkPacket packet, TranslationContext context) {
@@ -132,63 +146,134 @@ final class ClientboundPacketRewriters {
     static ClientboundPlayerPositionPacket playerPosition(ClientboundPlayerPositionPacket packet, TranslationContext context) {
         ClientPosition clientPosition = context.clientPosition();
 
-        if (!clientPosition.describes(context.dimension())) {
+        if (!clientPosition.isForDimension(context.dimension())) {
             context.rebase().run();
             return packet;
         }
 
         PositionMoveRotation change = packet.change();
         Vec3 position = change.position();
+        Set<Relative> relatives = packet.relatives();
+        WorldFold fold = context.fold();
 
-        Vec3 mirror = new Vec3(clientPosition.x(), 0.0, clientPosition.z());
-        Vec3 clientDestination = clientPosition.destinationOf(context.fold(), position, packet.relatives());
+        Vec3 mirror = new Vec3(clientPosition.getX(), 0.0, clientPosition.getZ());
+        FoldOrientation standing = clientPosition.orientation(fold);
+        Vec3 clientDestination = clientPosition.destinationOf(fold, position, relatives);
+        FoldOrientation arriving = relatives.contains(Relative.X) || relatives.contains(Relative.Z)
+                ? standing
+                : ClientPosition.orientationAt(fold, clientDestination);
         clientPosition.set(clientDestination.x, clientDestination.z, MirrorWriter.POSITION_PACKET);
 
-        Vec3 sentPosition = sentPosition(context.fold(), position, packet.relatives(), clientDestination, mirror);
+        Vec3 sentPosition = sentPosition(fold, position, relatives, clientDestination, mirror, standing);
+        FoldOrientation ofYaw = relatives.contains(Relative.Y_ROT) ? standing : arriving;
+        FoldOrientation ofMovement = isRelativeMovement(relatives) ? standing : arriving;
         return new ClientboundPlayerPositionPacket(
                 packet.id(),
-                new PositionMoveRotation(sentPosition, change.deltaMovement(), change.yRot(), change.xRot()),
-                packet.relatives());
+                new PositionMoveRotation(
+                        sentPosition,
+                        ofMovement.applyToDelta(change.deltaMovement()),
+                        relatives.contains(Relative.Y_ROT)
+                                ? ofYaw.applyToYawChange(change.yRot())
+                                : ofYaw.applyToYaw(change.yRot()),
+                        change.xRot()),
+                movementRelatives(relatives, ofMovement));
+    }
+
+    private static boolean isRelativeMovement(Set<Relative> relatives) {
+        return relatives.contains(Relative.DELTA_X) || relatives.contains(Relative.DELTA_Z);
+    }
+
+    private static Set<Relative> movementRelatives(Set<Relative> relatives, FoldOrientation orientation) {
+        boolean isXKept = relatives.contains(Relative.DELTA_X);
+        boolean isZKept = relatives.contains(Relative.DELTA_Z);
+        if (!orientation.isSwappingAxes() || isXKept == isZKept) {
+            return relatives;
+        }
+
+        Set<Relative> swapped = EnumSet.copyOf(relatives);
+        swapped.remove(isXKept ? Relative.DELTA_X : Relative.DELTA_Z);
+        swapped.add(isXKept ? Relative.DELTA_Z : Relative.DELTA_X);
+        return swapped;
+    }
+
+    static Packet<?> playerRotation(ClientboundPlayerRotationPacket packet, TranslationContext context) {
+        ClientPosition clientPosition = context.clientPosition();
+        if (!clientPosition.isForDimension(context.dimension())) {
+            return packet;
+        }
+
+        FoldOrientation standing = clientPosition.orientation(context.fold());
+        if (standing.isIdentity()) {
+            return packet;
+        }
+
+        return new ClientboundPlayerRotationPacket(
+                packet.relativeY() ? standing.applyToYawChange(packet.yRot()) : standing.applyToYaw(packet.yRot()),
+                packet.relativeY(), packet.xRot(), packet.relativeX());
     }
 
     private static Vec3 sentPosition(WorldFold fold, Vec3 position, Set<Relative> relatives, Vec3 clientDestination,
-            Vec3 mirror) {
-        boolean relativeX = relatives.contains(Relative.X);
-        boolean relativeZ = relatives.contains(Relative.Z);
-        return relativeX && relativeZ
-                ? SeamDelta.fold(fold, position)
+            Vec3 mirror, FoldOrientation standing) {
+        boolean isRelativeX = relatives.contains(Relative.X);
+        boolean isRelativeZ = relatives.contains(Relative.Z);
+        return isRelativeX && isRelativeZ
+                ? standing.applyToDelta(SeamDelta.fold(fold, position))
                 : new Vec3(
-                        relativeX ? clientDestination.x - mirror.x : clientDestination.x,
+                        isRelativeX ? clientDestination.x - mirror.x : clientDestination.x,
                         position.y,
-                        relativeZ ? clientDestination.z - mirror.z : clientDestination.z);
+                        isRelativeZ ? clientDestination.z - mirror.z : clientDestination.z);
     }
 
     static ClientboundAddEntityPacket addEntity(ClientboundAddEntityPacket packet, TranslationContext context) {
-        Vec3 clientPos = context.toClient(
-                new Vec3(packet.getX(), packet.getY(), packet.getZ()), context.trackedReach());
+        Class<?> turnedEntityClass = EntityPacketTurns.getTurnedEntityClass(context, packet.getId());
+        EntitySeat seat = EntitySeat.of(context, EntityPacketTurns.spawnPosition(packet, turnedEntityClass));
+        Vec3 clientPos = seat.position();
+        FoldOrientation orientation = seat.orientation();
         return new ClientboundAddEntityPacket(
                 packet.getId(), packet.getUUID(),
                 clientPos.x, clientPos.y, clientPos.z,
-                packet.getXRot(), packet.getYRot(), packet.getType(), packet.getData(),
-                packet.getMovement(), packet.getYHeadRot());
+                packet.getXRot(), orientation.applyToYaw(packet.getYRot()), packet.getType(),
+                EntityPacketTurns.spawnData(packet.getData(), turnedEntityClass, orientation),
+                orientation.applyToDelta(packet.getMovement()), orientation.applyToYaw(packet.getYHeadRot()));
     }
 
     static ClientboundTeleportEntityPacket teleportEntity(ClientboundTeleportEntityPacket packet,
             TranslationContext context) {
+        PositionMoveRotation change = packet.change();
+        Set<Relative> relatives = packet.relatives();
+        boolean isRelativeX = relatives.contains(Relative.X);
+        boolean isRelativeZ = relatives.contains(Relative.Z);
+        PacketReach reach = context.getTrackedReach();
+        Vec3 clientPos = isRelativeX || isRelativeZ
+                ? context.toClientRelative(change.position(), isRelativeX, isRelativeZ, reach)
+                : context.toClient(change.position(), reach);
+
+        FoldOrientation standing = EntitySeat.orientationOf(context, packet.id());
+        FoldOrientation arriving = isRelativeX || isRelativeZ ? standing : EntitySeat.orientationAt(context, clientPos);
+        FoldOrientation ofMovement = isRelativeMovement(relatives) ? standing : arriving;
         return new ClientboundTeleportEntityPacket(
-                packet.id(), toClientChange(context, packet.change(), packet.relatives()), packet.relatives(),
-                packet.onGround());
+                packet.id(),
+                new PositionMoveRotation(
+                        isRelativeX && isRelativeZ ? standing.applyToDelta(clientPos) : clientPos,
+                        ofMovement.applyToDelta(change.deltaMovement()),
+                        relatives.contains(Relative.Y_ROT)
+                                ? standing.applyToYawChange(change.yRot())
+                                : arriving.applyToYaw(change.yRot()),
+                        change.xRot()),
+                movementRelatives(relatives, ofMovement), packet.onGround());
     }
 
     static ClientboundEntityPositionSyncPacket entityPositionSync(ClientboundEntityPositionSyncPacket packet,
             TranslationContext context) {
+        PositionPath clientPath = toClientPath(context, packet.position());
         return new ClientboundEntityPositionSyncPacket(
-                packet.id(), toClientPath(context, packet.position()), packet.yRot(), packet.xRot(),
+                packet.id(), clientPath,
+                EntitySeat.orientationAt(context, clientPath.endPosition()).applyToYaw(packet.yRot()), packet.xRot(),
                 packet.onGround());
     }
 
     private static PositionPath toClientPath(TranslationContext context, PositionPath path) {
-        PacketReach reach = context.trackedReach();
+        PacketReach reach = context.getTrackedReach();
         return switch (path) {
             case PositionPath.Linear(Vec3 end) -> PositionPath.of(context.toClient(end, reach));
             case PositionPath.Stepped(Vec3 _, List<PositionStep> steps) -> PositionPath.stepped(steps.stream()
@@ -199,29 +284,28 @@ final class ClientboundPacketRewriters {
 
     static Packet<?> moveVehicle(ClientboundMoveVehiclePacket packet, TranslationContext context) {
         PositionAndRotation movingTo = packet.movingTo();
-        Vec3 clientPos = context.toClient(movingTo.position(), context.trackedReach());
-        return new ClientboundMoveVehiclePacket(PositionAndRotation.of(clientPos, movingTo.yRot(), movingTo.xRot()));
-    }
-
-    private static PositionMoveRotation toClientChange(TranslationContext context, PositionMoveRotation change, Set<Relative> relatives) {
-        PacketReach reach = context.trackedReach();
-        Vec3 position = change.position();
-        Vec3 clientPos = relatives.contains(Relative.X) || relatives.contains(Relative.Z)
-                ? context.toClientRelative(position, relatives.contains(Relative.X), relatives.contains(Relative.Z), reach)
-                : context.toClient(position, reach);
-        return new PositionMoveRotation(clientPos, change.deltaMovement(), change.yRot(), change.xRot());
+        Vec3 clientPos = context.toClient(movingTo.position(), context.getTrackedReach());
+        float clientYaw = ClientPosition.orientationAt(context.fold(), clientPos).applyToYaw(movingTo.yRot());
+        return new ClientboundMoveVehiclePacket(PositionAndRotation.of(clientPos, clientYaw, movingTo.xRot()));
     }
 
     static ClientboundBlockUpdatePacket blockUpdate(ClientboundBlockUpdatePacket packet, TranslationContext context) {
-        return new ClientboundBlockUpdatePacket(context.toClient(packet.getPos()), packet.getBlockState());
+        BlockSeat seat = BlockSeat.of(context, packet.getPos());
+        return new ClientboundBlockUpdatePacket(seat.pos(), seat.orientation().applyToState(packet.getBlockState()));
     }
 
     static ClientboundSectionBlocksUpdatePacket sectionBlocksUpdate(ClientboundSectionBlocksUpdatePacket packet, TranslationContext context) {
-        return rewritePosition(
+        ChunkPos serverPos = ((SectionBlocksUpdatePacketAccessor) packet).exotic_worlds$getSectionPos().chunk();
+        ChunkPos clientPos = context.toClient(serverPos);
+        ClientboundSectionBlocksUpdatePacket seated = rewritePosition(
                 (sectionPacket, output) -> ((SectionBlocksUpdatePacketAccessor) sectionPacket).exotic_worlds$write(output),
                 SectionBlocksUpdatePacketAccessor::exotic_worlds$create,
                 SectionPos.STREAM_CODEC, packet, context,
-                section -> SectionPos.of(context.toClient(section.chunk()), section.y()));
+                section -> SectionPos.of(clientPos, section.y()));
+        SectionBlocksUpdatePacketAccessor changes = (SectionBlocksUpdatePacketAccessor) seated;
+        TurnedChunkData.turnSectionChanges(changes.exotic_worlds$getPositions(), changes.exotic_worlds$getStates(),
+                orientation(context, serverPos, clientPos));
+        return seated;
     }
 
     static ClientboundBlockEntityDataPacket blockEntityData(ClientboundBlockEntityDataPacket packet, TranslationContext context) {
@@ -230,7 +314,9 @@ final class ClientboundPacketRewriters {
     }
 
     static ClientboundAddTransientBlockPacket addTransientBlock(ClientboundAddTransientBlockPacket packet, TranslationContext context) {
-        return new ClientboundAddTransientBlockPacket(context.toClient(packet.getPos()), packet.getBlockState());
+        BlockSeat seat = BlockSeat.of(context, packet.getPos());
+        return new ClientboundAddTransientBlockPacket(
+                seat.pos(), seat.orientation().applyToState(packet.getBlockState()));
     }
 
     static ClientboundBlockDestructionPacket blockDestruction(ClientboundBlockDestructionPacket packet, TranslationContext context) {
@@ -239,33 +325,27 @@ final class ClientboundPacketRewriters {
     }
 
     static ClientboundLevelEventPacket levelEvent(ClientboundLevelEventPacket packet, TranslationContext context) {
+        BlockSeat seat = BlockSeat.of(context, packet.getPos());
         return new ClientboundLevelEventPacket(
-                packet.getType(), context.toClient(packet.getPos()), packet.getData(), packet.isGlobalEvent());
+                packet.getType(), seat.pos(),
+                EventDirections.turnedLevelEventData(packet.getType(), packet.getData(), seat.orientation()),
+                packet.isGlobalEvent());
     }
 
     static ClientboundSetEntityDataPacket setEntityData(ClientboundSetEntityDataPacket packet, TranslationContext context) {
         List<SynchedEntityData.DataValue<?>> items = packet.packedItems();
-        Supplier<Vec3> anchor = Suppliers.memoize(() -> resolveEntityAnchor(packet.id(), context));
-        FoldedValue.Leaves leaves = FoldedValue.towardLeaves(context, anchor);
-        UnaryOperator<Object> fallback = particleFold(context, anchor);
+        Supplier<EntitySeat> seat = Suppliers.memoize(() -> EntitySeat.ofEntity(context, packet.id()));
+        FoldedValue.Leaves leaves = FoldedValue.towardLeaves(context, () -> seat.get().position());
+        UnaryOperator<Object> fallback = seatedValueFold(context, seat);
         List<SynchedEntityData.DataValue<?>> translated = new ArrayList<>(items.size());
-        boolean changed = false;
+        boolean isChanged = false;
         for (SynchedEntityData.DataValue<?> item : items) {
             SynchedEntityData.DataValue<?> clientItem = toClientData(item, leaves, fallback, context);
-            changed |= clientItem != item;
+            isChanged |= clientItem != item;
             translated.add(clientItem);
         }
 
-        return changed ? new ClientboundSetEntityDataPacket(packet.id(), translated) : packet;
-    }
-
-    private static Vec3 resolveEntityAnchor(int entityId, TranslationContext context) {
-        Vec3 serverPosition = context.entityPosition().apply(entityId);
-        if (serverPosition == null) {
-            return context.clientPosition().anchor(0.0);
-        }
-
-        return context.toClient(serverPosition, context.trackedReach());
+        return isChanged ? new ClientboundSetEntityDataPacket(packet.id(), translated) : packet;
     }
 
     private static SynchedEntityData.DataValue<?> toClientData(SynchedEntityData.DataValue<?> item,
@@ -279,10 +359,12 @@ final class ClientboundPacketRewriters {
         return clientValue == value ? item : withValue(item, clientValue);
     }
 
-    private static UnaryOperator<Object> particleFold(TranslationContext context, Supplier<Vec3> anchor) {
-        return value -> value instanceof ParticleOptions particle
-                ? toClientParticle(context, particle, anchor.get())
-                : value;
+    private static UnaryOperator<Object> seatedValueFold(TranslationContext context, Supplier<EntitySeat> seat) {
+        return value -> switch (value) {
+            case ParticleOptions particle -> toClientParticle(context, particle, seat.get().position());
+            case Direction face -> seat.get().orientation().applyToFace(face);
+            default -> value;
+        };
     }
 
     @SuppressWarnings({"rawtypes", "unchecked"})
@@ -291,8 +373,11 @@ final class ClientboundPacketRewriters {
     }
 
     static ClientboundBlockEventPacket blockEvent(ClientboundBlockEventPacket packet, TranslationContext context) {
+        BlockSeat seat = BlockSeat.of(context, packet.getPos());
         return new ClientboundBlockEventPacket(
-                context.toClient(packet.getPos()), packet.getBlock(), packet.getB0(), packet.getB1());
+                seat.pos(), packet.getBlock(), packet.getB0(),
+                EventDirections.turnedBlockEventData(
+                        packet.getBlock(), packet.getB0(), packet.getB1(), seat.orientation()));
     }
 
     static ClientboundOpenSignEditorPacket openSignEditor(ClientboundOpenSignEditorPacket packet, TranslationContext context) {
@@ -324,11 +409,21 @@ final class ClientboundPacketRewriters {
     static ClientboundExplodePacket explode(ClientboundExplodePacket packet, TranslationContext context) {
         Vec3 clientCenter = context.toClientMeasured(packet.center(), EXPLOSION_KIND);
         return new ClientboundExplodePacket(
-                clientCenter, packet.radius(), packet.blockCount(), packet.playerKnockback(),
+                clientCenter, packet.radius(), packet.blockCount(), toClientKnockback(context, packet.playerKnockback()),
                 toClientParticle(context, packet.explosionParticle(), clientCenter),
                 packet.explosionSound(),
                 toClientBlockParticles(context, packet.blockParticles(), clientCenter),
                 packet.playSound());
+    }
+
+    private static Optional<Vec3> toClientKnockback(TranslationContext context, Optional<Vec3> knockback) {
+        ClientPosition clientPosition = context.clientPosition();
+        if (knockback.isEmpty() || context.fold().isPreservingLocalIndices()
+                || !clientPosition.isForDimension(context.dimension())) {
+            return knockback;
+        }
+
+        return knockback.map(clientPosition.orientation(context.fold())::applyToDelta);
     }
 
     private static ParticleOptions toClientParticle(TranslationContext context, ParticleOptions particle,
@@ -347,7 +442,8 @@ final class ClientboundPacketRewriters {
                         new BlockPositionSource(clientDestination), vibration.getArrivalInTicks());
             }
             default -> {
-                ParticleRewriter<ParticleOptions> particleRewriter = PacketTranslator.particleRewriterFor(particle);
+                PacketTranslator.ParticleTranslation<ParticleOptions> particleRewriter =
+                        PacketTranslator.getParticleRewriter(particle);
                 yield particleRewriter == null ? particle : particleRewriter.rewrite(particle, context, clientOrigin);
             }
         };
@@ -357,16 +453,16 @@ final class ClientboundPacketRewriters {
             WeightedList<ExplosionParticleInfo> blockParticles, Vec3 clientOrigin) {
         List<Weighted<ExplosionParticleInfo>> entries = blockParticles.unwrap();
         List<Weighted<ExplosionParticleInfo>> translated = new ArrayList<>(entries.size());
-        boolean changed = false;
+        boolean isChanged = false;
         for (Weighted<ExplosionParticleInfo> entry : entries) {
             ExplosionParticleInfo info = entry.value();
             ParticleOptions particle = toClientParticle(context, info.particle(), clientOrigin);
-            changed |= particle != info.particle();
+            isChanged |= particle != info.particle();
             translated.add(particle == info.particle() ? entry
                     : new Weighted<>(new ExplosionParticleInfo(particle, info.scaling(), info.speed()), entry.weight()));
         }
 
-        return changed ? WeightedList.of(translated) : blockParticles;
+        return isChanged ? WeightedList.of(translated) : blockParticles;
     }
 
     static ClientboundTrackedWaypointPacket trackedWaypoint(ClientboundTrackedWaypointPacket packet, TranslationContext context) {
@@ -411,7 +507,7 @@ final class ClientboundPacketRewriters {
 
     static <T extends Packet<?>> Packet<?> borderCenter(T packet, TranslationContext context,
             BiConsumer<T, RegistryFriendlyByteBuf> writer, Function<FriendlyByteBuf, T> reader) {
-        if (!context.clientPosition().describes(context.dimension())) {
+        if (!context.clientPosition().isForDimension(context.dimension())) {
             return packet;
         }
 
@@ -454,18 +550,21 @@ final class ClientboundPacketRewriters {
             return packet;
         }
 
-        PacketReach reach = context.trackedReach();
+        PacketReach reach = context.getTrackedReach();
         return new ClientboundDamageEventPacket(
                 packet.entityId(), packet.sourceType(), packet.sourceCauseId(), packet.sourceDirectId(),
                 packet.sourcePosition().map(position -> context.toClient(position, reach)));
     }
 
     static ClientboundMoveMinecartPacket moveMinecart(ClientboundMoveMinecartPacket packet, TranslationContext context) {
-        PacketReach reach = context.trackedReach();
+        PacketReach reach = context.getTrackedReach();
         List<NewMinecartBehavior.MinecartStep> translated = new ArrayList<>(packet.lerpSteps().size());
         for (NewMinecartBehavior.MinecartStep step : packet.lerpSteps()) {
+            Vec3 clientPos = context.toClient(step.position(), reach);
+            FoldOrientation orientation = EntitySeat.orientationAt(context, clientPos);
             translated.add(new NewMinecartBehavior.MinecartStep(
-                    context.toClient(step.position(), reach), step.movement(), step.yRot(), step.xRot(), step.weight()));
+                    clientPos, orientation.applyToDelta(step.movement()), orientation.applyToYaw(step.yRot()),
+                    step.xRot(), step.weight()));
         }
 
         return new ClientboundMoveMinecartPacket(packet.entityId(), translated);
@@ -473,9 +572,15 @@ final class ClientboundPacketRewriters {
 
     static ClientboundChunksBiomesPacket chunkBiomes(ClientboundChunksBiomesPacket packet, TranslationContext context) {
         return new ClientboundChunksBiomesPacket(packet.chunkBiomeData().stream()
-                .map(data -> new ClientboundChunksBiomesPacket.ChunkBiomeData(
-                        context.toClient(data.pos()), data.buffer()))
+                .map(data -> chunkBiomeData(data, context))
                 .toList());
+    }
+
+    private static ClientboundChunksBiomesPacket.ChunkBiomeData chunkBiomeData(
+            ClientboundChunksBiomesPacket.ChunkBiomeData data, TranslationContext context) {
+        ChunkPos clientPos = context.toClient(data.pos());
+        return new ClientboundChunksBiomesPacket.ChunkBiomeData(clientPos, TurnedChunkData.turnedBiomes(
+                data.buffer(), orientation(context, data.pos(), clientPos), () -> buffer(context).registryAccess()));
     }
 
     private static <T, P> T rewritePosition(BiConsumer<T, RegistryFriendlyByteBuf> writer,

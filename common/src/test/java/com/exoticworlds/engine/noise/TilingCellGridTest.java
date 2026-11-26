@@ -6,23 +6,23 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
-import com.exoticworlds.api.v1.option.GenerationOptions;
-import com.exoticworlds.core.DeckGroupFold;
-import com.exoticworlds.core.FlatShape;
-import com.exoticworlds.core.ShapeFixtures;
-import com.exoticworlds.core.TranslationLattice;
-import com.exoticworlds.core.WorldFold;
-import com.exoticworlds.core.WorldFolds;
-import com.exoticworlds.core.WorldLoopBounds;
-import com.exoticworlds.core.WorldLoopBounds.AxisBounds;
-import com.exoticworlds.core.WrapDomain;
+import com.exoticworlds.core.fold.deck.DeckGroupFold;
+import com.exoticworlds.core.world.FlatShape;
+import com.exoticworlds.core.world.ShapeFixtures;
+import com.exoticworlds.core.option.ShapeOptions;
+import com.exoticworlds.core.fold.TranslationLattice;
+import com.exoticworlds.core.fold.WorldFold;
+import com.exoticworlds.core.fold.WorldFolds;
+import com.exoticworlds.core.world.WorldLoopBounds;
+import com.exoticworlds.core.world.WorldLoopBounds.AxisBounds;
+import com.exoticworlds.core.fold.WrapDomain;
 import com.exoticworlds.shape.WorldLoopPresets;
 
 import net.minecraft.core.Direction;
 
 class TilingCellGridTest {
-    private static final int TYPE_CELL_WIDTH = NoiseConstants.AQUIFER_FLUID_TYPE_CELL_WIDTH;
-    private static final int LEVEL_CELL_WIDTH = NoiseConstants.AQUIFER_FLUID_LEVEL_CELL_WIDTH;
+    private static final int TYPE_CELL_WIDTH_BLOCKS = NoiseConstants.AQUIFER_FLUID_TYPE_CELL_WIDTH_BLOCKS;
+    private static final int LEVEL_CELL_WIDTH_BLOCKS = NoiseConstants.AQUIFER_FLUID_LEVEL_CELL_WIDTH_BLOCKS;
 
     private static final int SWEEP_MIN_CHUNKS = 16;
     private static final int SWEEP_MAX_CHUNKS = 2000;
@@ -32,12 +32,12 @@ class TilingCellGridTest {
     // Coprime with both vanilla cell widths, so a sweep of it lands on every residue of either grid.
     private static final int PERIODICITY_STEP = 7;
 
-    private static TilingCellGrid grid(int chunkWidth, int vanillaCellWidth) {
-        return TilingCellGrid.of(torus(chunkWidth), vanillaCellWidth);
+    private static TilingCellGrid grid(int widthChunks, int vanillaCellWidthBlocks) {
+        return TilingCellGrid.of(torus(widthChunks), vanillaCellWidthBlocks);
     }
 
-    private static WorldFold torus(int chunkWidth) {
-        return WorldFolds.of(ShapeFixtures.torus(WorldLoopBounds.ofWidth(chunkWidth)));
+    private static WorldFold torus(int widthChunks) {
+        return WorldFolds.of(ShapeFixtures.torus(WorldLoopBounds.ofWidth(widthChunks)));
     }
 
     @Nested
@@ -45,30 +45,30 @@ class TilingCellGridTest {
         @Test
         void everyPresetKeepsBothVanillaCellWidths() {
             for (WorldLoopPresets preset : WorldLoopPresets.values()) {
-                for (int chunkWidth : new int[] {
-                        preset.chunkWidth(),
-                        preset.chunkWidth() / preset.netherScale(),
-                        preset.endChunkWidth()}) {
-                    String world = preset.id() + " at " + chunkWidth + " chunks";
-                    assertEquals(TYPE_CELL_WIDTH, grid(chunkWidth, TYPE_CELL_WIDTH).xCellWidth(), world);
-                    assertEquals(LEVEL_CELL_WIDTH, grid(chunkWidth, LEVEL_CELL_WIDTH).xCellWidth(), world);
+                for (int widthChunks : new int[] {
+                        preset.getWidthChunks(),
+                        preset.getWidthChunks() / preset.getNetherScale(),
+                        preset.getEndWidthChunks()}) {
+                    String world = preset.getId() + " at " + widthChunks + " chunks";
+                    assertEquals(TYPE_CELL_WIDTH_BLOCKS, grid(widthChunks, TYPE_CELL_WIDTH_BLOCKS).xCellWidthBlocks(), world);
+                    assertEquals(LEVEL_CELL_WIDTH_BLOCKS, grid(widthChunks, LEVEL_CELL_WIDTH_BLOCKS).xCellWidthBlocks(), world);
                 }
             }
         }
 
         @Test
         void everyWidthOfWholeFourChunksKeepsTheSixtyFourBlockGrid() {
-            for (int chunkWidth = SWEEP_MIN_CHUNKS; chunkWidth <= SWEEP_MAX_CHUNKS; chunkWidth += 4) {
-                assertEquals(TYPE_CELL_WIDTH, grid(chunkWidth, TYPE_CELL_WIDTH).xCellWidth(),
-                        "in a " + chunkWidth + "-chunk world");
+            for (int widthChunks = SWEEP_MIN_CHUNKS; widthChunks <= SWEEP_MAX_CHUNKS; widthChunks += 4) {
+                assertEquals(TYPE_CELL_WIDTH_BLOCKS, grid(widthChunks, TYPE_CELL_WIDTH_BLOCKS).xCellWidthBlocks(),
+                        "in a " + widthChunks + "-chunk world");
             }
         }
 
         @Test
         void everyWidthKeepsTheSixteenBlockGrid() {
-            for (int chunkWidth = SWEEP_MIN_CHUNKS; chunkWidth <= SWEEP_MAX_CHUNKS; chunkWidth++) {
-                assertEquals(LEVEL_CELL_WIDTH, grid(chunkWidth, LEVEL_CELL_WIDTH).xCellWidth(),
-                        "in a " + chunkWidth + "-chunk world");
+            for (int widthChunks = SWEEP_MIN_CHUNKS; widthChunks <= SWEEP_MAX_CHUNKS; widthChunks++) {
+                assertEquals(LEVEL_CELL_WIDTH_BLOCKS, grid(widthChunks, LEVEL_CELL_WIDTH_BLOCKS).xCellWidthBlocks(),
+                        "in a " + widthChunks + "-chunk world");
             }
         }
 
@@ -76,10 +76,10 @@ class TilingCellGridTest {
         void anUnboundedAxisKeepsTheVanillaCellWidth() {
             WorldFold fold = WorldFolds.of(ShapeFixtures.cylinder(
                     new WorldLoopBounds(new AxisBounds.Looped(-9, 9), AxisBounds.Unbounded.INSTANCE)));
-            TilingCellGrid grid = TilingCellGrid.of(fold, TYPE_CELL_WIDTH);
+            TilingCellGrid grid = TilingCellGrid.of(fold, TYPE_CELL_WIDTH_BLOCKS);
 
-            assertEquals(72, grid.xCellWidth());
-            assertEquals(TYPE_CELL_WIDTH, grid.zCellWidth());
+            assertEquals(72, grid.xCellWidthBlocks());
+            assertEquals(TYPE_CELL_WIDTH_BLOCKS, grid.zCellWidthBlocks());
         }
     }
 
@@ -87,25 +87,25 @@ class TilingCellGridTest {
     class NearestDivisor {
         @Test
         void eighteenChunksLandsOnSeventyTwoBlocks() {
-            assertEquals(72, grid(18, TYPE_CELL_WIDTH).xCellWidth());
+            assertEquals(72, grid(18, TYPE_CELL_WIDTH_BLOCKS).xCellWidthBlocks());
         }
 
         @Test
         void aPrimeMultipleOfAChunkTakesTheNearestDivisorItHas() {
-            assertEquals(101, grid(101, TYPE_CELL_WIDTH).xCellWidth());
+            assertEquals(101, grid(101, TYPE_CELL_WIDTH_BLOCKS).xCellWidthBlocks());
         }
 
         @Test
         void anExactTieTakesTheFinerGrid() {
-            assertEquals(48, grid(582, TYPE_CELL_WIDTH).xCellWidth());
+            assertEquals(48, grid(582, TYPE_CELL_WIDTH_BLOCKS).xCellWidthBlocks());
         }
 
         @Test
         void theCellWidthDividesTheAxisWidthOnEveryWidth() {
-            for (int chunkWidth = SWEEP_MIN_CHUNKS; chunkWidth <= SWEEP_MAX_CHUNKS; chunkWidth++) {
-                int width = chunkWidth * 16;
-                assertEquals(0, width % grid(chunkWidth, TYPE_CELL_WIDTH).xCellWidth(),
-                        "in a " + chunkWidth + "-chunk world");
+            for (int widthChunks = SWEEP_MIN_CHUNKS; widthChunks <= SWEEP_MAX_CHUNKS; widthChunks++) {
+                int widthBlocks = widthChunks * 16;
+                assertEquals(0, widthBlocks % grid(widthChunks, TYPE_CELL_WIDTH_BLOCKS).xCellWidthBlocks(),
+                        "in a " + widthChunks + "-chunk world");
             }
         }
 
@@ -113,10 +113,10 @@ class TilingCellGridTest {
         void eachAxisTakesItsOwnWidth() {
             WorldFold fold = WorldFolds.of(ShapeFixtures.torus(
                     new WorldLoopBounds(new AxisBounds.Looped(-9, 9), new AxisBounds.Looped(-16, 16))));
-            TilingCellGrid grid = TilingCellGrid.of(fold, TYPE_CELL_WIDTH);
+            TilingCellGrid grid = TilingCellGrid.of(fold, TYPE_CELL_WIDTH_BLOCKS);
 
-            assertEquals(72, grid.xCellWidth());
-            assertEquals(TYPE_CELL_WIDTH, grid.zCellWidth());
+            assertEquals(72, grid.xCellWidthBlocks());
+            assertEquals(TYPE_CELL_WIDTH_BLOCKS, grid.zCellWidthBlocks());
         }
     }
 
@@ -124,42 +124,42 @@ class TilingCellGridTest {
     class Periodicity {
         @Test
         void theCellOriginIsTheSameAWorldWidthAway() {
-            for (int chunkWidth : PERIODICITY_CHUNK_WIDTHS) {
-                assertPeriodic(chunkWidth, TYPE_CELL_WIDTH);
-                assertPeriodic(chunkWidth, LEVEL_CELL_WIDTH);
+            for (int widthChunks : PERIODICITY_CHUNK_WIDTHS) {
+                assertPeriodic(widthChunks, TYPE_CELL_WIDTH_BLOCKS);
+                assertPeriodic(widthChunks, LEVEL_CELL_WIDTH_BLOCKS);
             }
         }
 
         @Test
         void theVanillaCellWidthIsNotPeriodicOnEighteenChunks() {
             WorldFold fold = torus(18);
-            WrapDomain domain = fold.blockDomain(Direction.Axis.X);
-            int width = domain.domainLength;
+            WrapDomain domain = fold.getBlockDomain(Direction.Axis.X);
+            int widthBlocks = domain.domainLength;
             boolean differs = false;
 
             for (int x = domain.lowerBound; x < domain.upperBound && !differs; x++) {
-                differs = vanillaCellOrigin(domain, x) != vanillaCellOrigin(domain, x + width);
+                differs = vanillaCellOrigin(domain, x) != vanillaCellOrigin(domain, x + widthBlocks);
             }
 
             assertTrue(differs, "the 64-block grid must break a lap away, or the periodicity test cannot go red");
         }
 
-        private void assertPeriodic(int chunkWidth, int vanillaCellWidth) {
-            WorldFold fold = torus(chunkWidth);
-            TilingCellGrid grid = TilingCellGrid.of(fold, vanillaCellWidth);
-            WrapDomain domain = fold.blockDomain(Direction.Axis.X);
-            int width = domain.domainLength;
+        private void assertPeriodic(int widthChunks, int vanillaCellWidthBlocks) {
+            WorldFold fold = torus(widthChunks);
+            TilingCellGrid grid = TilingCellGrid.of(fold, vanillaCellWidthBlocks);
+            WrapDomain domain = fold.getBlockDomain(Direction.Axis.X);
+            int widthBlocks = domain.domainLength;
 
-            for (int x = domain.lowerBound - width; x < domain.upperBound + width; x += PERIODICITY_STEP) {
-                String at = "at x=" + x + " in a " + chunkWidth + "-chunk world on a "
-                        + vanillaCellWidth + "-block vanilla grid";
-                assertEquals(domain.wrap(grid.cellOriginX(x, x)), domain.wrap(grid.cellOriginX(x + width, x)), at);
-                assertEquals(domain.wrap(grid.cellOriginZ(x)), domain.wrap(grid.cellOriginZ(x + width)), at);
+            for (int x = domain.lowerBound - widthBlocks; x < domain.upperBound + widthBlocks; x += PERIODICITY_STEP) {
+                String at = "at x=" + x + " in a " + widthChunks + "-chunk world on a "
+                        + vanillaCellWidthBlocks + "-block vanilla grid";
+                assertEquals(domain.wrap(grid.cellOriginX(x, x)), domain.wrap(grid.cellOriginX(x + widthBlocks, x)), at);
+                assertEquals(domain.wrap(grid.cellOriginZ(x)), domain.wrap(grid.cellOriginZ(x + widthBlocks)), at);
             }
         }
 
         private int vanillaCellOrigin(WrapDomain domain, int blockCoord) {
-            return domain.wrap(Math.floorDiv(blockCoord, TYPE_CELL_WIDTH) * TYPE_CELL_WIDTH);
+            return domain.wrap(Math.floorDiv(blockCoord, TYPE_CELL_WIDTH_BLOCKS) * TYPE_CELL_WIDTH_BLOCKS);
         }
     }
 
@@ -171,8 +171,8 @@ class TilingCellGridTest {
         void anOddChunkSkewKeepsBothVanillaCellWidths() {
             for (int skewChunks : SKEW_CHUNKS) {
                 WorldFold fold = skewed(skewChunks);
-                assertEquals(TYPE_CELL_WIDTH, TilingCellGrid.of(fold, TYPE_CELL_WIDTH).xCellWidth());
-                assertEquals(LEVEL_CELL_WIDTH, TilingCellGrid.of(fold, LEVEL_CELL_WIDTH).xCellWidth());
+                assertEquals(TYPE_CELL_WIDTH_BLOCKS, TilingCellGrid.of(fold, TYPE_CELL_WIDTH_BLOCKS).xCellWidthBlocks());
+                assertEquals(LEVEL_CELL_WIDTH_BLOCKS, TilingCellGrid.of(fold, LEVEL_CELL_WIDTH_BLOCKS).xCellWidthBlocks());
             }
         }
 
@@ -180,19 +180,19 @@ class TilingCellGridTest {
         void aCellAndItsDeckCopyFoldOntoOneOrigin() {
             for (int skewChunks : SKEW_CHUNKS) {
                 WorldFold fold = skewed(skewChunks);
-                TranslationLattice lattice = fold.blockLattice();
-                int width = lattice.x().domainLength;
-                int height = lattice.z().domainLength;
-                int skew = lattice.skew();
-                for (int vanillaCellWidth : new int[] {TYPE_CELL_WIDTH, LEVEL_CELL_WIDTH}) {
-                    TilingCellGrid grid = TilingCellGrid.of(fold, vanillaCellWidth);
-                    for (int x = lattice.x().lowerBound - width; x < lattice.x().upperBound; x += PERIODICITY_STEP) {
-                        for (int z = lattice.z().lowerBound - height; z < lattice.z().upperBound;
+                TranslationLattice lattice = fold.getBlockLattice();
+                int widthBlocks = lattice.getX().domainLength;
+                int heightBlocks = lattice.getZ().domainLength;
+                int skewBlocks = lattice.getSkew();
+                for (int vanillaCellWidthBlocks : new int[] {TYPE_CELL_WIDTH_BLOCKS, LEVEL_CELL_WIDTH_BLOCKS}) {
+                    TilingCellGrid grid = TilingCellGrid.of(fold, vanillaCellWidthBlocks);
+                    for (int x = lattice.getX().lowerBound - widthBlocks; x < lattice.getX().upperBound; x += PERIODICITY_STEP) {
+                        for (int z = lattice.getZ().lowerBound - heightBlocks; z < lattice.getZ().upperBound;
                                 z += PERIODICITY_STEP * 5) {
                             String at = "at " + x + ", " + z + " under a " + skewChunks + "-chunk skew on a "
-                                    + vanillaCellWidth + "-block vanilla grid";
-                            assertSameFoldedOrigin(lattice, grid, x, z, x + width, z, at);
-                            assertSameFoldedOrigin(lattice, grid, x, z, x + skew, z + height, at);
+                                    + vanillaCellWidthBlocks + "-block vanilla grid";
+                            assertSameFoldedOrigin(lattice, grid, x, z, x + widthBlocks, z, at);
+                            assertSameFoldedOrigin(lattice, grid, x, z, x + skewBlocks, z + heightBlocks, at);
                         }
                     }
                 }
@@ -211,7 +211,7 @@ class TilingCellGridTest {
 
         private WorldFold skewed(int skewChunks) {
             return new DeckGroupFold(FlatShape.latticeTorus(WorldLoopBounds.ofWidth(32), skewChunks),
-                    GenerationOptions.DEFAULT);
+                    ShapeOptions.DEFAULT);
         }
     }
 }

@@ -3,9 +3,14 @@ package com.exoticworlds.engine.noise;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.exoticworlds.accessors.CoastLiftCache;
-import com.exoticworlds.core.WorldFold;
+import java.util.List;
 
+import com.exoticworlds.core.feature.NoiseOffsets;
+import com.exoticworlds.core.fold.WorldFold;
+import com.exoticworlds.engine.noise.periodic.LapFloor;
+import com.exoticworlds.engine.noise.periodic.PeriodicNoiseSampler;
+
+import net.minecraft.world.level.dimension.LevelStem;
 import net.minecraft.core.Holder;
 import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
@@ -58,17 +63,6 @@ final class BlendedNoiseFixture {
     private record FoldedKey(Params params, WorldFold fold) {
     }
 
-    private static final CoastLiftCache NO_LIFT = new CoastLiftCache() {
-        @Override
-        public double exotic_worlds$coastLift() {
-            return 0.0;
-        }
-
-        @Override
-        public void exotic_worlds$coastLift(double lift) {
-        }
-    };
-
     static double vanilla(Replica replica, Params params, double blockX, double blockY, double blockZ) {
         return replica.samplers().computeIfAbsent(params, key -> params.noise().compileSampler(replica.random()))
                 .sampleValue(SamplerContext.EMPTY_UNCACHED, Mth.floor(blockX), Mth.floor(blockY), Mth.floor(blockZ));
@@ -77,8 +71,8 @@ final class BlendedNoiseFixture {
     static double folded(Replica replica, Params params, WorldFold fold,
             double blockX, double blockY, double blockZ) {
         return replica.samplers().computeIfAbsent(new FoldedKey(params, fold), key -> FoldedSamplers.blended(
-                        new FoldedCompileContext(contextOf(replica), fold, NO_LIFT,
-                                NoiseScaleLadder.NONE), params.noise()))
+                        new FoldedCompileContext(contextOf(replica), fold, LevelStem.OVERWORLD, List.of(), new NoiseOffsets(),
+                                NoiseScaleLadder.NONE, NoiseRouterFields.NONE), params.noise()))
                 .sampleValue(SamplerContext.EMPTY_UNCACHED, Mth.floor(blockX), Mth.floor(blockY), Mth.floor(blockZ));
     }
 
@@ -111,7 +105,7 @@ final class BlendedNoiseFixture {
     static double sample(byte[] permutations, double xOffset, double yOffset, double zOffset,
             WorldFold fold, double scale, double x, double y, double z, double verticalShare, LapFloor floor) {
         return PeriodicNoiseSampler.sample(PeriodicNoiseSampler.lattice(permutations, xOffset, yOffset, zOffset,
-                PeriodicNoiseSampler.NO_FUDGE, fold, frameOf(verticalShare), scale, floor), x, y, z, y);
+                PerlinMath.NO_FUDGE, fold, frameOf(verticalShare), scale, floor), x, y, z, y);
     }
 
     private static NoiseFrame frameOf(double verticalShare) {

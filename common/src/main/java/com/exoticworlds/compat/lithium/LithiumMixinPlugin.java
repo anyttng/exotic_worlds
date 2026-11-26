@@ -47,16 +47,16 @@ public class LithiumMixinPlugin extends ModPresenceGatePlugin {
 
     @Override
     public boolean shouldApplyMixin(String targetClassName, String mixinClassName) {
-        if (STORE_KEY_GATE.covers(mixinClassName)) {
-            return LithiumGameEventDispatch.applies();
+        if (STORE_KEY_GATE.isCovering(mixinClassName)) {
+            return LithiumGameEventDispatch.isApplied();
         }
 
-        if (CLOSEST_BATCH_GATE.covers(mixinClassName)) {
-            return LithiumPoiSearch.applies();
+        if (CLOSEST_BATCH_GATE.isCovering(mixinClassName)) {
+            return LithiumPoiSearch.isApplied();
         }
 
-        if (RETRY_GATE.covers(mixinClassName)) {
-            return LithiumPoiSearch.retryApplies();
+        if (RETRY_GATE.isCovering(mixinClassName)) {
+            return LithiumPoiSearch.isRetryApplied();
         }
 
         return super.shouldApplyMixin(targetClassName, mixinClassName);

@@ -12,14 +12,14 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import com.exoticworlds.api.v1.ToroidalShape;
-import com.exoticworlds.compat.map.ClientShapes;
+import com.exoticworlds.compat.map.AtlasPointSeat;
+import com.exoticworlds.compat.map.AtlasSeamLines;
+import com.exoticworlds.compat.map.AtlasTileCopies;
+import com.exoticworlds.compat.map.AtlasTileMemo;
+import com.exoticworlds.compat.map.ClientFolds;
 import com.exoticworlds.compat.map.MapCopies;
-import com.exoticworlds.compat.ultimatemapatlases.AtlasPointSeat;
-import com.exoticworlds.compat.ultimatemapatlases.AtlasSeamLines;
-import com.exoticworlds.compat.ultimatemapatlases.AtlasTileCopies;
-import com.exoticworlds.compat.ultimatemapatlases.AtlasTileMemo;
 import com.exoticworlds.compat.ultimatemapatlases.BrowsedDimension;
+import com.exoticworlds.core.fold.WorldFold;
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
@@ -53,15 +53,16 @@ public abstract class AbstractAtlasWidgetMixin {
 
     @Shadow
     private void drawMap(Player player, GuiGraphicsExtractor graphics, List<Pair<Integer, Integer>> normalBorders,
-            List<Pair<Integer, Integer>> selectedBorders, int ix, int iy, MapDataHolder state, boolean drawPlayerIcons,
-            int light, @Nullable MapItemSavedData selectedData, List<Runnable> pendingDecorations) {
+            List<Pair<Integer, Integer>> selectedBorders, int ix, int iy, MapDataHolder state,
+            boolean shouldDrawPlayerIcons, int light, @Nullable MapItemSavedData selectedData,
+            List<Runnable> pendingDecorations) {
     }
 
     @Unique
-    private @Nullable ToroidalShape exotic_worlds$copyShape;
+    private @Nullable WorldFold exotic_worlds$copyFold;
 
     @Unique
-    private @Nullable ToroidalShape exotic_worlds$seamShape;
+    private @Nullable WorldFold exotic_worlds$seamFold;
 
     @Unique
     private final AtlasTileMemo exotic_worlds$tileMemo = new AtlasTileMemo();
@@ -73,15 +74,15 @@ public abstract class AbstractAtlasWidgetMixin {
     private int exotic_worlds$requestZ;
 
     @Inject(method = "drawAtlas", at = @At("HEAD"))
-    private void exotic_worlds$resolveShape(CallbackInfo ci, @Local(argsOnly = true) Player player) {
+    private void exotic_worlds$resolveFold(CallbackInfo ci, @Local(argsOnly = true) Player player) {
         if ((Object) this instanceof BrowsedDimension browsed) {
-            ToroidalShape shape = ClientShapes.of(browsed.exotic_worlds$browsedDimension());
-            MapCopies copies = MapCopies.current();
-            this.exotic_worlds$copyShape = copies == MapCopies.SINGLE ? null : shape;
-            this.exotic_worlds$seamShape = copies.drawsSeamLines() ? shape : null;
+            WorldFold fold = ClientFolds.of(browsed.exotic_worlds$getBrowsedDimension());
+            MapCopies copies = MapCopies.getCurrent();
+            this.exotic_worlds$copyFold = copies == MapCopies.SINGLE ? null : fold;
+            this.exotic_worlds$seamFold = copies.isDrawingSeamLines() ? fold : null;
         } else {
-            this.exotic_worlds$copyShape = ClientShapes.of(player.level());
-            this.exotic_worlds$seamShape = null;
+            this.exotic_worlds$copyFold = ClientFolds.of(player.level());
+            this.exotic_worlds$seamFold = null;
         }
     }
 
@@ -94,7 +95,7 @@ public abstract class AbstractAtlasWidgetMixin {
             @Local(argsOnly = true, ordinal = 4) int light, @Local(argsOnly = true) @Nullable MapItemSavedData selectedKey,
             @Local ColumnPos centerMap, @Local(ordinal = 0) List<Runnable> pendingDecorations) {
         AbstractAtlasWidget widget = (AbstractAtlasWidget) (Object) this;
-        List<AtlasTileCopies.Placed<MapDataHolder>> placed = AtlasTileCopies.shifted(this.exotic_worlds$copyShape,
+        List<AtlasTileCopies.Placed<MapDataHolder>> placed = AtlasTileCopies.shifted(this.exotic_worlds$copyFold,
                 new AtlasTileCopies.TileCenter(centerMap.x(), centerMap.z()), Mth.ceil(zoomLevelDim),
                 this.mapBlocksSize, widget::getMapWithCenter);
         if (placed.isEmpty()) {
@@ -108,11 +109,12 @@ public abstract class AbstractAtlasWidgetMixin {
             this.exotic_worlds$requestX = copy.at().x();
             this.exotic_worlds$requestZ = copy.at().z();
             MapDataHolder state = copy.map();
-            boolean drawPlayerIcons = !this.drawBigPlayerMarker && state.data.dimension.equals(player.level().dimension());
+            boolean shouldDrawPlayerIcons = !this.drawBigPlayerMarker
+                    && state.data.dimension.equals(player.level().dimension());
             pose.pushMatrix();
             pose.translate((copy.at().x() - centerMap.x()) / blocksPerPixel,
                     (copy.at().z() - centerMap.z()) / blocksPerPixel);
-            this.drawMap(player, graphics, unframed, unframed, 0, 0, state, drawPlayerIcons, light, selectedKey,
+            this.drawMap(player, graphics, unframed, unframed, 0, 0, state, shouldDrawPlayerIcons, light, selectedKey,
                     pendingDecorations);
             pose.popMatrix();
             unframed.clear();
@@ -129,7 +131,7 @@ public abstract class AbstractAtlasWidgetMixin {
             Operation<MapDataHolder> original) {
         this.exotic_worlds$requestX = centerX;
         this.exotic_worlds$requestZ = centerZ;
-        for (AtlasTileCopies.TileCenter copy : this.exotic_worlds$tileMemo.copies(this.exotic_worlds$copyShape,
+        for (AtlasTileCopies.TileCenter copy : this.exotic_worlds$tileMemo.copies(this.exotic_worlds$copyFold,
                 centerX, centerZ, this.mapBlocksSize)) {
             @Nullable MapDataHolder map = original.call(widget, copy.x(), copy.z());
             if (map != null) {
@@ -146,8 +148,8 @@ public abstract class AbstractAtlasWidgetMixin {
                     target = "Lnet/minecraft/client/gui/GuiGraphicsExtractor;map(Lnet/minecraft/client/renderer/state/MapRenderState;)V",
                     shift = At.Shift.AFTER))
     private void exotic_worlds$drawSeamLines(CallbackInfo ci, @Local(argsOnly = true) GuiGraphicsExtractor graphics) {
-        if (this.exotic_worlds$seamShape != null) {
-            AtlasSeamLines.draw(graphics, this.exotic_worlds$tileMemo.seamLines(this.exotic_worlds$seamShape,
+        if (this.exotic_worlds$seamFold != null) {
+            AtlasSeamLines.draw(graphics, this.exotic_worlds$tileMemo.seamLines(this.exotic_worlds$seamFold,
                     this.exotic_worlds$requestX, this.exotic_worlds$requestZ, this.mapBlocksSize));
         }
     }

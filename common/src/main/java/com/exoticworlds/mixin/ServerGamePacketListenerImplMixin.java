@@ -10,11 +10,12 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import com.exoticworlds.accessors.ClientPositionHolder;
 import com.exoticworlds.accessors.MoveCheckpoints;
-import com.exoticworlds.core.WorldFold;
-import com.exoticworlds.core.WorldLoopAttachments;
+import com.exoticworlds.core.fold.WorldFold;
+import com.exoticworlds.core.fold.WorldLoopAttachments;
 import com.exoticworlds.engine.seam.ClientPosition;
 import com.exoticworlds.engine.seam.SeamMove;
 import com.exoticworlds.engine.seam.SeamTeleport;
+import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.llamalad7.mixinextras.sugar.Local;
@@ -24,6 +25,7 @@ import com.llamalad7.mixinextras.sugar.ref.LocalRef;
 import java.util.Set;
 
 import net.minecraft.network.Connection;
+import net.minecraft.network.protocol.game.ServerboundMovePlayerPacket;
 import net.minecraft.network.protocol.game.ServerboundMoveVehiclePacket;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
@@ -54,7 +56,7 @@ public class ServerGamePacketListenerImplMixin implements ClientPositionHolder, 
     private final ClientPosition exotic_worlds$clientPosition = new ClientPosition();
 
     @Override
-    public ClientPosition exotic_worlds$clientPosition() {
+    public ClientPosition exotic_worlds$getClientPosition() {
         return this.exotic_worlds$clientPosition;
     }
 
@@ -145,7 +147,7 @@ public class ServerGamePacketListenerImplMixin implements ClientPositionHolder, 
             @Local(argsOnly = true, ordinal = 2) double requestedZ,
             @Share("continuous") LocalRef<Vec3> continuous) {
         double clampedX = original.call(requestedX);
-        WorldFold fold = WorldLoopAttachments.wrappedFoldOf(this.player.level());
+        WorldFold fold = WorldLoopAttachments.getWrappedFold(this.player.level());
         if (fold == null) {
             return clampedX;
         }
@@ -183,7 +185,7 @@ public class ServerGamePacketListenerImplMixin implements ClientPositionHolder, 
             @Local(argsOnly = true) ServerboundMoveVehiclePacket packet,
             @Share("vehicleContinuous") LocalRef<Vec3> continuous) {
         double clampedX = original.call(clientX);
-        WorldFold fold = WorldLoopAttachments.wrappedFoldOf(this.player.level());
+        WorldFold fold = WorldLoopAttachments.getWrappedFold(this.player.level());
         if (fold == null) {
             return clampedX;
         }
@@ -205,6 +207,37 @@ public class ServerGamePacketListenerImplMixin implements ClientPositionHolder, 
         double clampedZ = original.call(clientZ);
         Vec3 seated = continuous.get();
         return seated == null ? clampedZ : seated.z;
+    }
+
+    @ModifyExpressionValue(
+            method = "handleMovePlayer",
+            at = @At(
+                    value = "INVOKE",
+                    target = "Lnet/minecraft/network/protocol/game/ServerboundMovePlayerPacket;getYRot(F)F",
+                    ordinal = 1))
+    private float exotic_worlds$playerYawInServerFrame(float clientYaw,
+            @Local(argsOnly = true) ServerboundMovePlayerPacket packet) {
+        return SeamMove.playerYaw(this.player, packet, clientYaw);
+    }
+
+    @ModifyExpressionValue(
+            method = "handleMoveVehicle",
+            at = @At(
+                    value = "INVOKE",
+                    target = "Lnet/minecraft/core/PositionAndRotation;yRot()F",
+                    ordinal = 1))
+    private float exotic_worlds$vehicleYawInServerFrame(float clientYaw,
+            @Local(argsOnly = true) ServerboundMoveVehiclePacket packet) {
+        return SeamMove.vehicleYaw(this.player, packet.movingTo().position(), clientYaw);
+    }
+
+    @ModifyExpressionValue(
+            method = "handleUseItem",
+            at = @At(
+                    value = "INVOKE",
+                    target = "Lnet/minecraft/network/protocol/game/ServerboundUseItemPacket;yRot()F"))
+    private float exotic_worlds$useYawInServerFrame(float clientYaw) {
+        return SeamMove.heldYaw(this.player, clientYaw);
     }
 
     @Inject(method = "handleMoveVehicle", at = @At("RETURN"))

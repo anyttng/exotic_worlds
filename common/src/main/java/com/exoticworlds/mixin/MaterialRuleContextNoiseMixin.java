@@ -7,7 +7,7 @@ import org.spongepowered.asm.mixin.injection.At;
 
 import com.exoticworlds.InjectionTargets;
 import com.exoticworlds.accessors.FoldSource;
-import com.exoticworlds.core.WorldFold;
+import com.exoticworlds.core.fold.WorldFold;
 import com.exoticworlds.engine.noise.ContextScaledNoise;
 import com.exoticworlds.engine.noise.GenerationFoldContext;
 import com.exoticworlds.engine.noise.NoiseConstants;
@@ -28,7 +28,7 @@ public class MaterialRuleContextNoiseMixin {
     @WrapOperation(method = "getAsDouble", at = @At(value = "INVOKE", target = InjectionTargets.NOISE_GET))
     private float exotic_worlds$blockPositionNoise(Noise noise, double x, double y, double z, Operation<Float> original) {
         WorldFold fold = GenerationFoldContext.carriedOrBound(
-                ((FoldSource) (Object) this.this$0).exotic_worlds$wrappedFold());
+                ((FoldSource) (Object) this.this$0).exotic_worlds$getWrappedFold());
         if (fold == null) {
             return original.call(noise, x, y, z);
         }

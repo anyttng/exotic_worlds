@@ -4,17 +4,17 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.junit.jupiter.api.Test;
 
-import com.exoticworlds.api.v1.ToroidalShape;
-import com.exoticworlds.compat.map.MapShapes;
-import com.exoticworlds.core.SpawnPoint;
-import com.exoticworlds.core.WorldLoopSizes;
+import com.exoticworlds.compat.map.MapFolds;
+import com.exoticworlds.core.world.SpawnPoint;
+import com.exoticworlds.core.fold.WorldFold;
+import com.exoticworlds.core.world.WorldLoopSizes;
 
 import net.minecraft.core.BlockPos;
 
 class SpawnPickTest {
-    private static final ToroidalShape TORUS = MapShapes.torus(-16, 16);
-    private static final ToroidalShape CYLINDER = MapShapes.cylinder(-16, 16);
-    private static final ToroidalShape SKEWED = MapShapes.latticeTorus(-16, 16, 4);
+    private static final WorldFold TORUS = MapFolds.torus(-16, 16);
+    private static final WorldFold CYLINDER = MapFolds.cylinder(-16, 16);
+    private static final WorldFold SKEWED = MapFolds.latticeTorus(-16, 16, 4);
 
     @Test
     void aPickOnACopyLandsInsideTheWorld() {

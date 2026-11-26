@@ -61,15 +61,15 @@ public abstract class AdvancedContinentGeneratorMixin {
     @WrapMethod(method = "apply")
     private void exotic_worlds$closeApply(Cell cell, float x, float y, Operation<Void> original,
             @Share(WINNER_X) LocalIntRef winnerX, @Share(WINNER_Z) LocalIntRef winnerZ) {
-        RtfLap.Frame frame = RtfLap.boundFrame();
+        RtfLap.Frame frame = RtfLap.getBoundFrame();
         if (frame == null) {
             original.call(cell, x, y);
             return;
         }
 
         try (RtfLap.Frame.Scope _ = frame.octave(this.frequency)) {
-            float xScale = frame.xScale();
-            float zScale = frame.zScale();
+            float xScale = frame.getXScale();
+            float zScale = frame.getZScale();
             float latticeX = frame.latticeX(x, y);
             float latticeZ = frame.shiftZ(y);
             original.call(cell, latticeX, latticeZ);
@@ -87,9 +87,9 @@ public abstract class AdvancedContinentGeneratorMixin {
                 }
             }
 
-            if (frame.sheared()) {
-                CenterAxis axis = CenterAxis.current();
-                cell.continentX = (int) frame.outerX(axis.xQuotient(), axis.zQuotient());
+            if (frame.isSheared()) {
+                CenterAxis axis = CenterAxis.getCurrent();
+                cell.continentX = (int) frame.outerX(axis.getXQuotient(), axis.getZQuotient());
             }
         }
     }
@@ -97,7 +97,7 @@ public abstract class AdvancedContinentGeneratorMixin {
     @WrapOperation(method = "apply", at = @At(value = "INVOKE", target = "Lcom/pandaismyname1/ultraterraforged/world/"
             + "worldgen/noise/domain/Domain;getX(FFI)F"))
     private float exotic_worlds$warpX(Domain warp, float x, float z, int seed, Operation<Float> original) {
-        RtfLap.Frame frame = RtfLap.boundFrame();
+        RtfLap.Frame frame = RtfLap.getBoundFrame();
         if (frame == null) {
             return original.call(warp, x, z, seed);
         }
@@ -113,7 +113,7 @@ public abstract class AdvancedContinentGeneratorMixin {
     @WrapOperation(method = "apply", at = @At(value = "INVOKE", target = "Lcom/pandaismyname1/ultraterraforged/world/"
             + "worldgen/noise/domain/Domain;getZ(FFI)F"))
     private float exotic_worlds$warpZ(Domain warp, float x, float z, int seed, Operation<Float> original) {
-        RtfLap.Frame frame = RtfLap.boundFrame();
+        RtfLap.Frame frame = RtfLap.getBoundFrame();
         if (frame == null) {
             return original.call(warp, x, z, seed);
         }
@@ -129,7 +129,7 @@ public abstract class AdvancedContinentGeneratorMixin {
     // The cliff and bay noises read the lattice position, so the lap they see is the lattice's.
     @WrapOperation(method = "apply", at = @At(value = "INVOKE", target = UltraTerraForgedInjectionTargets.NOISE_COMPUTE))
     private float exotic_worlds$latticeLap(Noise noise, float x, float y, int seed, Operation<Float> original) {
-        RtfLap.Frame frame = RtfLap.boundFrame();
+        RtfLap.Frame frame = RtfLap.getBoundFrame();
         if (frame == null) {
             return original.call(noise, x, y, seed);
         }
@@ -158,7 +158,7 @@ public abstract class AdvancedContinentGeneratorMixin {
             @Share(WINNER_X) LocalIntRef winnerX, @Share(WINNER_Z) LocalIntRef winnerZ) {
         winnerX.set(cellX);
         winnerZ.set(cellY);
-        try (CenterAxis _ = CenterAxis.current().along(Direction.Axis.X)) {
+        try (CenterAxis _ = CenterAxis.getCurrent().along(Direction.Axis.X)) {
             return original.call(generator, point, average);
         }
     }
@@ -166,7 +166,7 @@ public abstract class AdvancedContinentGeneratorMixin {
     @WrapOperation(method = "apply", at = @At(value = "INVOKE", target = CORRECTED_CENTER, ordinal = Z_CENTER))
     private int exotic_worlds$centerZ(AdvancedContinentGenerator generator, float point, float average,
             Operation<Integer> original) {
-        try (CenterAxis _ = CenterAxis.current().along(Direction.Axis.Z)) {
+        try (CenterAxis _ = CenterAxis.getCurrent().along(Direction.Axis.Z)) {
             return original.call(generator, point, average);
         }
     }
@@ -174,13 +174,13 @@ public abstract class AdvancedContinentGeneratorMixin {
     @ModifyExpressionValue(method = "getCorrectedContinentCenter",
             at = @At(value = "FIELD", target = FREQUENCY, opcode = Opcodes.GETFIELD))
     private float exotic_worlds$snapAlongAxis(float frequency) {
-        return CenterAxis.current().snapped(frequency);
+        return CenterAxis.getCurrent().snapped(frequency);
     }
 
     @Definition(id = "frequency", field = FREQUENCY)
     @Expression("? / this.frequency")
     @ModifyExpressionValue(method = "getCorrectedContinentCenter", at = @At(value = "MIXINEXTRAS:EXPRESSION"))
     private float exotic_worlds$keepQuotient(float quotient) {
-        return CenterAxis.current().keep(quotient);
+        return CenterAxis.getCurrent().keep(quotient);
     }
 }

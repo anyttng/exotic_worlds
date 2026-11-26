@@ -44,6 +44,7 @@
     "BreezeUtilMixin",
     "ChargeAttackMixin",
     "ChargeCursorAccessor",
+    "ChunkAccessAccessor",
     "ChunkGenerationTaskMixin",
     "ChunkGeneratorAccessor",
     "ChunkGeneratorAddedStartsMixin",
@@ -250,6 +251,7 @@
     "ShootTongueMixin",
     "ShulkerBulletMixin",
     "SignFacingMixin",
+    "SkyLightEmptySectionStepMixin",
     "SleepInBedMixin",
     "SnifferMixin",
     "SocializeAtBellMixin",
@@ -267,6 +269,7 @@
     "StructureGenerateBindingMixin",
     "StructureManagerAccessor",
     "StructureManagerMixin",
+    "StructurePieceAccessor",
     "StructureStartMixin",
     "StructureTemplateMixin",
     "SulfurCubeMixin",
@@ -306,6 +309,7 @@
     "WorldGenRegionMixin"
   ],
   "client": [
+    "BiomeGrassColorMixin",
     "BiomePrecipitationMixin",
     "ClientboundAddEntityPacketMixin",
     "ClientChunkCacheMixin",

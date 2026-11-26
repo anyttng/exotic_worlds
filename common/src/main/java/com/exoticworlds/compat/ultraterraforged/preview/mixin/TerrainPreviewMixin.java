@@ -24,9 +24,9 @@ import com.exoticworlds.compat.preview.SpawnPick;
 import com.exoticworlds.compat.ultraterraforged.LapCarrier;
 import com.exoticworlds.compat.ultraterraforged.preview.DrawnPreview;
 import com.exoticworlds.compat.ultraterraforged.preview.PreviewSettings;
-import com.exoticworlds.core.CarriedShape;
-import com.exoticworlds.core.SpawnPoint;
-import com.exoticworlds.core.WorldFold;
+import com.exoticworlds.core.world.CarriedShape;
+import com.exoticworlds.core.world.SpawnPoint;
+import com.exoticworlds.core.fold.WorldFold;
 import com.exoticworlds.shape.WorldShapes;
 
 import com.pandaismyname1.ultraterraforged.client.gui.createworld.PreviewSource;
@@ -72,13 +72,13 @@ public abstract class TerrainPreviewMixin extends AbstractWidget {
     private static final Identifier SPAWN_PIN = Identifier.fromNamespaceAndPath(ExoticWorlds.MODID, SPAWN_PIN_PATH);
 
     @Unique
-    private static final int PIN_WIDTH = 9;
+    private static final int PIN_WIDTH_PIXELS = 9;
 
     @Unique
-    private static final int PIN_HEIGHT = 13;
+    private static final int PIN_HEIGHT_PIXELS = 13;
 
     @Unique
-    private static final int HINT_INSET = 4;
+    private static final int HINT_INSET_PIXELS = 4;
 
     @Unique
     private static final int SPAWN_HINT_ABOVE_BOTTOM = 36;
@@ -97,7 +97,7 @@ public abstract class TerrainPreviewMixin extends AbstractWidget {
     private @Nullable CarriedShape exotic_worlds$shown;
 
     @Unique
-    private boolean exotic_worlds$pressed;
+    private boolean exotic_worlds$isPressed;
 
     @Unique
     private double exotic_worlds$pressedX;
@@ -129,7 +129,7 @@ public abstract class TerrainPreviewMixin extends AbstractWidget {
 
     @Override
     public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
-        if (event.button() == InputConstants.MOUSE_BUTTON_RIGHT && this.exotic_worlds$onPin(event.x(), event.y())) {
+        if (event.button() == InputConstants.MOUSE_BUTTON_RIGHT && this.exotic_worlds$isOnPin(event.x(), event.y())) {
             this.exotic_worlds$moveSpawn(SpawnPoint.DEFAULT);
             return true;
         }
@@ -139,46 +139,46 @@ public abstract class TerrainPreviewMixin extends AbstractWidget {
 
     @Override
     public void onClick(MouseButtonEvent event, boolean doubleClick) {
-        this.exotic_worlds$pressed = true;
+        this.exotic_worlds$isPressed = true;
         this.exotic_worlds$pressedX = event.x();
         this.exotic_worlds$pressedY = event.y();
     }
 
     @Override
     public void onRelease(MouseButtonEvent event) {
-        boolean clicked = this.exotic_worlds$pressed
+        boolean isClicked = this.exotic_worlds$isPressed
                 && Math.abs(event.x() - this.exotic_worlds$pressedX) <= CLICK_SLOP_PIXELS
                 && Math.abs(event.y() - this.exotic_worlds$pressedY) <= CLICK_SLOP_PIXELS;
-        this.exotic_worlds$pressed = false;
-        if (clicked) {
+        this.exotic_worlds$isPressed = false;
+        if (isClicked) {
             this.exotic_worlds$pickSpawn(event.x(), event.y());
         }
     }
 
     @Unique
     private void exotic_worlds$pickSpawn(double mouseX, double mouseY) {
-        PreviewView view = ((DrawnPreview) (Object) this).exotic_worlds$drawn();
-        if (view == null || !this.exotic_worlds$picksSpawn()) {
+        PreviewView view = ((DrawnPreview) (Object) this).exotic_worlds$getDrawn();
+        if (view == null || !this.exotic_worlds$isPickingSpawn()) {
             return;
         }
 
         BlockPos picked = view.blockAt(this.getX(), this.getY(), this.getWidth(), mouseX, mouseY);
-        this.exotic_worlds$moveSpawn(SpawnPick.at(view.shape(), picked));
+        this.exotic_worlds$moveSpawn(SpawnPick.at(view.fold(), picked));
     }
 
     @Unique
     private void exotic_worlds$moveSpawn(SpawnPoint spawn) {
         WorldCreationContext settings = PreviewSettings.of(this.state);
-        if (settings != null && WorldShapes.moveSpawn(spawn)) {
+        if (settings != null && WorldShapes.tryMoveSpawn(spawn)) {
             this.exotic_worlds$shown = CreationShape.carried(settings);
         }
     }
 
     @Unique
-    private boolean exotic_worlds$onPin(double mouseX, double mouseY) {
-        for (PreviewView.Pixel pixel : this.exotic_worlds$pins()) {
-            if (mouseX >= pixel.x() - PIN_WIDTH / 2 && mouseX < pixel.x() - PIN_WIDTH / 2 + PIN_WIDTH
-                    && mouseY > pixel.y() - PIN_HEIGHT && mouseY <= pixel.y()) {
+    private boolean exotic_worlds$isOnPin(double mouseX, double mouseY) {
+        for (PreviewView.Pixel pixel : this.exotic_worlds$getPins()) {
+            if (mouseX >= pixel.x() - PIN_WIDTH_PIXELS / 2 && mouseX < pixel.x() - PIN_WIDTH_PIXELS / 2 + PIN_WIDTH_PIXELS
+                    && mouseY > pixel.y() - PIN_HEIGHT_PIXELS && mouseY <= pixel.y()) {
                 return true;
             }
         }
@@ -187,14 +187,14 @@ public abstract class TerrainPreviewMixin extends AbstractWidget {
     }
 
     @Unique
-    private List<PreviewView.Pixel> exotic_worlds$pins() {
-        PreviewView view = ((DrawnPreview) (Object) this).exotic_worlds$drawn();
+    private List<PreviewView.Pixel> exotic_worlds$getPins() {
+        PreviewView view = ((DrawnPreview) (Object) this).exotic_worlds$getDrawn();
         CarriedShape shown = this.exotic_worlds$shown;
-        if (view == null || shown == null || !shown.fold().isWrapped()) {
+        if (view == null || shown == null || !shown.getFold().isWrapped()) {
             return List.of();
         }
 
-        SpawnPoint spawn = SpawnPoint.of(shown.fold());
+        SpawnPoint spawn = SpawnPoint.of(shown.getFold());
         return spawn.isCustom()
                 ? view.copiesOf(SpawnPick.pinOf(spawn), this.getX(), this.getY(), this.getWidth())
                 : List.of();
@@ -204,18 +204,18 @@ public abstract class TerrainPreviewMixin extends AbstractWidget {
             target = "Lnet/minecraft/client/Minecraft;getInstance()Lnet/minecraft/client/Minecraft;", ordinal = 0))
     private void exotic_worlds$markTheSpawn(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick,
             CallbackInfo callback) {
-        List<PreviewView.Pixel> pins = this.exotic_worlds$pins();
+        List<PreviewView.Pixel> pins = this.exotic_worlds$getPins();
         if (pins.isEmpty()) {
             return;
         }
 
         int x = this.getX();
         int y = this.getY();
-        int size = this.getWidth();
-        graphics.enableScissor(x, y, x + size, y + size);
+        int sizePixels = this.getWidth();
+        graphics.enableScissor(x, y, x + sizePixels, y + sizePixels);
         for (PreviewView.Pixel pixel : pins) {
-            graphics.blitSprite(RenderPipelines.GUI_TEXTURED, SPAWN_PIN, pixel.x() - PIN_WIDTH / 2,
-                    pixel.y() - (PIN_HEIGHT - 1), PIN_WIDTH, PIN_HEIGHT);
+            graphics.blitSprite(RenderPipelines.GUI_TEXTURED, SPAWN_PIN, pixel.x() - PIN_WIDTH_PIXELS / 2,
+                    pixel.y() - (PIN_HEIGHT_PIXELS - 1), PIN_WIDTH_PIXELS, PIN_HEIGHT_PIXELS);
         }
         graphics.disableScissor();
     }
@@ -223,7 +223,7 @@ public abstract class TerrainPreviewMixin extends AbstractWidget {
     @Inject(method = "extractWidgetRenderState", at = @At("RETURN"))
     private void exotic_worlds$hintTheSpawnPick(GuiGraphicsExtractor graphics, int mouseX, int mouseY,
             float partialTick, CallbackInfo callback) {
-        if (!this.exotic_worlds$picksSpawn()) {
+        if (!this.exotic_worlds$isPickingSpawn()) {
             return;
         }
 
@@ -234,22 +234,21 @@ public abstract class TerrainPreviewMixin extends AbstractWidget {
     @Unique
     private void exotic_worlds$hint(GuiGraphicsExtractor graphics, Component hint, int aboveBottom) {
         Font font = Minecraft.getInstance().font;
-        if (font.width(hint) <= this.getWidth() - 2 * HINT_INSET) {
-            graphics.text(font, hint, this.getX() + HINT_INSET, this.getY() + this.getHeight() - aboveBottom,
+        if (font.width(hint) <= this.getWidth() - 2 * HINT_INSET_PIXELS) {
+            graphics.text(font, hint, this.getX() + HINT_INSET_PIXELS, this.getY() + this.getHeight() - aboveBottom,
                     HINT_TEXT_COLOR);
         }
     }
 
     @Unique
-    private boolean exotic_worlds$picksSpawn() {
+    private boolean exotic_worlds$isPickingSpawn() {
         CarriedShape shown = this.exotic_worlds$shown;
-        return shown != null && shown.fold().isWrapped();
+        return shown != null && shown.getFold().isWrapped();
     }
 
     @Unique
     private static @Nullable CarriedShape exotic_worlds$terrainOf(@Nullable CarriedShape carried) {
-        return carried == null ? null : new CarriedShape(carried.shape(),
-                carried.generationOptions().with(SpawnPoint.OPTION, SpawnPoint.DEFAULT));
+        return carried == null ? null : carried.withOptions(carried.getOptions().with(SpawnPoint.OPTION, SpawnPoint.DEFAULT));
     }
 
     @WrapOperation(method = "refresh", at = @At(value = "INVOKE",
@@ -260,7 +259,7 @@ public abstract class TerrainPreviewMixin extends AbstractWidget {
             Runnable generate, long delay, TimeUnit unit, Operation<ScheduledFuture<?>> original) {
         CarriedShape shown = this.exotic_worlds$shown;
         return original.call(executor,
-                CreationShape.underRouterBuild(shown != null ? shown.fold() : null, generate), delay, unit);
+                CreationShape.underRouterBuild(shown, generate), delay, unit);
     }
 
     @WrapOperation(method = "generate", at = @At(value = "INVOKE",
@@ -270,7 +269,7 @@ public abstract class TerrainPreviewMixin extends AbstractWidget {
     private GeneratorContext exotic_worlds$carryTheChosenShape(Preset preset, int seed, int tileSize, int tileBorder,
             int batchCount, Operation<GeneratorContext> original) {
         GeneratorContext context = original.call(preset, seed, tileSize, tileBorder, batchCount);
-        WorldFold fold = CreationShape.routerBuildFold();
+        WorldFold fold = CreationShape.getRouterBuildFold();
         if (fold.isWrapped()) {
             LapCarrier.carry(context, fold);
         }

@@ -5,7 +5,7 @@ import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 
 import com.exoticworlds.InjectionTargets;
-import com.exoticworlds.core.WorldLoopAttachments;
+import com.exoticworlds.core.fold.WorldLoopAttachments;
 import com.exoticworlds.engine.fold.FoldedBoxQuery;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
@@ -31,6 +31,6 @@ public class LevelPartEntityMixin {
 
     @Unique
     private AABB exotic_worlds$seatTowardQuery(AABB part, AABB query) {
-        return FoldedBoxQuery.toward(WorldLoopAttachments.foldOf((Level) (Object) this), query.getCenter(), part);
+        return FoldedBoxQuery.toward(WorldLoopAttachments.getFold((Level) (Object) this), query.getCenter(), part);
     }
 }

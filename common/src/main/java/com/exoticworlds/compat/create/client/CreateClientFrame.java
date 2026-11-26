@@ -5,10 +5,10 @@ import java.util.Objects;
 
 import org.jspecify.annotations.Nullable;
 
-import com.exoticworlds.client.engine.ClientFrame;
+import com.exoticworlds.engine.client.ClientFrame;
 import com.exoticworlds.compat.create.CreateSeamFold;
-import com.exoticworlds.core.DeckTransformation;
-import com.exoticworlds.core.WorldFold;
+import com.exoticworlds.core.fold.DeckTransformation;
+import com.exoticworlds.core.fold.WorldFold;
 import com.exoticworlds.engine.fold.FoldedBoxQuery;
 import com.exoticworlds.engine.fold.FoldedCopies;
 import com.exoticworlds.engine.fold.NearestCopy;
@@ -50,7 +50,7 @@ public final class CreateClientFrame {
     }
 
     public static Vec3 inFrameOf(@Nullable Vec3 anchor, Vec3 point) {
-        WorldFold fold = ClientFrame.fold();
+        WorldFold fold = ClientFrame.getFold();
         Entity camera = Minecraft.getInstance().getCameraEntity();
         if (fold == null || anchor == null || camera == null) {
             return point;
@@ -60,7 +60,7 @@ public final class CreateClientFrame {
     }
 
     public static AABB nearestCopyOrientedToward(@Nullable Vec3 anchor, AABB box) {
-        return anchor == null ? box : FoldedBoxQuery.toward(ClientFrame.fold(), anchor, box);
+        return anchor == null ? box : FoldedBoxQuery.toward(ClientFrame.getFold(), anchor, box);
     }
 
     private CreateClientFrame() {

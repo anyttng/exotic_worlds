@@ -3,19 +3,19 @@ package com.exoticworlds.compat.terrablender;
 import org.jspecify.annotations.Nullable;
 
 import com.exoticworlds.compat.worldgen.FoldCompression;
-import com.exoticworlds.core.TranslationLattice;
-import com.exoticworlds.core.WorldFold;
-import com.exoticworlds.core.WrapDomain;
+import com.exoticworlds.core.fold.TranslationLattice;
+import com.exoticworlds.core.fold.WorldFold;
+import com.exoticworlds.core.fold.WrapDomain;
 
 import net.minecraft.core.QuartPos;
 
 public record RegionLayerFold(WorldFold fold, int topDepth, double factor, LayerAxis x, LayerAxis z,
         TranslationLattice quarts) {
     public static RegionLayerFold of(WorldFold fold, int topDepth, double factor) {
-        TranslationLattice lattice = fold.blockLattice();
+        TranslationLattice lattice = fold.getBlockLattice();
         return new RegionLayerFold(fold, topDepth, factor,
-                LayerAxis.of(lattice.x(), topDepth, factor),
-                LayerAxis.of(lattice.z(), topDepth, factor),
+                LayerAxis.of(lattice.getX(), topDepth, factor),
+                LayerAxis.of(lattice.getZ(), topDepth, factor),
                 lattice.scaledDownByBits(QuartPos.BITS));
     }
 
@@ -37,36 +37,36 @@ public record RegionLayerFold(WorldFold fold, int topDepth, double factor, Layer
                 : this.z.fold(coordZ, this.topDepth - depth);
     }
 
-    public record LayerAxis(boolean loops, double factor, int lap, int min, int scaledLap, int origin, int interior,
+    public record LayerAxis(boolean isLooped, double factor, int lapQuarts, int min, int scaledLap, int origin, int interior,
             int strip, int stripCells, int cell, int virtualLap) {
         static LayerAxis unbounded(double factor) {
             return new LayerAxis(false, factor, 0, 0, 0, 0, 0, 0, 0, 1, 0);
         }
 
         static LayerAxis of(WrapDomain blocks, int topDepth, double factor) {
-            if (!blocks.loops()) {
+            if (!blocks.isLooped()) {
                 return unbounded(factor);
             }
 
             int cell = 1 << topDepth;
-            int lap = QuartPos.fromBlock(blocks.domainLength);
+            int lapQuarts = QuartPos.fromBlock(blocks.domainLength);
             int min = QuartPos.fromBlock(blocks.lowerBound);
-            int scaledLap = Math.max(1, (int) Math.round(lap * factor));
+            int scaledLap = Math.max(1, (int) Math.round(lapQuarts * factor));
             int origin = Math.ceilDiv(min, cell) * cell;
             int interior = Math.max(0, Math.floorDiv(min + scaledLap, cell) * cell - origin);
             int strip = scaledLap - interior;
             int stripCells = strip == 0 ? 0 : Math.max(interior == 0 ? 1 : 0, (strip + cell / 2) / cell);
             int virtualLap = interior + stripCells * cell;
-            return new LayerAxis(true, factor, lap, min, scaledLap, origin, interior, strip, stripCells, cell,
+            return new LayerAxis(true, factor, lapQuarts, min, scaledLap, origin, interior, strip, stripCells, cell,
                     virtualLap);
         }
 
         int toVirtual(int quart) {
-            if (!this.loops) {
+            if (!this.isLooped) {
                 return (int) Math.floor(quart * this.factor);
             }
 
-            int scaled = this.min + (int) ((long) Math.floorMod(quart - this.min, this.lap) * this.scaledLap / this.lap);
+            int scaled = this.min + (int) ((long) Math.floorMod(quart - this.min, this.lapQuarts) * this.scaledLap / this.lapQuarts);
             int offset = Math.floorMod(scaled - this.origin, this.scaledLap);
             if (this.strip == 0) {
                 return this.origin + offset;
@@ -83,7 +83,7 @@ public record RegionLayerFold(WorldFold fold, int topDepth, double factor, Layer
         }
 
         int fold(int coord, int shift) {
-            if (!this.loops) {
+            if (!this.isLooped) {
                 return coord;
             }
 

@@ -6,11 +6,13 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 
 import com.exoticworlds.BinderOrder;
-import com.exoticworlds.core.WorldFold;
-import com.exoticworlds.core.WorldLoopAttachments;
-import com.exoticworlds.engine.gen.FloatingCrumbs;
+import com.exoticworlds.core.fold.WorldFold;
+import com.exoticworlds.core.fold.WorldLoopAttachments;
+import com.exoticworlds.core.feature.CarvedChunkFeature;
+import com.exoticworlds.core.feature.LitChunkFeature;
+import com.exoticworlds.core.feature.ShapeFeatures;
 import com.exoticworlds.engine.noise.GenerationFoldContext;
-import com.exoticworlds.engine.noise.PeriodicityCheck;
+import com.exoticworlds.engine.noise.check.PeriodicityCheck;
 import com.llamalad7.mixinextras.injector.ModifyReturnValue;
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
@@ -42,39 +44,42 @@ public class ChunkStatusTasksMixin {
             StaticCache2D<GenerationChunkHolder> chunks,
             ChunkAccess chunk,
             Operation<CompletableFuture<ChunkAccess>> original) {
-        WorldFold fold = WorldLoopAttachments.foldOf(context.level());
+        WorldFold fold = WorldLoopAttachments.getFold(context.level());
         if (fold.isWrapped()) {
             PeriodicityCheck.verdictOf(context.level());
         }
 
-        try (GenerationFoldContext.Context.FoldScope _ = GenerationFoldContext.context().withFold(fold)) {
+        try (GenerationFoldContext.Context.FoldScope _ = GenerationFoldContext.getContext().withFold(fold)) {
             return original.call(context, step, chunks, chunk);
         }
     }
 
     @ModifyReturnValue(method = "buildTerrain", at = @At("RETURN"))
-    private static CompletableFuture<ChunkAccess> exotic_worlds$sweepFloatingCrumbs(
+    private static CompletableFuture<ChunkAccess> exotic_worlds$runCarvedChunkFeatures(
             CompletableFuture<ChunkAccess> original,
             WorldGenContext context,
             ChunkStep step,
             StaticCache2D<GenerationChunkHolder> chunks,
             ChunkAccess chunk) {
         return original.thenApply(carved -> {
-            FloatingCrumbs.sweep(context.level(), carved);
-            FloatingCrumbs.registerMask(context.level(), carved);
+            for (CarvedChunkFeature feature : ShapeFeatures.activeOn(context.level(), CarvedChunkFeature.class)) {
+                feature.atCarved(context.level(), carved);
+            }
             return carved;
         });
     }
 
     @ModifyReturnValue(method = "light", at = @At("RETURN"))
-    private static CompletableFuture<ChunkAccess> exotic_worlds$sweepBorderCrumbs(
+    private static CompletableFuture<ChunkAccess> exotic_worlds$runLitChunkFeatures(
             CompletableFuture<ChunkAccess> original,
             WorldGenContext context,
             ChunkStep step,
             StaticCache2D<GenerationChunkHolder> chunks,
             ChunkAccess chunk) {
         return original.thenApply(lit -> {
-            FloatingCrumbs.sweepAcross(context.level(), lit, chunks, context.mainThreadExecutor());
+            for (LitChunkFeature feature : ShapeFeatures.activeOn(context.level(), LitChunkFeature.class)) {
+                feature.atLit(context.level(), lit, chunks, context.mainThreadExecutor());
+            }
             return lit;
         });
     }

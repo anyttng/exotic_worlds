@@ -14,13 +14,13 @@ import java.util.Random;
 
 import org.junit.jupiter.api.Test;
 
-import com.exoticworlds.api.v1.option.GenerationOptions;
-import com.exoticworlds.core.DeckGroupFold;
-import com.exoticworlds.core.FlatShape;
-import com.exoticworlds.core.ShapeFixtures;
-import com.exoticworlds.core.WorldFold;
-import com.exoticworlds.core.WorldFolds;
-import com.exoticworlds.core.WorldLoopBounds;
+import com.exoticworlds.core.fold.deck.DeckGroupFold;
+import com.exoticworlds.core.world.FlatShape;
+import com.exoticworlds.core.world.ShapeFixtures;
+import com.exoticworlds.core.option.ShapeOptions;
+import com.exoticworlds.core.fold.WorldFold;
+import com.exoticworlds.core.fold.WorldFolds;
+import com.exoticworlds.core.world.WorldLoopBounds;
 import com.exoticworlds.engine.noise.BlendedNoiseFixture.Octave;
 
 class SkewedFieldDistributionTest {
@@ -57,7 +57,7 @@ class SkewedFieldDistributionTest {
         for (int skewChunks : SKEW_CHUNKS) {
             readings.addAll(
                     measure("skew " + skewChunks,
-                            new DeckGroupFold(FlatShape.latticeTorus(BOUNDS, skewChunks), GenerationOptions.DEFAULT)));
+                            new DeckGroupFold(FlatShape.latticeTorus(BOUNDS, skewChunks), ShapeOptions.DEFAULT)));
         }
 
         StringBuilder report = new StringBuilder("Damped-octave gates, 512-block lap, ")

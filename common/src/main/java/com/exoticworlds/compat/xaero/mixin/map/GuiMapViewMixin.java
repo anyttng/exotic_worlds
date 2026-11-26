@@ -10,16 +10,16 @@ import org.spongepowered.asm.mixin.injection.ModifyArg;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
-import com.llamalad7.mixinextras.sugar.Local;
-import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.VertexConsumer;
-import com.exoticworlds.api.v1.ToroidalShape;
-import com.exoticworlds.compat.map.ClientShapes;
+import com.exoticworlds.compat.map.ClientFolds;
 import com.exoticworlds.compat.xaero.XaeroCamera;
 import com.exoticworlds.compat.xaero.XaeroCursorLap;
 import com.exoticworlds.compat.xaero.XaeroMapView;
 import com.exoticworlds.compat.xaero.XaeroWorldMapFold;
+import com.exoticworlds.core.fold.WorldFold;
+import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
+import com.llamalad7.mixinextras.sugar.Local;
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.VertexConsumer;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.Entity;
@@ -62,7 +62,7 @@ public abstract class GuiMapViewMixin {
 
     @Inject(method = "extractRenderState", at = @At("HEAD"))
     private void exotic_worlds$beginFrame(CallbackInfo ci) {
-        double floor = this.exotic_worlds$view.beginFrame(this.getScaleMultiplier(XaeroMapView.screenShortSide()));
+        double floor = this.exotic_worlds$view.beginFrame(this.getScaleMultiplier(XaeroMapView.getScreenShortSidePixels()));
         destScale = XaeroMapView.raised(destScale, floor);
         this.userScale = XaeroMapView.raised(this.userScale, floor);
     }
@@ -70,7 +70,7 @@ public abstract class GuiMapViewMixin {
     @Inject(method = "applyZoomLimits", at = @At("TAIL"))
     private void exotic_worlds$floorZoomOut(CallbackInfo ci) {
         destScale = XaeroMapView.raised(destScale,
-                this.exotic_worlds$view.zoomFloor(this.getScaleMultiplier(XaeroMapView.screenShortSide())));
+                this.exotic_worlds$view.zoomFloor(this.getScaleMultiplier(XaeroMapView.getScreenShortSidePixels())));
     }
 
     @ModifyExpressionValue(
@@ -79,10 +79,10 @@ public abstract class GuiMapViewMixin {
                     value = "INVOKE",
                     target = "Lxaero/map/entity/util/EntityUtil;getEntityX(Lnet/minecraft/world/entity/Entity;F)D"))
     private double exotic_worlds$foldCameraX(double x, @Local(name = "partialTicks") float partialTicks) {
-        ToroidalShape shape = XaeroWorldMapFold.browsedShape();
-        return shape == null
+        WorldFold fold = XaeroWorldMapFold.getBrowsedFold();
+        return fold == null
                 ? x
-                : ClientShapes.fold(shape, x, EntityUtil.getEntityZ(this.player, partialTicks)).x;
+                : ClientFolds.fold(fold, x, EntityUtil.getEntityZ(this.player, partialTicks)).x;
     }
 
     @ModifyExpressionValue(
@@ -91,10 +91,10 @@ public abstract class GuiMapViewMixin {
                     value = "INVOKE",
                     target = "Lxaero/map/entity/util/EntityUtil;getEntityZ(Lnet/minecraft/world/entity/Entity;F)D"))
     private double exotic_worlds$foldCameraZ(double z, @Local(name = "partialTicks") float partialTicks) {
-        ToroidalShape shape = XaeroWorldMapFold.browsedShape();
-        return shape == null
+        WorldFold fold = XaeroWorldMapFold.getBrowsedFold();
+        return fold == null
                 ? z
-                : ClientShapes.fold(shape, EntityUtil.getEntityX(this.player, partialTicks), z).z;
+                : ClientFolds.fold(fold, EntityUtil.getEntityX(this.player, partialTicks), z).z;
     }
 
     @Inject(

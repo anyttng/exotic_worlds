@@ -18,26 +18,26 @@ class StoredKeyRebuildsTest {
 
     @Test
     void theSecondCopyOfAStoredKeyTakesTheChangeAndTheFirstIsLeftToEminus() {
-        assertFalse(StoredKeyRebuilds.changeAllButFirst(List.of(FIRST, COPY), this::change));
+        assertFalse(StoredKeyRebuilds.isWalkDueAfterChangingAllButFirst(List.of(FIRST, COPY), this::change));
 
         assertEquals(List.of(COPY), changed);
     }
 
     @Test
     void aCopyThatGaveWayMakesTheWalkDue() {
-        assertTrue(StoredKeyRebuilds.changeAllButFirst(List.of(FIRST, GAVE_WAY), this::change));
+        assertTrue(StoredKeyRebuilds.isWalkDueAfterChangingAllButFirst(List.of(FIRST, GAVE_WAY), this::change));
     }
 
     @Test
     void everyCopyTakesTheChangeAfterOneMadeTheWalkDue() {
-        assertTrue(StoredKeyRebuilds.changeAllButFirst(List.of(FIRST, GAVE_WAY, COPY), this::change));
+        assertTrue(StoredKeyRebuilds.isWalkDueAfterChangingAllButFirst(List.of(FIRST, GAVE_WAY, COPY), this::change));
 
         assertEquals(List.of(GAVE_WAY, COPY), changed);
     }
 
     @Test
     void aStoredKeyWithOneNodeChangesNoCopy() {
-        assertFalse(StoredKeyRebuilds.changeAllButFirst(List.of(FIRST), this::change));
+        assertFalse(StoredKeyRebuilds.isWalkDueAfterChangingAllButFirst(List.of(FIRST), this::change));
 
         assertTrue(changed.isEmpty());
     }

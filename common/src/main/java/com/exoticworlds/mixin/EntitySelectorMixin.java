@@ -8,8 +8,8 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 
-import com.exoticworlds.core.WorldFold;
-import com.exoticworlds.core.WorldLoopAttachments;
+import com.exoticworlds.core.fold.WorldFold;
+import com.exoticworlds.core.fold.WorldLoopAttachments;
 import com.exoticworlds.engine.fold.FoldedBoxQuery;
 import com.exoticworlds.engine.seam.SeamCommandErrors;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
@@ -34,12 +34,12 @@ public class EntitySelectorMixin {
     private Predicate<Entity> exotic_worlds$boxThroughSeam(EntitySelector selector, Vec3 pos, @Nullable AABB absoluteAabb,
             @Nullable FeatureFlagSet enabledFeatures, Operation<Predicate<Entity>> original,
             @Local(argsOnly = true) CommandSourceStack sender) {
-        if (absoluteAabb == null || !exotic_worlds$searchesAWrappedLevel(sender)) {
+        if (absoluteAabb == null || !exotic_worlds$isSearchingAWrappedLevel(sender)) {
             return original.call(selector, pos, absoluteAabb, enabledFeatures);
         }
 
         Predicate<Entity> withoutBox = original.call(selector, pos, null, enabledFeatures);
-        return entity -> withoutBox.test(entity) && exotic_worlds$insideThroughSeam(entity, absoluteAabb);
+        return entity -> withoutBox.test(entity) && exotic_worlds$isInsideThroughSeam(entity, absoluteAabb);
     }
 
     @WrapOperation(
@@ -49,7 +49,7 @@ public class EntitySelectorMixin {
             Operation<Object> original, @Local(argsOnly = true) CommandSourceStack sender)
             throws CommandSyntaxException {
         Object resolved = original.call(position, senderPosition);
-        WorldFold fold = WorldLoopAttachments.wrappedFoldOf(sender.getLevel());
+        WorldFold fold = WorldLoopAttachments.getWrappedFold(sender.getLevel());
         if (fold == null || !(resolved instanceof Vec3 pos) || !(senderPosition instanceof Vec3 senderPos)) {
             return resolved;
         }
@@ -66,15 +66,15 @@ public class EntitySelectorMixin {
     }
 
     @Unique
-    private static boolean exotic_worlds$searchesAWrappedLevel(CommandSourceStack sender) {
+    private static boolean exotic_worlds$isSearchingAWrappedLevel(CommandSourceStack sender) {
         Entity entity = sender.getEntity();
-        return WorldLoopAttachments.wrappedFoldOf(sender.getLevel()) != null
-                || entity != null && WorldLoopAttachments.wrappedFoldOf(entity.level()) != null;
+        return WorldLoopAttachments.getWrappedFold(sender.getLevel()) != null
+                || entity != null && WorldLoopAttachments.getWrappedFold(entity.level()) != null;
     }
 
     @Unique
-    private static boolean exotic_worlds$insideThroughSeam(Entity entity, AABB absoluteAabb) {
-        WorldFold fold = WorldLoopAttachments.wrappedFoldOf(entity.level());
+    private static boolean exotic_worlds$isInsideThroughSeam(Entity entity, AABB absoluteAabb) {
+        WorldFold fold = WorldLoopAttachments.getWrappedFold(entity.level());
         AABB box = FoldedBoxQuery.toward(fold, entity.position(), absoluteAabb);
         return box.intersects(entity.getBoundingBox());
     }

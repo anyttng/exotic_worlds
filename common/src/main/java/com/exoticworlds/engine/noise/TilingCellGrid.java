@@ -2,56 +2,56 @@ package com.exoticworlds.engine.noise;
 
 import org.jspecify.annotations.Nullable;
 
-import com.exoticworlds.core.Divisors;
-import com.exoticworlds.core.TranslationLattice;
-import com.exoticworlds.core.WorldFold;
-import com.exoticworlds.core.WrapDomain;
+import com.exoticworlds.core.world.Divisors;
+import com.exoticworlds.core.fold.TranslationLattice;
+import com.exoticworlds.core.fold.WorldFold;
+import com.exoticworlds.core.fold.WrapDomain;
 
-public record TilingCellGrid(WorldFold fold, int xCellWidth, int zCellWidth, int skew, int rowsPerLap) {
+public record TilingCellGrid(WorldFold fold, int xCellWidthBlocks, int zCellWidthBlocks, int skewBlocks, int rowsPerLap) {
     private static final int SMALLEST_CELL_COUNT = 1;
 
-    public static TilingCellGrid of(WorldFold fold, int vanillaCellWidth) {
-        TranslationLattice lattice = fold.blockLattice();
-        int xCellWidth = tilingWidth(lattice.x(), vanillaCellWidth);
-        int zCellWidth = tilingWidth(lattice.z(), vanillaCellWidth);
-        int rowsPerLap = lattice.isSkewed() ? lattice.z().domainLength / zCellWidth : SMALLEST_CELL_COUNT;
-        return new TilingCellGrid(fold, xCellWidth, zCellWidth, lattice.skew(), rowsPerLap);
+    public static TilingCellGrid of(WorldFold fold, int vanillaCellWidthBlocks) {
+        TranslationLattice lattice = fold.getBlockLattice();
+        int xCellWidthBlocks = tilingWidthBlocks(lattice.getX(), vanillaCellWidthBlocks);
+        int zCellWidthBlocks = tilingWidthBlocks(lattice.getZ(), vanillaCellWidthBlocks);
+        int rowsPerLap = lattice.isSkewed() ? lattice.getZ().domainLength / zCellWidthBlocks : SMALLEST_CELL_COUNT;
+        return new TilingCellGrid(fold, xCellWidthBlocks, zCellWidthBlocks, lattice.getSkew(), rowsPerLap);
     }
 
     public static TilingCellGrid resolve(@Nullable TilingCellGrid cached,
-            WorldFold fold, int vanillaCellWidth) {
+            WorldFold fold, int vanillaCellWidthBlocks) {
         return cached != null && cached.fold == fold
                 ? cached
-                : of(fold, vanillaCellWidth);
+                : of(fold, vanillaCellWidthBlocks);
     }
 
     public int cellOriginX(int blockX, int blockZ) {
-        if (this.skew == TranslationLattice.NO_SKEW) {
-            return Math.floorDiv(blockX, this.xCellWidth) * this.xCellWidth;
+        if (this.skewBlocks == TranslationLattice.NO_SKEW) {
+            return Math.floorDiv(blockX, this.xCellWidthBlocks) * this.xCellWidthBlocks;
         }
 
-        int rowOffset = (int) Math.floorDiv((long) Math.floorDiv(blockZ, this.zCellWidth) * this.skew, this.rowsPerLap);
-        return Math.floorDiv(blockX - rowOffset, this.xCellWidth) * this.xCellWidth + rowOffset;
+        int rowOffsetBlocks = (int) Math.floorDiv((long) Math.floorDiv(blockZ, this.zCellWidthBlocks) * this.skewBlocks, this.rowsPerLap);
+        return Math.floorDiv(blockX - rowOffsetBlocks, this.xCellWidthBlocks) * this.xCellWidthBlocks + rowOffsetBlocks;
     }
 
     public int cellOriginZ(int blockZ) {
-        return Math.floorDiv(blockZ, this.zCellWidth) * this.zCellWidth;
+        return Math.floorDiv(blockZ, this.zCellWidthBlocks) * this.zCellWidthBlocks;
     }
 
-    static int tilingWidth(WrapDomain domain, int vanillaCellWidth) {
-        if (!domain.loops()) {
-            return vanillaCellWidth;
+    static int tilingWidthBlocks(WrapDomain domain, int vanillaCellWidthBlocks) {
+        if (!domain.isLooped()) {
+            return vanillaCellWidthBlocks;
         }
 
-        int width = domain.domainLength;
-        double vanillaCellCount = (double) width / vanillaCellWidth;
+        int widthBlocks = domain.domainLength;
+        double vanillaCellCount = (double) widthBlocks / vanillaCellWidthBlocks;
         int cellCount = SMALLEST_CELL_COUNT;
 
-        for (int divisor : Divisors.of(width)) {
+        for (int divisor : Divisors.of(widthBlocks)) {
             cellCount = nearer(cellCount, divisor, vanillaCellCount);
         }
 
-        return width / cellCount;
+        return widthBlocks / cellCount;
     }
 
     private static int nearer(int chosen, int candidate, double vanillaCellCount) {

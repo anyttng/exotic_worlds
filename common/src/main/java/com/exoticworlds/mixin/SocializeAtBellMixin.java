@@ -21,7 +21,7 @@ public class SocializeAtBellMixin {
             at = @At(value = "INVOKE",
                     target = InjectionTargets.BLOCK_POS_CLOSER_TO_CENTER_THAN))
     private static boolean exotic_worlds$meetingPointReachThroughSeam(BlockPos meetingPos, Position bodyPosition,
-            double distance, Operation<Boolean> original, @Local(argsOnly = true) LivingEntity body) {
-        return original.call(meetingPos, SeamRange.towardCenterOf(body, meetingPos, bodyPosition), distance);
+            double distanceBlocks, Operation<Boolean> original, @Local(argsOnly = true) LivingEntity body) {
+        return original.call(meetingPos, SeamRange.towardCenterOf(body, meetingPos, bodyPosition), distanceBlocks);
     }
 }

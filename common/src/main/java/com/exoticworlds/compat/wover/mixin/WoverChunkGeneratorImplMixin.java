@@ -5,8 +5,8 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
 
-import com.exoticworlds.core.CarriedShape;
-import com.exoticworlds.core.ShapedChunkGenerator;
+import com.exoticworlds.core.world.CarriedShape;
+import com.exoticworlds.core.gen.GeneratorShapes;
 import com.exoticworlds.engine.gen.ShapedDimensions;
 import com.llamalad7.mixinextras.sugar.Local;
 
@@ -21,8 +21,8 @@ public class WoverChunkGeneratorImplMixin {
             @Local(argsOnly = true, ordinal = 0) ResourceKey<LevelStem> dimensionKey,
             @Local(argsOnly = true) WoverChunkGeneratorImpl.StemGetter getter) {
         LevelStem replaced = getter.get(dimensionKey);
-        CarriedShape carried = replaced == null ? null : ShapedChunkGenerator.carriedShapeOf(replaced.generator());
-        if (carried == null || ShapedChunkGenerator.carriedShapeOf(generator) != null) {
+        CarriedShape carried = replaced == null ? null : GeneratorShapes.getCarriedShape(replaced.generator());
+        if (carried == null || GeneratorShapes.getCarriedShape(generator) != null) {
             return generator;
         }
 

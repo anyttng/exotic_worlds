@@ -3,9 +3,8 @@ package com.exoticworlds.api.v1;
 import java.util.Optional;
 import java.util.OptionalDouble;
 
-import com.exoticworlds.core.WorldFold;
-import com.exoticworlds.core.WorldLoopAttachments;
-import com.exoticworlds.engine.seam.circumnavigation.SeamTravel;
+import com.exoticworlds.bridge.v1.geometry.GeometryBridge;
+import com.exoticworlds.bridge.v1.seam.SeamBridge;
 
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerPlayer;
@@ -23,8 +22,7 @@ public final class ExoticWorldsApi {
      * cheap; callers may hold it for as long as the level lives.
      */
     public static Optional<ToroidalShape> shapeOf(Level level) {
-        WorldFold fold = WorldLoopAttachments.wrappedFoldOf(level);
-        return fold == null ? Optional.empty() : Optional.of(fold.shapeView());
+        return GeometryBridge.of(level);
     }
 
     /**
@@ -36,17 +34,7 @@ public final class ExoticWorldsApi {
      * dimension does not wrap on that axis; {@link Direction.Axis#Y} is always empty.
      */
     public static OptionalDouble travelOf(ServerPlayer player, Direction.Axis axis) {
-        if (axis == Direction.Axis.Y) {
-            return OptionalDouble.empty();
-        }
-
-        WorldFold fold = WorldLoopAttachments.wrappedFoldOf(player.level());
-        if (fold == null || !fold.bounds().loops(axis)) {
-            return OptionalDouble.empty();
-        }
-
-        return OptionalDouble.of(
-                SeamTravel.of(player).in(player.level().dimension()).on(axis));
+        return SeamBridge.travelOf(player, axis);
     }
 
     private ExoticWorldsApi() {

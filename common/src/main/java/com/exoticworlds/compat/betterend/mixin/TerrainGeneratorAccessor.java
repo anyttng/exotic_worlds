@@ -15,42 +15,42 @@ import org.spongepowered.asm.mixin.gen.Invoker;
 @Mixin(TerrainGenerator.class)
 public interface TerrainGeneratorAccessor {
     @Accessor("LOCKER")
-    static ReentrantLock exotic_worlds$locker() {
+    static ReentrantLock exotic_worlds$getLocker() {
         throw new AssertionError();
     }
 
     @Accessor("largeIslands")
-    static IslandLayer exotic_worlds$largeIslands() {
+    static IslandLayer exotic_worlds$getLargeIslands() {
         throw new AssertionError();
     }
 
     @Accessor("mediumIslands")
-    static IslandLayer exotic_worlds$mediumIslands() {
+    static IslandLayer exotic_worlds$getMediumIslands() {
         throw new AssertionError();
     }
 
     @Accessor("smallIslands")
-    static IslandLayer exotic_worlds$smallIslands() {
+    static IslandLayer exotic_worlds$getSmallIslands() {
         throw new AssertionError();
     }
 
     @Accessor("noise1")
-    static OpenSimplexNoise exotic_worlds$noise1() {
+    static OpenSimplexNoise exotic_worlds$getNoise1() {
         throw new AssertionError();
     }
 
     @Accessor("noise2")
-    static OpenSimplexNoise exotic_worlds$noise2() {
+    static OpenSimplexNoise exotic_worlds$getNoise2() {
         throw new AssertionError();
     }
 
     @Accessor("TERRAIN_BOOL_CACHE_MAP")
-    static Map<Point, TerrainBoolCache> exotic_worlds$boolCache() {
+    static Map<Point, TerrainBoolCache> exotic_worlds$getBoolCache() {
         throw new AssertionError();
     }
 
     @Accessor("POS")
-    static Point exotic_worlds$pos() {
+    static Point exotic_worlds$getPos() {
         throw new AssertionError();
     }
 

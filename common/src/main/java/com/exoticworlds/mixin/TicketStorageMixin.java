@@ -26,6 +26,6 @@ public class TicketStorageMixin implements LevelBindable {
                     "removeTicket(JLnet/minecraft/server/level/Ticket;)Z"},
             at = @At("HEAD"), argsOnly = true, require = 2)
     private long exotic_worlds$foldTicketKey(long key) {
-        return this.exotic_worlds$bound.fold().foldChunkKey(key);
+        return this.exotic_worlds$bound.getFold().foldChunkKey(key);
     }
 }

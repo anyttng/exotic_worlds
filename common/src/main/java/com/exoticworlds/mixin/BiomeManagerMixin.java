@@ -10,8 +10,9 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import com.exoticworlds.accessors.BiomeZoomOwner;
-import com.exoticworlds.core.WorldFold;
-import com.exoticworlds.core.WorldLoopAttachments;
+import com.exoticworlds.core.fold.FoldOrientation;
+import com.exoticworlds.core.fold.WorldFold;
+import com.exoticworlds.core.fold.WorldLoopAttachments;
 import com.exoticworlds.engine.fold.FoldedQuart;
 import com.llamalad7.mixinextras.injector.ModifyReturnValue;
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
@@ -57,7 +58,7 @@ public class BiomeManagerMixin implements BiomeZoomOwner {
     }
 
     @Override
-    public @Nullable LevelReader exotic_worlds$owner() {
+    public @Nullable LevelReader exotic_worlds$getOwner() {
         return this.exotic_worlds$owner;
     }
 
@@ -81,7 +82,7 @@ public class BiomeManagerMixin implements BiomeZoomOwner {
 
     @WrapMethod(method = "getBiome(III)Lnet/minecraft/core/Holder;")
     private Holder<Biome> exotic_worlds$zoomOnFoldedCorners(int x, int y, int z, Operation<Holder<Biome>> original) {
-        WorldFold fold = WorldLoopAttachments.foldOfReader(this.exotic_worlds$owner);
+        WorldFold fold = WorldLoopAttachments.getFoldOfReader(this.exotic_worlds$owner);
         if (!fold.isWrapped()) {
             return original.call(x, y, z);
         }
@@ -106,8 +107,12 @@ public class BiomeManagerMixin implements BiomeZoomOwner {
             int cornerY = yEven ? parentY : parentY + 1;
             int cornerZ = zEven ? parentZ : parentZ + 1;
             long folded = FoldedQuart.fold(fold, cornerX, cornerY, cornerZ);
+            FoldOrientation orientation = FoldedQuart.orientation(fold, cornerX, cornerY, cornerZ);
+            double distanceX = xEven ? fractX : fractX - 1.0;
+            double distanceZ = zEven ? fractZ : fractZ - 1.0;
             double next = getFiddledDistance(this.biomeZoomSeed, FoldedQuart.x(folded), cornerY, FoldedQuart.z(folded),
-                    xEven ? fractX : fractX - 1.0, yEven ? fractY : fractY - 1.0, zEven ? fractZ : fractZ - 1.0);
+                    FoldedQuart.distanceX(orientation, distanceX, distanceZ), yEven ? fractY : fractY - 1.0,
+                    FoldedQuart.distanceZ(orientation, distanceX, distanceZ));
             if (minFiddledDistance > next) {
                 minI = i;
                 minFiddledDistance = next;

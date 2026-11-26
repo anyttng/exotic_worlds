@@ -10,17 +10,17 @@ import java.util.Set;
 import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Test;
 
-import com.exoticworlds.api.v1.ToroidalShape;
 import com.exoticworlds.compat.map.AxisCopies;
-import com.exoticworlds.compat.map.MapShapes;
+import com.exoticworlds.compat.map.MapFolds;
 import com.exoticworlds.compat.map.WorldCopies;
+import com.exoticworlds.core.fold.WorldFold;
 
 import net.minecraft.world.level.ChunkPos;
 
 class XaeroWorldMapFoldSlotsTest {
     private static final int SLOT = 64;
     private static final AxisCopies OFF_GRID = AxisCopies.looped(-14992, 30000);
-    private static final ToroidalShape OFF_GRID_TORUS = MapShapes.torus(-937, 938);
+    private static final WorldFold OFF_GRID_TORUS = MapFolds.torus(-937, 938);
 
     @Test
     void aSlotAcrossAnOffGridSeamFoldsOntoThreeCanonicalSlots() {
@@ -43,7 +43,7 @@ class XaeroWorldMapFoldSlotsTest {
     void aSlotAsWideAsAHalfShiftedWorldFoldsOntoBothHalvesOfBothAxes() {
         Set<Long> expected = new HashSet<>(row(0, 0, -512));
         expected.addAll(row(-512, 0, -512));
-        assertEquals(expected, slotOrigins(MapShapes.torus(-16, 16), 0, 0, 512),
+        assertEquals(expected, slotOrigins(MapFolds.torus(-16, 16), 0, 0, 512),
                 "0..255 stays, 256..511 folds onto -256..-1, on X and on Z");
     }
 
@@ -54,22 +54,22 @@ class XaeroWorldMapFoldSlotsTest {
 
     @Test
     void aSlotPastALatticeSeamFoldsOntoTheSlotTheSkewMovesItTo() {
-        assertEquals(row(-256, -256), slotOrigins(MapShapes.latticeTorus(-16, 16, 16), 0, 256, SLOT),
+        assertEquals(row(-256, -256), slotOrigins(MapFolds.latticeTorus(-16, 16, 16), 0, 256, SLOT),
                 "the slot at (0, 256) lies one Z lap up and 256 blocks over, so it folds onto (-256, -256), not (0, -256)");
     }
 
     @Test
     void aSlotLeavesTheWorldWhereAnyOfItReachesPastABound() {
-        assertTrue(XaeroWorldMapFold.spanLeavesWorld(OFF_GRID, 14976, SLOT), "14976..15039 crosses the seam at 15008");
-        assertTrue(XaeroWorldMapFold.spanLeavesWorld(OFF_GRID, 15040, SLOT), "15040..15103 lies wholly past it");
-        assertTrue(XaeroWorldMapFold.spanLeavesWorld(OFF_GRID, -15040, SLOT), "-15040..-14977 crosses the seam at -14992");
-        assertFalse(XaeroWorldMapFold.spanLeavesWorld(OFF_GRID, 14912, SLOT), "14912..14975 lies inside");
-        assertFalse(XaeroWorldMapFold.spanLeavesWorld(AxisCopies.UNBOUNDED, 15040, SLOT), "an unbounded axis has no bound");
+        assertTrue(XaeroWorldMapFold.isSpanLeavingWorld(OFF_GRID, 14976, SLOT), "14976..15039 crosses the seam at 15008");
+        assertTrue(XaeroWorldMapFold.isSpanLeavingWorld(OFF_GRID, 15040, SLOT), "15040..15103 lies wholly past it");
+        assertTrue(XaeroWorldMapFold.isSpanLeavingWorld(OFF_GRID, -15040, SLOT), "-15040..-14977 crosses the seam at -14992");
+        assertFalse(XaeroWorldMapFold.isSpanLeavingWorld(OFF_GRID, 14912, SLOT), "14912..14975 lies inside");
+        assertFalse(XaeroWorldMapFold.isSpanLeavingWorld(AxisCopies.UNBOUNDED, 15040, SLOT), "an unbounded axis has no bound");
     }
 
-    private static Set<Long> slotOrigins(@Nullable ToroidalShape shape, int viewBlockX, int viewBlockZ, int slotSize) {
+    private static Set<Long> slotOrigins(@Nullable WorldFold shape, int viewBlockX, int viewBlockZ, int slotSize) {
         Set<Set<Long>> answers = new HashSet<>();
-        for (WorldCopies.Window window : MapShapes.windows(shape)) {
+        for (WorldCopies.Window window : MapFolds.windows(shape)) {
             answers.add(origins(XaeroWorldMapFold.canonicalSlotOrigins(window, viewBlockX, viewBlockZ, slotSize)));
         }
 

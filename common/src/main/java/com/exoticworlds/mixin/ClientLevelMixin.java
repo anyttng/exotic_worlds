@@ -4,9 +4,9 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 
 import com.exoticworlds.accessors.ClientBoundsHolder;
-import com.exoticworlds.core.WorldFold;
-import com.exoticworlds.core.WorldFolds;
-import com.exoticworlds.core.WorldLoopAttachments;
+import com.exoticworlds.core.fold.WorldFold;
+import com.exoticworlds.core.fold.WorldFolds;
+import com.exoticworlds.core.fold.WorldLoopAttachments;
 import com.exoticworlds.engine.noise.GenerationFoldContext;
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
@@ -22,7 +22,7 @@ public class ClientLevelMixin implements ClientBoundsHolder {
     private WorldFold exotic_worlds$clientBounds = WorldFolds.NOOP;
 
     @Override
-    public WorldFold exotic_worlds$clientBounds() {
+    public WorldFold exotic_worlds$getClientBounds() {
         return this.exotic_worlds$clientBounds;
     }
 
@@ -34,8 +34,8 @@ public class ClientLevelMixin implements ClientBoundsHolder {
     @WrapMethod(method = "getPrecipitationAt")
     private Biome.Precipitation exotic_worlds$bindPrecipitationFold(
             BlockPos pos, Operation<Biome.Precipitation> original) {
-        WorldFold fold = WorldLoopAttachments.noiseFoldOf((Level) (Object) this);
-        try (GenerationFoldContext.Context.FoldScope _ = GenerationFoldContext.context().withFold(fold)) {
+        WorldFold fold = WorldLoopAttachments.getNoiseFold((Level) (Object) this);
+        try (GenerationFoldContext.Context.FoldScope _ = GenerationFoldContext.getContext().withFold(fold)) {
             return original.call(pos);
         }
     }

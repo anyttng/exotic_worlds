@@ -18,8 +18,8 @@ public record AquiferCells(TilingCellGrid levelGrid, DensitySampler level, Tilin
     };
 
     public static AquiferCells compile(FoldedCompileContext context, Aquifer.Config config) {
-        TilingCellGrid levelGrid = TilingCellGrid.of(context.fold(), NoiseConstants.AQUIFER_FLUID_LEVEL_CELL_WIDTH);
-        TilingCellGrid typeGrid = TilingCellGrid.of(context.fold(), NoiseConstants.AQUIFER_FLUID_TYPE_CELL_WIDTH);
+        TilingCellGrid levelGrid = TilingCellGrid.of(context.fold(), NoiseConstants.AQUIFER_FLUID_LEVEL_CELL_WIDTH_BLOCKS);
+        TilingCellGrid typeGrid = TilingCellGrid.of(context.fold(), NoiseConstants.AQUIFER_FLUID_TYPE_CELL_WIDTH_BLOCKS);
         return new AquiferCells(
                 levelGrid, compileOnGrid(context, levelGrid, config.fluidLevelSpreadNoise()),
                 typeGrid, compileOnGrid(context, typeGrid, config.lavaNoise()));
@@ -37,8 +37,8 @@ public record AquiferCells(TilingCellGrid levelGrid, DensitySampler level, Tilin
 
     private static DensitySampler compileOnGrid(FoldedCompileContext context, TilingCellGrid grid,
             DensityFunction function) {
-        try (GenerationFoldContext.Context.DivisorScope _ = GenerationFoldContext.context()
-                .withDivisors(grid.xCellWidth(), grid.zCellWidth())) {
+        try (GenerationFoldContext.Context.DivisorScope _ = GenerationFoldContext.getContext()
+                .withDivisors(grid.xCellWidthBlocks(), grid.zCellWidthBlocks())) {
             return UNCACHED.rewrite(function).compileSampler(context.vanilla());
         }
     }

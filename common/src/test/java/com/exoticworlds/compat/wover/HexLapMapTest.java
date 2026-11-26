@@ -15,13 +15,13 @@ import org.betterx.wover.generator.impl.map.hex.HexBiomeMap;
 import org.betterx.wover.util.RandomizedWeightedList;
 import org.junit.jupiter.api.Test;
 
-import com.exoticworlds.core.FlatShape;
-import com.exoticworlds.core.ShapeFixtures;
-import com.exoticworlds.core.TranslationLattice;
-import com.exoticworlds.core.WorldFold;
-import com.exoticworlds.core.WorldFolds;
-import com.exoticworlds.core.WorldLoopBounds;
-import com.exoticworlds.core.WrapDomain;
+import com.exoticworlds.core.world.FlatShape;
+import com.exoticworlds.core.world.ShapeFixtures;
+import com.exoticworlds.core.fold.TranslationLattice;
+import com.exoticworlds.core.fold.WorldFold;
+import com.exoticworlds.core.fold.WorldFolds;
+import com.exoticworlds.core.world.WorldLoopBounds;
+import com.exoticworlds.core.fold.WrapDomain;
 import com.exoticworlds.engine.noise.ClimateScaleCompression;
 
 import net.minecraft.core.Direction;
@@ -223,26 +223,26 @@ class HexLapMapTest {
     void aCylinderRepeatsOnItsLoopedAxisAndKeepsTheOtherOpen() {
         WorldFold cylinder = WorldFolds.of(ShapeFixtures.cylinder(WorldLoopBounds.ofWidth(Direction.Axis.X, 256)));
         HexLapMap<Integer> map = map(cylinder, DEFAULT_SCALE);
-        int lap = cylinder.blockDomain(Direction.Axis.X).domainLength;
+        int lapBlocks = cylinder.getBlockDomain(Direction.Axis.X).domainLength;
         for (int z = -4096; z < 4096; z += 37) {
-            for (int x = -2 * lap; x < 2 * lap; x += 101) {
-                assertEquals(map.biomeAt(x, z), map.biomeAt(x + lap, z), "x " + x + " z " + z);
+            for (int x = -2 * lapBlocks; x < 2 * lapBlocks; x += 101) {
+                assertEquals(map.biomeAt(x, z), map.biomeAt(x + lapBlocks, z), "x " + x + " z " + z);
             }
         }
 
-        assertFalse(map.axis(Direction.Axis.Z).loops(), "the open axis was given a lap");
+        assertFalse(map.getAxis(Direction.Axis.Z).isLooped(), "the open axis was given a lap");
     }
 
     @Test
     void aLatticeKeepsWorldWeaversCellOrShrinksItOnlyToFitAWholeCount() {
-        int[] chunkWidths = {1, 3, 16, 41, 75, 128, 256, 1875};
+        int[] widthsChunks = {1, 3, 16, 41, 75, 128, 256, 1875};
         float[] scales = {DEFAULT_SCALE, 4.0F, 128.0F};
-        for (int width : chunkWidths) {
-            WorldFold fold = WorldFolds.of(ShapeFixtures.torus(WorldLoopBounds.ofWidth(width)));
+        for (int widthChunks : widthsChunks) {
+            WorldFold fold = WorldFolds.of(ShapeFixtures.torus(WorldLoopBounds.ofWidth(widthChunks)));
             for (float scale : scales) {
                 HexLapMap<Integer> map = map(fold, scale);
-                assertCell(map.axis(Direction.Axis.X), scale / HexLapMap.RAD_INNER, 1);
-                assertCell(map.axis(Direction.Axis.Z), scale, 2);
+                assertCell(map.getAxis(Direction.Axis.X), scale / HexLapMap.RAD_INNER, 1);
+                assertCell(map.getAxis(Direction.Axis.Z), scale, 2);
             }
         }
     }
@@ -253,15 +253,15 @@ class HexLapMapTest {
         WorldFold torus = WorldFolds.of(ShapeFixtures.torus(WorldLoopBounds.ofWidth(256)));
         for (double factor : factors) {
             HexLapMap<Integer> map = map(torus, DEFAULT_SCALE, factor);
-            assertCell(map.axis(Direction.Axis.X), DEFAULT_SCALE / factor / HexLapMap.RAD_INNER, 1);
-            assertCell(map.axis(Direction.Axis.Z), DEFAULT_SCALE / factor, 2);
+            assertCell(map.getAxis(Direction.Axis.X), DEFAULT_SCALE / factor / HexLapMap.RAD_INNER, 1);
+            assertCell(map.getAxis(Direction.Axis.Z), DEFAULT_SCALE / factor, 2);
         }
 
         WorldFold cylinder = WorldFolds.of(ShapeFixtures.cylinder(WorldLoopBounds.ofWidth(Direction.Axis.X, 256)));
         HexLapMap<Integer> compact = map(cylinder, DEFAULT_SCALE, FACTOR);
-        assertEquals(DEFAULT_SCALE / FACTOR, compact.axis(Direction.Axis.Z).cellBlocks(), 1.0E-9,
+        assertEquals(DEFAULT_SCALE / FACTOR, compact.getAxis(Direction.Axis.Z).cellBlocks(), 1.0E-9,
                 "the cylinder's open axis kept WorldWeaver's cell");
-        assertCell(compact.axis(Direction.Axis.X), DEFAULT_SCALE / FACTOR / HexLapMap.RAD_INNER, 1);
+        assertCell(compact.getAxis(Direction.Axis.X), DEFAULT_SCALE / FACTOR / HexLapMap.RAD_INNER, 1);
         assertPeriodic(cylinder, DEFAULT_SCALE, FACTOR);
     }
 
@@ -396,13 +396,13 @@ class HexLapMapTest {
     }
 
     static void assertCell(LapAxis axis, double ownCellBlocks, int countStep) {
-        double lap = axis.blocks().domainLength;
+        double lapBlocks = axis.blocks().domainLength;
         double cell = axis.latticeBlocks();
         assertTrue(cell <= ownCellBlocks + 1.0E-9,
-                "cell " + cell + " is wider than WorldWeaver's " + ownCellBlocks + " on a " + lap + "-block lap");
+                "cell " + cell + " is wider than WorldWeaver's " + ownCellBlocks + " on a " + lapBlocks + "-block lap");
         int fewer = axis.cells() - countStep;
-        assertTrue(fewer < 1 || lap / fewer > ownCellBlocks,
-                axis.cells() + " cells on a " + lap + "-block lap: " + fewer + " would still fit " + ownCellBlocks);
+        assertTrue(fewer < 1 || lapBlocks / fewer > ownCellBlocks,
+                axis.cells() + " cells on a " + lapBlocks + "-block lap: " + fewer + " would still fit " + ownCellBlocks);
     }
 
     private static void assertPeriodic(WorldFold fold, float scale) {
@@ -414,21 +414,21 @@ class HexLapMapTest {
     }
 
     static void assertPeriodic(LapMap<Integer> map, WorldFold fold) {
-        TranslationLattice lattice = fold.blockLattice();
-        WrapDomain xDomain = lattice.x();
-        WrapDomain zDomain = lattice.z();
-        int xLap = xDomain.domainLength;
-        int zLap = zDomain.domainLength;
-        int skew = lattice.skew();
-        int xStride = Math.max(MIN_STRIDE_BLOCKS, xLap / SAMPLES_PER_LAP);
-        int zStride = Math.max(MIN_STRIDE_BLOCKS, zLap / SAMPLES_PER_LAP);
+        TranslationLattice lattice = fold.getBlockLattice();
+        WrapDomain xDomain = lattice.getX();
+        WrapDomain zDomain = lattice.getZ();
+        int xLapBlocks = xDomain.domainLength;
+        int zLapBlocks = zDomain.domainLength;
+        int skewBlocks = lattice.getSkew();
+        int xStrideBlocks = Math.max(MIN_STRIDE_BLOCKS, xLapBlocks / SAMPLES_PER_LAP);
+        int zStrideBlocks = Math.max(MIN_STRIDE_BLOCKS, zLapBlocks / SAMPLES_PER_LAP);
         Set<Integer> seen = new HashSet<>();
-        for (int x = xDomain.lowerBound - SEAM_STRIP_BLOCKS; x < xDomain.upperBound; x += xStride) {
-            for (int z = zDomain.lowerBound - SEAM_STRIP_BLOCKS; z < zDomain.upperBound; z += zStride) {
+        for (int x = xDomain.lowerBound - SEAM_STRIP_BLOCKS; x < xDomain.upperBound; x += xStrideBlocks) {
+            for (int z = zDomain.lowerBound - SEAM_STRIP_BLOCKS; z < zDomain.upperBound; z += zStrideBlocks) {
                 int biome = map.biomeAt(x, z);
                 seen.add(biome);
-                assertEquals(biome, map.biomeAt(x + xLap, z), "x " + x + " z " + z + " one lap away on X");
-                assertEquals(biome, map.biomeAt(x + skew, z + zLap), "x " + x + " z " + z + " one lap away on Z");
+                assertEquals(biome, map.biomeAt(x + xLapBlocks, z), "x " + x + " z " + z + " one lap away on X");
+                assertEquals(biome, map.biomeAt(x + skewBlocks, z + zLapBlocks), "x " + x + " z " + z + " one lap away on Z");
             }
         }
 

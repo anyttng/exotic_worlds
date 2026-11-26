@@ -10,7 +10,7 @@ import com.exoticworlds.compat.terraforged.RtfLap;
 public abstract class WarpMixin {
     @WrapMethod(method = "compute")
     private float exotic_worlds$shiftBeforeWarp(float x, float z, int seed, Operation<Float> original) {
-        RtfLap.Frame frame = RtfLap.boundFrame();
+        RtfLap.Frame frame = RtfLap.getBoundFrame();
         if (frame == null) {
             return original.call(x, z, seed);
         }

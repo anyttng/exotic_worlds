@@ -5,7 +5,7 @@ import java.util.Map;
 
 import org.jspecify.annotations.Nullable;
 
-import com.exoticworlds.core.WorldFold;
+import com.exoticworlds.core.fold.WorldFold;
 
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.level.Level;
@@ -19,7 +19,7 @@ public final class PublishedShapes {
         folds = Map.copyOf(next);
     }
 
-    public static @Nullable WorldFold wrappedFoldOf(ResourceKey<Level> dimension) {
+    public static @Nullable WorldFold getWrappedFold(ResourceKey<Level> dimension) {
         WorldFold fold = folds.get(dimension);
         return fold != null && fold.isWrapped() ? fold : null;
     }

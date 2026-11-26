@@ -7,7 +7,7 @@ import org.spongepowered.asm.mixin.injection.ModifyArg;
 import com.llamalad7.mixinextras.sugar.Local;
 import com.zurrtum.create.foundation.item.ItemHelper;
 import com.exoticworlds.InjectionTargets;
-import com.exoticworlds.core.WorldLoopAttachments;
+import com.exoticworlds.core.fold.WorldLoopAttachments;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
@@ -16,6 +16,6 @@ import net.minecraft.server.level.ServerLevel;
 public class ItemHelperMixin {
     @ModifyArg(method = "getInventoryCache", at = @At(value = "INVOKE", target = InjectionTargets.MAP_PUT), index = 0)
     private static Object exotic_worlds$cacheUnderCanonicalKey(Object pos, @Local(argsOnly = true) ServerLevel level) {
-        return WorldLoopAttachments.foldOf(level).fold((BlockPos) pos);
+        return WorldLoopAttachments.getFold(level).fold((BlockPos) pos);
     }
 }

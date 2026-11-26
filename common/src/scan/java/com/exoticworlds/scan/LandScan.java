@@ -1,7 +1,7 @@
 package com.exoticworlds.scan;
 
-import com.exoticworlds.core.WorldFold;
-import com.exoticworlds.core.WorldFolds;
+import com.exoticworlds.core.fold.WorldFold;
+import com.exoticworlds.core.fold.WorldFolds;
 import com.exoticworlds.engine.noise.ClimateScanFixture;
 import com.exoticworlds.engine.noise.ClimateScanFixture.WorldType;
 import com.exoticworlds.engine.noise.GenerationFoldContext;
@@ -204,13 +204,13 @@ class LandScan {
         RandomState randomState = randomState(type, fold, seed);
         DensitySampler density = randomState.getSampler(randomState.router.finalDensity());
         int seaLevel = settingsOf(type).seaLevel();
-        double step = widthBlocks / (double) grid;
+        double stepBlocks = widthBlocks / (double) grid;
         int[] land = new int[1];
 
         GenerationFoldContext.runWithFold(fold, () -> {
             for (int ix = 0; ix < grid; ix++) {
                 for (int iz = 0; iz < grid; iz++) {
-                    if (isLand(density, (int) Math.round(ix * step), seaLevel, (int) Math.round(iz * step))) {
+                    if (isLand(density, (int) Math.round(ix * stepBlocks), seaLevel, (int) Math.round(iz * stepBlocks))) {
                         land[0]++;
                     }
                 }
@@ -333,8 +333,8 @@ class LandScan {
     }
 
     private static LapProbe probeLap(WorldType type, WorldFold fold, int widthBlocks, long seed) {
-        int stride = Math.max(PATCH_STRIDE_BLOCKS, widthBlocks / PATCH_GRID_CAP);
-        int grid = widthBlocks / stride;
+        int strideBlocks = Math.max(PATCH_STRIDE_BLOCKS, widthBlocks / PATCH_GRID_CAP);
+        int grid = widthBlocks / strideBlocks;
         RandomState randomState = randomState(type, fold, seed);
         DensitySampler density = randomState.getSampler(randomState.router.finalDensity());
         DensitySampler continents = randomState.getSampler(randomState.router.continents());
@@ -345,8 +345,8 @@ class LandScan {
         GenerationFoldContext.runWithFold(fold, () -> {
             for (int ix = 0; ix < grid; ix++) {
                 for (int iz = 0; iz < grid; iz++) {
-                    int blockX = ix * stride;
-                    int blockZ = iz * stride;
+                    int blockX = ix * strideBlocks;
+                    int blockZ = iz * strideBlocks;
                     land[ix * grid + iz] = isLand(density, blockX, seaLevel, blockZ);
                     field[ix * grid + iz] =
                             continents.sampleValue(SamplerContext.EMPTY_UNCACHED, blockX, seaLevel, blockZ);
@@ -354,7 +354,7 @@ class LandScan {
             }
         });
 
-        return new LapProbe((long) largestComponent(land, grid) * stride * stride, mean(field),
+        return new LapProbe((long) largestComponent(land, grid) * strideBlocks * strideBlocks, mean(field),
                 standardDeviation(field));
     }
 

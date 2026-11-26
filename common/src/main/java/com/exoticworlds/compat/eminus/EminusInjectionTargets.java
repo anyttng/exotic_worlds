@@ -7,12 +7,8 @@ public final class EminusInjectionTargets {
     public static final String MESH_LISTENER_MESHED = "Lcom/eminus/mesh/MeshListener;meshed(Lcom/eminus/mesh/CellMesh;J)V";
     public static final String MESH_LISTENER_FAILED = "Lcom/eminus/mesh/MeshListener;failed(JJ)V";
     public static final String MESH_SERVICE_FILL_REQUEST = "(JLcom/eminus/cell/cache/CellHandle;IJFZ)V";
-    public static final String FAR_PIPELINE_BUILDER = "(Lcom/eminus/gpu/Location;Lcom/eminus/gpu/Location;"
-            + "Lcom/eminus/gpu/Capabilities;Lcom/eminus/model/port/VariantDraw;Z)"
-            + "Lcom/eminus/gpu/pipeline/PipelineSpec$Builder;";
-    public static final String FAR_PIPELINE_BUILDER_WITH_CUTOUT = "(Lcom/eminus/gpu/Location;Lcom/eminus/gpu/Location;F"
-            + "Lcom/eminus/gpu/Capabilities;Lcom/eminus/model/port/VariantDraw;Z)"
-            + "Lcom/eminus/gpu/pipeline/PipelineSpec$Builder;";
+    public static final String PIPELINE_SPEC_BUILDER = "(Lcom/eminus/gpu/Location;Lcom/eminus/gpu/Location;"
+            + "Lcom/eminus/gpu/Location;)Lcom/eminus/gpu/pipeline/PipelineSpec$Builder;";
 
     private EminusInjectionTargets() {
     }

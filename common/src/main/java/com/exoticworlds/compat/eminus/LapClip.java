@@ -7,6 +7,7 @@ import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 
 import com.eminus.client.session.ClientSession;
+import com.eminus.gpu.Location;
 import com.eminus.gpu.pipeline.PipelineSpec;
 import com.mojang.logging.LogUtils;
 
@@ -64,16 +65,24 @@ public final class LapClip {
                 "");
     }
 
-    public static PipelineSpec.Builder clipped(PipelineSpec.Builder builder) {
-        CellFold fold = CellFoldHolder.foldOf(ClientSession.runtime());
-        if (!fold.repeats()) {
+    public static boolean isRewritten(String namespace, @Nullable String path) {
+        return NAMESPACE.equals(namespace) && path != null && ENTRIES.containsKey(path);
+    }
+
+    public static PipelineSpec.Builder clipped(PipelineSpec.Builder builder, Location fragmentShader) {
+        if (!isRewritten(fragmentShader.namespace(), fragmentShader.path())) {
+            return builder;
+        }
+
+        CellFold fold = CellFoldHolder.getFold(ClientSession.runtime());
+        if (!fold.isRepeating()) {
             return builder;
         }
 
         return builder.withDefine(DEFINE)
-                .withDefine(DEFINE_X, fold.lapXBlocks())
-                .withDefine(DEFINE_Z, fold.lapZBlocks())
-                .withDefine(DEFINE_SKEW, fold.skewBlocks());
+                .withDefine(DEFINE_X, fold.getLapXBlocks())
+                .withDefine(DEFINE_Z, fold.getLapZBlocks())
+                .withDefine(DEFINE_SKEW, fold.getSkewBlocks());
     }
 
     public static @Nullable String fragmentShader(String resourcePath) {
@@ -98,7 +107,7 @@ public final class LapClip {
             return source;
         }
 
-        Frame frame = frameOf(source);
+        Frame frame = findFrame(source);
         if (frame == null) {
             LOGGER.warn("[ew/eminus-compat] lap_clip_skipped shader={} reason=unknown_frame", path);
             return source;
@@ -116,7 +125,7 @@ public final class LapClip {
                 + source.substring(body);
     }
 
-    private static @Nullable Frame frameOf(String source) {
+    private static @Nullable Frame findFrame(String source) {
         for (Frame frame : FRAMES) {
             if (source.contains(frame.sampler())) {
                 return frame;

@@ -8,13 +8,14 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
-import com.exoticworlds.api.v1.option.GenerationOptions;
-import com.exoticworlds.core.DeckGroupFold;
-import com.exoticworlds.core.FlatShape;
-import com.exoticworlds.core.ShapeFixtures;
-import com.exoticworlds.core.WorldFold;
-import com.exoticworlds.core.WorldLoopBounds;
-import com.exoticworlds.core.WorldLoopBounds.AxisBounds;
+import com.exoticworlds.core.fold.deck.DeckGroupFold;
+import com.exoticworlds.core.world.FlatShape;
+import com.exoticworlds.core.fold.SeamTransform;
+import com.exoticworlds.core.world.ShapeFixtures;
+import com.exoticworlds.core.option.ShapeOptions;
+import com.exoticworlds.core.fold.WorldFold;
+import com.exoticworlds.core.world.WorldLoopBounds;
+import com.exoticworlds.core.world.WorldLoopBounds.AxisBounds;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -28,13 +29,13 @@ class SeamHitTest {
 
     private static final WorldFold MIRRORS_Z = new DeckGroupFold(
             ShapeFixtures.mirrored(new WorldLoopBounds(LOOPED, UNBOUNDED), Direction.Axis.Z,
-                    0), GenerationOptions.DEFAULT);
+                    0), ShapeOptions.DEFAULT);
     private static final WorldFold MIRRORS_X = new DeckGroupFold(
             ShapeFixtures.mirrored(new WorldLoopBounds(UNBOUNDED, LOOPED), Direction.Axis.X,
-                    0), GenerationOptions.DEFAULT);
+                    0), ShapeOptions.DEFAULT);
     private static final WorldFold TORUS = new DeckGroupFold(
-            ShapeFixtures.torus(new WorldLoopBounds(LOOPED, LOOPED)), GenerationOptions.DEFAULT);
-    private static final WorldFold RECTANGLE = new DeckGroupFold(FlatShape.rectangle(), GenerationOptions.DEFAULT);
+            ShapeFixtures.torus(new WorldLoopBounds(LOOPED, LOOPED)), ShapeOptions.DEFAULT);
+    private static final WorldFold RECTANGLE = new DeckGroupFold(FlatShape.rectangle(), ShapeOptions.DEFAULT);
 
     private static final BlockPos OVER_X = new BlockPos(130, 64, 40);
     private static final BlockPos OVER_Z = new BlockPos(40, 64, 130);
@@ -97,6 +98,33 @@ class SeamHitTest {
                     hitOn(OVER_Z, new Vec3(0.75, 0.5, 0.25), Direction.WEST)).getDirection());
             assertEquals(Direction.NORTH, reseat(MIRRORS_X,
                     hitOn(OVER_Z, new Vec3(0.75, 0.5, 0.25), Direction.NORTH)).getDirection());
+        }
+    }
+
+    @Nested
+    class QuarterTurn {
+        private static final SeamTransform CLOCKWISE = new SeamTransform(-1, 1, 0, 0, true);
+
+        private static BlockHitResult reseatTurned(BlockHitResult hit) {
+            return SeamHit.reseat(hit,
+                    new WorldFold.Folded<>(CLOCKWISE.apply(hit.getBlockPos()), CLOCKWISE.getOrientation()));
+        }
+
+        @Test
+        void aHitOnAFaceLandsOnTheTurnedFace() {
+            BlockHitResult reseated = reseatTurned(hitOn(OVER_X, new Vec3(0.25, 0.5, 0.0), Direction.NORTH));
+
+            assertEquals(new BlockPos(-41, 64, 130), reseated.getBlockPos());
+            assertEquals(Direction.EAST, reseated.getDirection());
+            assertLocation(new Vec3(-40.0, 64.5, 130.25), reseated);
+        }
+
+        @Test
+        void theOffsetLandsWhereTheCoordinateTurnPutsIt() {
+            for (double offset = 0.05; offset < 1.0; offset += 0.05) {
+                BlockHitResult hit = hitOn(OVER_X, new Vec3(offset, 0.5, 0.75), Direction.UP);
+                assertLocation(CLOCKWISE.apply(hit.getLocation()), reseatTurned(hit));
+            }
         }
     }
 

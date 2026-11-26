@@ -69,7 +69,7 @@ public final class DhKeys {
         }
 
         BlockPos raw = new BlockPos(pos.getX(), pos.getY(), pos.getZ());
-        BlockPos block = lattice.shape().fold(raw);
+        BlockPos block = lattice.fold().fold(raw);
         if (block == raw) {
             DhProbes.keyKept(DhProbes.Key.BEACON);
             return pos;
@@ -80,8 +80,8 @@ public final class DhKeys {
         return folded;
     }
 
-    public static boolean containsACopy(DhLattice lattice, long sectionPos, long copyPos) {
-        return DhFold.containsACopy(lattice, DhSectionPos.getDetailLevel(sectionPos), DhSectionPos.getX(sectionPos),
+    public static boolean isContainingACopy(DhLattice lattice, long sectionPos, long copyPos) {
+        return DhFold.isContainingACopy(lattice, DhSectionPos.getDetailLevel(sectionPos), DhSectionPos.getX(sectionPos),
                 DhSectionPos.getZ(sectionPos), DhSectionPos.getDetailLevel(copyPos), DhSectionPos.getX(copyPos),
                 DhSectionPos.getZ(copyPos));
     }
@@ -115,8 +115,8 @@ public final class DhKeys {
     }
 
     public static boolean isNearestBeam(DhLattice lattice, int refBlockX, int refBlockZ, DhBlockPos beam) {
-        int width = DhFold.sectionWidthBlocks(LEAF);
-        long leaf = DhSectionPos.encode(LEAF, Math.floorDiv(beam.getX(), width), Math.floorDiv(beam.getZ(), width));
+        int widthBlocks = DhFold.sectionWidthBlocks(LEAF);
+        long leaf = DhSectionPos.encode(LEAF, Math.floorDiv(beam.getX(), widthBlocks), Math.floorDiv(beam.getZ(), widthBlocks));
         return isNearestCopy(lattice, refBlockX, refBlockZ, leaf);
     }
 
@@ -126,7 +126,7 @@ public final class DhKeys {
         }
     }
 
-    public static boolean drawsSection(DhLattice lattice, int refBlockX, int refBlockZ, long pos) {
+    public static boolean isSectionDrawn(DhLattice lattice, int refBlockX, int refBlockZ, long pos) {
         if (lattice == null) {
             return true;
         }
@@ -161,11 +161,11 @@ public final class DhKeys {
             return expected;
         }
 
-        if (straddlesNearestCopy(lattice, refBlockX, refBlockZ, pos)) {
+        if (isStraddlingNearestCopy(lattice, refBlockX, refBlockZ, pos)) {
             return atMost(expected, (byte) (snapLevel(lattice) - LEAF));
         }
 
-        if (straddlesNearestCopy(lattice, refBlockX, refBlockZ, DhSectionPos.getParentPos(pos))) {
+        if (isStraddlingNearestCopy(lattice, refBlockX, refBlockZ, DhSectionPos.getParentPos(pos))) {
             return atMost(expected, (byte) (DhSectionPos.getDetailLevel(pos) + 1 - LEAF));
         }
 
@@ -178,7 +178,7 @@ public final class DhKeys {
 
     public static List<WorldCopies.Piece> beamPieces(DhLattice lattice, int minX, int maxX, int minZ, int maxZ) {
         List<WorldCopies.Piece> pieces = new ArrayList<>();
-        for (WorldCopies.Piece piece : WorldCopies.pieces(lattice.shape(), minX, minZ, maxX + 1, maxZ + 1)) {
+        for (WorldCopies.Piece piece : WorldCopies.pieces(lattice.fold(), minX, minZ, maxX + 1, maxZ + 1)) {
             pieces.add(new WorldCopies.Piece(piece.copy(), piece.minX(), piece.minZ(), piece.maxX() - 1,
                     piece.maxZ() - 1));
         }
@@ -186,13 +186,13 @@ public final class DhKeys {
         return pieces;
     }
 
-    public static boolean straddlesNearestCopy(DhLattice lattice, int refBlockX, int refBlockZ, long pos) {
+    public static boolean isStraddlingNearestCopy(DhLattice lattice, int refBlockX, int refBlockZ, long pos) {
         byte snap = snapLevel(lattice);
         byte detail = DhSectionPos.getDetailLevel(pos);
         int x = DhSectionPos.getX(pos);
         int z = DhSectionPos.getZ(pos);
-        return DhFold.overlapsNearestWindow(lattice, Direction.Axis.X, snap, detail, refBlockX, x)
-                && DhFold.overlapsNearestWindow(lattice, Direction.Axis.Z, snap, detail, refBlockZ, z)
+        return DhFold.isOverlappingNearestWindow(lattice, Direction.Axis.X, snap, detail, refBlockX, x)
+                && DhFold.isOverlappingNearestWindow(lattice, Direction.Axis.Z, snap, detail, refBlockZ, z)
                 && !isNearestCopy(lattice, refBlockX, refBlockZ, pos);
     }
 

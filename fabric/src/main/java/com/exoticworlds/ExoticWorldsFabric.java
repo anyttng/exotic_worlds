@@ -3,9 +3,7 @@ package com.exoticworlds;
 import com.exoticworlds.compat.create.CreateTranslation;
 import com.exoticworlds.compat.ultimatemapatlases.AtlasLecternTranslation;
 import com.exoticworlds.engine.gen.DimensionChoicesCommand;
-import com.exoticworlds.engine.gen.LoopedChunkGenerator;
-import com.exoticworlds.engine.gen.LoopedFlatChunkGenerator;
-import com.exoticworlds.engine.gen.WorldLoopGenerators;
+import com.exoticworlds.engine.gen.LegacyGenerators;
 import com.exoticworlds.engine.net.DimensionChoicesPayload;
 import com.exoticworlds.engine.net.DimensionChoicesUpdatePayload;
 import com.exoticworlds.engine.net.OpenMenuTranslation;
@@ -36,11 +34,11 @@ public class ExoticWorldsFabric implements ModInitializer {
         StartupSetup.registerAll();
 
         Registry.register(BuiltInRegistries.CHUNK_GENERATOR,
-                Identifier.fromNamespaceAndPath(ExoticWorlds.MODID, WorldLoopGenerators.TOROIDAL_ID),
-                LoopedChunkGenerator.CODEC);
+                Identifier.fromNamespaceAndPath(ExoticWorlds.MODID, LegacyGenerators.TOROIDAL_ID),
+                LegacyGenerators.TOROIDAL_CODEC);
         Registry.register(BuiltInRegistries.CHUNK_GENERATOR,
-                Identifier.fromNamespaceAndPath(ExoticWorlds.MODID, WorldLoopGenerators.TOROIDAL_FLAT_ID),
-                LoopedFlatChunkGenerator.CODEC);
+                Identifier.fromNamespaceAndPath(ExoticWorlds.MODID, LegacyGenerators.TOROIDAL_FLAT_ID),
+                LegacyGenerators.TOROIDAL_FLAT_CODEC);
         Registry.register(BuiltInRegistries.TRIGGER_TYPES,
                 Identifier.fromNamespaceAndPath(ExoticWorlds.MODID, WorldLoopCriteria.CIRCUMNAVIGATE_ID),
                 WorldLoopCriteria.CIRCUMNAVIGATE);

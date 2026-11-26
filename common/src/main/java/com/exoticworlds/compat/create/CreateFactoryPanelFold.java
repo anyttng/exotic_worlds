@@ -8,15 +8,15 @@ import java.util.Set;
 import com.zurrtum.create.content.logistics.factoryBoard.FactoryPanelConnection;
 import com.zurrtum.create.content.logistics.factoryBoard.FactoryPanelPosition;
 import com.zurrtum.create.content.logistics.factoryBoard.ServerFactoryPanelBehaviour;
-import com.exoticworlds.core.WorldFold;
-import com.exoticworlds.core.WorldLoopAttachments;
+import com.exoticworlds.core.fold.WorldFold;
+import com.exoticworlds.core.fold.WorldLoopAttachments;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 
 public final class CreateFactoryPanelFold {
     public static void canonicalise(ServerLevel level, ServerFactoryPanelBehaviour panel) {
-        WorldFold fold = WorldLoopAttachments.foldOfReader(level);
+        WorldFold fold = WorldLoopAttachments.getFoldOfReader(level);
         canonicalisePanels(fold, panel.targetedBy);
         canonicaliseLinks(fold, panel.targetedByLinks);
         canonicaliseTargets(fold, panel.targeting);
@@ -34,15 +34,15 @@ public final class CreateFactoryPanelFold {
         }
 
         Map<FactoryPanelPosition, FactoryPanelConnection> folded = new LinkedHashMap<>(connections.size());
-        boolean moved = false;
+        boolean isMoved = false;
         for (FactoryPanelConnection connection : connections.values()) {
             FactoryPanelPosition from = canonical(fold, connection.from);
-            moved |= !from.equals(connection.from);
+            isMoved |= !from.equals(connection.from);
             connection.from = from;
             folded.put(from, connection);
         }
 
-        if (moved) {
+        if (isMoved) {
             connections.clear();
             connections.putAll(folded);
         }
@@ -54,15 +54,15 @@ public final class CreateFactoryPanelFold {
         }
 
         Map<BlockPos, FactoryPanelConnection> folded = new LinkedHashMap<>(connections.size());
-        boolean moved = false;
+        boolean isMoved = false;
         for (FactoryPanelConnection connection : connections.values()) {
             FactoryPanelPosition from = canonical(fold, connection.from);
-            moved |= !from.equals(connection.from);
+            isMoved |= !from.equals(connection.from);
             connection.from = from;
             folded.put(from.pos(), connection);
         }
 
-        if (moved) {
+        if (isMoved) {
             connections.clear();
             connections.putAll(folded);
         }
@@ -74,14 +74,14 @@ public final class CreateFactoryPanelFold {
         }
 
         Set<FactoryPanelPosition> folded = new LinkedHashSet<>(targets.size());
-        boolean moved = false;
+        boolean isMoved = false;
         for (FactoryPanelPosition target : targets) {
             FactoryPanelPosition canonical = canonical(fold, target);
-            moved |= !canonical.equals(target);
+            isMoved |= !canonical.equals(target);
             folded.add(canonical);
         }
 
-        if (moved) {
+        if (isMoved) {
             targets.clear();
             targets.addAll(folded);
         }

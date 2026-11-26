@@ -39,8 +39,8 @@ public class ChunkWrapperMixin {
             return folded;
         }
 
-        ChunkPos copy = DhRowCopies.pendingCopy();
-        DhLattice lattice = copy == null ? DhShapes.clientFrame(this.wrappedLevel) : null;
+        ChunkPos copy = DhRowCopies.getPendingCopy();
+        DhLattice lattice = copy == null ? DhShapes.getClientFrame(this.wrappedLevel) : null;
         if (copy == null && lattice == null) {
             return original.call(chunk);
         }

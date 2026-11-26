@@ -123,7 +123,7 @@ public abstract class CoastShaperMixin {
     // In the climate CoastShaper runs inside the biome lattice's octave, whose period would fold its own hash.
     @WrapMethod(method = "apply")
     private void exotic_worlds$ownLattice(Cell cell, float x, float z, Operation<Void> original) {
-        RtfLap.Frame frame = RtfLap.boundFrame();
+        RtfLap.Frame frame = RtfLap.getBoundFrame();
         if (frame == null) {
             original.call(cell, x, z);
             return;
@@ -139,7 +139,7 @@ public abstract class CoastShaperMixin {
     private int exotic_worlds$armCellX(float cell, Operation<Integer> original,
             @Local(argsOnly = true, ordinal = X_ARGUMENT) float x, @Local(argsOnly = true, ordinal = ARM_GRID_ARGUMENT)
             float grid) {
-        SiteLattice lattice = SiteLattice.bound(grid);
+        SiteLattice lattice = SiteLattice.getBound(grid);
         return lattice == null ? original.call(cell) : lattice.cellX(x);
     }
 
@@ -148,7 +148,7 @@ public abstract class CoastShaperMixin {
     private int exotic_worlds$armCellZ(float cell, Operation<Integer> original,
             @Local(argsOnly = true, ordinal = Z_ARGUMENT) float z, @Local(argsOnly = true, ordinal = ARM_GRID_ARGUMENT)
             float grid) {
-        SiteLattice lattice = SiteLattice.bound(grid);
+        SiteLattice lattice = SiteLattice.getBound(grid);
         return lattice == null ? original.call(cell) : lattice.cellZ(z);
     }
 
@@ -197,7 +197,7 @@ public abstract class CoastShaperMixin {
     private float exotic_worlds$armAnchorX(float x, @Local(argsOnly = true, ordinal = FIND_CELL_X_ARGUMENT) int cellX,
             @Local(argsOnly = true, ordinal = FIND_CELL_Z_ARGUMENT) int cellZ, @Local(argsOnly = true, ordinal = FIND_GRID_ARGUMENT)
             float grid, @Local(argsOnly = true, ordinal = FIND_PURPOSE_ARGUMENT) int purpose) {
-        SiteLattice lattice = SiteLattice.bound(grid);
+        SiteLattice lattice = SiteLattice.getBound(grid);
         return lattice == null ? x : exotic_worlds$anchor(lattice.xSpacing(), cellX, cellX, cellZ, purpose,
                 ANCHOR_X_PURPOSE);
     }
@@ -206,7 +206,7 @@ public abstract class CoastShaperMixin {
     private float exotic_worlds$armAnchorZ(float z, @Local(argsOnly = true, ordinal = FIND_CELL_X_ARGUMENT) int cellX,
             @Local(argsOnly = true, ordinal = FIND_CELL_Z_ARGUMENT) int cellZ, @Local(argsOnly = true, ordinal = FIND_GRID_ARGUMENT)
             float grid, @Local(argsOnly = true, ordinal = FIND_PURPOSE_ARGUMENT) int purpose) {
-        SiteLattice lattice = SiteLattice.bound(grid);
+        SiteLattice lattice = SiteLattice.getBound(grid);
         return lattice == null ? z : exotic_worlds$anchor(lattice.zSpacing(), cellZ, cellX, cellZ, purpose,
                 ANCHOR_Z_PURPOSE);
     }

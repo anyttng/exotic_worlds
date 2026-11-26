@@ -5,11 +5,12 @@ import java.util.stream.IntStream;
 import org.jspecify.annotations.Nullable;
 
 import com.exoticworlds.compat.worldgen.LevelClimateCompression;
-import com.exoticworlds.core.WorldFold;
-import com.exoticworlds.engine.noise.LapFloor;
+import com.exoticworlds.core.fold.WorldFold;
 import com.exoticworlds.engine.noise.NoiseFrame;
-import com.exoticworlds.engine.noise.PeriodicLattice;
-import com.exoticworlds.engine.noise.PeriodicNoiseSampler;
+import com.exoticworlds.engine.noise.PerlinMath;
+import com.exoticworlds.engine.noise.periodic.LapFloor;
+import com.exoticworlds.engine.noise.periodic.PeriodicLattice;
+import com.exoticworlds.engine.noise.periodic.PeriodicNoiseSampler;
 
 import net.minecraft.core.QuartPos;
 import net.minecraft.world.level.levelgen.LegacyRandomSource;
@@ -55,12 +56,21 @@ public final class ReplacementNoiseFold {
 
     public double sum(WorldFold fold, long seed, double[] scaleQuarts, int quartX, int quartZ,
             DensityFunction temperature) {
-        return sum(fold, seed, scaleQuarts, quartX, FLAT_QUART_Y, quartZ, OPEN_SIMPLEX_FLAT_AMPLITUDE, temperature);
+        return sum(fold, compression(fold, temperature), seed, scaleQuarts, quartX, quartZ);
     }
 
     public double sum(WorldFold fold, long seed, double[] scaleQuarts, int quartX, int quartY, int quartZ,
             DensityFunction temperature) {
-        return sum(fold, seed, scaleQuarts, quartX, quartY, quartZ, OPEN_SIMPLEX_VOLUME_AMPLITUDE, temperature);
+        return sum(fold, compression(fold, temperature), seed, scaleQuarts, quartX, quartY, quartZ);
+    }
+
+    double sum(WorldFold fold, double factor, long seed, double[] scaleQuarts, int quartX, int quartZ) {
+        return sum(fold, factor, seed, scaleQuarts, quartX, FLAT_QUART_Y, quartZ, OPEN_SIMPLEX_FLAT_AMPLITUDE);
+    }
+
+    double sum(WorldFold fold, double factor, long seed, double[] scaleQuarts, int quartX, int quartY,
+            int quartZ) {
+        return sum(fold, factor, seed, scaleQuarts, quartX, quartY, quartZ, OPEN_SIMPLEX_VOLUME_AMPLITUDE);
     }
 
     double compression(WorldFold fold, DensityFunction temperature) {
@@ -74,9 +84,8 @@ public final class ReplacementNoiseFold {
         return factor;
     }
 
-    private double sum(WorldFold fold, long seed, double[] scaleQuarts, int quartX, int quartY, int quartZ,
-            double amplitude, DensityFunction temperature) {
-        double factor = compression(fold, temperature);
+    private double sum(WorldFold fold, double factor, long seed, double[] scaleQuarts, int quartX, int quartY,
+            int quartZ, double amplitude) {
         Lattices resolved = latticesFor(fold, factor, seed, scaleQuarts);
         double x = QuartPos.toBlock(quartX);
         double y = QuartPos.toBlock(quartY);
@@ -109,7 +118,7 @@ public final class ReplacementNoiseFold {
             double verticalQuarts = scaleQuarts[this.verticalScaleSlots[octave]] * OPEN_SIMPLEX_COLUMN_RATE / factor;
             verticalScales[octave] = 1.0 / (verticalQuarts * BLOCKS_PER_QUART);
             octaveLattices[octave] = PeriodicNoiseSampler.lattice(noise.perms, noise.offsetX, noise.offsetY,
-                    noise.offsetZ, PeriodicNoiseSampler.NO_FUDGE, fold, UNDAMPED_FRAME, scale, floor);
+                    noise.offsetZ, PerlinMath.NO_FUDGE, fold, UNDAMPED_FRAME, scale, floor);
         }
 
         Lattices built = new Lattices(fold, factor, seed, scaleQuarts, octaveLattices, verticalScales);

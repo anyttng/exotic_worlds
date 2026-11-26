@@ -15,8 +15,8 @@ import com.exoticworlds.InjectionTargets;
 import com.exoticworlds.accessors.LevelBindable;
 import com.exoticworlds.accessors.FoldHolder;
 import com.exoticworlds.accessors.FoldSource;
-import com.exoticworlds.core.WorldFold;
-import com.exoticworlds.core.WorldLoopAttachments;
+import com.exoticworlds.core.fold.WorldFold;
+import com.exoticworlds.core.fold.WorldLoopAttachments;
 import com.exoticworlds.engine.fold.NearestCopy;
 import com.exoticworlds.engine.net.MeasuredReach;
 import com.exoticworlds.engine.noise.GenerationFoldContext;
@@ -45,13 +45,13 @@ import net.minecraft.world.phys.Vec3;
 @Mixin(ServerLevel.class)
 public class ServerLevelMixin {
     @Unique
-    private static final double PARTICLE_RANGE = 32.0;
+    private static final double PARTICLE_RANGE_BLOCKS = 32.0;
 
     @Unique
-    private static final double OVERRIDDEN_PARTICLE_RANGE = 512.0;
+    private static final double OVERRIDDEN_PARTICLE_RANGE_BLOCKS = 512.0;
 
     @Unique
-    private static final double EXPLOSION_RANGE = 64.0;
+    private static final double EXPLOSION_RANGE_BLOCKS = 64.0;
 
     @Unique
     private static final String SEND_PARTICLES_TO_PLAYER =
@@ -73,9 +73,9 @@ public class ServerLevelMixin {
 
     @Inject(method = "getWorldBorder", at = @At("RETURN"))
     private void exotic_worlds$bindBorderToLevelShape(CallbackInfoReturnable<WorldBorder> cir) {
-        WorldFold fold = WorldLoopAttachments.foldOf((ServerLevel) (Object) this);
+        WorldFold fold = WorldLoopAttachments.getFold((ServerLevel) (Object) this);
         FoldHolder border = (FoldHolder) cir.getReturnValue();
-        if (border.exotic_worlds$fold() != fold) {
+        if (border.exotic_worlds$getFold() != fold) {
             border.exotic_worlds$setFold(fold);
         }
     }
@@ -83,7 +83,7 @@ public class ServerLevelMixin {
     @Inject(method = "tickNonPassenger", at = @At("TAIL"))
     private void exotic_worlds$wrapEntityIntoBounds(Entity entity, CallbackInfo ci) {
         if (!(entity instanceof Player)) {
-            SeamSnap.intoBounds(entity);
+            SeamSnap.trySnapIntoBounds(entity);
         }
     }
 
@@ -93,10 +93,10 @@ public class ServerLevelMixin {
                     value = "INVOKE",
                     target = "Lnet/minecraft/world/level/ChunkPos;rangeClosed(Lnet/minecraft/world/level/ChunkPos;I)Ljava/util/stream/Stream;"))
     private Stream<ChunkPos> exotic_worlds$waitOnPhysicalChunks(
-            ChunkPos center, int radius, Operation<Stream<ChunkPos>> original) {
-        Stream<ChunkPos> square = original.call(center, radius);
+            ChunkPos center, int radiusChunks, Operation<Stream<ChunkPos>> original) {
+        Stream<ChunkPos> square = original.call(center, radiusChunks);
         ServerLevel level = (ServerLevel) (Object) this;
-        WorldFold fold = WorldLoopAttachments.wrappedFoldOf(level);
+        WorldFold fold = WorldLoopAttachments.getWrappedFold(level);
         if (fold == null) {
             return square;
         }
@@ -107,10 +107,10 @@ public class ServerLevelMixin {
     @WrapOperation(
             method = SEND_PARTICLES_TO_PLAYER,
             at = @At(value = "INVOKE", target = InjectionTargets.BLOCK_POS_CLOSER_TO_CENTER_THAN))
-    private boolean exotic_worlds$particleRangeThroughSeam(BlockPos listener, Position particle, double range,
+    private boolean exotic_worlds$particleRangeThroughSeam(BlockPos listener, Position particle, double rangeBlocks,
             Operation<Boolean> original) {
-        WorldFold fold = WorldLoopAttachments.wrappedFoldOf((ServerLevel) (Object) this);
-        return original.call(listener, NearestCopy.towardCenterOf(fold, listener, particle), range);
+        WorldFold fold = WorldLoopAttachments.getWrappedFold((ServerLevel) (Object) this);
+        return original.call(listener, NearestCopy.towardCenterOf(fold, listener, particle), rangeBlocks);
     }
 
     @WrapOperation(
@@ -119,7 +119,7 @@ public class ServerLevelMixin {
     private void exotic_worlds$measureParticleReach(ServerGamePacketListenerImpl connection, Packet<?> packet,
             Operation<Void> original, @Local(argsOnly = true) boolean overrideLimiter) {
         try (MeasuredReach _ = MeasuredReach.measuring(
-                overrideLimiter ? OVERRIDDEN_PARTICLE_RANGE : PARTICLE_RANGE)) {
+                overrideLimiter ? OVERRIDDEN_PARTICLE_RANGE_BLOCKS : PARTICLE_RANGE_BLOCKS)) {
             original.call(connection, packet);
         }
     }
@@ -129,7 +129,7 @@ public class ServerLevelMixin {
             at = @At(value = "INVOKE", target = InjectionTargets.SERVER_GAME_PACKET_LISTENER_SEND))
     private void exotic_worlds$measureExplosionReach(ServerGamePacketListenerImpl connection, Packet<?> packet,
             Operation<Void> original) {
-        try (MeasuredReach _ = MeasuredReach.measuring(EXPLOSION_RANGE)) {
+        try (MeasuredReach _ = MeasuredReach.measuring(EXPLOSION_RANGE_BLOCKS)) {
             original.call(connection, packet);
         }
     }
@@ -161,7 +161,7 @@ public class ServerLevelMixin {
     @Unique
     private static double exotic_worlds$listenerCoord(ServerPlayer player, Direction.Axis axis, BlockPos blockPos,
             Operation<Double> original) {
-        WorldFold fold = ((FoldSource) player).exotic_worlds$wrappedFold();
+        WorldFold fold = ((FoldSource) player).exotic_worlds$getWrappedFold();
         return fold == null
                 ? original.call(player)
                 : NearestCopy.toward(fold, axis, Vec3.atLowerCornerOf(blockPos), player.position());
@@ -169,8 +169,8 @@ public class ServerLevelMixin {
 
     @WrapMethod(method = "tickPrecipitation")
     private void exotic_worlds$bindPrecipitationFold(BlockPos pos, Operation<Void> original) {
-        WorldFold fold = WorldLoopAttachments.foldOf((ServerLevel) (Object) this);
-        try (GenerationFoldContext.Context.FoldScope _ = GenerationFoldContext.context().withFold(fold)) {
+        WorldFold fold = WorldLoopAttachments.getFold((ServerLevel) (Object) this);
+        try (GenerationFoldContext.Context.FoldScope _ = GenerationFoldContext.getContext().withFold(fold)) {
             original.call(pos);
         }
     }

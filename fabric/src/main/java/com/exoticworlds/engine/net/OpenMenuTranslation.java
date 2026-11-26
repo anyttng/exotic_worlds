@@ -16,7 +16,7 @@ public final class OpenMenuTranslation {
             .build();
 
     public static void register() {
-        if (GATE.admitted()) {
+        if (GATE.isAdmitted()) {
             Rewriter.register();
         }
     }

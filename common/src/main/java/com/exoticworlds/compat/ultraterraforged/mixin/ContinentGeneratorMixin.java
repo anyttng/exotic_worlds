@@ -83,15 +83,15 @@ public abstract class ContinentGeneratorMixin {
     private void exotic_worlds$closeApply(Cell cell, float x, float y, Operation<Void> original,
             @Share(WINNER_X) LocalIntRef winnerX, @Share(WINNER_Z) LocalIntRef winnerZ,
             @Share(X_QUOTIENT) LocalFloatRef xQuotient, @Share(Z_QUOTIENT) LocalFloatRef zQuotient) {
-        RtfLap.Frame frame = RtfLap.boundFrame();
+        RtfLap.Frame frame = RtfLap.getBoundFrame();
         if (frame == null) {
             original.call(cell, x, y);
             return;
         }
 
         try (RtfLap.Frame.Scope _ = frame.octave(this.frequency)) {
-            float xScale = frame.xScale();
-            float zScale = frame.zScale();
+            float xScale = frame.getXScale();
+            float zScale = frame.getZScale();
             float latticeX = frame.latticeX(x, y);
             float latticeZ = frame.shiftZ(y);
             original.call(cell, latticeX, latticeZ);
@@ -109,7 +109,7 @@ public abstract class ContinentGeneratorMixin {
                 }
             }
 
-            if (frame.sheared()) {
+            if (frame.isSheared()) {
                 cell.continentX = (int) frame.outerX(xQuotient.get(), zQuotient.get());
             }
         }
@@ -117,7 +117,7 @@ public abstract class ContinentGeneratorMixin {
 
     @WrapMethod(method = "getEdgeValue")
     private float exotic_worlds$closeEdge(float x, float y, Operation<Float> original) {
-        RtfLap.Frame frame = RtfLap.boundFrame();
+        RtfLap.Frame frame = RtfLap.getBoundFrame();
         if (frame == null) {
             return original.call(x, y);
         }
@@ -131,14 +131,14 @@ public abstract class ContinentGeneratorMixin {
     private long exotic_worlds$closeCenter(float x, float z, Operation<Long> original,
             @Share(WINNER_X) LocalIntRef winnerX, @Share(WINNER_Z) LocalIntRef winnerZ,
             @Share(X_QUOTIENT) LocalFloatRef xQuotient, @Share(Z_QUOTIENT) LocalFloatRef zQuotient) {
-        RtfLap.Frame frame = RtfLap.boundFrame();
+        RtfLap.Frame frame = RtfLap.getBoundFrame();
         if (frame == null) {
             return original.call(x, z);
         }
 
         try (RtfLap.Frame.Scope _ = frame.octave(this.frequency)) {
-            float xScale = frame.xScale();
-            float zScale = frame.zScale();
+            float xScale = frame.getXScale();
+            float zScale = frame.getZScale();
             float latticeX = frame.latticeX(x, z);
             float latticeZ = frame.shiftZ(z);
             long center = original.call(latticeX, latticeZ);
@@ -151,7 +151,7 @@ public abstract class ContinentGeneratorMixin {
                         latticeZ + (canonicalZ - cellZ) / zScale);
             }
 
-            return frame.sheared()
+            return frame.isSheared()
                     ? PosUtil.pack((int) frame.outerX(xQuotient.get(), zQuotient.get()), PosUtil.unpackRight(center))
                     : center;
         }
@@ -159,7 +159,7 @@ public abstract class ContinentGeneratorMixin {
 
     @WrapMethod(method = "getDistanceToOcean")
     private float exotic_worlds$firstCoast(int x, int z, float dx, float dz, Operation<Float> original) {
-        RtfLap.Frame frame = RtfLap.boundFrame();
+        RtfLap.Frame frame = RtfLap.getBoundFrame();
         float reach = frame == null ? RiverReach.UNBOUNDED : UltraTerraForgedRiverReach.INSTANCE.reach(frame);
         if (reach == RiverReach.UNBOUNDED) {
             return original.call(x, z, dx, dz);
@@ -172,7 +172,7 @@ public abstract class ContinentGeneratorMixin {
     @WrapOperation(method = {"apply", "getEdgeValue", "getNearestCenter"}, at = @At(value = "INVOKE",
             target = "Lcom/pandaismyname1/ultraterraforged/world/worldgen/noise/domain/Domain;getOffsetX(FFI)F"))
     private float exotic_worlds$warpX(Domain warp, float x, float z, int seed, Operation<Float> original) {
-        RtfLap.Frame frame = RtfLap.boundFrame();
+        RtfLap.Frame frame = RtfLap.getBoundFrame();
         if (frame == null) {
             return original.call(warp, x, z, seed);
         }
@@ -187,7 +187,7 @@ public abstract class ContinentGeneratorMixin {
     @WrapOperation(method = {"apply", "getEdgeValue", "getNearestCenter"}, at = @At(value = "INVOKE",
             target = "Lcom/pandaismyname1/ultraterraforged/world/worldgen/noise/domain/Domain;getOffsetZ(FFI)F"))
     private float exotic_worlds$warpZ(Domain warp, float x, float z, int seed, Operation<Float> original) {
-        RtfLap.Frame frame = RtfLap.boundFrame();
+        RtfLap.Frame frame = RtfLap.getBoundFrame();
         if (frame == null) {
             return original.call(warp, x, z, seed);
         }

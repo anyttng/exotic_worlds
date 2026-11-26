@@ -8,5 +8,5 @@ import com.eminus.render.tree.TreeNode;
 @Mixin(TreeNode.class)
 public interface TreeNodeAccessor {
     @Invoker("gaveWay")
-    boolean exotic_worlds$gaveWay();
+    boolean exotic_worlds$hasGivenWay();
 }

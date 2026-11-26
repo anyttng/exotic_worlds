@@ -7,16 +7,18 @@ import org.jspecify.annotations.Nullable;
 
 import com.google.common.math.IntMath;
 import com.google.common.math.LongMath;
-import com.exoticworlds.ExoticWorlds;
 import com.exoticworlds.accessors.ShapeStamp;
-import com.exoticworlds.core.CarriedShape;
-import com.exoticworlds.core.CoordinateConstants;
-import com.exoticworlds.core.DimensionTable;
-import com.exoticworlds.core.FlatShape;
-import com.exoticworlds.core.ShapedChunkGenerator;
-import com.exoticworlds.core.WorldLoopBounds;
-import com.exoticworlds.core.WorldLoopBounds.AxisBounds;
-import com.exoticworlds.core.WorldLoopSizes;
+import com.exoticworlds.core.world.CarriedShape;
+import com.exoticworlds.core.world.CoordinateConstants;
+import com.exoticworlds.core.world.DerivedDimension;
+import com.exoticworlds.core.world.DimensionTable;
+import com.exoticworlds.core.world.FlatShape;
+import com.exoticworlds.core.world.ShapeDerivations;
+import com.exoticworlds.core.gen.EndTerrain;
+import com.exoticworlds.core.gen.GeneratorShapes;
+import com.exoticworlds.core.world.WorldLoopBounds;
+import com.exoticworlds.core.world.WorldLoopBounds.AxisBounds;
+import com.exoticworlds.core.world.WorldLoopSizes;
 import com.exoticworlds.engine.gen.DatapackStemOverrides.StemOverride;
 import com.exoticworlds.platform.Platforms;
 
@@ -29,48 +31,47 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.chunk.ChunkGenerator;
 
 public final class WorldShapeReport {
-    private static final String CODEC_SOURCE = "codec";
     private static final String STAMP_SOURCE = "stamp";
     private static final String RESTORED_SOURCE = "restored";
     private static final String STORED_SOURCE = "stored";
     private static final String TABLE_SOURCE = "table";
     private static final String NOT_PERIODIC_NOTE = ", stamped, terrain not periodic";
 
-    public record Line(boolean broken, String text) {
+    public record Line(boolean isBroken, String text) {
     }
 
-    record Note(boolean broken, String text) {
+    record Note(boolean isBroken, String text) {
         static final Note NONE = new Note(false, "");
     }
 
     public static List<Line> lines(MinecraftServer server) {
-        FlatShape overworldShape = shapeOf(server.overworld());
+        FlatShape overworldShape = getShape(server.overworld());
         List<Line> lines = new ArrayList<>();
-        boolean anyWrapped = false;
+        boolean isAnyWrapped = false;
         for (ServerLevel level : server.getAllLevels()) {
-            FlatShape shape = shapeOf(level);
+            FlatShape shape = getShape(level);
             if (shape != null) {
-                anyWrapped = true;
+                isAnyWrapped = true;
                 lines.add(wrappedLine(server, level, shape));
             } else {
                 lines.add(new Line(false, unwrappedLine(server, level, overworldShape)));
             }
         }
 
-        return anyWrapped ? lines : List.of();
+        return isAnyWrapped ? lines : List.of();
     }
 
     private static Line wrappedLine(MinecraftServer server, ServerLevel level, FlatShape shape) {
         WorldLoopBounds bounds = shape.bounds();
-        StemOverride override = overrideOf(level);
+        StemOverride override = getOverride(level);
         ChunkGenerator generator = level.getChunkSource().getGenerator();
         Note netherScale = netherScale(server, level, shape);
         Note endWidth = endWidth(level, bounds);
-        return new Line(netherScale.broken() || endWidth.broken(), "World shape: " + level.dimension().identifier()
+        return new Line(netherScale.isBroken() || endWidth.isBroken(), "World shape: " + level.dimension().identifier()
                 + " generator=" + generatorId(generator)
                 + " shape=" + shapeSource(server, level, override)
-                + " identification=" + shape.identification()
-                + " x=" + bounds.x().spanText() + " z=" + bounds.z().spanText() + " chunks"
+                + " identification=" + shape.getIdentification()
+                + " x=" + bounds.x().getSpanText() + " z=" + bounds.z().getSpanText() + " chunks"
                 + ", " + widths(bounds)
                 + skew(shape)
                 + seamTerrain(generator)
@@ -88,7 +89,7 @@ public final class WorldShapeReport {
     }
 
     private static String unwrappedReason(MinecraftServer server, ServerLevel level, @Nullable FlatShape overworldShape) {
-        if (tableEntryOf(server, level) != null) {
+        if (getTableEntry(server, level) != null) {
             return "the overworld's dimension table leaves it unwrapped";
         }
 
@@ -96,15 +97,18 @@ public final class WorldShapeReport {
                 : underivedReason(server, level, overworldShape);
     }
 
-    private static DimensionTable.@Nullable Entry tableEntryOf(MinecraftServer server, ServerLevel level) {
-        return ShapedDimensions.dimensionTableOf(server.overworld().getChunkSource().getGenerator())
-                .entry(Registries.levelToLevelStem(level.dimension()));
+    private static DimensionTable.@Nullable Entry getTableEntry(MinecraftServer server, ServerLevel level) {
+        return ShapedDimensions.getDimensionTable(server.overworld().getChunkSource().getGenerator())
+                .getEntry(Registries.levelToLevelStem(level.dimension()));
     }
 
     private static String underivedReason(MinecraftServer server, ServerLevel level, FlatShape overworldShape) {
         double overworldScale = server.overworld().dimensionType().coordinateScale();
         double scale = level.dimensionType().coordinateScale();
-        FlatShape derived = ShapedDimensions.derivedShape(overworldShape, overworldScale, scale);
+        CarriedShape overworld = GeneratorShapes.getCarriedShape(server.overworld());
+        FlatShape derived = ShapeDerivations.derive(overworld == null ? null : overworld.getShapeId().orElse(null),
+                overworldShape, new DerivedDimension(Registries.levelToLevelStem(level.dimension()),
+                        isEndTerrain(level), overworldScale, scale));
         return derived == null
                 ? "coordinate scale " + scale + " derives no whole-chunk width in range or whole-chunk skew from the"
                         + " overworld's " + widths(overworldShape.bounds()) + skew(overworldShape)
@@ -112,7 +116,7 @@ public final class WorldShapeReport {
     }
 
     private static String seamTerrain(ChunkGenerator generator) {
-        return ShapedChunkGenerator.tilesAtSeam(generator) ? "" : NOT_PERIODIC_NOTE;
+        return GeneratorShapes.isTilingAtSeam(generator) ? "" : NOT_PERIODIC_NOTE;
     }
 
     private static String shapeSource(MinecraftServer server, ServerLevel level, @Nullable StemOverride override) {
@@ -125,15 +129,11 @@ public final class WorldShapeReport {
         }
 
         ChunkGenerator generator = level.getChunkSource().getGenerator();
-        if (generator instanceof ShapedChunkGenerator) {
-            return CODEC_SOURCE;
-        }
-
-        boolean ownStamp = generator instanceof ShapeStamp stamp && stamp.exotic_worlds$carriedShape() != null;
-        return !ownStamp && tableEntryOf(server, level) != null ? TABLE_SOURCE : STAMP_SOURCE;
+        boolean hasOwnStamp = generator instanceof ShapeStamp stamp && stamp.exotic_worlds$getCarriedShape() != null;
+        return !hasOwnStamp && getTableEntry(server, level) != null ? TABLE_SOURCE : STAMP_SOURCE;
     }
 
-    private static @Nullable StemOverride overrideOf(ServerLevel level) {
+    private static @Nullable StemOverride getOverride(ServerLevel level) {
         return DatapackStemOverrides.of(Registries.levelToLevelStem(level.dimension()));
     }
 
@@ -155,31 +155,27 @@ public final class WorldShapeReport {
                 + " loader=" + Platforms.get().loaderName() + " " + Platforms.get().loaderVersion();
     }
 
-    private static @Nullable FlatShape shapeOf(@Nullable ServerLevel level) {
-        CarriedShape carried = level == null ? null : ShapedChunkGenerator.carriedShapeOf(level);
-        return carried == null ? null : carried.shape();
+    private static @Nullable FlatShape getShape(@Nullable ServerLevel level) {
+        CarriedShape carried = level == null ? null : GeneratorShapes.getCarriedShape(level);
+        return carried == null ? null : carried.getShape();
     }
 
     private static String generatorId(ChunkGenerator generator) {
-        return switch (generator) {
-            case LoopedFlatChunkGenerator flat -> ExoticWorlds.MODID + ":" + WorldLoopGenerators.TOROIDAL_FLAT_ID;
-            case LoopedChunkGenerator looped -> ExoticWorlds.MODID + ":" + WorldLoopGenerators.TOROIDAL_ID;
-            default -> generator.getClass().getSimpleName();
-        };
+        return generator.getClass().getSimpleName();
     }
 
     private static String widths(WorldLoopBounds bounds) {
         if (bounds.isSquare()) {
-            return "width " + WorldLoopSizes.describe(bounds.chunkWidth(Direction.Axis.X));
+            return "width " + WorldLoopSizes.describe(bounds.getWidthChunks(Direction.Axis.X));
         }
 
         StringBuilder widths = new StringBuilder("width");
         if (bounds.x() instanceof AxisBounds.Looped xLooped) {
-            widths.append(" x=").append(WorldLoopSizes.describe(xLooped.chunkWidth()));
+            widths.append(" x=").append(WorldLoopSizes.describe(xLooped.getWidthChunks()));
         }
 
         if (bounds.z() instanceof AxisBounds.Looped zLooped) {
-            widths.append(" z=").append(WorldLoopSizes.describe(zLooped.chunkWidth()));
+            widths.append(" z=").append(WorldLoopSizes.describe(zLooped.getWidthChunks()));
         }
 
         return widths.toString();
@@ -194,42 +190,42 @@ public final class WorldShapeReport {
             return Note.NONE;
         }
 
-        FlatShape overworldShape = shapeOf(server.overworld());
+        FlatShape overworldShape = getShape(server.overworld());
         if (overworldShape == null) {
             return Note.NONE;
         }
 
         Note skew = netherSkewNote(overworldShape, shape);
-        return skew.broken() ? skew : new Note(false, netherScaleText(overworldShape.bounds(), shape.bounds()));
+        return skew.isBroken() ? skew : new Note(false, netherScaleText(overworldShape.bounds(), shape.bounds()));
     }
 
     static Note netherSkewNote(FlatShape overworld, FlatShape nether) {
-        if (!sharedLoop(overworld.bounds(), nether.bounds(), Direction.Axis.X)) {
+        if (!hasSharedLoop(overworld.bounds(), nether.bounds(), Direction.Axis.X)) {
             return Note.NONE;
         }
 
-        long overworldWidth = overworld.bounds().chunkWidth(Direction.Axis.X);
-        long netherWidth = nether.bounds().chunkWidth(Direction.Axis.X);
-        long overworldSkew = overworld.skewChunks();
-        long netherSkew = nether.skewChunks();
-        if (Math.floorMod(overworldSkew * netherWidth - netherSkew * overworldWidth, overworldWidth * netherWidth)
+        long overworldWidthChunks = overworld.bounds().getWidthChunks(Direction.Axis.X);
+        long netherWidthChunks = nether.bounds().getWidthChunks(Direction.Axis.X);
+        long overworldSkewChunks = overworld.skewChunks();
+        long netherSkewChunks = nether.skewChunks();
+        if (Math.floorMod(overworldSkewChunks * netherWidthChunks - netherSkewChunks * overworldWidthChunks, overworldWidthChunks * netherWidthChunks)
                 == 0) {
             return Note.NONE;
         }
 
-        return new Note(true, ", BROKEN nether skew: an overworld of " + overworldWidth + " chunks skewed by "
-                + overworldSkew + " chunks needs a nether of " + netherWidth + " chunks skewed by "
-                + fraction(overworldSkew * netherWidth, overworldWidth) + " chunks, not " + netherSkew
+        return new Note(true, ", BROKEN nether skew: an overworld of " + overworldWidthChunks + " chunks skewed by "
+                + overworldSkewChunks + " chunks needs a nether of " + netherWidthChunks + " chunks skewed by "
+                + fraction(overworldSkewChunks * netherWidthChunks, overworldWidthChunks) + " chunks, not " + netherSkewChunks
                 + ", so portals will not line up across the Z seam");
     }
 
     static String netherScaleText(WorldLoopBounds overworld, WorldLoopBounds nether) {
         for (Direction.Axis axis : CoordinateConstants.HORIZONTAL_AXES) {
-            if (sharedLoop(overworld, nether, axis)) {
-                int netherWidth = nether.chunkWidth(axis);
-                int overworldWidth = overworld.chunkWidth(axis);
-                int common = IntMath.gcd(netherWidth, overworldWidth);
-                return ", scale " + netherWidth / common + ":" + overworldWidth / common;
+            if (hasSharedLoop(overworld, nether, axis)) {
+                int netherWidthChunks = nether.getWidthChunks(axis);
+                int overworldWidthChunks = overworld.getWidthChunks(axis);
+                int common = IntMath.gcd(netherWidthChunks, overworldWidthChunks);
+                return ", scale " + netherWidthChunks / common + ":" + overworldWidthChunks / common;
             }
         }
 
@@ -243,15 +239,24 @@ public final class WorldShapeReport {
     }
 
     private static Note endWidth(ServerLevel level, WorldLoopBounds bounds) {
-        return level.dimension() != Level.END ? Note.NONE : endWidthNote(bounds);
+        return endWidth(isEndTerrain(level), bounds);
+    }
+
+    private static boolean isEndTerrain(ServerLevel level) {
+        return EndTerrain.isEndTerrain(Registries.levelToLevelStem(level.dimension()),
+                level.getChunkSource().getGenerator());
+    }
+
+    static Note endWidth(boolean isEndTerrain, WorldLoopBounds bounds) {
+        return isEndTerrain ? endWidthNote(bounds) : Note.NONE;
     }
 
     static Note endWidthNote(WorldLoopBounds end) {
         for (Direction.Axis axis : CoordinateConstants.HORIZONTAL_AXES) {
-            if (end.loops(axis) && end.chunkWidth(axis) < WorldLoopSizes.END_MIN_CHUNK_WIDTH) {
+            if (end.isLooped(axis) && end.getWidthChunks(axis) < WorldLoopSizes.END_MIN_WIDTH_CHUNKS) {
                 return new Note(true, ", BROKEN End width on the " + axis.getName() + " axis: "
-                        + WorldLoopSizes.describe(end.chunkWidth(axis)) + " is under the "
-                        + WorldLoopSizes.describe(WorldLoopSizes.END_MIN_CHUNK_WIDTH)
+                        + WorldLoopSizes.describe(end.getWidthChunks(axis)) + " is under the "
+                        + WorldLoopSizes.describe(WorldLoopSizes.END_MIN_WIDTH_CHUNKS)
                         + " the outer islands need, so no end cities and no elytra");
             }
         }
@@ -259,8 +264,8 @@ public final class WorldShapeReport {
         return Note.NONE;
     }
 
-    private static boolean sharedLoop(WorldLoopBounds overworld, WorldLoopBounds nether, Direction.Axis axis) {
-        return overworld.loops(axis) && nether.loops(axis);
+    private static boolean hasSharedLoop(WorldLoopBounds overworld, WorldLoopBounds nether, Direction.Axis axis) {
+        return overworld.isLooped(axis) && nether.isLooped(axis);
     }
 
     private WorldShapeReport() {

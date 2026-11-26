@@ -4,7 +4,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 
 import com.exoticworlds.compat.immersiveoverlays.CompassOverlayFold;
-import com.exoticworlds.core.WorldLoopAttachments;
+import com.exoticworlds.core.fold.WorldLoopAttachments;
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 
 import cc.cassian.immersiveoverlays.overlay.CompassOverlay;
@@ -19,7 +19,7 @@ public class CompassOverlayMixin {
             at = @At(value = "INVOKE",
                     target = "Lnet/minecraft/client/player/LocalPlayer;blockPosition()Lnet/minecraft/core/BlockPos;"))
     private static BlockPos exotic_worlds$showFoldedPosition(BlockPos player) {
-        return CompassOverlayFold.shown(WorldLoopAttachments.foldOfReader(Minecraft.getInstance().level), player);
+        return CompassOverlayFold.shown(WorldLoopAttachments.getFoldOfReader(Minecraft.getInstance().level), player);
     }
 
     @ModifyExpressionValue(
@@ -32,7 +32,7 @@ public class CompassOverlayMixin {
             return anchor;
         }
 
-        return CompassOverlayFold.anchor(WorldLoopAttachments.foldOfReader(minecraft.level),
+        return CompassOverlayFold.anchor(WorldLoopAttachments.getFoldOfReader(minecraft.level),
                 player.blockPosition(), anchor);
     }
 }

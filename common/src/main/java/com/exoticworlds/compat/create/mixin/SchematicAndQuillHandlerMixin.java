@@ -30,7 +30,7 @@ public class SchematicAndQuillHandlerMixin {
                             + "secondPos:Lnet/minecraft/core/BlockPos;"))
     private void exotic_worlds$refuseOversizedSelection(Minecraft mc, int button,
             CallbackInfoReturnable<Boolean> callback) {
-        if (CreateSchematicSelection.refuseOversizedCorner(firstPos, selectedPos)) {
+        if (CreateSchematicSelection.tryRefuseOversizedCorner(firstPos, selectedPos)) {
             callback.setReturnValue(true);
         }
     }
@@ -41,7 +41,7 @@ public class SchematicAndQuillHandlerMixin {
                             + "firstPos:Lnet/minecraft/core/BlockPos;"))
     private void exotic_worlds$refuseOversizedGrowth(Minecraft mc, double delta,
             CallbackInfoReturnable<Boolean> callback, @Local(name = "bb") AABB grown) {
-        if (CreateSchematicSelection.refuseOversizedGrowth(
+        if (CreateSchematicSelection.tryRefuseOversizedGrowth(
                 BlockPos.containing(grown.minX, grown.minY, grown.minZ),
                 BlockPos.containing(grown.maxX, grown.maxY, grown.maxZ))) {
             callback.setReturnValue(true);

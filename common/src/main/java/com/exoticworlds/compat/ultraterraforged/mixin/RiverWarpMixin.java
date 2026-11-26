@@ -45,17 +45,17 @@ public abstract class RiverWarpMixin {
     @Inject(method = CONSTRUCTOR, at = @At("RETURN"))
     private void exotic_worlds$keepTheLapScale(int seed, float lower, float upper, float frequency, float scale,
             CallbackInfo ci) {
-        this.exotic_worlds$lapScale = UltraTerraForgedRiverReach.INSTANCE.boundScale();
+        this.exotic_worlds$lapScale = UltraTerraForgedRiverReach.INSTANCE.getBoundScale();
     }
 
     @ModifyArg(method = CREATE, at = @At(value = "INVOKE", target = NEW_WARP), index = FREQUENCY)
     private static float exotic_worlds$frequencyForTheLap(float frequency) {
-        return frequency / UltraTerraForgedRiverReach.INSTANCE.boundScale();
+        return frequency / UltraTerraForgedRiverReach.INSTANCE.getBoundScale();
     }
 
     @ModifyArg(method = CREATE, at = @At(value = "INVOKE", target = NEW_WARP), index = SCALE)
     private static float exotic_worlds$scaleForTheLap(float scale) {
-        return scale * UltraTerraForgedRiverReach.INSTANCE.boundScale();
+        return scale * UltraTerraForgedRiverReach.INSTANCE.getBoundScale();
     }
 
     @ModifyExpressionValue(method = "getOffset", at = @At(value = "CONSTANT", args = WIGGLE_PER_BLOCK))

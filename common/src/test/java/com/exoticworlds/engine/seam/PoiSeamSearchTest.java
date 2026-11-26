@@ -10,10 +10,10 @@ import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.Test;
 
-import com.exoticworlds.core.ShapeFixtures;
-import com.exoticworlds.core.WorldFold;
-import com.exoticworlds.core.WorldFolds;
-import com.exoticworlds.core.WorldLoopBounds;
+import com.exoticworlds.core.world.ShapeFixtures;
+import com.exoticworlds.core.fold.WorldFold;
+import com.exoticworlds.core.fold.WorldFolds;
+import com.exoticworlds.core.world.WorldLoopBounds;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.ChunkPos;
@@ -45,8 +45,8 @@ class PoiSeamSearchTest {
         BlockPos center = new BlockPos(500, 64, 0);
         BlockPos pastTheSeam = new BlockPos(-500, 64, 0);
 
-        assertTrue(PoiSeamSearch.withinSquare(TORUS, center, 30, pastTheSeam));
-        assertFalse(PoiSeamSearch.withinSquare(TORUS, center, 20, pastTheSeam));
+        assertTrue(PoiSeamSearch.isWithinSquare(TORUS, center, 30, pastTheSeam));
+        assertFalse(PoiSeamSearch.isWithinSquare(TORUS, center, 20, pastTheSeam));
     }
 
     @Test

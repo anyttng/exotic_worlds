@@ -1,11 +1,11 @@
 package com.exoticworlds.compat.eminus.mixin;
 
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Pseudo;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
 
+import com.eminus.beam.BeamSet;
 import com.exoticworlds.compat.eminus.CellFold;
 import com.exoticworlds.compat.eminus.CellFoldHolder;
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
@@ -18,14 +18,13 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.SectionPos;
 import net.minecraft.world.level.ChunkPos;
 
-@Pseudo
-@Mixin(targets = "com.eminus.beam.BeamSet", remap = false)
+@Mixin(BeamSet.class)
 public class BeamSetMixin implements CellFoldHolder {
     @Unique
     private volatile CellFold exotic_worlds$fold = CellFold.NONE;
 
     @Override
-    public CellFold exotic_worlds$fold() {
+    public CellFold exotic_worlds$getFold() {
         return exotic_worlds$fold;
     }
 

@@ -38,7 +38,7 @@ public abstract class WorleyEdgeMixin {
 
     @WrapMethod(method = "compute")
     private float exotic_worlds$closeOnLap(float x, float z, int seed, Operation<Float> original) {
-        RtfLap.Frame frame = RtfLap.boundFrame();
+        RtfLap.Frame frame = RtfLap.getBoundFrame();
         if (frame == null) {
             return original.call(x, z, seed);
         }

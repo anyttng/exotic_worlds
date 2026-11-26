@@ -3,7 +3,7 @@ package com.exoticworlds.compat.c2me;
 import org.jspecify.annotations.Nullable;
 
 import com.exoticworlds.accessors.FoldSource;
-import com.exoticworlds.core.WorldFold;
+import com.exoticworlds.core.fold.WorldFold;
 import com.ishland.c2me.base.common.scheduler.SchedulingManager;
 import com.ishland.c2me.rewrites.chunksystem.common.ChunkLoadingContext;
 import com.ishland.flowsched.executor.LockToken;
@@ -18,7 +18,7 @@ public final class C2meSeamFold {
             int centerX,
             int centerZ,
             StaticCache2D.Initializer<T> initializer) {
-        WorldFold fold = ((FoldSource) context.theChunkSystem()).exotic_worlds$wrappedFold();
+        WorldFold fold = ((FoldSource) context.theChunkSystem()).exotic_worlds$getWrappedFold();
         return foldingInitializer(fold, centerX, centerZ, initializer);
     }
 
@@ -51,7 +51,7 @@ public final class C2meSeamFold {
     }
 
     public static long lockKey(SchedulingManager schedulingManager, long chunkKey) {
-        WorldFold fold = ((FoldSource) schedulingManager).exotic_worlds$wrappedFold();
+        WorldFold fold = ((FoldSource) schedulingManager).exotic_worlds$getWrappedFold();
         if (fold == null) {
             return chunkKey;
         }
@@ -60,7 +60,7 @@ public final class C2meSeamFold {
     }
 
     public static LockToken[] lockTokens(SchedulingManager schedulingManager, LockToken[] tokens) {
-        if (((FoldSource) schedulingManager).exotic_worlds$wrappedFold() == null) {
+        if (((FoldSource) schedulingManager).exotic_worlds$getWrappedFold() == null) {
             return tokens;
         }
 

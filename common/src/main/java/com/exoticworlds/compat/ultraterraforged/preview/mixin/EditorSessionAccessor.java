@@ -8,5 +8,5 @@ import com.pandaismyname1.ultraterraforged.client.gui.screen.presetconfig.Preset
 @Mixin(targets = "com.pandaismyname1.ultraterraforged.client.gui.screen.presetconfig.EditorSession", remap = false)
 public interface EditorSessionAccessor {
     @Accessor("screen")
-    PresetConfigScreen exotic_worlds$screen();
+    PresetConfigScreen exotic_worlds$getScreen();
 }

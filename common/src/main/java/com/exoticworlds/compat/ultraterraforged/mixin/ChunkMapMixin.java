@@ -10,8 +10,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import com.llamalad7.mixinextras.sugar.Local;
 import com.exoticworlds.compat.terraforged.RtfLap;
 import com.exoticworlds.compat.ultraterraforged.LapCarrier;
-import com.exoticworlds.core.WorldFold;
-import com.exoticworlds.core.ShapedChunkGenerator;
+import com.exoticworlds.core.fold.WorldFold;
+import com.exoticworlds.core.gen.GeneratorShapes;
 
 import com.pandaismyname1.ultraterraforged.world.worldgen.GeneratorContext;
 import com.pandaismyname1.ultraterraforged.world.worldgen.UTFRandomState;
@@ -31,7 +31,7 @@ public abstract class ChunkMapMixin {
     @Inject(method = "<init>", at = @At("TAIL"))
     private void exotic_worlds$carryFoldToUltraTerraForged(CallbackInfo callback,
             @Local(argsOnly = true) ServerLevel level, @Local(argsOnly = true) ChunkGenerator generator) {
-        WorldFold fold = ShapedChunkGenerator.wrappedFoldOf(generator);
+        WorldFold fold = GeneratorShapes.getWrappedFold(generator);
         Object state = this.randomState;
         GeneratorContext context = state instanceof UTFRandomState ultraterraforged
                 ? ultraterraforged.generatorContext()

@@ -6,7 +6,7 @@ import com.zurrtum.create.content.schematics.cannon.SchematicannonBlockEntity;
 import com.zurrtum.create.foundation.blockEntity.IMultiBlockEntityContainer;
 import com.zurrtum.create.infrastructure.packet.s2c.HighlightPacket;
 import com.zurrtum.create.infrastructure.packet.s2c.SymmetryEffectPacket;
-import com.exoticworlds.client.engine.SyncedTagFold;
+import com.exoticworlds.engine.client.SyncedTagFold;
 import com.exoticworlds.engine.fold.FoldedCopies;
 import com.exoticworlds.engine.net.ComponentPositions;
 import com.exoticworlds.engine.net.PacketTranslator;
@@ -26,7 +26,7 @@ public final class CreateTranslation {
             Identifier.fromNamespaceAndPath("create", "track_targeting_item_selected_pos");
 
     public static void register() {
-        if (!CreateMixinPlugin.CREATE.admitted()) {
+        if (!CreateMixinPlugin.CREATE.isAdmitted()) {
             return;
         }
 

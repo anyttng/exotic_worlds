@@ -5,6 +5,8 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 
 import com.exoticworlds.accessors.NavigationShifter;
+import com.exoticworlds.core.fold.DeckTransformation;
+import com.exoticworlds.core.fold.SeamTransform;
 import com.exoticworlds.engine.seam.SeamSteering;
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
@@ -33,8 +35,11 @@ public class LookControlMixin implements NavigationShifter {
     }
 
     @Override
-    public void exotic_worlds$shiftBy(int shiftX, int shiftZ) {
-        this.wantedX += shiftX;
-        this.wantedZ += shiftZ;
+    public void exotic_worlds$carry(DeckTransformation lap) {
+        SeamTransform move = lap.blockTransform();
+        double fromX = this.wantedX;
+        double fromZ = this.wantedZ;
+        this.wantedX = move.applyX(fromX, fromZ);
+        this.wantedZ = move.applyZ(fromX, fromZ);
     }
 }

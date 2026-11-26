@@ -5,7 +5,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-import com.exoticworlds.core.WorldLoopAttachments;
+import com.exoticworlds.core.fold.WorldLoopAttachments;
 import com.exoticworlds.engine.seam.SeamCommandErrors;
 import com.llamalad7.mixinextras.sugar.Local;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
@@ -21,6 +21,6 @@ public class FillCommandMixin {
             @Local(argsOnly = true) CommandSourceStack source,
             @Local(argsOnly = true) BoundingBox region) throws CommandSyntaxException {
         SeamCommandErrors.requireUnambiguousRegion(
-                WorldLoopAttachments.wrappedFoldOf(source.getLevel()), region);
+                WorldLoopAttachments.getWrappedFold(source.getLevel()), region);
     }
 }

@@ -12,8 +12,8 @@ import java.util.function.Predicate;
 
 import org.apache.commons.lang3.mutable.MutableBoolean;
 
-import com.exoticworlds.core.WorldFold;
-import com.exoticworlds.core.WorldFold.Folded;
+import com.exoticworlds.core.fold.WorldFold;
+import com.exoticworlds.core.fold.WorldFold.Folded;
 
 import net.minecraft.util.AbortableIterationConsumer;
 import net.minecraft.util.Continuation;
@@ -27,13 +27,13 @@ public final class SeamEntitySearch {
                 EntitySectionStorage.CHONKY_ENTITY_SEARCH_GRACE);
     }
 
-    public static boolean crossesSeam(WorldFold fold, AABB reach) {
-        return fold.isWrapped() && fold.crossesBounds(reach);
+    public static boolean isCrossingSeam(WorldFold fold, AABB reach) {
+        return fold.isWrapped() && fold.isCrossingBounds(reach);
     }
 
     public static <E extends Entity> List<E> collect(WorldFold fold, AABB box, Function<AABB, List<E>> walk) {
         AABB reach = sectionReach(box);
-        if (!crossesSeam(fold, reach)) {
+        if (!isCrossingSeam(fold, reach)) {
             return walk.apply(box);
         }
 
@@ -53,7 +53,7 @@ public final class SeamEntitySearch {
     public static <E extends Entity> void forEach(WorldFold fold, AABB box, Consumer<E> output,
             BiConsumer<AABB, Consumer<E>> walk) {
         AABB reach = sectionReach(box);
-        if (!crossesSeam(fold, reach)) {
+        if (!isCrossingSeam(fold, reach)) {
             walk.accept(box, output);
             return;
         }
@@ -72,7 +72,7 @@ public final class SeamEntitySearch {
     public static <E extends Entity> void forEachUntilAborted(WorldFold fold, AABB box,
             AbortableIterationConsumer<E> output, BiConsumer<AABB, AbortableIterationConsumer<E>> walk) {
         AABB reach = sectionReach(box);
-        if (!crossesSeam(fold, reach)) {
+        if (!isCrossingSeam(fold, reach)) {
             walk.accept(box, output);
             return;
         }
@@ -102,7 +102,7 @@ public final class SeamEntitySearch {
     private static Predicate<Entity> firstOverlap(WorldFold fold, AABB box) {
         List<Folded<AABB>> pieces = fold.split(box);
         Set<Entity> seen = Collections.newSetFromMap(new IdentityHashMap<>());
-        return entity -> fold.overlaps(pieces, entity.getBoundingBox()) && seen.add(entity);
+        return entity -> fold.isOverlapping(pieces, entity.getBoundingBox()) && seen.add(entity);
     }
 
     private SeamEntitySearch() {

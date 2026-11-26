@@ -13,7 +13,7 @@ import com.llamalad7.mixinextras.sugar.Share;
 import com.llamalad7.mixinextras.sugar.ref.LocalBooleanRef;
 import com.llamalad7.mixinextras.sugar.ref.LocalRef;
 import com.zurrtum.create.content.logistics.tunnel.BrassTunnelBlockEntity;
-import com.exoticworlds.core.WorldLoopAttachments;
+import com.exoticworlds.core.fold.WorldLoopAttachments;
 
 @Mixin(BrassTunnelBlockEntity.class)
 public abstract class BrassTunnelBlockEntityMixin {
@@ -23,16 +23,16 @@ public abstract class BrassTunnelBlockEntityMixin {
             require = 2,
             allow = 2)
     private @Nullable BrassTunnelBlockEntity exotic_worlds$closeTheGroupChain(BrassTunnelBlockEntity walker,
-            boolean leftSide, Operation<BrassTunnelBlockEntity> original,
+            boolean isLeftSide, Operation<BrassTunnelBlockEntity> original,
             @Share("visitedTunnels") LocalRef<Set<BrassTunnelBlockEntity>> visitedRef,
             @Share("visitedTunnelsResolved") LocalBooleanRef resolved) {
-        BrassTunnelBlockEntity adjacent = original.call(walker, leftSide);
+        BrassTunnelBlockEntity adjacent = original.call(walker, isLeftSide);
         if (adjacent == null) {
             return null;
         }
 
         if (!resolved.get()) {
-            if (WorldLoopAttachments.wrappedFoldOfReader(walker.getLevel()) != null) {
+            if (WorldLoopAttachments.getWrappedFoldOfReader(walker.getLevel()) != null) {
                 Set<BrassTunnelBlockEntity> visited = new HashSet<>();
                 visited.add(walker);
                 visitedRef.set(visited);

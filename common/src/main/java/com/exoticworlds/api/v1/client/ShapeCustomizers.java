@@ -1,8 +1,9 @@
 package com.exoticworlds.api.v1.client;
 
+import com.exoticworlds.api.v1.Broken;
 import org.jspecify.annotations.Nullable;
 
-import com.exoticworlds.core.StartupRegistry;
+import com.exoticworlds.bridge.v1.client.CustomizerBridge;
 
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.resources.Identifier;
@@ -13,10 +14,12 @@ import net.minecraft.resources.Identifier;
  * {@link com.exoticworlds.api.v1.shape.ShapeModule#register()}.
  *
  * @deprecated no screen shows a Customize button any more, so a customizer registered here is never opened. A
- *     {@link com.exoticworlds.api.v2.shape.DimensionShape} has no screen of its own: what the player tunes are
- *     options, declared as a {@link com.exoticworlds.api.v2.option.DimensionOption}.
+ *     {@link com.exoticworlds.api.v2.shape.ShapeV2} has no screen of its own: what the player tunes are
+ *     options, declared as a {@link com.exoticworlds.api.v2.feature.OptionFeatureV2}.
  */
 @Deprecated
+@Broken("No screen shows a Customize button, so a customizer is never opened."
+        + " Declare what the player tunes as an api.v2.feature.OptionFeatureV2.")
 public final class ShapeCustomizers {
 
     /** Builds the settings screen for one shape. {@code parent} is the screen to return to when it closes. */
@@ -25,9 +28,6 @@ public final class ShapeCustomizers {
         Screen createScreen(Screen parent);
     }
 
-    private static final StartupRegistry<Identifier, Customizer> CUSTOMIZERS =
-            new StartupRegistry<>("Shape customizers");
-
     /**
      * Registers the customizer for the shape declared under {@code shapeId}.
      *
@@ -35,12 +35,12 @@ public final class ShapeCustomizers {
      *         a customizer
      */
     public static void register(Identifier shapeId, Customizer customizer) {
-        CUSTOMIZERS.register(shapeId, customizer);
+        CustomizerBridge.register(shapeId, customizer);
     }
 
     /** The customizer registered for {@code shapeId}, or {@code null} where that shape offers no settings screen. */
     public static @Nullable Customizer of(Identifier shapeId) {
-        return CUSTOMIZERS.entries().get(shapeId);
+        return CustomizerBridge.of(shapeId);
     }
 
     private ShapeCustomizers() {

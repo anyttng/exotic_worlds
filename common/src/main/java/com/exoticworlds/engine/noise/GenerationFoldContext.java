@@ -1,13 +1,18 @@
 package com.exoticworlds.engine.noise;
 
+import java.util.List;
 import java.util.function.Supplier;
 
 import org.jspecify.annotations.Nullable;
 
-import com.exoticworlds.core.WorldFold;
-import com.exoticworlds.core.WorldFolds;
+import com.exoticworlds.core.feature.GenerationFeature;
+import com.exoticworlds.core.fold.WorldFold;
+import com.exoticworlds.core.fold.WorldFolds;
 import com.exoticworlds.engine.DoubleStack;
 import com.exoticworlds.engine.ObjectStack;
+
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.world.level.dimension.LevelStem;
 
 public final class GenerationFoldContext {
     public static final double UNDECLARED_VERTICAL_SHARE = -1.0;
@@ -19,6 +24,8 @@ public final class GenerationFoldContext {
     public static final class Context {
         private WorldFold fold = WorldFolds.NOOP;
         private @Nullable WorldFold routerBuild;
+        private ResourceKey<LevelStem> routerBuildDimension = LevelStem.OVERWORLD;
+        private List<GenerationFeature> routerBuildFeatures = List.of();
         private double horizontalScale = NoiseConstants.UNSCALED;
         private double verticalShare = UNDECLARED_VERTICAL_SHARE;
         private double xDivisor = NoiseConstants.UNDIVIDED;
@@ -29,37 +36,45 @@ public final class GenerationFoldContext {
         private final BindingScope bindingScope = new BindingScope();
         private final FoldScope foldScope = new FoldScope();
 
-        public WorldFold fold() {
+        public WorldFold getFold() {
             return this.fold;
         }
 
-        public @Nullable WorldFold wrappedFold() {
+        public @Nullable WorldFold getWrappedFold() {
             return this.fold.isWrapped() ? this.fold : null;
         }
 
-        public @Nullable WorldFold routerBuildFold() {
+        public @Nullable WorldFold getRouterBuildFold() {
             return this.routerBuild;
         }
 
+        public ResourceKey<LevelStem> getRouterBuildDimension() {
+            return this.routerBuildDimension;
+        }
+
+        public List<GenerationFeature> getRouterBuildFeatures() {
+            return this.routerBuildFeatures;
+        }
+
         // mc/26.2: the noise samplers and C2ME's compiled tree read the scale through it.
-        public double horizontalScale() {
+        public double getHorizontalScale() {
             return this.horizontalScale;
         }
 
-        public double verticalShare() {
+        public double getVerticalShare() {
             return this.verticalShare;
         }
 
-        public double xDivisor() {
+        public double getXDivisor() {
             return this.xDivisor;
         }
 
-        public double zDivisor() {
+        public double getZDivisor() {
             return this.zDivisor;
         }
 
         // mc/26.2: the noise samplers read the slot axes through it.
-        public SlotAxes slotAxes() {
+        public SlotAxes getSlotAxes() {
             return this.slotAxes;
         }
 
@@ -196,12 +211,12 @@ public final class GenerationFoldContext {
 
     private static final ThreadLocal<Context> CONTEXT = ThreadLocal.withInitial(Context::new);
 
-    public static Context context() {
+    public static Context getContext() {
         return CONTEXT.get();
     }
 
     public static @Nullable WorldFold carriedOrBound(@Nullable WorldFold carried) {
-        return carried != null ? carried : CONTEXT.get().wrappedFold();
+        return carried != null ? carried : CONTEXT.get().getWrappedFold();
     }
 
     public static <T> T withFold(WorldFold fold, Supplier<T> action) {
@@ -216,15 +231,22 @@ public final class GenerationFoldContext {
         }
     }
 
-    public static <T> T withRouterBuild(@Nullable WorldFold fold, Supplier<T> action) {
+    public static <T> T withRouterBuild(@Nullable WorldFold fold, ResourceKey<LevelStem> dimension,
+            List<GenerationFeature> features, Supplier<T> action) {
         Context context = CONTEXT.get();
         WorldFold previous = context.routerBuild;
+        ResourceKey<LevelStem> previousDimension = context.routerBuildDimension;
+        List<GenerationFeature> previousFeatures = context.routerBuildFeatures;
         context.routerBuild = fold;
+        context.routerBuildDimension = dimension;
+        context.routerBuildFeatures = features;
 
         try {
             return action.get();
         } finally {
             context.routerBuild = previous;
+            context.routerBuildDimension = previousDimension;
+            context.routerBuildFeatures = previousFeatures;
         }
     }
 

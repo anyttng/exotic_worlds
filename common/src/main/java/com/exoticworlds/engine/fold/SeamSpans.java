@@ -1,12 +1,12 @@
 package com.exoticworlds.engine.fold;
 
-import com.exoticworlds.core.WorldFold;
+import com.exoticworlds.core.fold.WorldFold;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
 
 public final class SeamSpans {
-    public static boolean crossesSeam(WorldFold fold, BoundingBox region) {
+    public static boolean isCrossingSeam(WorldFold fold, BoundingBox region) {
         return !acrossDiagonal(fold, region).equals(region) || !acrossAntiDiagonal(fold, region).equals(region);
     }
 
@@ -17,12 +17,12 @@ public final class SeamSpans {
             return antiDiagonal;
         }
 
-        return antiDiagonal.equals(region) || sqrHorizontalSpan(diagonal) <= sqrHorizontalSpan(antiDiagonal)
+        return antiDiagonal.equals(region) || sqrHorizontalSpanBlocks(diagonal) <= sqrHorizontalSpanBlocks(antiDiagonal)
                 ? diagonal
                 : antiDiagonal;
     }
 
-    private static long sqrHorizontalSpan(BoundingBox region) {
+    private static long sqrHorizontalSpanBlocks(BoundingBox region) {
         long x = region.getXSpan();
         long z = region.getZSpan();
         return x * x + z * z;

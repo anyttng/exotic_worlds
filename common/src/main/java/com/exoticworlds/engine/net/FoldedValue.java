@@ -11,8 +11,8 @@ import org.joml.Vector3d;
 import org.joml.Vector3dc;
 import org.jspecify.annotations.Nullable;
 
-import com.exoticworlds.core.DeckTransformation;
-import com.exoticworlds.core.WorldFold;
+import com.exoticworlds.core.fold.DeckTransformation;
+import com.exoticworlds.core.fold.WorldFold;
 import com.exoticworlds.engine.fold.FoldedCopies;
 
 import net.minecraft.core.BlockPos;
@@ -111,7 +111,7 @@ public final class FoldedValue {
             return fallenBack;
         }
 
-        return RecordPayloadFold.formOf(record.getClass())
+        return RecordPayloadFold.getForm(record.getClass())
                 .rebuilt(record, component -> walk(dimension, leaves, component, fallback));
     }
 

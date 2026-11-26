@@ -1,0 +1,279 @@
+package com.exoticworlds.engine.noise.check;
+
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Supplier;
+import java.util.stream.Collectors;
+
+import org.slf4j.Logger;
+
+import com.exoticworlds.accessors.BiomeZoomOwner;
+import com.exoticworlds.accessors.PeriodicityMark;
+import com.exoticworlds.core.gen.GeneratorShapes;
+import com.exoticworlds.core.fold.WorldFold;
+import com.exoticworlds.core.fold.WorldLoopAttachments;
+import com.exoticworlds.engine.noise.GenerationFoldContext;
+import com.mojang.logging.LogUtils;
+
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Holder;
+import net.minecraft.core.QuartPos;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.level.ChunkPos;
+import net.minecraft.world.level.LevelHeightAccessor;
+import net.minecraft.world.level.NoiseColumn;
+import net.minecraft.world.level.biome.Biome;
+import net.minecraft.world.level.biome.BiomeManager;
+import net.minecraft.world.level.biome.BiomeResolver;
+import net.minecraft.world.level.biome.Climate;
+import net.minecraft.world.level.chunk.ChunkGenerator;
+import net.minecraft.world.level.levelgen.NoiseBasedChunkGenerator;
+import net.minecraft.world.level.levelgen.RandomState;
+import net.minecraft.world.level.levelgen.densityfunction.SamplerContext;
+
+public final class PeriodicityCheck {
+    private static final Logger LOGGER = LogUtils.getLogger();
+
+    private static final int[] SAMPLE_X = {0, 100, 255};
+    private static final int[] SAMPLE_Z = {0, 137, -211};
+
+    private static final int SAMPLE_Y = 64;
+
+    private static final String LIST_SEPARATOR = ",";
+
+    private record Probe(ServerLevel level, ChunkGenerator generator, RandomState randomState,
+            Climate.Sampler sampler, BiomeResolver biomes, WorldFold fold, List<SeamCauseSearch.Lap> laps) {
+    }
+
+    public static SeamVerdict verdictOf(ServerLevel level) {
+        return cached(((PeriodicityMark) level).exotic_worlds$getSeamVerdict(), () -> check(level));
+    }
+
+    public static SeamVerdict fullVerdictOf(ServerLevel level) {
+        return cached(((PeriodicityMark) level).exotic_worlds$getFullSeamVerdict(), () -> fullCheck(level));
+    }
+
+    static boolean isFullVerdictKnown(ServerLevel level) {
+        return ((PeriodicityMark) level).exotic_worlds$getFullSeamVerdict().get() != null;
+    }
+
+    public static List<SeamVerdict> verdictsOf(MinecraftServer server) {
+        return wrappedLevels(server).stream().map(PeriodicityCheck::verdictOf).toList();
+    }
+
+    public static List<SeamVerdict> fullVerdictsOf(MinecraftServer server) {
+        return wrappedLevels(server).stream().map(PeriodicityCheck::fullVerdictOf).toList();
+    }
+
+    static List<ServerLevel> wrappedLevels(MinecraftServer server) {
+        List<ServerLevel> levels = new ArrayList<>();
+        for (ServerLevel level : server.getAllLevels()) {
+            if (WorldLoopAttachments.getFold(level).isWrapped()) {
+                levels.add(level);
+            }
+        }
+
+        return levels;
+    }
+
+    private static SeamVerdict cached(AtomicReference<SeamVerdict> slot, Supplier<SeamVerdict> compute) {
+        SeamVerdict known = slot.get();
+        if (known != null) {
+            return known;
+        }
+
+        synchronized (slot) {
+            known = slot.get();
+            if (known == null) {
+                known = compute.get();
+                slot.set(known);
+            }
+
+            return known;
+        }
+    }
+
+    private static SeamVerdict check(ServerLevel level) {
+        String levelName = level.dimension().identifier().toString();
+        ChunkGenerator generator = level.getChunkSource().getGenerator();
+        if (!GeneratorShapes.isTilingAtSeam(generator)) {
+            LOGGER.info("[ew/world-loop] periodicity_skipped level={} generator={}",
+                    levelName, generator.getClass().getSimpleName());
+            return new SeamVerdict(level.dimension(), List.of(), SeamCauseSearch.generatorCause(generator), 0);
+        }
+
+        Probe probe = probeOf(level, generator, WorldLoopAttachments.getFold(level));
+        Map<String, SeamVerdict.Break> breaks = new LinkedHashMap<>();
+        int brokenSamples = 0;
+        for (SeamCauseSearch.Lap lap : probe.laps()) {
+            Map<SeamField, List<SeamCauseSearch.Point>> broken = new LinkedHashMap<>();
+            for (int z : SAMPLE_Z) {
+                for (int x : SAMPLE_X) {
+                    if (trySampleBroken(probe, lap, new SeamCauseSearch.Point(x, SAMPLE_Y, z), broken)) {
+                        brokenSamples++;
+                    }
+                }
+            }
+
+            for (SeamVerdict.Break found : SeamCauseSearch.causesOf(broken, lap, probe.randomState(),
+                    generator.getBiomeSource())) {
+                breaks.putIfAbsent(found.field(), found);
+            }
+        }
+
+        SeamVerdict verdict = new SeamVerdict(level.dimension(), List.copyOf(breaks.values()), null, 0);
+        report(levelName, probe, verdict, brokenSamples);
+        return verdict;
+    }
+
+    private static SeamVerdict fullCheck(ServerLevel level) {
+        SeamVerdict base = verdictOf(level);
+        ChunkGenerator generator = level.getChunkSource().getGenerator();
+        if (base.unchecked() != null || !(generator instanceof NoiseBasedChunkGenerator noise)) {
+            return base;
+        }
+
+        Map<String, SeamVerdict.Break> twinBreaks = new LinkedHashMap<>();
+        int twinsRead = readTwins(probeOf(level, generator, WorldLoopAttachments.getFold(level)), noise, twinBreaks);
+        List<SeamVerdict.Break> breaks = new ArrayList<>(base.breaks());
+        breaks.addAll(twinBreaks.values());
+        return new SeamVerdict(level.dimension(), breaks, null, twinsRead);
+    }
+
+    private static Probe probeOf(ServerLevel level, ChunkGenerator generator, WorldFold fold) {
+        RandomState randomState = level.getChunkSource().randomState();
+        Climate.Sampler sampler = randomState.createClimateSampler(SamplerContext.EMPTY_UNCACHED);
+        BiomeResolver biomes = generator.getBiomeSource().createResolver(sampler);
+        return new Probe(level, generator, randomState, sampler, biomes, fold,
+                SeamCauseSearch.Lap.of(fold.getBlockLattice()));
+    }
+
+    private static int readTwins(Probe probe, NoiseBasedChunkGenerator generator,
+            Map<String, SeamVerdict.Break> first) {
+        int read = 0;
+        for (LapTwinChunks.Inputs inputs : twinInputsOf(probe, generator)) {
+            for (int z : SAMPLE_Z) {
+                for (int x : SAMPLE_X) {
+                    LapTwinChunks.Reading reading = LapTwinChunks.read(inputs,
+                            ChunkPos.containing(new BlockPos(x, 0, z)));
+                    for (SeamVerdict.Break found : reading.breaks()) {
+                        first.putIfAbsent(found.field(), found);
+                    }
+
+                    read += reading.isRead() ? 1 : 0;
+                }
+            }
+        }
+
+        return read;
+    }
+
+    private static List<LapTwinChunks.Inputs> twinInputsOf(Probe probe, NoiseBasedChunkGenerator generator) {
+        BiomeManager biomeManager = new BiomeManager(probe.biomes(),
+                BiomeManager.obfuscateSeed(probe.level().getSeed()));
+        ((BiomeZoomOwner) biomeManager).exotic_worlds$setOwner(probe.level());
+        return probe.laps().stream()
+                .map(lap -> new LapTwinChunks.Inputs(probe.level(), generator, probe.randomState(), biomeManager,
+                        probe.fold(), lap))
+                .toList();
+    }
+
+    private static boolean trySampleBroken(Probe probe, SeamCauseSearch.Lap lap, SeamCauseSearch.Point surface,
+            Map<SeamField, List<SeamCauseSearch.Point>> broken) {
+        boolean isColumnBroken = tryCollectColumn(probe, lap, surface, broken);
+        boolean isClimateBroken = tryCollectClimate(probe, lap, surface, broken);
+        boolean isBiomeBroken = tryCollectBiome(probe, lap, surface, broken);
+        return isColumnBroken || isClimateBroken || isBiomeBroken;
+    }
+
+    private static boolean tryCollectColumn(Probe probe, SeamCauseSearch.Lap lap, SeamCauseSearch.Point surface,
+            Map<SeamField, List<SeamCauseSearch.Point>> broken) {
+        SeamCauseSearch.Point lapAway = lap.away(surface);
+        NoiseColumn here = probe.generator()
+                .getBaseColumn(surface.x(), surface.z(), probe.level(), probe.randomState());
+        NoiseColumn there = probe.generator()
+                .getBaseColumn(lapAway.x(), lapAway.z(), probe.level(), probe.randomState());
+        LevelHeightAccessor height = probe.level();
+        for (int y = height.getMinY(); y <= height.getMaxY(); y++) {
+            if (here.getBlock(y) != there.getBlock(y)) {
+                broken.computeIfAbsent(SeamField.COLUMN, _ -> new ArrayList<>())
+                        .add(new SeamCauseSearch.Point(surface.x(), y, surface.z()));
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private static boolean tryCollectClimate(Probe probe, SeamCauseSearch.Lap lap, SeamCauseSearch.Point surface,
+            Map<SeamField, List<SeamCauseSearch.Point>> broken) {
+        SeamCauseSearch.Point quart = quartOf(surface);
+        SeamCauseSearch.Point quartLapAway = quartOf(lap.away(surface));
+        Climate.TargetPoint here = GenerationFoldContext.withFold(probe.fold(),
+                () -> ClimateTargets.at(probe.sampler(), quart.x(), quart.y(), quart.z()));
+        Climate.TargetPoint there = GenerationFoldContext.withFold(probe.fold(),
+                () -> ClimateTargets.at(probe.sampler(), quartLapAway.x(), quartLapAway.y(), quartLapAway.z()));
+        boolean isFound = false;
+        for (SeamField field : SeamField.values()) {
+            if (field.isClimate() && field.getClimate(here) != field.getClimate(there)) {
+                broken.computeIfAbsent(field, _ -> new ArrayList<>()).add(blockOf(quart));
+                isFound = true;
+            }
+        }
+
+        return isFound;
+    }
+
+    private static boolean tryCollectBiome(Probe probe, SeamCauseSearch.Lap lap, SeamCauseSearch.Point surface,
+            Map<SeamField, List<SeamCauseSearch.Point>> broken) {
+        SeamCauseSearch.Point quart = quartOf(surface);
+        SeamCauseSearch.Point quartLapAway = quartOf(lap.away(surface));
+        Holder<Biome> here = GenerationFoldContext.withFold(probe.fold(),
+                () -> probe.biomes().getNoiseBiome(quart.x(), quart.y(), quart.z()));
+        Holder<Biome> there = GenerationFoldContext.withFold(probe.fold(),
+                () -> probe.biomes().getNoiseBiome(quartLapAway.x(), quartLapAway.y(), quartLapAway.z()));
+        if (here.equals(there)) {
+            return false;
+        }
+
+        broken.computeIfAbsent(SeamField.BIOME, _ -> new ArrayList<>()).add(blockOf(quart));
+        return true;
+    }
+
+    private static SeamCauseSearch.Point quartOf(SeamCauseSearch.Point block) {
+        return new SeamCauseSearch.Point(QuartPos.fromBlock(block.x()), QuartPos.fromBlock(block.y()),
+                QuartPos.fromBlock(block.z()));
+    }
+
+    private static SeamCauseSearch.Point blockOf(SeamCauseSearch.Point quart) {
+        return new SeamCauseSearch.Point(QuartPos.toBlock(quart.x()), QuartPos.toBlock(quart.y()),
+                QuartPos.toBlock(quart.z()));
+    }
+
+    private static void report(String levelName, Probe probe, SeamVerdict verdict, int brokenSamples) {
+        String axisName = probe.laps().stream()
+                .map(lap -> lap.axis().getName().toUpperCase(Locale.ROOT))
+                .collect(Collectors.joining(LIST_SEPARATOR));
+        String widthBlocks = probe.laps().stream()
+                .map(lap -> Integer.toString(lap.getWidthBlocks()))
+                .collect(Collectors.joining(LIST_SEPARATOR));
+        int samples = SAMPLE_X.length * SAMPLE_Z.length * probe.laps().size();
+        if (!verdict.isBroken()) {
+            LOGGER.info("[ew/world-loop] periodicity_ok level={} axis={} width_blocks={} samples={}",
+                    levelName, axisName, widthBlocks, samples);
+            return;
+        }
+
+        LOGGER.warn(
+                "[ew/world-loop] periodicity_broken level={} axis={} width_blocks={} fields={} causes={} broken_samples={} samples={}",
+                levelName, axisName, widthBlocks, verdict.getFields(), verdict.getCauses(), brokenSamples, samples);
+    }
+
+    private PeriodicityCheck() {
+    }
+}

@@ -7,9 +7,10 @@ import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 
 import com.exoticworlds.accessors.ClientPositionHolder;
-import com.exoticworlds.core.WorldFold;
-import com.exoticworlds.core.WorldFolds;
-import com.exoticworlds.core.WorldLoopAttachments;
+import com.exoticworlds.core.fold.FoldOrientation;
+import com.exoticworlds.core.fold.WorldFold;
+import com.exoticworlds.core.fold.WorldFolds;
+import com.exoticworlds.core.fold.WorldLoopAttachments;
 import com.exoticworlds.engine.LogRateGate;
 import com.exoticworlds.engine.LogRateGates;
 import com.exoticworlds.engine.fold.SeamDelta;
@@ -32,7 +33,7 @@ public final class ClientPosition {
     private record Mirror(double x, double z, @Nullable ResourceKey<Level> space, WorldFold fold) {
     }
 
-    private record CameraCopy(double x, double z, boolean left) {
+    private record CameraCopy(double x, double z, boolean isLeft) {
     }
 
     public record BorderCenter(double x, double z) {
@@ -54,23 +55,23 @@ public final class ClientPosition {
 
     private final LogRateGates translationWarnGates = new LogRateGates();
 
-    public LogRateGates translationWarnGates() {
+    public LogRateGates getTranslationWarnGates() {
         return translationWarnGates;
     }
 
     public static ClientPosition of(ServerPlayer player) {
-        return ((ClientPositionHolder) player.connection).exotic_worlds$clientPosition();
+        return ((ClientPositionHolder) player.connection).exotic_worlds$getClientPosition();
     }
 
-    public double x() {
-        return seededMirror().x();
+    public double getX() {
+        return getSeededMirror().x();
     }
 
-    public double z() {
-        return seededMirror().z();
+    public double getZ() {
+        return getSeededMirror().z();
     }
 
-    private Mirror seededMirror() {
+    private Mirror getSeededMirror() {
         Mirror currMirror = this.mirror;
         if (currMirror.space() == null) {
             throw new IllegalStateException("ClientPosition mirror read before the first rebase seeded it");
@@ -103,7 +104,7 @@ public final class ClientPosition {
     public void followCamera(@Nullable Vec3 camera, ResourceKey<Level> dimension) {
         CameraCopy copy = this.cameraCopy;
         if (camera == null) {
-            if (copy != null && !copy.left()) {
+            if (copy != null && !copy.isLeft()) {
                 this.cameraCopy = new CameraCopy(copy.x(), copy.z(), true);
             }
             return;
@@ -121,30 +122,30 @@ public final class ClientPosition {
 
     public void dropLeftCamera() {
         CameraCopy copy = this.cameraCopy;
-        if (copy != null && copy.left()) {
+        if (copy != null && copy.isLeft()) {
             this.cameraCopy = null;
         }
     }
 
     public Vec3 anchor(double y) {
-        return anchor(seededMirror(), this.cameraCopy, y);
+        return anchor(getSeededMirror(), this.cameraCopy, y);
     }
 
-    public ChunkPos anchorChunk() {
+    public ChunkPos getAnchorChunk() {
         return chunkOf(anchor(0.0));
     }
 
-    public @Nullable ChunkPos cameraChunk() {
+    public @Nullable ChunkPos getCameraChunk() {
         CameraCopy copy = this.cameraCopy;
-        return copy == null || copy.left() ? null : chunkOf(new Vec3(copy.x(), 0.0, copy.z()));
+        return copy == null || copy.isLeft() ? null : chunkOf(new Vec3(copy.x(), 0.0, copy.z()));
     }
 
-    public ChunkPos seatChunk() {
-        return chunkOf(seat(seededMirror(), 0.0));
+    public ChunkPos getSeatChunk() {
+        return chunkOf(seat(getSeededMirror(), 0.0));
     }
 
     private static Vec3 anchor(Mirror currMirror, @Nullable CameraCopy copy, double y) {
-        return copy == null || copy.left()
+        return copy == null || copy.isLeft()
                 ? new Vec3(currMirror.x(), y, currMirror.z())
                 : new Vec3(copy.x(), y, copy.z());
     }
@@ -154,7 +155,7 @@ public final class ClientPosition {
         return copy == null ? new Vec3(currMirror.x(), y, currMirror.z()) : new Vec3(copy.x(), y, copy.z());
     }
 
-    public boolean describes(ResourceKey<Level> dimension) {
+    public boolean isForDimension(ResourceKey<Level> dimension) {
         return dimension.equals(this.mirror.space());
     }
 
@@ -163,7 +164,7 @@ public final class ClientPosition {
             return;
         }
 
-        WorldFold fold = WorldLoopAttachments.foldOf(player.level());
+        WorldFold fold = WorldLoopAttachments.getFold(player.level());
         Vec3 folded = fold.fold(player.position());
         of(player).rebase(folded.x, folded.z, player.level().dimension(), fold);
     }
@@ -177,7 +178,7 @@ public final class ClientPosition {
         this.heldAreas = List.of();
     }
 
-    public @Nullable BlockPos heldSpawn() {
+    public @Nullable BlockPos getHeldSpawn() {
         return this.heldSpawn;
     }
 
@@ -185,7 +186,7 @@ public final class ClientPosition {
         this.heldSpawn = heldSpawn;
     }
 
-    public @Nullable BorderCenter heldBorderCenter() {
+    public @Nullable BorderCenter getHeldBorderCenter() {
         return this.heldBorderCenter;
     }
 
@@ -193,7 +194,7 @@ public final class ClientPosition {
         this.heldBorderCenter = heldBorderCenter;
     }
 
-    public @Nullable ChunkPos heldCacheCenter() {
+    public @Nullable ChunkPos getHeldCacheCenter() {
         return this.heldCacheCenter;
     }
 
@@ -201,7 +202,7 @@ public final class ClientPosition {
         this.heldCacheCenter = heldCacheCenter;
     }
 
-    public List<HeldArea> heldAreas() {
+    public List<HeldArea> getHeldAreas() {
         return this.heldAreas;
     }
 
@@ -210,8 +211,8 @@ public final class ClientPosition {
         this.heldAreas = List.copyOf(heldAreas);
     }
 
-    public ChunkPos chunk() {
-        Mirror currMirror = seededMirror();
+    public ChunkPos getChunk() {
+        Mirror currMirror = getSeededMirror();
         return chunkOf(new Vec3(currMirror.x(), 0.0, currMirror.z()));
     }
 
@@ -219,27 +220,38 @@ public final class ClientPosition {
         return new ChunkPos(SectionPos.blockToSectionCoord(position.x), SectionPos.blockToSectionCoord(position.z));
     }
 
+    public FoldOrientation orientation(WorldFold fold) {
+        Mirror currMirror = getSeededMirror();
+        return orientationAt(fold, new Vec3(currMirror.x(), 0.0, currMirror.z()));
+    }
+
+    public static FoldOrientation orientationAt(WorldFold fold, Vec3 clientPoint) {
+        return fold.isPreservingLocalIndices()
+                ? FoldOrientation.IDENTITY
+                : fold.foldTransformation(clientPoint).getOrientation().inverse();
+    }
+
     public Vec3 destinationOf(WorldFold fold, Vec3 position, Set<Relative> relatives) {
-        Mirror currMirror = seededMirror();
-        boolean relativeX = relatives.contains(Relative.X);
-        boolean relativeZ = relatives.contains(Relative.Z);
-        if (relativeX && relativeZ) {
-            Vec3 step = SeamDelta.fold(fold, position.x, position.z);
+        Mirror currMirror = getSeededMirror();
+        boolean isRelativeX = relatives.contains(Relative.X);
+        boolean isRelativeZ = relatives.contains(Relative.Z);
+        if (isRelativeX && isRelativeZ) {
+            Vec3 step = orientation(fold).applyToDelta(SeamDelta.fold(fold, position.x, position.z));
             return new Vec3(currMirror.x() + step.x, position.y, currMirror.z() + step.z);
         }
 
         Vec3 reported = new Vec3(
-                relativeX ? currMirror.x() + position.x : position.x,
+                isRelativeX ? currMirror.x() + position.x : position.x,
                 position.y,
-                relativeZ ? currMirror.z() + position.z : position.z);
-        Vec3 seat = relativeX || relativeZ
+                isRelativeZ ? currMirror.z() + position.z : position.z);
+        Vec3 seat = isRelativeX || isRelativeZ
                 ? new Vec3(currMirror.x(), position.y, currMirror.z())
                 : seat(currMirror, position.y);
         return fold.nearestCopy(seat, reported);
     }
 
     private static Vec3 clientCopy(MirrorWriter writer, Mirror currMirror, Vec3 reported) {
-        return writer.needsSeating()
+        return writer.isSeatingNeeded()
                 ? currMirror.fold().nearestCopy(new Vec3(currMirror.x(), 0.0, currMirror.z()), reported)
                 : reported;
     }
@@ -251,7 +263,7 @@ public final class ClientPosition {
         }
 
         LOGGER.warn("Half-world step invariant violated in {} by {}: mirror stepped from ({}, {}) to ({}, {}) without a rebase",
-                spaceName(from.space()), writer.key(), from.x(), from.z(), to.x, to.z);
+                spaceName(from.space()), writer.getKey(), from.x(), from.z(), to.x, to.z);
     }
 
     private static Object spaceName(@Nullable ResourceKey<Level> space) {

@@ -12,7 +12,7 @@ import org.spongepowered.asm.mixin.injection.ModifyArg;
 import com.exoticworlds.compat.distanthorizons.DhShapes;
 import com.exoticworlds.compat.distanthorizons.FoldBindingExecutor;
 import com.exoticworlds.compat.distanthorizons.SeamTarget;
-import com.exoticworlds.core.WorldFold;
+import com.exoticworlds.core.fold.WorldFold;
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
@@ -63,7 +63,7 @@ public class WorldGenerationQueueMixin {
 
     @Unique
     private ExecutorService exotic_worlds$bindLevelFold(ExecutorService pool) {
-        WorldFold fold = DhShapes.serverFoldOf(this.level);
+        WorldFold fold = DhShapes.getServerFold(this.level);
         return fold == null ? pool : new FoldBindingExecutor(pool, fold);
     }
 
@@ -76,6 +76,6 @@ public class WorldGenerationQueueMixin {
             target = "Lcom/seibel/distanthorizons/core/pos/blockPos/DhBlockPos2D;chebyshevDist(Lcom/seibel/distanthorizons/core/pos/blockPos/DhBlockPos2D;)I"))
     private static int exotic_worlds$seamChebyshevDist(DhBlockPos2D center, DhBlockPos2D target,
             Operation<Integer> original) {
-        return target instanceof SeamTarget seam ? seam.chebyshevDistFrom(center) : original.call(center, target);
+        return target instanceof SeamTarget seam ? seam.chebyshevDistanceBlocksFrom(center) : original.call(center, target);
     }
 }

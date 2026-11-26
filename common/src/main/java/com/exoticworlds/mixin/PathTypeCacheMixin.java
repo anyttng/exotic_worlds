@@ -30,6 +30,6 @@ public class PathTypeCacheMixin implements LevelBindable {
             at = @At(value = "INVOKE", target = "Lnet/minecraft/core/BlockPos;asLong()J"),
             require = 2)
     private long exotic_worlds$keyThePhysicalBlock(BlockPos pos, Operation<Long> original) {
-        return this.exotic_worlds$bound.fold().foldBlockNode(original.call(pos));
+        return this.exotic_worlds$bound.getFold().foldBlockNode(original.call(pos));
     }
 }

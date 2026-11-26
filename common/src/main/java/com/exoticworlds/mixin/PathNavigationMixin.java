@@ -13,9 +13,12 @@ import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import com.exoticworlds.InjectionTargets;
 import com.exoticworlds.accessors.NavigationShifter;
 import com.exoticworlds.accessors.FoldSource;
-import com.exoticworlds.core.WorldFold;
+import com.exoticworlds.accessors.PathCarry;
+import com.exoticworlds.core.fold.DeckTransformation;
+import com.exoticworlds.core.fold.WorldFold;
 import com.exoticworlds.engine.fold.FoldedCopies;
 import com.exoticworlds.engine.fold.SeamDelta;
+import com.exoticworlds.engine.seam.NavigationCarry;
 import com.exoticworlds.engine.seam.SeamRange;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
@@ -56,7 +59,7 @@ public class PathNavigationMixin implements NavigationShifter {
             method = "createPath(Ljava/util/Set;IZIF)Lnet/minecraft/world/level/pathfinder/Path;",
             at = @At("HEAD"), argsOnly = true)
     private Set<BlockPos> exotic_worlds$targetsThroughSeam(Set<BlockPos> targets) {
-        WorldFold fold = exotic_worlds$wrappedFold();
+        WorldFold fold = exotic_worlds$getWrappedFold();
         if (fold == null || targets.isEmpty()) {
             return targets;
         }
@@ -68,13 +71,13 @@ public class PathNavigationMixin implements NavigationShifter {
     @WrapOperation(method = "followThePath", at = @At(value = "INVOKE", target = MATH_ABS, ordinal = 0))
     private double exotic_worlds$nodeDistanceX(double delta, Operation<Double> original, @Local Vec3i node,
             @Share("lapZ") LocalDoubleRef lapZ) {
-        WorldFold fold = exotic_worlds$wrappedFold();
+        WorldFold fold = exotic_worlds$getWrappedFold();
         if (fold == null) {
             return original.call(delta);
         }
 
-        double nodeOffset = this.mob.getX() - delta - node.getX();
-        double deltaZ = this.mob.getZ() - (node.getZ() + nodeOffset);
+        double nodeOffsetBlocks = this.mob.getX() - delta - node.getX();
+        double deltaZ = this.mob.getZ() - (node.getZ() + nodeOffsetBlocks);
         Vec3 folded = SeamDelta.fold(fold, delta, deltaZ);
         lapZ.set(folded.z - deltaZ);
         return Math.abs(folded.x);
@@ -90,29 +93,30 @@ public class PathNavigationMixin implements NavigationShifter {
             method = "shouldRecomputePath",
             at = @At(value = "INVOKE",
                     target = InjectionTargets.BLOCK_POS_CLOSER_TO_CENTER_THAN))
-    private boolean exotic_worlds$replanRangeThroughSeam(BlockPos changedPos, Position middlePos, double distance,
+    private boolean exotic_worlds$replanRangeThroughSeam(BlockPos changedPos, Position middlePos, double distanceBlocks,
             Operation<Boolean> original) {
-        return original.call(changedPos, SeamRange.towardCenterOf(this.mob, changedPos, middlePos), distance);
+        return original.call(changedPos, SeamRange.towardCenterOf(this.mob, changedPos, middlePos), distanceBlocks);
     }
 
     @Override
-    public void exotic_worlds$shiftBy(int shiftX, int shiftZ) {
+    public void exotic_worlds$carry(DeckTransformation lap) {
+        int footprint = NavigationCarry.footprintOf(this.mob);
         if (this.targetPos != null) {
-            this.targetPos = this.targetPos.offset(shiftX, 0, shiftZ);
+            this.targetPos = lap.apply(this.targetPos);
         }
 
-        this.lastStuckCheckPos = this.lastStuckCheckPos.add(shiftX, 0, shiftZ);
+        this.lastStuckCheckPos = lap.apply(this.lastStuckCheckPos);
         if (!Vec3i.ZERO.equals(this.timeoutCachedNode)) {
-            this.timeoutCachedNode = this.timeoutCachedNode.offset(shiftX, 0, shiftZ);
+            this.timeoutCachedNode = NavigationCarry.node(lap.blockTransform(), this.timeoutCachedNode, footprint);
         }
 
         if (this.path != null && !this.path.isDone()) {
-            ((NavigationShifter) (Object) this.path).exotic_worlds$shiftBy(shiftX, shiftZ);
+            ((PathCarry) (Object) this.path).exotic_worlds$carry(lap, footprint);
         }
     }
 
     @Unique
-    private @Nullable WorldFold exotic_worlds$wrappedFold() {
-        return ((FoldSource) this.mob).exotic_worlds$wrappedFold();
+    private @Nullable WorldFold exotic_worlds$getWrappedFold() {
+        return ((FoldSource) this.mob).exotic_worlds$getWrappedFold();
     }
 }

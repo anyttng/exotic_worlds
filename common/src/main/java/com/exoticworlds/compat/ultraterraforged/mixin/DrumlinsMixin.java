@@ -47,7 +47,7 @@ public abstract class DrumlinsMixin {
             target = "Lcom/pandaismyname1/ultraterraforged/world/worldgen/landform/Drumlins;drumlin(FF)F"))
     private float exotic_worlds$drumlin(Drumlins drumlins, float u, float v, Operation<Float> original,
             @Local(argsOnly = true, ordinal = X_ARGUMENT) float x, @Local(argsOnly = true, ordinal = Z_ARGUMENT) float z) {
-        DrumlinLattice lattice = DrumlinLattice.bound(this.cosFlow, this.sinFlow);
+        DrumlinLattice lattice = DrumlinLattice.getBound(this.cosFlow, this.sinFlow);
         return lattice == null
                 ? original.call(drumlins, u, v)
                 : original.call(drumlins, lattice.along(x, z), lattice.across(x, z));
@@ -56,7 +56,7 @@ public abstract class DrumlinsMixin {
     @WrapMethod(method = DRUMLIN)
     private float exotic_worlds$bindLattice(float u, float v, Operation<Float> original,
             @Share(LATTICE) LocalRef<@Nullable DrumlinLattice> lattice) {
-        lattice.set(DrumlinLattice.bound(this.cosFlow, this.sinFlow));
+        lattice.set(DrumlinLattice.getBound(this.cosFlow, this.sinFlow));
         return original.call(u, v);
     }
 

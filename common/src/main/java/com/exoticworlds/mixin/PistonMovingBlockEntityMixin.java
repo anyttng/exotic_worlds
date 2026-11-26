@@ -37,7 +37,7 @@ public class PistonMovingBlockEntityMixin {
             at = @At(value = "INVOKE", target = InjectionTargets.ENTITY_GET_X))
     private static double exotic_worlds$riderXTowardHoney(Entity entity, Operation<Double> original,
             @Local(argsOnly = true) AABB honey) {
-        return NearestCopy.toward(((FoldSource) entity).exotic_worlds$wrappedFold(), Direction.Axis.X,
+        return NearestCopy.toward(((FoldSource) entity).exotic_worlds$getWrappedFold(), Direction.Axis.X,
                 honey.getCenter(), entity.position().with(Direction.Axis.X, original.call(entity)));
     }
 
@@ -46,7 +46,7 @@ public class PistonMovingBlockEntityMixin {
             at = @At(value = "INVOKE", target = InjectionTargets.ENTITY_GET_Z))
     private static double exotic_worlds$riderZTowardHoney(Entity entity, Operation<Double> original,
             @Local(argsOnly = true) AABB honey) {
-        return NearestCopy.toward(((FoldSource) entity).exotic_worlds$wrappedFold(), Direction.Axis.Z,
+        return NearestCopy.toward(((FoldSource) entity).exotic_worlds$getWrappedFold(), Direction.Axis.Z,
                 honey.getCenter(), entity.position().with(Direction.Axis.Z, original.call(entity)));
     }
 }

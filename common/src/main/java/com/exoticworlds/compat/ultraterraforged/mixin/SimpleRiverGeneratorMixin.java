@@ -32,27 +32,27 @@ public abstract class SimpleRiverGeneratorMixin {
     @ModifyExpressionValue(method = "generateRoots",
             at = @At(value = "FIELD", target = COUNT, opcode = Opcodes.GETFIELD))
     private int exotic_worlds$rootsForTheCell(int count) {
-        RtfLap.Frame frame = RtfLap.boundFrame();
+        RtfLap.Frame frame = RtfLap.getBoundFrame();
         if (frame == null) {
             return count;
         }
 
         return RiverReach.rootCount(frame, count,
-                ((BaseRiverGeneratorAccessor) (Object) this).exotic_worlds$continentScale());
+                ((BaseRiverGeneratorAccessor) (Object) this).exotic_worlds$getContinentScale());
     }
 
     @ModifyExpressionValue(method = "generateRoots", at = {
             @At(value = "CONSTANT", args = ROOT_START),
             @At(value = "CONSTANT", args = UltraTerraForgedInjectionTargets.VALLEY_WIDTH)}, require = 2)
     private float exotic_worlds$sizedForTheLap(float blocks) {
-        return blocks * UltraTerraForgedRiverReach.INSTANCE.boundScale();
+        return blocks * UltraTerraForgedRiverReach.INSTANCE.getBoundScale();
     }
 
     @WrapOperation(method = "generateRoots", at = @At(value = "INVOKE", target = DISTANCE_TO_OCEAN))
     private float exotic_worlds$fitInsideHalfLap(SimpleContinent continent, int x, int z, float dx, float dz,
             Operation<Float> original) {
         float length = original.call(continent, x, z, dx, dz);
-        RtfLap.Frame frame = RtfLap.boundFrame();
+        RtfLap.Frame frame = RtfLap.getBoundFrame();
         return frame == null ? length : UltraTerraForgedRiverReach.INSTANCE.clamp(frame, length);
     }
 }

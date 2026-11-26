@@ -67,7 +67,6 @@
   "gui.exotic_worlds.world_shape_settings.shape.hint.torus": "东西方向和南北方向都循环。朝任意方向走得足够远，就会回到出发的地方。",
   "gui.exotic_worlds.world_shape_settings.shape.hint.cylinder": "一条水平轴循环，另一条像普通世界一样无限延伸。",
   "gui.exotic_worlds.world_shape_settings.shape.hint.from_overworld": "沿用主世界的形状，大小按此维度自身计算。",
-  "gui.exotic_worlds.world_shape_settings.shape.hint.declared": "由其他模组添加的形状；其说明显示在此按钮下方。",
   "gui.exotic_worlds.world_shape_settings.shape.size_error": "此形状的宽度为 %s 区块；此维度允许 %s 到 %s。",
   "gui.exotic_worlds.world_shape_settings.nether_scale": "下界比例",
   "gui.exotic_worlds.world_shape_settings.size": "世界大小（%s-%s 区块）",
@@ -104,8 +103,6 @@
   "gui.exotic_worlds.world_shape_settings.guaranteed_nether_complexes.hint.intro": "下界中至少会有一座下界要塞和一座堡垒遗迹，各自位于可以生成它的生物群系中。关闭时，小型下界常常两个都没有。",
   "gui.exotic_worlds.world_shape_settings.guaranteed_nether_complexes.hint.on": "本该两个都没有的下界会有一座下界要塞和一座堡垒遗迹。",
   "gui.exotic_worlds.world_shape_settings.guaranteed_nether_complexes.hint.off": "小型下界可能两个都没有。",
-  "gui.exotic_worlds.world_shape.normal": "普通",
-  "gui.exotic_worlds.world_shape.normal.hint": "普通世界：向各个方向无限延伸的平面。",
   "gui.exotic_worlds.world_shape.seam_warning": "此世界类型使用自己的世界生成器：世界形状仍会限定世界范围并使其循环，但地形在世界边缘处不会衔接。",
 
   "gui.exotic_worlds.settings.title": "Exotic Worlds 设置",

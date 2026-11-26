@@ -17,7 +17,7 @@ import com.exoticworlds.compat.wover.LapMap;
 import com.exoticworlds.compat.wover.LapMapHolder;
 import com.exoticworlds.compat.wover.LapMapMemo;
 import com.exoticworlds.compat.wover.LapPicker;
-import com.exoticworlds.core.WorldFold;
+import com.exoticworlds.core.fold.WorldFold;
 import com.exoticworlds.engine.noise.GenerationFoldContext;
 
 @Mixin(HexBiomeMap.class)
@@ -40,7 +40,7 @@ public class HexBiomeMapMixin implements LapMapHolder<WoverBiomePicker.PickableB
     @Inject(method = "getBiome", at = @At("HEAD"), cancellable = true)
     private void exotic_worlds$lapBiomeWithEdge(double x, double y, double z,
             CallbackInfoReturnable<WoverBiomePicker.PickableBiome> cir) {
-        WorldFold fold = GenerationFoldContext.context().wrappedFold();
+        WorldFold fold = GenerationFoldContext.getContext().getWrappedFold();
         if (fold != null) {
             cir.setReturnValue(EdgeBiomes.hex(exotic_worlds$lapMap(fold), x, z));
         }
@@ -49,7 +49,7 @@ public class HexBiomeMapMixin implements LapMapHolder<WoverBiomePicker.PickableB
     @Inject(method = "getRawBiome", at = @At("HEAD"), cancellable = true)
     private void exotic_worlds$lapBiome(double x, double z,
             CallbackInfoReturnable<WoverBiomePicker.PickableBiome> cir) {
-        WorldFold fold = GenerationFoldContext.context().wrappedFold();
+        WorldFold fold = GenerationFoldContext.getContext().getWrappedFold();
         if (fold != null) {
             cir.setReturnValue(exotic_worlds$lapMap(fold).biomeAt(x, z));
         }
@@ -57,7 +57,7 @@ public class HexBiomeMapMixin implements LapMapHolder<WoverBiomePicker.PickableB
 
     @Override
     public LapMap<WoverBiomePicker.PickableBiome> exotic_worlds$lapMap(WorldFold fold) {
-        LapMap<WoverBiomePicker.PickableBiome> lapMap = this.exotic_worlds$lapMaps.covering(fold);
+        LapMap<WoverBiomePicker.PickableBiome> lapMap = this.exotic_worlds$lapMaps.getCovering(fold);
         return lapMap != null ? lapMap : this.exotic_worlds$lapMaps.keep(
                 new HexLapMap<>(fold, this.scale, FoldCompression.of(fold), this.seed, LapPicker.of(this.picker)));
     }

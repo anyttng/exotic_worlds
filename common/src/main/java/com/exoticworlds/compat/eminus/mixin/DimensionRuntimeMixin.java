@@ -21,6 +21,7 @@ import com.exoticworlds.compat.eminus.EminusShapes;
 
 @Mixin(DimensionRuntime.class)
 public class DimensionRuntimeMixin implements CellFoldHolder {
+
     @Shadow
     @Final
     private WorldIdentity identity;
@@ -42,7 +43,7 @@ public class DimensionRuntimeMixin implements CellFoldHolder {
     private volatile CellFold exotic_worlds$fold = CellFold.NONE;
 
     @Override
-    public CellFold exotic_worlds$fold() {
+    public CellFold exotic_worlds$getFold() {
         return exotic_worlds$fold;
     }
 
@@ -53,7 +54,7 @@ public class DimensionRuntimeMixin implements CellFoldHolder {
 
     @Inject(method = "openStore", at = @At("HEAD"))
     private void exotic_worlds$openUnderPublishedShape(CallbackInfo ci) {
-        exotic_worlds$fold = EminusShapes.publishedFold(identity.dimension());
+        exotic_worlds$fold = EminusShapes.getPublishedFold(identity.dimension());
         EminusShapes.matchStore(folder, exotic_worlds$fold);
     }
 

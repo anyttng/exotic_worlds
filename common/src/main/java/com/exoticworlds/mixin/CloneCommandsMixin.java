@@ -5,8 +5,8 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-import com.exoticworlds.core.WorldFold;
-import com.exoticworlds.core.WorldLoopAttachments;
+import com.exoticworlds.core.fold.WorldFold;
+import com.exoticworlds.core.fold.WorldLoopAttachments;
 import com.exoticworlds.engine.seam.SeamCommandErrors;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
@@ -26,7 +26,7 @@ public class CloneCommandsMixin {
             @Local(ordinal = 0) BoundingBox from,
             @Local(ordinal = 0) ServerLevel fromDimension) throws CommandSyntaxException {
         SeamCommandErrors.requireUnambiguousRegion(
-                WorldLoopAttachments.wrappedFoldOf(fromDimension), from);
+                WorldLoopAttachments.getWrappedFold(fromDimension), from);
     }
 
     @WrapOperation(
@@ -36,9 +36,9 @@ public class CloneCommandsMixin {
                     target = "Lnet/minecraft/world/level/levelgen/structure/BoundingBox;intersects(Lnet/minecraft/world/level/levelgen/structure/BoundingBox;)Z"))
     private static boolean exotic_worlds$measureOverlapThroughSeam(BoundingBox destination, BoundingBox from,
             Operation<Boolean> original, @Local(ordinal = 0) ServerLevel fromDimension) {
-        WorldFold fold = WorldLoopAttachments.wrappedFoldOf(fromDimension);
+        WorldFold fold = WorldLoopAttachments.getWrappedFold(fromDimension);
         return fold == null
                 ? original.call(destination, from)
-                : fold.regionsOverlap(destination, from);
+                : fold.areRegionsOverlapping(destination, from);
     }
 }

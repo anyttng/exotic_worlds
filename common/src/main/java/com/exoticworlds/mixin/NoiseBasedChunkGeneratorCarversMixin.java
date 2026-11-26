@@ -3,9 +3,9 @@ package com.exoticworlds.mixin;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 
-import com.exoticworlds.core.ShapedChunkGenerator;
-import com.exoticworlds.core.WorldFold;
-import com.exoticworlds.engine.noise.CarverRecording;
+import com.exoticworlds.core.gen.GeneratorShapes;
+import com.exoticworlds.core.fold.WorldFold;
+import com.exoticworlds.engine.noise.check.CarverRecording;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 
@@ -27,7 +27,7 @@ public class NoiseBasedChunkGeneratorCarversMixin {
     private void exotic_worlds$seedCarverFromCanonicalSource(
             WorldgenRandom random, long seed, int sourceChunkX, int sourceChunkZ, Operation<Void> original) {
         WorldFold fold =
-                ShapedChunkGenerator.wrappedFoldOf((NoiseBasedChunkGenerator) (Object) this);
+                GeneratorShapes.getWrappedFold((NoiseBasedChunkGenerator) (Object) this);
         if (fold == null) {
             original.call(random, seed, sourceChunkX, sourceChunkZ);
             return;

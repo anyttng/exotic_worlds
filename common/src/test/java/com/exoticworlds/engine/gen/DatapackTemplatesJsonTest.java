@@ -19,9 +19,9 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.mojang.serialization.JsonOps;
-import com.exoticworlds.core.FlatShape;
-import com.exoticworlds.core.CarriedShape;
-import com.exoticworlds.core.WorldLoopBounds;
+import com.exoticworlds.core.world.FlatShape;
+import com.exoticworlds.core.world.CarriedShape;
+import com.exoticworlds.core.world.WorldLoopBounds;
 import com.exoticworlds.api.v1.option.WorldOption;
 import com.exoticworlds.api.v1.option.WorldOptions;
 
@@ -37,8 +37,12 @@ class DatapackTemplatesJsonTest {
     private static final String TORUS = "torus";
     private static final String CYLINDER = "cylinder";
 
-    private static final String GENERATOR_ID = "exotic_worlds:toroidal";
+    private static final String GENERATOR_ID = "minecraft:noise";
+    private static final String TORUS_ID = "exotic_worlds:torus";
+    private static final String CYLINDER_ID = "exotic_worlds:cylinder";
     private static final int VANILLA_DIMENSIONS = 3;
+
+    private static final String TEST_OPTION_PREFIX = "example_";
 
     @Test
     void theTorusTemplateLoopsBothAxesAndStatesEveryWorldOption() throws IOException {
@@ -78,7 +82,7 @@ class DatapackTemplatesJsonTest {
                 identification, statesOptions);
 
         WorldShapeReport.Note width = WorldShapeReport.endWidthNote(end);
-        assertFalse(width.broken(), template + width.text());
+        assertFalse(width.isBroken(), template + width.text());
     }
 
     private static WorldLoopBounds assertDimension(String template, JsonObject dimensions, String dimensionId,
@@ -92,21 +96,26 @@ class DatapackTemplatesJsonTest {
         assertEquals(GENERATOR_ID, generator.get("type").getAsString(), context + ": generator type");
         assertEquals(noiseSettingsId, generator.get("settings").getAsString(), context + ": noise settings");
 
+        JsonObject stated = generator.getAsJsonObject(StampedGeneratorCodec.SHAPE_KEY);
+        assertNotNull(stated, context + ": no " + StampedGeneratorCodec.SHAPE_KEY + " object");
+        assertEquals(identification == FlatShape.Identification.TORUS ? TORUS_ID : CYLINDER_ID,
+                stated.get(CarriedShape.ID_KEY).getAsString(), context + ": shape id");
         FlatShape shape = CarriedShape.SHAPE_CODEC
-                .parse(JsonOps.INSTANCE, generator.get(CarriedShape.WRAPPING_KEY))
+                .parse(JsonOps.INSTANCE, stated.get(CarriedShape.WRAPPING_KEY))
                 .getOrThrow(message -> new AssertionError(context + ": wrapping is refused: " + message));
-        assertEquals(identification, shape.identification(), context + ": identification");
+        assertEquals(identification, shape.getIdentification(), context + ": identification");
 
-        for (WorldOption<?> option : WorldOptions.all()) {
-            assertOption(context, generator, option, statesOptions);
-        }
+        WorldOptions.all().stream()
+                .filter(option -> !option.key().startsWith(TEST_OPTION_PREFIX))
+                .forEach(option -> assertOption(context, stated, option, statesOptions));
 
         return shape.bounds();
     }
 
-    private static <V> void assertOption(String context, JsonObject generator, WorldOption<V> option, boolean stated) {
-        JsonElement value = generator.get(option.key());
-        if (!stated) {
+    private static <V> void assertOption(String context, JsonObject shape, WorldOption<V> option,
+            boolean isStated) {
+        JsonElement value = shape.get(option.key());
+        if (!isStated) {
             assertNull(value, context + ": a cylinder states no " + option.key());
             return;
         }

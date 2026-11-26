@@ -3,20 +3,21 @@ package com.exoticworlds.shape.layout;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 
 import org.jspecify.annotations.Nullable;
 
-import com.exoticworlds.api.v1.option.GenerationOptions;
-import com.exoticworlds.api.v1.shape.LoopSpans;
-import com.exoticworlds.api.v1.shape.ShapeDimensions;
-import com.exoticworlds.core.CarriedShape;
-import com.exoticworlds.core.DimensionTable;
-import com.exoticworlds.core.FlatShape;
-import com.exoticworlds.core.NetherScales;
-import com.exoticworlds.core.WorldLoopBounds.AxisBounds;
+import com.exoticworlds.core.world.CarriedShape;
+import com.exoticworlds.core.world.DimensionTable;
+import com.exoticworlds.core.world.FlatShape;
+import com.exoticworlds.core.world.LegacyShapeIds;
+import com.exoticworlds.core.world.NetherScales;
+import com.exoticworlds.core.option.ShapeOptions;
 import com.exoticworlds.engine.gen.ShapedDimensions;
+import com.exoticworlds.shape.dimension.DeclaredShapes;
+import com.exoticworlds.shape.feature.OptionFeatures;
 
-import net.minecraft.core.Direction;
+import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.level.dimension.LevelStem;
 import net.minecraft.world.level.levelgen.WorldDimensions;
@@ -24,10 +25,13 @@ import net.minecraft.world.level.levelgen.WorldDimensions;
 public final class LayoutDimensions {
 
     public static WorldDimensions apply(WorldDimensions dimensions, WorldLayout layout) {
-        WorldDimensions shaped = withShape(dimensions, LevelStem.OVERWORLD, layout.overworld().spans(),
+        Identifier overworldId = getShapeId(layout.overworld(), null);
+        WorldDimensions shaped = withShape(dimensions, LevelStem.OVERWORLD, overworldId, layout.overworld().spans(),
                 layout.overworld().options());
-        shaped = withShape(shaped, LevelStem.NETHER, layout.netherSpans(), layout.nether().options());
-        shaped = withShape(shaped, LevelStem.END, layout.endSpans(), layout.end().options());
+        shaped = withShape(shaped, LevelStem.NETHER, getShapeId(layout.nether(), overworldId), layout.getNetherSpans(),
+                layout.nether().options());
+        shaped = withShape(shaped, LevelStem.END, getShapeId(layout.end(), overworldId), layout.getEndSpans(),
+                layout.end().options());
         return layout.modDimensions().isEmpty()
                 ? shaped
                 : ShapedDimensions.withDimensionTable(shaped, tableOf(layout.modDimensions()));
@@ -38,19 +42,19 @@ public final class LayoutDimensions {
         DimensionLayout nether = readStem(dimensions, LevelStem.NETHER);
         DimensionLayout end = readStem(dimensions, LevelStem.END);
         Map<ResourceKey<LevelStem>, DimensionLayout> modDimensions =
-                readTable(ShapedDimensions.dimensionTableOf(dimensions));
+                readTable(ShapedDimensions.getDimensionTable(dimensions));
         if (overworld == null || nether == null || end == null || modDimensions == null) {
             return null;
         }
 
-        boolean wrapped = overworld.spans() != null || nether.spans() != null || end.spans() != null;
-        return wrapped || !modDimensions.isEmpty() ? derived(overworld, nether, end, modDimensions) : null;
+        boolean isWrapped = overworld.spans() != null || nether.spans() != null || end.spans() != null;
+        return isWrapped || !modDimensions.isEmpty() ? derived(overworld, nether, end, modDimensions) : null;
     }
 
     public static WorldLayout ofRows(Map<ResourceKey<LevelStem>, DimensionTable.Entry> rows) {
         Map<ResourceKey<LevelStem>, DimensionLayout> modDimensions = new HashMap<>();
         rows.forEach((key, entry) -> {
-            DimensionLayout layout = DimensionTable.isVanillaStem(key) || entry.fromOverworld() ? null : layoutOf(entry);
+            DimensionLayout layout = DimensionTable.isVanillaStem(key) || entry.isFromOverworld() ? null : layoutOf(entry);
             if (layout != null) {
                 modDimensions.put(key, layout);
             }
@@ -63,39 +67,58 @@ public final class LayoutDimensions {
             ResourceKey<LevelStem> key) {
         DimensionTable.Entry entry = rows.get(key);
         DimensionLayout layout = entry == null ? null : layoutOf(entry);
-        return layout != null ? layout : DimensionLayout.normal(DimensionLayout.DEFAULT_OPTIONS);
+        return layout != null ? layout : DimensionLayout.normal(OptionFeatures.newWorldOptions());
     }
 
     private static WorldLayout derived(DimensionLayout overworld, DimensionLayout nether, DimensionLayout end,
             Map<ResourceKey<LevelStem>, DimensionLayout> modDimensions) {
-        LoopSpans spans = overworld.spans();
+        FlatShape spans = overworld.spans();
         if (spans == null) {
             return new WorldLayout(overworld, nether, end, modDimensions, NetherScales.DEFAULT);
         }
 
-        Integer netherScale = OverworldDerivation.netherScaleOf(spans, nether.spans());
-        LoopSpans derivedEnd = OverworldDerivation.end(spans);
+        Integer netherScale = netherScaleOf(overworld, nether.spans());
+        FlatShape derivedEnd = WorldLayout.derivedEnd(overworld);
         return new WorldLayout(overworld,
                 netherScale == null ? nether : DimensionLayout.fromOverworld(nether.options()),
                 derivedEnd != null && Objects.equals(derivedEnd, end.spans()) ?DimensionLayout.fromOverworld(end.options()) : end,
                 modDimensions, netherScale == null ? NetherScales.DEFAULT : netherScale);
     }
 
-    private static @Nullable DimensionLayout readStem(WorldDimensions dimensions, ResourceKey<LevelStem> key) {
-        LoopSpans spans = ShapeDimensions.spansOf(dimensions, key);
+    private static @Nullable Integer netherScaleOf(DimensionLayout overworld, @Nullable FlatShape nether) {
+        FlatShape spans = overworld.spans();
         if (spans == null) {
-            return ShapedDimensions.carriedShapeOf(dimensions, key) == null
-                    ? DimensionLayout.normal(DimensionLayout.DEFAULT_OPTIONS)
+            return null;
+        }
+
+        for (int scale : NetherScales.allowedFor(spans)) {
+            if (Objects.equals(WorldLayout.derivedNether(overworld, scale), nether)) {
+                return scale;
+            }
+        }
+
+        return null;
+    }
+
+    private static @Nullable DimensionLayout readStem(WorldDimensions dimensions, ResourceKey<LevelStem> key) {
+        FlatShape stored = ShapedDimensions.getShape(dimensions, key);
+        FlatShape spans = stored == null || stored.mirror() != null ? null : stored;
+        if (spans == null) {
+            return ShapedDimensions.getCarriedShape(dimensions, key) == null
+                    ? DimensionLayout.normal(OptionFeatures.newWorldOptions())
                     : null;
         }
 
-        return DimensionLayout.looped(spans, ShapeDimensions.optionsOf(dimensions, key));
+        CarriedShape carried = ShapedDimensions.getCarriedShape(dimensions, key);
+        return carried == null
+                ? layoutOf(spans, Optional.empty(), ShapeOptions.DEFAULT)
+                : layoutOf(spans, carried.getShapeId(), carried.getOptions());
     }
 
     private static @Nullable Map<ResourceKey<LevelStem>, DimensionLayout> readTable(DimensionTable table) {
         Map<ResourceKey<LevelStem>, DimensionLayout> modDimensions = new HashMap<>();
-        for (Map.Entry<ResourceKey<LevelStem>, DimensionTable.Entry> row : table.entries().entrySet()) {
-            if (row.getValue().fromOverworld()) {
+        for (Map.Entry<ResourceKey<LevelStem>, DimensionTable.Entry> row : table.getEntries().entrySet()) {
+            if (row.getValue().isFromOverworld()) {
                 continue;
             }
 
@@ -113,24 +136,22 @@ public final class LayoutDimensions {
     private static @Nullable DimensionLayout layoutOf(DimensionTable.Entry entry) {
         CarriedShape carried = entry.carried();
         if (carried == null) {
-            return DimensionLayout.normal(DimensionLayout.DEFAULT_OPTIONS);
+            return DimensionLayout.normal(OptionFeatures.newWorldOptions());
         }
 
-        FlatShape shape = carried.shape();
+        FlatShape shape = carried.getShape();
         if (shape.mirror() != null) {
             return null;
         }
 
-        return DimensionLayout.looped(spansOf(shape), carried.generationOptions());
+        return layoutOf(shape, carried.getShapeId(), carried.getOptions());
     }
 
-    static LoopSpans spansOf(FlatShape shape) {
-        return and(and(LoopSpans.NONE, Direction.Axis.X, shape.bounds().x()), Direction.Axis.Z, shape.bounds().z())
-                .withSkew(shape.skewChunks());
-    }
-
-    private static LoopSpans and(LoopSpans spans, Direction.Axis axis, AxisBounds bounds) {
-        return bounds instanceof AxisBounds.Looped looped ? spans.and(axis, looped.minChunk(), looped.maxChunk()) : spans;
+    private static DimensionLayout layoutOf(FlatShape spans, Optional<Identifier> stored, ShapeOptions options) {
+        return stored.filter(id -> DeclaredShapes.of(id) != null)
+                .or(() -> LegacyShapeIds.recognize(spans))
+                .map(id -> DimensionLayout.shaped(id, spans, options))
+                .orElseGet(() -> DimensionLayout.normal(options));
     }
 
     private static DimensionTable tableOf(Map<ResourceKey<LevelStem>, DimensionLayout> modDimensions) {
@@ -140,23 +161,29 @@ public final class LayoutDimensions {
     }
 
     public static DimensionTable.Entry entryOf(DimensionLayout layout) {
-        if (layout.kind() == ShapeKind.FROM_OVERWORLD) {
+        if (layout.mode() == DimensionMode.FROM_OVERWORLD) {
             return DimensionTable.Entry.FROM_OVERWORLD;
         }
 
-        LoopSpans spans = layout.spans();
+        FlatShape spans = layout.spans();
         return spans == null
                 ? DimensionTable.Entry.UNWRAPPED
-                : new DimensionTable.Entry(carried(spans, layout.options()));
+                : new DimensionTable.Entry(carried(getShapeId(layout, null), spans, layout.options()));
     }
 
     private static WorldDimensions withShape(WorldDimensions dimensions, ResourceKey<LevelStem> key,
-            @Nullable LoopSpans spans, GenerationOptions options) {
-        return spans == null ? dimensions : ShapedDimensions.withShape(dimensions, key, carried(spans, options));
+            @Nullable Identifier shapeId, @Nullable FlatShape spans, ShapeOptions options) {
+        return spans == null
+                ? dimensions
+                : ShapedDimensions.withShape(dimensions, key, carried(shapeId, spans, options));
     }
 
-    private static CarriedShape carried(LoopSpans spans, GenerationOptions options) {
-        return new CarriedShape(FlatShape.of(spans), options);
+    private static CarriedShape carried(@Nullable Identifier shapeId, FlatShape spans, ShapeOptions options) {
+        return new CarriedShape(shapeId, spans, options);
+    }
+
+    private static @Nullable Identifier getShapeId(DimensionLayout layout, @Nullable Identifier overworldId) {
+        return layout.mode() == DimensionMode.FROM_OVERWORLD ? overworldId : layout.shape();
     }
 
     private LayoutDimensions() {

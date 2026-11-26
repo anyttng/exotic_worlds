@@ -24,7 +24,7 @@ public final class LevelRebuild {
                 .getValueOrThrow(Registries.levelToLevelStem(dimension));
         close(server, old);
         ServerLevel fresh = create(server, dimension, stem);
-        ((MinecraftServerAccessor) server).exotic_worlds$levels().put(dimension, fresh);
+        ((MinecraftServerAccessor) server).exotic_worlds$getLevels().put(dimension, fresh);
         Platforms.get().postLevelLoad(server, fresh);
         fresh.getWorldBorder().setAbsoluteMaxSize(server.getAbsoluteMaxWorldSize());
         server.getPlayerList().addWorldborderListener(fresh);
@@ -44,7 +44,7 @@ public final class LevelRebuild {
     private static ServerLevel create(MinecraftServer server, ResourceKey<Level> dimension, LevelStem stem) {
         MinecraftServerAccessor access = (MinecraftServerAccessor) server;
         WorldData worldData = server.getWorldData();
-        return new ServerLevel(server, access.exotic_worlds$executor(), access.exotic_worlds$storageSource(),
+        return new ServerLevel(server, access.exotic_worlds$getExecutor(), access.exotic_worlds$getStorageSource(),
                 new DerivedLevelData(worldData, worldData.overworldData()), dimension, stem, worldData.isDebugWorld(),
                 BiomeManager.obfuscateSeed(server.getWorldGenSettings().options().seed()), List.of(), false);
     }

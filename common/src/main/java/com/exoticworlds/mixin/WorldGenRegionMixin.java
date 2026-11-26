@@ -6,10 +6,12 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.ModifyVariable;
 
 import com.exoticworlds.accessors.LevelHolder;
-import com.exoticworlds.core.WorldFold;
-import com.exoticworlds.core.WorldLoopAttachments;
+import com.exoticworlds.core.fold.WorldFold;
+import com.exoticworlds.core.fold.WorldLoopAttachments;
+import com.exoticworlds.engine.fold.ChunkFrame;
 import com.exoticworlds.engine.gen.ChunkFrameTicks;
 import com.exoticworlds.engine.gen.RegionReach;
 import com.llamalad7.mixinextras.injector.ModifyReturnValue;
@@ -33,6 +35,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.ChunkAccess;
 import net.minecraft.world.level.chunk.status.ChunkStatus;
 import net.minecraft.world.level.chunk.status.ChunkStep;
+import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.ticks.LevelTickAccess;
 
@@ -62,13 +65,13 @@ public abstract class WorldGenRegionMixin implements LevelHolder {
     private @Nullable LevelTickAccess<Fluid> exotic_worlds$fluidTicks;
 
     @Override
-    public ServerLevel exotic_worlds$level() {
+    public ServerLevel exotic_worlds$getLevel() {
         return this.level;
     }
 
     @Unique
     private @Nullable ChunkPos exotic_worlds$nearestPastTheReach(int chunkX, int chunkZ) {
-        return RegionReach.nearestPastTheReach(WorldLoopAttachments.wrappedFoldOf(this.level),
+        return RegionReach.nearestPastTheReach(WorldLoopAttachments.getWrappedFold(this.level),
                 this.center.getPos(), this.generatingStep.directDependencies().size(), chunkX, chunkZ);
     }
 
@@ -96,7 +99,7 @@ public abstract class WorldGenRegionMixin implements LevelHolder {
                 SectionPos.blockToSectionCoord(pos.getX()), SectionPos.blockToSectionCoord(pos.getZ()));
         return nearest == null
                 ? original.call(pos)
-                : original.call(WorldLoopAttachments.foldOf(this.level).reseat(pos, nearest));
+                : original.call(WorldLoopAttachments.getFold(this.level).reseat(pos, nearest));
     }
 
     @WrapMethod(method = "hasChunk")
@@ -110,7 +113,25 @@ public abstract class WorldGenRegionMixin implements LevelHolder {
 
     @Unique
     private BlockPos exotic_worlds$keyIn(ChunkAccess chunk, BlockPos pos) {
-        return WorldLoopAttachments.foldOf(this.level).reseat(pos, chunk.getPos());
+        return WorldLoopAttachments.getFold(this.level).reseat(pos, chunk.getPos());
+    }
+
+    @ModifyVariable(method = "setBlock", at = @At("HEAD"), argsOnly = true)
+    private BlockState exotic_worlds$turnPlacedState(BlockState state, @Local(argsOnly = true) BlockPos pos) {
+        return ChunkFrame.toChunk(WorldLoopAttachments.getFold(this.level), pos, state);
+    }
+
+    @WrapOperation(
+            method = "getHeight(Lnet/minecraft/world/level/levelgen/Heightmap$Types;II)I",
+            at = @At(
+                    value = "INVOKE",
+                    target = "Lnet/minecraft/world/level/chunk/ChunkAccess;getHeight(Lnet/minecraft/world/level/levelgen/Heightmap$Types;II)I"))
+    private int exotic_worlds$heightInChunkFrame(ChunkAccess chunk, Heightmap.Types type, int localX, int localZ,
+            Operation<Integer> original, @Local(argsOnly = true, ordinal = 0) int x,
+            @Local(argsOnly = true, ordinal = 1) int z) {
+        long seated = ChunkFrame.seatColumn(WorldLoopAttachments.getFold(this.level), chunk.getPos(), x, z);
+        return original.call(chunk, type,
+                SectionPos.sectionRelative(BlockPos.getX(seated)), SectionPos.sectionRelative(BlockPos.getZ(seated)));
     }
 
     @WrapOperation(
@@ -197,7 +218,7 @@ public abstract class WorldGenRegionMixin implements LevelHolder {
 
     @ModifyReturnValue(method = "getBlockTicks", at = @At("RETURN"))
     private LevelTickAccess<Block> exotic_worlds$blockTicksInChunkFrame(LevelTickAccess<Block> ticks) {
-        if (WorldLoopAttachments.wrappedFoldOf(this.level) == null) {
+        if (WorldLoopAttachments.getWrappedFold(this.level) == null) {
             return ticks;
         }
 
@@ -210,7 +231,7 @@ public abstract class WorldGenRegionMixin implements LevelHolder {
 
     @ModifyReturnValue(method = "getFluidTicks", at = @At("RETURN"))
     private LevelTickAccess<Fluid> exotic_worlds$fluidTicksInChunkFrame(LevelTickAccess<Fluid> ticks) {
-        if (WorldLoopAttachments.wrappedFoldOf(this.level) == null) {
+        if (WorldLoopAttachments.getWrappedFold(this.level) == null) {
             return ticks;
         }
 
@@ -233,7 +254,7 @@ public abstract class WorldGenRegionMixin implements LevelHolder {
                     value = "INVOKE",
                     target = "Lnet/minecraft/world/level/chunk/ChunkAccess;addEntity(Lnet/minecraft/world/entity/Entity;)V"))
     private void exotic_worlds$addEntityInChunkFrame(ChunkAccess chunk, Entity entity, Operation<Void> original) {
-        WorldFold fold = WorldLoopAttachments.wrappedFoldOf(this.level);
+        WorldFold fold = WorldLoopAttachments.getWrappedFold(this.level);
         if (fold != null && fold.isOver(entity.position())) {
             entity.setPos(fold.fold(entity.position()));
         }

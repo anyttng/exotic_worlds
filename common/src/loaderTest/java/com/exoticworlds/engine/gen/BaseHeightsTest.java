@@ -7,10 +7,10 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-import com.exoticworlds.api.v1.option.GenerationOptions;
-import com.exoticworlds.core.CarriedShape;
-import com.exoticworlds.core.ShapeFixtures;
-import com.exoticworlds.core.WorldLoopBounds;
+import com.exoticworlds.core.world.CarriedShape;
+import com.exoticworlds.core.world.ShapeFixtures;
+import com.exoticworlds.core.option.ShapeOptions;
+import com.exoticworlds.core.world.WorldLoopBounds;
 import com.exoticworlds.shape.StartupRegistrations;
 
 import net.minecraft.SharedConstants;
@@ -66,7 +66,7 @@ class BaseHeightsTest {
 
     private static BaseHeights heights() {
         return new BaseHeights(
-                new CarriedShape(ShapeFixtures.torus(WorldLoopBounds.ofWidth(LAP_CHUNKS)), GenerationOptions.DEFAULT)
-                        .fold());
+                new CarriedShape(null, ShapeFixtures.torus(WorldLoopBounds.ofWidth(LAP_CHUNKS)), ShapeOptions.DEFAULT)
+                        .getFold());
     }
 }

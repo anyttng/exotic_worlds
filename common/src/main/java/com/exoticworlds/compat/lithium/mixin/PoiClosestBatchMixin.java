@@ -9,7 +9,7 @@ import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.mojang.datafixers.util.Pair;
 import com.exoticworlds.compat.lithium.LithiumInjectionTargets;
-import com.exoticworlds.core.WorldLoopAttachments;
+import com.exoticworlds.core.fold.WorldLoopAttachments;
 import com.exoticworlds.mixin.SectionStorageAccessor;
 
 import net.minecraft.core.BlockPos;
@@ -24,16 +24,16 @@ public class PoiClosestBatchMixin {
             Predicate<Holder<PoiType>> typeFilter,
             Predicate<BlockPos> posFilter,
             BlockPos center,
-            int radius,
+            int radiusBlocks,
             PoiManager.Occupancy status,
             long count,
             Operation<Collection<Pair<Holder<PoiType>, BlockPos>>> original) {
-        if (!WorldLoopAttachments.foldIfLevel(((SectionStorageAccessor) this).exotic_worlds$getLevelHeightAccessor())
+        if (!WorldLoopAttachments.getFoldIfLevel(((SectionStorageAccessor) this).exotic_worlds$getLevelHeightAccessor())
                 .isWrapped()) {
-            return original.call(typeFilter, posFilter, center, radius, status, count);
+            return original.call(typeFilter, posFilter, center, radiusBlocks, status, count);
         }
 
-        return ((PoiManager) (Object) this).findAllClosestFirstWithType(typeFilter, posFilter, center, radius, status)
+        return ((PoiManager) (Object) this).findAllClosestFirstWithType(typeFilter, posFilter, center, radiusBlocks, status)
                 .limit(count)
                 .toList();
     }

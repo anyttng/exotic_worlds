@@ -1,6 +1,7 @@
 package com.exoticworlds.engine.noise;
 
-import com.exoticworlds.core.WorldFold;
+import com.exoticworlds.core.fold.WorldFold;
+import com.exoticworlds.engine.noise.periodic.PeriodicOctaves;
 
 public final class ContextOctaves {
     private final WorldFold fold;
@@ -9,21 +10,21 @@ public final class ContextOctaves {
 
     private final PeriodicOctaves octaves;
 
-    private final boolean indexable;
+    private final boolean isIndexable;
 
     ContextOctaves(WorldFold fold, double scale, PeriodicOctaves octaves) {
         this.fold = fold;
         this.scale = scale;
         this.octaves = octaves;
-        this.indexable = octaves.indexable();
+        this.isIndexable = octaves.isIndexable();
     }
 
-    boolean compiledFor(WorldFold fold, double scale) {
+    boolean isCompiledFor(WorldFold fold, double scale) {
         return this.scale == scale && this.fold.equals(fold);
     }
 
-    boolean indexable() {
-        return this.indexable;
+    boolean isIndexable() {
+        return this.isIndexable;
     }
 
     float sample(double x, double y, double z) {

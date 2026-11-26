@@ -21,14 +21,13 @@ import org.junit.jupiter.params.provider.MethodSource;
 import com.eminus.cell.CellFrame;
 import com.eminus.cell.CellKey;
 import com.eminus.cell.DetailLevel;
-import com.exoticworlds.api.v1.ToroidalShape;
 import com.exoticworlds.compat.lod.AlignedPeriod;
-import com.exoticworlds.core.FlatShape;
-import com.exoticworlds.core.ShapeFixtures;
-import com.exoticworlds.core.WorldFold;
-import com.exoticworlds.core.WorldFolds;
-import com.exoticworlds.core.WorldLoopBounds;
-import com.exoticworlds.core.WorldLoopBounds.AxisBounds;
+import com.exoticworlds.core.world.FlatShape;
+import com.exoticworlds.core.world.ShapeFixtures;
+import com.exoticworlds.core.fold.WorldFold;
+import com.exoticworlds.core.fold.WorldFolds;
+import com.exoticworlds.core.world.WorldLoopBounds;
+import com.exoticworlds.core.world.WorldLoopBounds.AxisBounds;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -82,9 +81,9 @@ class CellFoldTest {
         return new Voxel(fold.foldKey(key), CellFrame.voxelX(blockX, level), CellFrame.voxelZ(blockZ, level));
     }
 
-    private static List<int[]> latticeMoves(ToroidalShape shape, int skewBlocks) {
-        int widthX = shape.loops(Direction.Axis.X) ? shape.widthBlocks(Direction.Axis.X) : 0;
-        int widthZ = shape.loops(Direction.Axis.Z) ? shape.widthBlocks(Direction.Axis.Z) : 0;
+    private static List<int[]> latticeMoves(WorldFold worldFold, int skewBlocks) {
+        int widthX = worldFold.isLooped(Direction.Axis.X) ? worldFold.getWidthBlocks(Direction.Axis.X) : 0;
+        int widthZ = worldFold.isLooped(Direction.Axis.Z) ? worldFold.getWidthBlocks(Direction.Axis.Z) : 0;
         List<int[]> moves = new ArrayList<>();
         for (int lapZ = -LAPS_AROUND; lapZ <= LAPS_AROUND; lapZ++) {
             for (int lapX = -LAPS_AROUND; lapX <= LAPS_AROUND; lapX++) {
@@ -101,9 +100,8 @@ class CellFoldTest {
     @MethodSource("shapes")
     void aSectionWrittenOnOneSideReadsAtEveryLapOnEveryLevel(String name, WorldFold worldFold) {
         CellFold fold = CellFold.of(worldFold);
-        ToroidalShape shape = worldFold.shapeView();
-        int sectionX = shape.loops(Direction.Axis.X) ? shape.maxBlock(Direction.Axis.X) - SECTION : 0;
-        int sectionZ = shape.loops(Direction.Axis.Z) ? shape.minBlock(Direction.Axis.Z) : 0;
+        int sectionX = worldFold.isLooped(Direction.Axis.X) ? worldFold.getMaxBlock(Direction.Axis.X) - SECTION : 0;
+        int sectionZ = worldFold.isLooped(Direction.Axis.Z) ? worldFold.getMinBlock(Direction.Axis.Z) : 0;
 
         for (int level = DetailLevel.MIN; level <= DetailLevel.MAX; level++) {
             Set<Voxel> written = new HashSet<>();
@@ -116,7 +114,7 @@ class CellFoldTest {
                 }
             }
 
-            for (int[] move : latticeMoves(shape, worldFold.blockLattice().skew())) {
+            for (int[] move : latticeMoves(worldFold, worldFold.getBlockLattice().getSkew())) {
                 for (int x = 0; x < SECTION; x++) {
                     for (int z = 0; z < SECTION; z++) {
                         Voxel read = voxelOf(fold, level, sectionX + move[0] + x, sectionZ + move[1] + z);
@@ -126,25 +124,25 @@ class CellFoldTest {
                 }
             }
 
-            AlignedPeriod period = AlignedPeriod.of(shape, worldFold.blockLattice().skew(),
+            AlignedPeriod period = AlignedPeriod.of(worldFold, worldFold.getBlockLattice().getSkew(),
                     Integer.numberOfTrailingZeros(DetailLevel.blocksPerCell(level)));
             for (Voxel voxel : written) {
-                assertInsideAlignedWindow(shape, period, voxel.storedKey(), name);
+                assertInsideAlignedWindow(worldFold, period, voxel.storedKey(), name);
             }
         }
     }
 
-    private static void assertInsideAlignedWindow(ToroidalShape shape, AlignedPeriod period, long storedKey,
+    private static void assertInsideAlignedWindow(WorldFold worldFold, AlignedPeriod period, long storedKey,
             String name) {
-        if (shape.loops(Direction.Axis.X)) {
+        if (worldFold.isLooped(Direction.Axis.X)) {
             long x = CellFrame.originXOf(storedKey);
-            int min = shape.minBlock(Direction.Axis.X);
+            int min = worldFold.getMinBlock(Direction.Axis.X);
             assertTrue(x >= min && x < min + period.xBlocks(), name + " stores X " + x + " outside its window");
         }
 
-        if (shape.loops(Direction.Axis.Z)) {
+        if (worldFold.isLooped(Direction.Axis.Z)) {
             long z = CellFrame.originZOf(storedKey);
-            int min = shape.minBlock(Direction.Axis.Z);
+            int min = worldFold.getMinBlock(Direction.Axis.Z);
             assertTrue(z >= min && z < min + period.zBlocks(), name + " stores Z " + z + " outside its window");
         }
     }
@@ -162,10 +160,9 @@ class CellFoldTest {
     @MethodSource("shapes")
     void theWindowHoldsOneCopyOfEveryPlaceAroundTheCamera(String name, WorldFold worldFold) {
         CellFold fold = CellFold.of(worldFold);
-        ToroidalShape shape = worldFold.shapeView();
-        double eyeX = shape.loops(Direction.Axis.X) ? shape.maxBlock(Direction.Axis.X) - EYE_OFFSET : EYE_OFFSET;
-        double eyeZ = shape.loops(Direction.Axis.Z) ? shape.minBlock(Direction.Axis.Z) + EYE_OFFSET : EYE_OFFSET;
-        List<int[]> moves = latticeMoves(shape, worldFold.blockLattice().skew());
+        double eyeX = worldFold.isLooped(Direction.Axis.X) ? worldFold.getMaxBlock(Direction.Axis.X) - EYE_OFFSET : EYE_OFFSET;
+        double eyeZ = worldFold.isLooped(Direction.Axis.Z) ? worldFold.getMinBlock(Direction.Axis.Z) + EYE_OFFSET : EYE_OFFSET;
+        List<int[]> moves = latticeMoves(worldFold, worldFold.getBlockLattice().getSkew());
 
         for (int x = -SECTION * SECTION; x < SECTION * SECTION; x += SECTION + 1) {
             for (int z = -SECTION * SECTION; z < SECTION * SECTION; z += SECTION + 1) {
@@ -173,7 +170,7 @@ class CellFoldTest {
                 for (int[] move : moves) {
                     double placeX = eyeX + x + PLACE_OFFSET_X + move[0];
                     double placeZ = eyeZ + z + PLACE_OFFSET_Z + move[1];
-                    if (fold.meetsLap(placeX, placeZ, placeX, placeZ, eyeX, eyeZ, 0.0)) {
+                    if (fold.isMeetingLap(placeX, placeZ, placeX, placeZ, eyeX, eyeZ, 0.0)) {
                         inside++;
                     }
                 }
@@ -187,22 +184,21 @@ class CellFoldTest {
     @MethodSource("shapes")
     void twoListedNodesShareAStoredKeyOnlyWhenBothCrossTheEdge(String name, WorldFold worldFold) {
         CellFold fold = CellFold.of(worldFold);
-        ToroidalShape shape = worldFold.shapeView();
-        int skew = worldFold.blockLattice().skew();
-        double eyeX = shape.loops(Direction.Axis.X) ? shape.maxBlock(Direction.Axis.X) - EYE_OFFSET : EYE_OFFSET;
-        double eyeZ = shape.loops(Direction.Axis.Z) ? shape.minBlock(Direction.Axis.Z) + EYE_OFFSET : EYE_OFFSET;
+        int skew = worldFold.getBlockLattice().getSkew();
+        double eyeX = worldFold.isLooped(Direction.Axis.X) ? worldFold.getMaxBlock(Direction.Axis.X) - EYE_OFFSET : EYE_OFFSET;
+        double eyeZ = worldFold.isLooped(Direction.Axis.Z) ? worldFold.getMinBlock(Direction.Axis.Z) + EYE_OFFSET : EYE_OFFSET;
 
         for (int level = DetailLevel.MIN; level <= DetailLevel.MAX; level++) {
-            int side = DetailLevel.blocksPerCell(level);
-            int reach = farReach(shape) / side + 2;
+            int sideBlocks = DetailLevel.blocksPerCell(level);
+            int reach = farReachBlocks(worldFold) / sideBlocks + 2;
             int centerX = CellFrame.cellX((int) Math.floor(eyeX), level);
             int centerZ = CellFrame.cellZ((int) Math.floor(eyeZ), level);
             Map<Long, List<double[]>> byStoredKey = new HashMap<>();
             for (int cellX = centerX - reach; cellX <= centerX + reach; cellX++) {
                 for (int cellZ = centerZ - reach; cellZ <= centerZ + reach; cellZ++) {
-                    double minX = (double) cellX * side;
-                    double minZ = (double) cellZ * side;
-                    if (fold.meetsLap(minX, minZ, minX + side, minZ + side, eyeX, eyeZ, 0.0)) {
+                    double minX = (double) cellX * sideBlocks;
+                    double minZ = (double) cellZ * sideBlocks;
+                    if (fold.isMeetingLap(minX, minZ, minX + sideBlocks, minZ + sideBlocks, eyeX, eyeZ, 0.0)) {
                         long key = CellKey.pack(level, cellX, 0, cellZ);
                         byStoredKey.computeIfAbsent(fold.foldKey(key), stored -> new ArrayList<>())
                                 .add(new double[] {minX, minZ});
@@ -217,7 +213,7 @@ class CellFoldTest {
                 }
 
                 for (double[] node : nodes) {
-                    assertFalse(whollyInside(shape, skew, node[0], node[1], side, eyeX, eyeZ),
+                    assertFalse(whollyInside(worldFold, skew, node[0], node[1], sideBlocks, eyeX, eyeZ),
                             name + " level " + level + " lists a node wholly inside beside its own copy");
                 }
             }
@@ -228,8 +224,7 @@ class CellFoldTest {
     @MethodSource("shapes")
     void everyLapCopyOfABlockFoldsToOneStoredBlock(String name, WorldFold worldFold) {
         CellFold fold = CellFold.of(worldFold);
-        ToroidalShape shape = worldFold.shapeView();
-        List<int[]> moves = latticeMoves(shape, worldFold.blockLattice().skew());
+        List<int[]> moves = latticeMoves(worldFold, worldFold.getBlockLattice().getSkew());
 
         for (int x = -SECTION * SECTION; x < SECTION * SECTION; x += SECTION + 1) {
             for (int z = -SECTION * SECTION; z < SECTION * SECTION; z += SECTION + 1) {
@@ -247,10 +242,9 @@ class CellFoldTest {
     @MethodSource("shapes")
     void theCopyNearTheEyeIsTheOneCopyTheLapHolds(String name, WorldFold worldFold) {
         CellFold fold = CellFold.of(worldFold);
-        ToroidalShape shape = worldFold.shapeView();
-        double eyeX = shape.loops(Direction.Axis.X) ? shape.maxBlock(Direction.Axis.X) - EYE_OFFSET : EYE_OFFSET;
-        double eyeZ = shape.loops(Direction.Axis.Z) ? shape.minBlock(Direction.Axis.Z) + EYE_OFFSET : EYE_OFFSET;
-        List<int[]> moves = latticeMoves(shape, worldFold.blockLattice().skew());
+        double eyeX = worldFold.isLooped(Direction.Axis.X) ? worldFold.getMaxBlock(Direction.Axis.X) - EYE_OFFSET : EYE_OFFSET;
+        double eyeZ = worldFold.isLooped(Direction.Axis.Z) ? worldFold.getMinBlock(Direction.Axis.Z) + EYE_OFFSET : EYE_OFFSET;
+        List<int[]> moves = latticeMoves(worldFold, worldFold.getBlockLattice().getSkew());
 
         for (int x = -SECTION * SECTION; x < SECTION * SECTION; x += SECTION + 1) {
             for (int z = -SECTION * SECTION; z < SECTION * SECTION; z += SECTION + 1) {
@@ -259,7 +253,7 @@ class CellFoldTest {
                 long copy = fold.copyNear(fold.foldBlock(BlockPos.asLong(blockX, BLOCK_Y, blockZ)), eyeX, eyeZ);
                 double centerX = BlockPos.getX(copy) + BLOCK_CENTER;
                 double centerZ = BlockPos.getZ(copy) + BLOCK_CENTER;
-                assertTrue(fold.meetsLap(centerX, centerZ, centerX, centerZ, eyeX, eyeZ, 0.0),
+                assertTrue(fold.isMeetingLap(centerX, centerZ, centerX, centerZ, eyeX, eyeZ, 0.0),
                         name + " puts the copy of " + x + "," + z + " outside the lap");
                 for (int[] move : moves) {
                     assertEquals(copy, fold.copyNear(BlockPos.asLong(blockX + move[0], BLOCK_Y, blockZ + move[1]),
@@ -273,12 +267,11 @@ class CellFoldTest {
     @MethodSource("shapes")
     void aChunkReadsEveryBlockBackFromTheFoldedChunks(String name, WorldFold worldFold) {
         CellFold fold = CellFold.of(worldFold);
-        ToroidalShape shape = worldFold.shapeView();
-        int chunkX = shape.loops(Direction.Axis.X)
-                ? SectionPos.blockToSectionCoord(shape.maxBlock(Direction.Axis.X)) + FAR_LAPS * TINY_CHUNKS
+        int chunkX = worldFold.isLooped(Direction.Axis.X)
+                ? SectionPos.blockToSectionCoord(worldFold.getMaxBlock(Direction.Axis.X)) + FAR_LAPS * TINY_CHUNKS
                 : 0;
-        int chunkZ = shape.loops(Direction.Axis.Z)
-                ? SectionPos.blockToSectionCoord(shape.minBlock(Direction.Axis.Z)) - FAR_LAPS * TINY_CHUNKS
+        int chunkZ = worldFold.isLooped(Direction.Axis.Z)
+                ? SectionPos.blockToSectionCoord(worldFold.getMinBlock(Direction.Axis.Z)) - FAR_LAPS * TINY_CHUNKS
                 : 0;
         Set<Long> folded = new HashSet<>();
         for (long chunk : fold.foldedChunks(chunkX, chunkZ)) {
@@ -307,10 +300,9 @@ class CellFoldTest {
     @MethodSource("shapesAndAnOffGridTorus")
     void theChunkCopyNearTheCenterIsTheSameStoredChunkWithinTheLap(String name, WorldFold worldFold) {
         CellFold fold = CellFold.of(worldFold);
-        ToroidalShape shape = worldFold.shapeView();
-        int centerX = shape.loops(Direction.Axis.X) ? SectionPos.blockToSectionCoord(shape.maxBlock(Direction.Axis.X)) : 0;
-        int centerZ = shape.loops(Direction.Axis.Z) ? SectionPos.blockToSectionCoord(shape.minBlock(Direction.Axis.Z)) : 0;
-        int reach = SectionPos.blockToSectionCoord(farReach(shape));
+        int centerX = worldFold.isLooped(Direction.Axis.X) ? SectionPos.blockToSectionCoord(worldFold.getMaxBlock(Direction.Axis.X)) : 0;
+        int centerZ = worldFold.isLooped(Direction.Axis.Z) ? SectionPos.blockToSectionCoord(worldFold.getMinBlock(Direction.Axis.Z)) : 0;
+        int reach = SectionPos.blockToSectionCoord(farReachBlocks(worldFold));
         int step = Math.max(1, reach / CHUNK_SAMPLES);
         double eyeX = SectionPos.sectionToBlockCoord(centerX, SectionPos.SECTION_HALF_SIZE);
         double eyeZ = SectionPos.sectionToBlockCoord(centerZ, SectionPos.SECTION_HALF_SIZE);
@@ -326,7 +318,7 @@ class CellFoldTest {
                         name + " moves " + chunkX + "," + chunkZ + " onto another stored chunk");
                 double middleX = SectionPos.sectionToBlockCoord(copyX, SectionPos.SECTION_HALF_SIZE);
                 double middleZ = SectionPos.sectionToBlockCoord(copyZ, SectionPos.SECTION_HALF_SIZE);
-                assertTrue(fold.meetsLap(middleX, middleZ, middleX, middleZ, eyeX, eyeZ, BLOCK_CENTER),
+                assertTrue(fold.isMeetingLap(middleX, middleZ, middleX, middleZ, eyeX, eyeZ, BLOCK_CENTER),
                         name + " puts the copy of " + chunkX + "," + chunkZ + " outside the lap");
                 assertEquals(copy, fold.copyNearChunk(copyX, copyZ, centerX, centerZ),
                         name + " moves the near copy of " + chunkX + "," + chunkZ + " again");
@@ -345,31 +337,31 @@ class CellFoldTest {
         assertEquals(block, CellFold.NONE.copyNear(block, 0.0, 0.0));
         assertEquals(ChunkPos.pack(7, 9), CellFold.NONE.copyNearChunk(7, 9, 1000, -1000));
         assertEquals(1, CellFold.NONE.foldedChunks(7, 9).length);
-        assertTrue(CellFold.NONE.meetsLap(1.0e6, 1.0e6, 1.0e6, 1.0e6, 0.0, 0.0, 0.0));
-        assertFalse(CellFold.of(null).repeats());
+        assertTrue(CellFold.NONE.isMeetingLap(1.0e6, 1.0e6, 1.0e6, 1.0e6, 0.0, 0.0, 0.0));
+        assertFalse(CellFold.of(null).isRepeating());
         assertNotEquals(CellFold.NONE, CellFold.of(torus(TINY_CHUNKS)));
         assertEquals(CellFold.of(torus(TINY_CHUNKS)), CellFold.of(torus(TINY_CHUNKS)));
     }
 
-    private static int farReach(ToroidalShape shape) {
+    private static int farReachBlocks(WorldFold worldFold) {
         int widest = 0;
         for (Direction.Axis axis : List.of(Direction.Axis.X, Direction.Axis.Z)) {
-            if (shape.loops(axis)) {
-                widest = Math.max(widest, shape.widthBlocks(axis));
+            if (worldFold.isLooped(axis)) {
+                widest = Math.max(widest, worldFold.getWidthBlocks(axis));
             }
         }
 
         return widest * LAPS_AROUND;
     }
 
-    private static boolean whollyInside(ToroidalShape shape, int skew, double minX, double minZ, int side, double eyeX,
+    private static boolean whollyInside(WorldFold worldFold, int skew, double minX, double minZ, int sideBlocks, double eyeX,
             double eyeZ) {
-        for (double cornerX : new double[] {minX, minX + side}) {
-            for (double cornerZ : new double[] {minZ, minZ + side}) {
+        for (double cornerX : new double[] {minX, minX + sideBlocks}) {
+            for (double cornerZ : new double[] {minZ, minZ + sideBlocks}) {
                 double dz = cornerZ - eyeZ;
                 double dx = cornerX - eyeX;
-                if (shape.loops(Direction.Axis.Z)) {
-                    double widthZ = shape.widthBlocks(Direction.Axis.Z);
+                if (worldFold.isLooped(Direction.Axis.Z)) {
+                    double widthZ = worldFold.getWidthBlocks(Direction.Axis.Z);
                     if (Math.abs(dz) >= widthZ / 2) {
                         return false;
                     }
@@ -377,7 +369,7 @@ class CellFoldTest {
                     dx -= dz / widthZ * skew;
                 }
 
-                if (shape.loops(Direction.Axis.X) && Math.abs(dx) >= shape.widthBlocks(Direction.Axis.X) / 2.0) {
+                if (worldFold.isLooped(Direction.Axis.X) && Math.abs(dx) >= worldFold.getWidthBlocks(Direction.Axis.X) / 2.0) {
                     return false;
                 }
             }

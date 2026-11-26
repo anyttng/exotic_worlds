@@ -31,6 +31,6 @@ public class TrainDistanceMixin {
     private double exotic_worlds$spanCarriagesTheShortWayRound(Vec3 leading, Vec3 trailing, Operation<Double> original,
             @Local(ordinal = 0) Carriage.DimensionalCarriageEntity dimensional) {
         return original.call(leading, CreateSeamFold.nearestCopy(
-                ((CarriageEntityFrame) dimensional).exotic_worlds$carriageDimension(), leading, trailing));
+                ((CarriageEntityFrame) dimensional).exotic_worlds$getCarriageDimension(), leading, trailing));
     }
 }

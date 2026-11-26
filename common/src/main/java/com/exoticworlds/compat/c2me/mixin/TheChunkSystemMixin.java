@@ -14,8 +14,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import com.exoticworlds.accessors.LevelHolder;
 import com.exoticworlds.accessors.FoldSource;
 import com.exoticworlds.compat.c2me.FoldSourceBindable;
-import com.exoticworlds.core.WorldFold;
-import com.exoticworlds.core.WorldLoopAttachments;
+import com.exoticworlds.core.fold.WorldFold;
+import com.exoticworlds.core.fold.WorldLoopAttachments;
 import com.ishland.c2me.base.common.scheduler.SchedulingManager;
 import com.ishland.c2me.rewrites.chunksystem.common.TheChunkSystem;
 import com.ishland.flowsched.scheduler.ItemHolder;
@@ -40,8 +40,8 @@ public class TheChunkSystemMixin implements FoldSource {
     }
 
     @Override
-    public @Nullable WorldFold exotic_worlds$wrappedFold() {
-        return WorldLoopAttachments.wrappedFoldOf(((LevelHolder) (Object) this.tacs).exotic_worlds$level());
+    public @Nullable WorldFold exotic_worlds$getWrappedFold() {
+        return WorldLoopAttachments.getWrappedFold(((LevelHolder) (Object) this.tacs).exotic_worlds$getLevel());
     }
 
     @Unique

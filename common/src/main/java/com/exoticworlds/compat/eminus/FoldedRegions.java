@@ -21,7 +21,7 @@ public final class FoldedRegions extends AbstractLongSet {
     }
 
     public static LongSet of(LongSet listed, CellFold fold, int tileChunks) {
-        return fold.repeats() ? new FoldedRegions(listed, fold, tileChunks) : listed;
+        return fold.isRepeating() ? new FoldedRegions(listed, fold, tileChunks) : listed;
     }
 
     @Override
@@ -30,7 +30,7 @@ public final class FoldedRegions extends AbstractLongSet {
         int minChunkZ = ChunkPos.getZ(region) * ChunkPos.REGION_SIZE;
         for (int dz = 0; dz < ChunkPos.REGION_SIZE; dz += tileChunks) {
             for (int dx = 0; dx < ChunkPos.REGION_SIZE; dx += tileChunks) {
-                if (tileMeetsListed(minChunkX + dx, minChunkZ + dz)) {
+                if (isTileMeetingListed(minChunkX + dx, minChunkZ + dz)) {
                     return true;
                 }
             }
@@ -39,7 +39,7 @@ public final class FoldedRegions extends AbstractLongSet {
         return false;
     }
 
-    private boolean tileMeetsListed(int firstX, int firstZ) {
+    private boolean isTileMeetingListed(int firstX, int firstZ) {
         IntArrayList zEnds = pieceEnds(firstZ, fold::foldChunkZ);
         for (int zPiece = 0; zPiece < zEnds.size(); zPiece += 2) {
             int pieceZ = zEnds.getInt(zPiece);

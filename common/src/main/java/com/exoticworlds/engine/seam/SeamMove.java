@@ -1,8 +1,12 @@
 package com.exoticworlds.engine.seam;
 
-import com.exoticworlds.accessors.MoveCheckpoints;
-import com.exoticworlds.core.WorldFold;
+import org.jspecify.annotations.Nullable;
 
+import com.exoticworlds.accessors.MoveCheckpoints;
+import com.exoticworlds.core.fold.WorldFold;
+import com.exoticworlds.core.fold.WorldLoopAttachments;
+
+import net.minecraft.network.protocol.game.ServerboundMovePlayerPacket;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.Vec3;
@@ -37,15 +41,50 @@ public final class SeamMove {
         return fold.nearestCopy(vehicle.position(), new Vec3(clampedX, vehicle.getY(), clampedZ));
     }
 
+    public static float playerYaw(ServerPlayer player, ServerboundMovePlayerPacket packet, float yaw) {
+        if (!packet.hasRotation()) {
+            return yaw;
+        }
+
+        return yawFrom(player, player.position(), packet.hasPosition() ? clientPointOf(packet) : null, yaw);
+    }
+
+    private static Vec3 clientPointOf(ServerboundMovePlayerPacket packet) {
+        return new Vec3(packet.getX(0.0), 0.0, packet.getZ(0.0));
+    }
+
+    public static float vehicleYaw(ServerPlayer player, Vec3 clientPoint, float yaw) {
+        return yawFrom(player, player.getRootVehicle().position(), clientPoint, yaw);
+    }
+
+    public static float heldYaw(ServerPlayer player, float yaw) {
+        return yawFrom(player, player.position(), null, yaw);
+    }
+
+    private static float yawFrom(ServerPlayer player, Vec3 serverPosition, @Nullable Vec3 clientPoint, float yaw) {
+        WorldFold fold = WorldLoopAttachments.getFold(player.level());
+        ClientPosition mirror = ClientPosition.of(player);
+        if (fold.isPreservingLocalIndices() || !mirror.isForDimension(player.level().dimension())) {
+            return yaw;
+        }
+
+        Vec3 seen = clientPoint == null ? new Vec3(mirror.getX(), 0.0, mirror.getZ()) : clientPoint;
+        return serverYaw(fold, serverPosition, seen, yaw);
+    }
+
+    static float serverYaw(WorldFold fold, Vec3 serverPosition, Vec3 clientPoint, float yaw) {
+        return fold.nearestCopyTransformation(serverPosition, clientPoint).getOrientation().applyToYaw(yaw);
+    }
+
     public static void playerIntoBounds(ServerPlayer player, MoveCheckpoints checkpoints) {
-        if (SeamSnap.intoBounds(player)) {
+        if (SeamSnap.trySnapIntoBounds(player)) {
             checkpoints.exotic_worlds$setGood(player.position(), player.position());
         }
     }
 
     public static void vehicleIntoBounds(ServerPlayer player, MoveCheckpoints checkpoints) {
         Entity vehicle = player.getRootVehicle();
-        if (vehicle != player && SeamSnap.intoBounds(vehicle)) {
+        if (vehicle != player && SeamSnap.trySnapIntoBounds(vehicle)) {
             checkpoints.exotic_worlds$setVehicleGood(vehicle.position(), vehicle.position());
         }
     }

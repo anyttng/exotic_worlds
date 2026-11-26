@@ -10,7 +10,7 @@ import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.exoticworlds.InjectionTargets;
 import com.exoticworlds.compat.lithium.LithiumInjectionTargets;
-import com.exoticworlds.core.WorldLoopAttachments;
+import com.exoticworlds.core.fold.WorldLoopAttachments;
 
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.gameevent.GameEventDispatcher;
@@ -28,6 +28,6 @@ public class GameEventDispatchKeyMixin {
             mixin = LithiumInjectionTargets.GAME_EVENT_DISPATCHER_MIXIN,
             name = LithiumInjectionTargets.NULL_DISPATCHER_HANDLER)
     private long exotic_worlds$foldStoreKey(int chunkX, int chunkZ, Operation<Long> original) {
-        return WorldLoopAttachments.foldOf(this.level).foldChunkKey(original.call(chunkX, chunkZ));
+        return WorldLoopAttachments.getFold(this.level).foldChunkKey(original.call(chunkX, chunkZ));
     }
 }

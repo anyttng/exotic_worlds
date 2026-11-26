@@ -24,3 +24,11 @@ accessible class net/minecraft/world/level/levelgen/synth/NormalNoise$Parameters
 accessible field net/minecraft/world/level/levelgen/RandomState router Lnet/minecraft/world/level/levelgen/NoiseRouter;
 accessible class net/minecraft/world/level/PotentialCalculator$PointCharge
 accessible field net/minecraft/world/level/PotentialCalculator$PointCharge pos Lnet/minecraft/core/BlockPos;
+accessible method net/minecraft/network/protocol/game/ClientboundLevelChunkPacketData <init> (Ljava/util/Map;[BLjava/util/List;)V
+accessible field net/minecraft/network/protocol/game/ClientboundLevelChunkPacketData buffer [B
+accessible field net/minecraft/network/protocol/game/ClientboundLevelChunkPacketData blockEntitiesData Ljava/util/List;
+accessible class net/minecraft/network/protocol/game/ClientboundLevelChunkPacketData$BlockEntityInfo
+accessible method net/minecraft/network/protocol/game/ClientboundLevelChunkPacketData$BlockEntityInfo <init> (BSLnet/minecraft/world/level/block/entity/BlockEntityType;Ljava/util/Optional;)V
+accessible field net/minecraft/network/protocol/game/ClientboundMoveEntityPacket entityId I
+accessible field net/minecraft/network/protocol/game/ClientboundRotateHeadPacket entityId I
+accessible method net/minecraft/network/protocol/game/ClientboundRotateHeadPacket <init> (Lnet/minecraft/network/FriendlyByteBuf;)V

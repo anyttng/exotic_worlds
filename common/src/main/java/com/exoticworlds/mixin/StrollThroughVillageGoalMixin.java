@@ -29,9 +29,9 @@ public class StrollThroughVillageGoalMixin {
             method = "tick",
             at = @At(value = "INVOKE",
                     target = InjectionTargets.BLOCK_POS_CLOSER_TO_CENTER_THAN))
-    private boolean exotic_worlds$strollGateThroughSeam(BlockPos wantedPos, Position bodyPosition, double distance,
+    private boolean exotic_worlds$strollGateThroughSeam(BlockPos wantedPos, Position bodyPosition, double distanceBlocks,
             Operation<Boolean> original) {
-        return original.call(wantedPos, SeamRange.towardCenterOf(this.mob, wantedPos, bodyPosition), distance);
+        return original.call(wantedPos, SeamRange.towardCenterOf(this.mob, wantedPos, bodyPosition), distanceBlocks);
     }
 
     @ModifyExpressionValue(

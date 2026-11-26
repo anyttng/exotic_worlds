@@ -8,8 +8,9 @@ import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
-import com.exoticworlds.core.DensityFunctionNodes;
-import com.exoticworlds.core.WorldFold;
+import com.exoticworlds.core.gen.DensityFunctionNodes;
+import com.exoticworlds.core.fold.WorldFold;
+import com.exoticworlds.engine.noise.periodic.LapFloor;
 
 import net.minecraft.core.Holder;
 import net.minecraft.world.level.levelgen.densityfunction.DensityFunction;
@@ -30,8 +31,8 @@ public final class NoiseScaleLadder {
 
     public static NoiseScaleLadder of(WorldFold fold, List<DensityFunction> roots,
             DensityFunction.CompileContext context) {
-        int lap = ClimateScaleCompression.lapBlocks(fold);
-        if (lap == ClimateScaleCompression.UNBOUNDED_LAP) {
+        int lapBlocks = ClimateScaleCompression.lapBlocks(fold);
+        if (lapBlocks == ClimateScaleCompression.UNBOUNDED_LAP) {
             return NONE;
         }
 
@@ -42,16 +43,16 @@ public final class NoiseScaleLadder {
                 continue;
             }
 
-            NoiseStack.Layer[] layers = FoldedSamplers.stackOf(context.createNoiseSampler(entry.getKey())).layers;
-            if (collides(lap, ascending, layers)) {
-                separated.put(entry.getKey(), rungs(lap, ascending, lowestFrequency(layers)));
+            NoiseStack.Layer[] layers = FoldedSamplers.getStack(context.createNoiseSampler(entry.getKey())).layers;
+            if (isColliding(lapBlocks, ascending, layers)) {
+                separated.put(entry.getKey(), rungs(lapBlocks, ascending, lowestFrequency(layers)));
             }
         }
 
         return separated.isEmpty() ? NONE : new NoiseScaleLadder(Map.copyOf(separated));
     }
 
-    public double separated(Holder<NormalNoise> noise, double xzScale) {
+    public double getSeparated(Holder<NormalNoise> noise, double xzScale) {
         Map<Double, Double> rungs = this.separated.get(noise);
         if (rungs == null) {
             return xzScale;
@@ -74,11 +75,11 @@ public final class NoiseScaleLadder {
         return scales;
     }
 
-    private static boolean collides(int lap, SortedSet<Double> scales, NoiseStack.Layer[] layers) {
+    private static boolean isColliding(int lapBlocks, SortedSet<Double> scales, NoiseStack.Layer[] layers) {
         for (NoiseStack.Layer layer : layers) {
             Set<Long> periods = new HashSet<>();
             for (double scale : scales) {
-                periods.add(cells(lap, scale, layer.frequency()));
+                periods.add(cells(lapBlocks, scale, layer.frequency()));
             }
 
             if (periods.size() < scales.size()) {
@@ -89,20 +90,20 @@ public final class NoiseScaleLadder {
         return false;
     }
 
-    private static Map<Double, Double> rungs(int lap, SortedSet<Double> ascending, double lowestFrequency) {
+    private static Map<Double, Double> rungs(int lapBlocks, SortedSet<Double> ascending, double lowestFrequency) {
         Map<Double, Double> rungs = new HashMap<>();
         long previous = 0L;
         for (double scale : ascending) {
-            long cells = Math.max(cells(lap, scale, lowestFrequency), previous + 1L);
-            rungs.put(scale, cells / (lap * lowestFrequency));
+            long cells = Math.max(cells(lapBlocks, scale, lowestFrequency), previous + 1L);
+            rungs.put(scale, cells / (lapBlocks * lowestFrequency));
             previous = cells;
         }
 
         return Map.copyOf(rungs);
     }
 
-    private static long cells(int lap, double scale, double frequency) {
-        return Math.max(FLOOR_CELLS, Math.round(lap * scale * frequency));
+    private static long cells(int lapBlocks, double scale, double frequency) {
+        return Math.max(FLOOR_CELLS, Math.round(lapBlocks * scale * frequency));
     }
 
     private static double lowestFrequency(NoiseStack.Layer[] layers) {

@@ -19,7 +19,7 @@ public interface MathUtilsAccessor {
     }
 
     @Accessor("VALUE_SALT")
-    static long exotic_worlds$valueSalt() {
+    static long exotic_worlds$getValueSalt() {
         throw new AssertionError();
     }
 }

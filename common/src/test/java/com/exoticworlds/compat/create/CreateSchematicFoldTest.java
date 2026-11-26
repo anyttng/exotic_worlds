@@ -16,8 +16,8 @@ import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
-import com.exoticworlds.core.WorldFold;
-import com.exoticworlds.core.WorldFolds;
+import com.exoticworlds.core.fold.WorldFold;
+import com.exoticworlds.core.fold.WorldFolds;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
@@ -55,7 +55,7 @@ class CreateSchematicFoldTest {
     void aCornerPairOneLapApartFoldsTheRegionOntoItself() {
         BlockPos opposite = REGION_CORNER.offset(WORLD_BLOCKS, 0, WORLD_BLOCKS);
         for (WorldFold fold : ALL) {
-            assertTrue(CreateSchematicFold.regionExceedsWorld(fold, REGION_CORNER, opposite), "in " + fold);
+            assertTrue(CreateSchematicFold.isRegionExceedingWorld(fold, REGION_CORNER, opposite), "in " + fold);
         }
     }
 
@@ -63,7 +63,7 @@ class CreateSchematicFoldTest {
     void aCornerPairOneBlockShortOfALapHoldsEveryBlockOnce() {
         BlockPos opposite = REGION_CORNER.offset(WORLD_BLOCKS - 1, 0, WORLD_BLOCKS - 1);
         for (WorldFold fold : ALL) {
-            assertFalse(CreateSchematicFold.regionExceedsWorld(fold, REGION_CORNER, opposite), "in " + fold);
+            assertFalse(CreateSchematicFold.isRegionExceedingWorld(fold, REGION_CORNER, opposite), "in " + fold);
         }
     }
 
@@ -71,7 +71,7 @@ class CreateSchematicFoldTest {
     void theTwoCornersMayArriveInEitherOrder() {
         BlockPos opposite = REGION_CORNER.offset(WORLD_BLOCKS, 0, WORLD_BLOCKS);
         for (WorldFold fold : ALL) {
-            assertTrue(CreateSchematicFold.regionExceedsWorld(fold, opposite, REGION_CORNER), "in " + fold);
+            assertTrue(CreateSchematicFold.isRegionExceedingWorld(fold, opposite, REGION_CORNER), "in " + fold);
         }
     }
 
@@ -80,17 +80,17 @@ class CreateSchematicFoldTest {
         BlockPos first = new BlockPos(0, 64, -FAR_UNBOUNDED_Z);
         BlockPos second = new BlockPos(WORLD_BLOCKS - 1, 64, FAR_UNBOUNDED_Z);
 
-        assertFalse(CreateSchematicFold.regionExceedsWorld(CYLINDER, first, second));
-        assertTrue(CreateSchematicFold.regionExceedsWorld(PER_AXIS, first, second));
+        assertFalse(CreateSchematicFold.isRegionExceedingWorld(CYLINDER, first, second));
+        assertTrue(CreateSchematicFold.isRegionExceedingWorld(PER_AXIS, first, second));
     }
 
     @Test
     void anUnwrappedWorldRefusesNoRegionAtAll() {
         BlockPos opposite = REGION_CORNER.offset(4 * WORLD_BLOCKS, 0, 4 * WORLD_BLOCKS);
 
-        assertFalse(CreateSchematicFold.regionExceedsWorld(WorldFolds.NOOP, REGION_CORNER, opposite));
-        assertFalse(CreateSchematicFold.regionExceedsWorld((WorldFold) null, REGION_CORNER, opposite));
-        assertFalse(CreateSchematicFold.regionExceedsWorld((Level) null, REGION_CORNER, opposite));
+        assertFalse(CreateSchematicFold.isRegionExceedingWorld(WorldFolds.NOOP, REGION_CORNER, opposite));
+        assertFalse(CreateSchematicFold.isRegionExceedingWorld((WorldFold) null, REGION_CORNER, opposite));
+        assertFalse(CreateSchematicFold.isRegionExceedingWorld((Level) null, REGION_CORNER, opposite));
     }
 
     @Test

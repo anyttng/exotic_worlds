@@ -1,0 +1,40 @@
+package com.exoticworlds.compat.map;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import org.jspecify.annotations.Nullable;
+
+import com.exoticworlds.core.fold.WorldFold;
+
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.util.Mth;
+
+public final class AtlasSeamLines {
+    public static List<SeamLine> of(@Nullable WorldFold fold, int tileCenterX, int tileCenterZ, int mapBlocks) {
+        int blocksPerPixel = mapBlocks / AtlasTileCopies.MAP_PIXELS;
+        int minX = tileCenterX - mapBlocks / 2;
+        int minZ = tileCenterZ - mapBlocks / 2;
+        List<SeamLine> lines = new ArrayList<>();
+        for (WorldCopies.Edge edge : WorldCopies.seams(fold, minX, minZ, minX + mapBlocks, minZ + mapBlocks)) {
+            lines.add(SeamLine.of(edge, -minX / blocksPerPixel, -minZ / blocksPerPixel, 1.0 / blocksPerPixel));
+        }
+
+        return lines;
+    }
+
+    public static void draw(GuiGraphicsExtractor graphics, List<SeamLine> lines) {
+        if (lines.isEmpty()) {
+            return;
+        }
+
+        int thicknessPixels = Math.max(1, Mth.ceil(1.0F / graphics.pose().m00()));
+        graphics.nextStratum();
+        for (SeamLine line : lines) {
+            line.fill(graphics, Math.min(thicknessPixels, AtlasTileCopies.MAP_PIXELS - line.at()));
+        }
+    }
+
+    private AtlasSeamLines() {
+    }
+}

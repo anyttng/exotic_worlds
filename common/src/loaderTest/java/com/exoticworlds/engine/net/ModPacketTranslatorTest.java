@@ -3,6 +3,7 @@ package com.exoticworlds.engine.net;
 import static com.exoticworlds.engine.net.PacketTranslatorFixture.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.util.List;
 import java.util.Map;
@@ -14,19 +15,26 @@ import org.junit.jupiter.api.Test;
 
 import com.exoticworlds.ExoticWorlds;
 import com.exoticworlds.api.v1.net.PacketRewriters;
+import com.exoticworlds.engine.net.RecordPayloadFold.ComponentRole;
 import com.exoticworlds.engine.net.RecordPayloadFold.Role;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.particles.ParticleOptions;
+import net.minecraft.core.particles.ParticleType;
+import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.PacketFlow;
 import net.minecraft.network.protocol.PacketType;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBundlePacket;
+import net.minecraft.network.protocol.game.ClientboundLevelParticlesPacket;
 import net.minecraft.network.protocol.game.ServerGamePacketListener;
 import net.minecraft.resources.Identifier;
 
 class ModPacketTranslatorTest {
-    private static final Map<String, Role> UNTOUCHED_OFFSET_ROW = Map.of("offset", Role.UNTOUCHED);
+    private static final Map<String, ComponentRole> UNTOUCHED_OFFSET_ROW =
+            Map.of("offset", new ComponentRole.Direct(Role.UNTOUCHED));
+    private static final double PARTICLE_Y = 64.0;
 
     record ClientboundProbePacket(BlockPos pos, BlockPos offset) implements Packet<ClientGamePacketListener> {
         static final PacketType<ClientboundProbePacket> TYPE = new PacketType<>(PacketFlow.CLIENTBOUND,
@@ -84,10 +92,61 @@ class ModPacketTranslatorTest {
         }
     }
 
+    record GeometryProbePacket(BlockPos pos) implements Packet<ClientGamePacketListener> {
+        static final PacketType<GeometryProbePacket> TYPE = new PacketType<>(PacketFlow.CLIENTBOUND,
+                Identifier.fromNamespaceAndPath(ExoticWorlds.MODID, "geometry_probe"));
+
+        @Override
+        public PacketType<GeometryProbePacket> type() {
+            return TYPE;
+        }
+
+        @Override
+        public void handle(ClientGamePacketListener listener) {
+        }
+    }
+
+    record TwiceRegisteredProbePacket(BlockPos pos) implements Packet<ClientGamePacketListener> {
+        static final PacketType<TwiceRegisteredProbePacket> TYPE = new PacketType<>(PacketFlow.CLIENTBOUND,
+                Identifier.fromNamespaceAndPath(ExoticWorlds.MODID, "twice_registered_probe"));
+
+        @Override
+        public PacketType<TwiceRegisteredProbePacket> type() {
+            return TYPE;
+        }
+
+        @Override
+        public void handle(ClientGamePacketListener listener) {
+        }
+    }
+
+    record ProbeParticle(BlockPos target) implements ParticleOptions {
+        @Override
+        public ParticleType<?> getType() {
+            return ParticleTypes.FLAME;
+        }
+    }
+
+    record GeometryProbeParticle(BlockPos target) implements ParticleOptions {
+        @Override
+        public ParticleType<?> getType() {
+            return ParticleTypes.FLAME;
+        }
+    }
+
     @BeforeAll
     static void registerTheRewrittenProbeThroughThePublicSeamAlone() {
         PacketRewriters.registerClientboundPacket(RewrittenProbePacket.class,
                 (packet, context) -> new RewrittenProbePacket(BlockPos.ZERO));
+        com.exoticworlds.api.v2.net.PacketRewritersV2.registerClientboundPacket(GeometryProbePacket.class,
+                (packet, context) -> new GeometryProbePacket(
+                        context.getGeometry().fold(context.toClient(packet.pos()))));
+        PacketRewriters.registerClientboundPacket(TwiceRegisteredProbePacket.class, (packet, context) -> packet);
+        PacketRewriters.registerParticle(ProbeParticle.class,
+                (particle, context, clientOrigin) -> new ProbeParticle(context.toClient(particle.target())));
+        com.exoticworlds.api.v2.net.PacketRewritersV2.registerParticle(GeometryProbeParticle.class,
+                (particle, context, clientOrigin) -> new GeometryProbeParticle(
+                        context.getGeometry().fold(particle.target())));
     }
 
     @AfterEach
@@ -149,5 +208,43 @@ class ModPacketTranslatorTest {
     void aRegisteredRewriterTakesPrecedenceOverTheRecordFold() {
         assertEquals(new RewrittenProbePacket(BlockPos.ZERO),
                 PacketTranslator.toClient(new RewrittenProbePacket(SERVER_BLOCK), context()));
+    }
+
+    @Test
+    void aV2RewriterRunsAndReadsTheGeometryFromItsContext() {
+        assertEquals(new GeometryProbePacket(SERVER_BLOCK),
+                PacketTranslator.toClient(new GeometryProbePacket(SERVER_BLOCK), context()));
+    }
+
+    @Test
+    void aPacketRegisteredThroughV1AndV2IsRefused() {
+        assertThrows(IllegalStateException.class, () ->
+                com.exoticworlds.api.v2.net.PacketRewritersV2.registerClientboundPacket(
+                        TwiceRegisteredProbePacket.class, (packet, context) -> packet));
+    }
+
+    @Test
+    void aV1ParticleRewriterStillMovesItsTarget() {
+        assertEquals(new ProbeParticle(CLIENT_BLOCK), particleOf(new ProbeParticle(SERVER_BLOCK)));
+    }
+
+    @Test
+    void aV2ParticleRewriterRunsAndReadsTheGeometryFromItsContext() {
+        assertEquals(new GeometryProbeParticle(SERVER_BLOCK), particleOf(new GeometryProbeParticle(CLIENT_BLOCK)));
+    }
+
+    @Test
+    void aParticleRegisteredThroughV1AndV2IsRefused() {
+        assertThrows(IllegalStateException.class, () ->
+                com.exoticworlds.api.v2.net.PacketRewritersV2.registerParticle(
+                        ProbeParticle.class, (particle, context, clientOrigin) -> particle));
+    }
+
+    private static ParticleOptions particleOf(ParticleOptions particle) {
+        ClientboundLevelParticlesPacket translated = (ClientboundLevelParticlesPacket) PacketTranslator.toClient(
+                new ClientboundLevelParticlesPacket(particle, false, false,
+                        SERVER_X, PARTICLE_Y, SERVER_Z, 0.0F, 0.0F, 0.0F, 0.0F, 1),
+                context());
+        return translated.particle();
     }
 }

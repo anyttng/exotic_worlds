@@ -17,7 +17,7 @@ public class TheEndBiomeSourceMixin {
     @WrapMethod(method = "getNoiseBiome(IIILnet/minecraft/world/level/biome/Climate$Sampler;)Lnet/minecraft/core/Holder;")
     private Holder<Biome> exotic_worlds$loopedNoiseBiome(int quartX, int quartY, int quartZ, Climate.Sampler sampler,
             Operation<Holder<Biome>> original) {
-        long folded = FoldedQuart.fold(GenerationFoldContext.context().fold(), quartX, quartY, quartZ);
+        long folded = FoldedQuart.fold(GenerationFoldContext.getContext().getFold(), quartX, quartY, quartZ);
         return original.call(FoldedQuart.x(folded), quartY, FoldedQuart.z(folded), sampler);
     }
 }

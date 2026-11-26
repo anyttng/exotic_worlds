@@ -1,7 +1,7 @@
 package com.exoticworlds.engine.noise;
 
-import com.exoticworlds.core.TranslationLattice;
-import com.exoticworlds.core.WrapDomain;
+import com.exoticworlds.core.fold.TranslationLattice;
+import com.exoticworlds.core.fold.WrapDomain;
 
 public enum SlotAxis {
     X,
@@ -10,24 +10,24 @@ public enum SlotAxis {
 
     private static final WrapDomain UNWRAPPED = new WrapDomain.Noop();
 
-    public boolean carriesWorldAxis() {
+    public boolean hasWorldAxis() {
         return this != NONE;
     }
 
     // mc/26.2: the shift noise mixin scales an unwrapped slot through it.
     public double samplerInput(double coord, double uniformScale) {
-        return carriesWorldAxis() ? coord : coord * uniformScale;
+        return hasWorldAxis() ? coord : coord * uniformScale;
     }
 
-    public WrapDomain domainOf(TranslationLattice lattice) {
+    public WrapDomain getDomain(TranslationLattice lattice) {
         return switch (this) {
-            case X -> lattice.x();
-            case Z -> lattice.z();
+            case X -> lattice.getX();
+            case Z -> lattice.getZ();
             case NONE -> UNWRAPPED;
         };
     }
 
-    public double divisorIn(NoiseFrame frame) {
+    public double getDivisor(NoiseFrame frame) {
         return switch (this) {
             case X -> frame.xDivisor();
             case Z -> frame.zDivisor();

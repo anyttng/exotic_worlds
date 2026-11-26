@@ -1,6 +1,6 @@
 package com.exoticworlds.engine.gen;
 
-import com.exoticworlds.core.WorldFold;
+import com.exoticworlds.core.fold.WorldFold;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.util.RandomSource;

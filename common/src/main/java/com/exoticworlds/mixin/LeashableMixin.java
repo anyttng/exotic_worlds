@@ -4,8 +4,8 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 
 import com.exoticworlds.InjectionTargets;
-import com.exoticworlds.core.WorldFold;
-import com.exoticworlds.core.WorldLoopAttachments;
+import com.exoticworlds.core.fold.WorldFold;
+import com.exoticworlds.core.fold.WorldLoopAttachments;
 import com.exoticworlds.engine.seam.SeamSteering;
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
@@ -20,7 +20,7 @@ import net.minecraft.world.phys.Vec3;
 public interface LeashableMixin {
     @WrapMethod(method = "leashDistanceTo")
     private double exotic_worlds$leashDistanceThroughSeam(Entity entity, Operation<Double> original) {
-        WorldFold fold = WorldLoopAttachments.wrappedFoldOf(entity.level());
+        WorldFold fold = WorldLoopAttachments.getWrappedFold(entity.level());
         if (fold == null) {
             return original.call(entity);
         }

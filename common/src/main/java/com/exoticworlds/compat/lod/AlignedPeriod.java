@@ -1,6 +1,6 @@
 package com.exoticworlds.compat.lod;
 
-import com.exoticworlds.api.v1.ToroidalShape;
+import com.exoticworlds.core.fold.WorldFold;
 
 import net.minecraft.core.Direction;
 
@@ -8,69 +8,69 @@ public record AlignedPeriod(long xBlocks, long zBlocks, long xShiftBlocks) {
     private static final long NO_PERIOD = 0L;
     private static final int INVERSE_NEWTON_STEPS = 5;
 
-    public static AlignedPeriod of(ToroidalShape shape, int skewBlocks, int alignExponent) {
-        long x = shape.loops(Direction.Axis.X) ? blocks(shape.widthBlocks(Direction.Axis.X), alignExponent) : NO_PERIOD;
-        if (!shape.loops(Direction.Axis.Z)) {
+    public static AlignedPeriod of(WorldFold fold, int skewBlocks, int alignExponent) {
+        long x = fold.isLooped(Direction.Axis.X) ? blocks(fold.getWidthBlocks(Direction.Axis.X), alignExponent) : NO_PERIOD;
+        if (!fold.isLooped(Direction.Axis.Z)) {
             return new AlignedPeriod(x, NO_PERIOD, 0L);
         }
 
-        int widthZ = shape.widthBlocks(Direction.Axis.Z);
+        int widthZ = fold.getWidthBlocks(Direction.Axis.Z);
         int lapsExponent = alignExponent - Math.min(alignExponent, Integer.numberOfTrailingZeros(widthZ));
         if (skewBlocks == 0) {
             return new AlignedPeriod(x, ((long) widthZ) << lapsExponent, 0L);
         }
 
-        int widthX = shape.widthBlocks(Direction.Axis.X);
+        int widthX = fold.getWidthBlocks(Direction.Axis.X);
         int alignX = Math.min(alignExponent, Integer.numberOfTrailingZeros(widthX));
         lapsExponent = Math.max(lapsExponent, alignX - Integer.numberOfTrailingZeros(skewBlocks));
-        long rowShift = ((long) skewBlocks) << lapsExponent;
-        return new AlignedPeriod(x, ((long) widthZ) << lapsExponent, shift(widthX, alignExponent, rowShift, x));
+        long rowShiftBlocks = ((long) skewBlocks) << lapsExponent;
+        return new AlignedPeriod(x, ((long) widthZ) << lapsExponent, shift(widthX, alignExponent, rowShiftBlocks, x));
     }
 
-    public static long blocks(int worldWidth, int alignExponent) {
-        int gcd = 1 << Math.min(Integer.numberOfTrailingZeros(worldWidth), alignExponent);
-        return (long) (worldWidth / gcd) << alignExponent;
+    public static long blocks(int worldWidthBlocks, int alignExponent) {
+        int gcd = 1 << Math.min(Integer.numberOfTrailingZeros(worldWidthBlocks), alignExponent);
+        return (long) (worldWidthBlocks / gcd) << alignExponent;
     }
 
-    public long foldX(ToroidalShape shape, long blockX, long blockZ) {
+    public long foldX(WorldFold fold, long blockX, long blockZ) {
         long x = blockX;
         if (xShiftBlocks != 0L) {
-            x -= Math.floorDiv(blockZ - shape.minBlock(Direction.Axis.Z), zBlocks) * xShiftBlocks;
+            x -= Math.floorDiv(blockZ - fold.getMinBlock(Direction.Axis.Z), zBlocks) * xShiftBlocks;
         }
 
-        if (shape.loops(Direction.Axis.X)) {
-            x -= Math.floorDiv(x - shape.minBlock(Direction.Axis.X), xBlocks) * xBlocks;
+        if (fold.isLooped(Direction.Axis.X)) {
+            x -= Math.floorDiv(x - fold.getMinBlock(Direction.Axis.X), xBlocks) * xBlocks;
         }
 
         return x;
     }
 
-    public long foldZ(ToroidalShape shape, long blockZ) {
-        if (!shape.loops(Direction.Axis.Z)) {
+    public long foldZ(WorldFold fold, long blockZ) {
+        if (!fold.isLooped(Direction.Axis.Z)) {
             return blockZ;
         }
 
-        return blockZ - Math.floorDiv(blockZ - shape.minBlock(Direction.Axis.Z), zBlocks) * zBlocks;
+        return blockZ - Math.floorDiv(blockZ - fold.getMinBlock(Direction.Axis.Z), zBlocks) * zBlocks;
     }
 
-    public int laps(ToroidalShape shape, Direction.Axis axis) {
-        if (!shape.loops(axis)) {
+    public int laps(WorldFold fold, Direction.Axis axis) {
+        if (!fold.isLooped(axis)) {
             return 1;
         }
 
-        return (int) ((axis == Direction.Axis.X ? xBlocks : zBlocks) / shape.widthBlocks(axis));
+        return (int) ((axis == Direction.Axis.X ? xBlocks : zBlocks) / fold.getWidthBlocks(axis));
     }
 
-    private static long shift(int widthX, int alignExponent, long rowShift, long periodX) {
+    private static long shift(int widthX, int alignExponent, long rowShiftBlocks, long periodX) {
         int alignX = Integer.numberOfTrailingZeros(widthX);
         if (alignX >= alignExponent) {
-            return Math.floorMod(rowShift, periodX);
+            return Math.floorMod(rowShiftBlocks, periodX);
         }
 
         long oddWidth = widthX >> alignX;
         long mask = (1L << (alignExponent - alignX)) - 1;
-        long laps = (-(rowShift >> alignX) * inverseOfOdd(oddWidth)) & mask;
-        return Math.floorMod(rowShift + laps * widthX, periodX);
+        long laps = (-(rowShiftBlocks >> alignX) * inverseOfOdd(oddWidth)) & mask;
+        return Math.floorMod(rowShiftBlocks + laps * widthX, periodX);
     }
 
     private static long inverseOfOdd(long odd) {

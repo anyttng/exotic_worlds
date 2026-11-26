@@ -6,8 +6,8 @@ import org.spongepowered.asm.mixin.injection.ModifyVariable;
 
 import com.exoticworlds.InjectionTargets;
 import com.exoticworlds.accessors.FoldSource;
-import com.exoticworlds.core.WorldFold;
-import com.exoticworlds.core.WorldLoopAttachments;
+import com.exoticworlds.core.fold.WorldFold;
+import com.exoticworlds.core.fold.WorldLoopAttachments;
 import com.exoticworlds.engine.fold.NearestCopy;
 import com.exoticworlds.engine.seam.SeamRange;
 import com.exoticworlds.engine.seam.SeamSteering;
@@ -30,9 +30,9 @@ public class InteractWithDoorMixin {
             at = @At(value = "INVOKE",
                     target = InjectionTargets.BLOCK_POS_CLOSER_TO_CENTER_THAN),
             expect = 2)
-    private static boolean exotic_worlds$doorReachThroughSeam(BlockPos doorPos, Position bodyPosition, double distance,
+    private static boolean exotic_worlds$doorReachThroughSeam(BlockPos doorPos, Position bodyPosition, double distanceBlocks,
             Operation<Boolean> original, @Local(argsOnly = true) LivingEntity body) {
-        return original.call(doorPos, SeamRange.towardCenterOf(body, doorPos, bodyPosition), distance);
+        return original.call(doorPos, SeamRange.towardCenterOf(body, doorPos, bodyPosition), distanceBlocks);
     }
 
     @ModifyExpressionValue(
@@ -41,7 +41,7 @@ public class InteractWithDoorMixin {
                     target = "Lnet/minecraft/world/level/pathfinder/Node;asBlockPos()Lnet/minecraft/core/BlockPos;"))
     private static BlockPos exotic_worlds$standingInDoorwayThroughSeam(BlockPos nodePos,
             @Local(argsOnly = true) LivingEntity body, @Local BlockPos doorPos) {
-        WorldFold fold = ((FoldSource) body).exotic_worlds$wrappedFold();
+        WorldFold fold = ((FoldSource) body).exotic_worlds$getWrappedFold();
         return NearestCopy.toward(fold, doorPos, nodePos);
     }
 
@@ -58,6 +58,6 @@ public class InteractWithDoorMixin {
     @ModifyVariable(method = "rememberDoorToClose", at = @At("HEAD"), argsOnly = true)
     private static BlockPos exotic_worlds$rememberedDoorCanonical(BlockPos doorPos,
             @Local(argsOnly = true) ServerLevel level) {
-        return WorldLoopAttachments.foldOf(level).fold(doorPos);
+        return WorldLoopAttachments.getFold(level).fold(doorPos);
     }
 }

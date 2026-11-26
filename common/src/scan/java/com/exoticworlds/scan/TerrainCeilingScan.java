@@ -1,10 +1,10 @@
 package com.exoticworlds.scan;
 
-import com.exoticworlds.core.WorldFold;
+import com.exoticworlds.core.fold.WorldFold;
+import com.exoticworlds.engine.gen.terrain.TerrainCeiling;
 import com.exoticworlds.engine.noise.ClimateScanFixture;
 import com.exoticworlds.engine.noise.ClimateScanFixture.WorldType;
 import com.exoticworlds.engine.noise.GenerationFoldContext;
-import com.exoticworlds.engine.noise.TerrainCeiling;
 import static com.exoticworlds.engine.noise.ClimateScanFixture.randomState;
 import static com.exoticworlds.engine.noise.ClimateScanFixture.settingsOf;
 import static com.exoticworlds.engine.noise.ClimateScanFixture.torusOfWidth;
@@ -221,12 +221,12 @@ class TerrainCeilingScan {
         DensitySampler ceiling = randomState.getSampler(rawCeiling);
         DensitySampler density = randomState.getSampler(router.finalDensity());
         DensitySampler surface = randomState.getSampler(router.chunkSurfaceLevel());
-        double step = WIDTH_BLOCKS / (double) GRID;
+        double stepBlocks = WIDTH_BLOCKS / (double) GRID;
         GenerationFoldContext.runWithFold(fold, () -> {
             for (int ix = 0; ix < GRID; ix++) {
                 for (int iz = 0; iz < GRID; iz++) {
-                    int blockX = (int) Math.round(ix * step);
-                    int blockZ = (int) Math.round(iz * step);
+                    int blockX = (int) Math.round(ix * stepBlocks);
+                    int blockZ = (int) Math.round(iz * stepBlocks);
                     int top = topSolid(density, blockX, blockZ, settings.seaLevel());
                     if (top == Integer.MIN_VALUE) {
                         continue;

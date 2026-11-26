@@ -9,18 +9,19 @@ import java.util.Random;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
-import com.exoticworlds.accessors.CoastLiftCache;
-import com.exoticworlds.api.v1.option.GenerationOptions;
-import com.exoticworlds.core.DeckGroupFold;
-import com.exoticworlds.core.FlatShape;
-import com.exoticworlds.core.ShapeFixtures;
-import com.exoticworlds.core.TranslationLattice;
-import com.exoticworlds.core.WorldFold;
-import com.exoticworlds.core.WorldFolds;
-import com.exoticworlds.core.WorldLoopBounds;
-import com.exoticworlds.core.WorldLoopBounds.AxisBounds;
-import com.exoticworlds.core.WrapDomain;
+import com.exoticworlds.core.feature.NoiseOffsets;
+import com.exoticworlds.core.fold.deck.DeckGroupFold;
+import com.exoticworlds.core.world.FlatShape;
+import com.exoticworlds.core.world.ShapeFixtures;
+import com.exoticworlds.core.option.ShapeOptions;
+import com.exoticworlds.core.fold.TranslationLattice;
+import com.exoticworlds.core.fold.WorldFold;
+import com.exoticworlds.core.fold.WorldFolds;
+import com.exoticworlds.core.world.WorldLoopBounds;
+import com.exoticworlds.core.world.WorldLoopBounds.AxisBounds;
+import com.exoticworlds.core.fold.WrapDomain;
 
+import net.minecraft.world.level.dimension.LevelStem;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
 import net.minecraft.core.Vec3i;
@@ -44,7 +45,7 @@ class PeriodicEndIslandsTest {
 
     private static final int SWEEP_REACH_BLOCKS = 13 * 16;
     private static final int MAIN_ISLAND_REACH_BLOCKS = 96;
-    private static final int UNBOUNDED_SPAN = 4096;
+    private static final int UNBOUNDED_SPAN_BLOCKS = 4096;
     private static final float NO_ISLAND_HEIGHT = -100.0F;
     private static final float MAIN_ISLAND_PEAK_HEIGHT = 100.0F;
     private static final float MAX_HEIGHT_VALUE = 80.0F;
@@ -78,17 +79,6 @@ class PeriodicEndIslandsTest {
         }
     };
 
-    private static final CoastLiftCache NO_LIFT = new CoastLiftCache() {
-        @Override
-        public double exotic_worlds$coastLift() {
-            return 0.0;
-        }
-
-        @Override
-        public void exotic_worlds$coastLift(double lift) {
-        }
-    };
-
     private static SimplexNoise islandNoise() {
         RandomSource random = new LegacyRandomSource(SEED);
         random.consumeCount(ISLAND_NOISE_SKIP);
@@ -103,8 +93,8 @@ class PeriodicEndIslandsTest {
             for (WorldFold fold : WRAPPED_X) {
                 int hits = 0;
                 for (int i = 0; i < SAMPLES; i++) {
-                    int x = clearOfSeam(random, fold.blockDomain(Direction.Axis.X));
-                    int z = clearOfSeam(random, fold.blockDomain(Direction.Axis.Z));
+                    int x = clearOfSeam(random, fold.getBlockDomain(Direction.Axis.X));
+                    int z = clearOfSeam(random, fold.getBlockDomain(Direction.Axis.Z));
                     float folded = PeriodicEndIslands.outerHeightValue(ISLAND_NOISE, fold, x, z);
                     assertEquals(PeriodicEndIslands.outerHeightValue(ISLAND_NOISE, WorldFolds.NOOP, x, z), folded,
                             () -> "at (" + x + ", " + z + ") in " + fold);
@@ -150,8 +140,8 @@ class PeriodicEndIslandsTest {
             Random random = new Random(SEED);
             int hits = 0;
             for (int i = 0; i < SAMPLES; i++) {
-                int x = random.nextInt(UNBOUNDED_SPAN);
-                int z = random.nextInt(UNBOUNDED_SPAN);
+                int x = random.nextInt(UNBOUNDED_SPAN_BLOCKS);
+                int z = random.nextInt(UNBOUNDED_SPAN_BLOCKS);
                 float height = PeriodicEndIslands.outerHeightValue(ISLAND_NOISE, WorldFolds.NOOP, x, z);
                 assertEquals(vanilla.sampleValue(SamplerContext.EMPTY_UNCACHED, x, 0, z),
                         PeriodicEndIslands.density(height), () -> "at (" + x + ", " + z + ")");
@@ -165,23 +155,23 @@ class PeriodicEndIslandsTest {
     @Nested
     class SkewedLattice {
         private static final WorldFold SKEWED = new DeckGroupFold(
-                FlatShape.latticeTorus(ShapeFixtures.loopedBounds(-128, 128, -96, 96), 37), GenerationOptions.DEFAULT);
+                FlatShape.latticeTorus(ShapeFixtures.loopedBounds(-128, 128, -96, 96), 37), ShapeOptions.DEFAULT);
 
-        private static final TranslationLattice LATTICE = SKEWED.blockLattice();
+        private static final TranslationLattice LATTICE = SKEWED.getBlockLattice();
 
         private static final int[][] COPIES = {
-                {LATTICE.x().domainLength, 0},
-                {LATTICE.skew(), LATTICE.z().domainLength},
-                {LATTICE.skew() - LATTICE.x().domainLength, LATTICE.z().domainLength},
-                {-LATTICE.skew(), -LATTICE.z().domainLength}};
+                {LATTICE.getX().domainLength, 0},
+                {LATTICE.getSkew(), LATTICE.getZ().domainLength},
+                {LATTICE.getSkew() - LATTICE.getX().domainLength, LATTICE.getZ().domainLength},
+                {-LATTICE.getSkew(), -LATTICE.getZ().domainLength}};
 
         @Test
         void outerIslandsAreTheSameAtEveryDeckCopyAcrossTheSeams() {
             Random random = new Random(SEED);
             int hits = 0;
             for (int i = 0; i < SAMPLES; i++) {
-                int x = LATTICE.x().lowerBound - SWEEP_REACH_BLOCKS + random.nextInt(2 * SWEEP_REACH_BLOCKS);
-                int z = LATTICE.z().lowerBound - SWEEP_REACH_BLOCKS + random.nextInt(2 * SWEEP_REACH_BLOCKS);
+                int x = LATTICE.getX().lowerBound - SWEEP_REACH_BLOCKS + random.nextInt(2 * SWEEP_REACH_BLOCKS);
+                int z = LATTICE.getZ().lowerBound - SWEEP_REACH_BLOCKS + random.nextInt(2 * SWEEP_REACH_BLOCKS);
                 float base = PeriodicEndIslands.outerHeightValue(ISLAND_NOISE, SKEWED, x, z);
                 for (int[] copy : COPIES) {
                     assertEquals(base, PeriodicEndIslands.outerHeightValue(ISLAND_NOISE, SKEWED, x + copy[0],
@@ -197,7 +187,8 @@ class PeriodicEndIslandsTest {
         @Test
         void theMainIslandIsTheSameAtEveryDeckCopy() {
             DensitySampler distance = FoldedSamplers.distanceToPoint(
-                    new FoldedCompileContext(SEEDED, SKEWED, NO_LIFT, NoiseScaleLadder.NONE),
+                    new FoldedCompileContext(SEEDED, SKEWED, LevelStem.END, List.of(), new NoiseOffsets(), NoiseScaleLadder.NONE,
+                            NoiseRouterFields.NONE),
                     Vec3i.ZERO, DistanceMetric.EUCLIDEAN);
             Random random = new Random(SEED);
             for (int i = 0; i < SAMPLES; i++) {
@@ -218,15 +209,15 @@ class PeriodicEndIslandsTest {
     private static void mainIslandRepeats(List<WorldFold> folds, Direction.Axis axis) {
         Random random = new Random(SEED);
         for (WorldFold fold : folds) {
-            int width = fold.blockDomain(axis).domainLength;
+            int widthBlocks = fold.getBlockDomain(axis).domainLength;
             for (int i = 0; i < SAMPLES; i++) {
                 int along = random.nextInt(2 * MAIN_ISLAND_REACH_BLOCKS) - MAIN_ISLAND_REACH_BLOCKS;
                 int across = random.nextInt(2 * MAIN_ISLAND_REACH_BLOCKS) - MAIN_ISLAND_REACH_BLOCKS;
                 float base = mainIslandHeight(fold, axis, along, across);
-                String where = axis + "=" + along + " vs " + axis + "=" + (along + width) + ", across " + across
+                String where = axis + "=" + along + " vs " + axis + "=" + (along + widthBlocks) + ", across " + across
                         + " in " + fold;
                 assertTrue(base > NO_ISLAND_HEIGHT, () -> "the main island does not reach " + where);
-                assertEquals(base, mainIslandHeight(fold, axis, along + width, across), () -> "main island at " + where);
+                assertEquals(base, mainIslandHeight(fold, axis, along + widthBlocks, across), () -> "main island at " + where);
             }
         }
     }
@@ -234,8 +225,8 @@ class PeriodicEndIslandsTest {
     private static void outerIslandsRepeat(List<WorldFold> folds, Direction.Axis axis) {
         Random random = new Random(SEED);
         for (WorldFold fold : folds) {
-            WrapDomain domain = fold.blockDomain(axis);
-            WrapDomain other = fold.blockDomain(axis == Direction.Axis.X ? Direction.Axis.Z : Direction.Axis.X);
+            WrapDomain domain = fold.getBlockDomain(axis);
+            WrapDomain other = fold.getBlockDomain(axis == Direction.Axis.X ? Direction.Axis.Z : Direction.Axis.X);
             int hits = 0;
             for (int i = 0; i < SAMPLES; i++) {
                 int along = domain.lowerBound - SWEEP_REACH_BLOCKS + random.nextInt(2 * SWEEP_REACH_BLOCKS);
@@ -259,7 +250,8 @@ class PeriodicEndIslandsTest {
 
     private static float mainIslandHeight(WorldFold fold, Direction.Axis axis, int along, int across) {
         DensitySampler distance = FoldedSamplers.distanceToPoint(
-                new FoldedCompileContext(SEEDED, fold, NO_LIFT, NoiseScaleLadder.NONE),
+                new FoldedCompileContext(SEEDED, fold, LevelStem.END, List.of(), new NoiseOffsets(), NoiseScaleLadder.NONE,
+                        NoiseRouterFields.NONE),
                 Vec3i.ZERO, DistanceMetric.EUCLIDEAN);
         float blocks = axis == Direction.Axis.X
                 ? distance.sampleValue(SamplerContext.EMPTY_UNCACHED, along, 0, across)
@@ -268,7 +260,7 @@ class PeriodicEndIslandsTest {
     }
 
     private static int clearOfSeam(Random random, WrapDomain domain) {
-        if (!domain.loops()) {
+        if (!domain.isLooped()) {
             return anyBlock(random, domain);
         }
 
@@ -276,8 +268,8 @@ class PeriodicEndIslandsTest {
     }
 
     private static int anyBlock(Random random, WrapDomain domain) {
-        if (!domain.loops()) {
-            return random.nextInt(UNBOUNDED_SPAN) - UNBOUNDED_SPAN / 2;
+        if (!domain.isLooped()) {
+            return random.nextInt(UNBOUNDED_SPAN_BLOCKS) - UNBOUNDED_SPAN_BLOCKS / 2;
         }
 
         return domain.lowerBound + random.nextInt(domain.domainLength);

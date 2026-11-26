@@ -4,8 +4,8 @@ import org.jspecify.annotations.Nullable;
 
 import com.llamalad7.mixinextras.sugar.ref.LocalBooleanRef;
 import com.llamalad7.mixinextras.sugar.ref.LocalRef;
-import com.exoticworlds.core.WorldFold;
-import com.exoticworlds.core.WorldLoopAttachments;
+import com.exoticworlds.core.fold.WorldFold;
+import com.exoticworlds.core.fold.WorldLoopAttachments;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Vec3i;
@@ -20,11 +20,11 @@ public final class CreateWalkClosure {
     private @Nullable BlockPos origin;
 
     public static @Nullable CreateWalkClosure of(LevelReader world) {
-        WorldFold fold = WorldLoopAttachments.wrappedFoldOfReader(world);
+        WorldFold fold = WorldLoopAttachments.getWrappedFoldOfReader(world);
         return fold == null ? null : new CreateWalkClosure(fold);
     }
 
-    public static boolean closesAt(LevelReader world, BlockPos pos, LocalRef<CreateWalkClosure> closureRef,
+    public static boolean isClosingAt(LevelReader world, BlockPos pos, LocalRef<CreateWalkClosure> closureRef,
             LocalBooleanRef resolved) {
         if (!resolved.get()) {
             closureRef.set(of(world));
@@ -32,15 +32,15 @@ public final class CreateWalkClosure {
         }
 
         CreateWalkClosure closure = closureRef.get();
-        return closure != null && closure.closes(pos);
+        return closure != null && closure.isClosing(pos);
     }
 
     CreateWalkClosure(WorldFold fold) {
         this.fold = fold;
     }
 
-    public boolean closes(BlockPos query) {
-        if (lastQuery != null && continues(query, lastQuery)) {
+    public boolean isClosing(BlockPos query) {
+        if (lastQuery != null && isContinuing(query, lastQuery)) {
             lastQuery = query;
             BlockPos legOrigin = origin;
             return legOrigin != null && !query.equals(legOrigin)
@@ -51,7 +51,7 @@ public final class CreateWalkClosure {
         return false;
     }
 
-    private boolean continues(BlockPos query, BlockPos previous) {
+    private boolean isContinuing(BlockPos query, BlockPos previous) {
         Vec3i delta = query.subtract(previous);
         Vec3i legStep = step;
         if (legStep != null) {

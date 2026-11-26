@@ -6,13 +6,14 @@ import java.util.Map;
 import org.jspecify.annotations.Nullable;
 
 import com.exoticworlds.accessors.ShapeStamp;
-import com.exoticworlds.core.CarriedShape;
-import com.exoticworlds.core.DimensionTable;
-import com.exoticworlds.core.FlatShape;
-import com.exoticworlds.core.ShapedChunkGenerator;
-import com.exoticworlds.core.WorldLoopBounds;
-import com.exoticworlds.core.WorldLoopBounds.AxisBounds;
-import com.exoticworlds.core.WorldLoopSizes;
+import com.exoticworlds.core.world.CarriedShape;
+import com.exoticworlds.core.world.DerivedDimension;
+import com.exoticworlds.core.world.DimensionTable;
+import com.exoticworlds.core.world.FlatShape;
+import com.exoticworlds.core.world.ShapeDerivations;
+import com.exoticworlds.core.gen.EndTerrain;
+import com.exoticworlds.core.gen.GeneratorShapes;
+import com.exoticworlds.core.world.WorldLoopBounds;
 import com.exoticworlds.engine.gen.DatapackStemOverrides.Outcome;
 import com.exoticworlds.engine.gen.DatapackStemOverrides.StemOverride;
 import com.exoticworlds.platform.Platforms;
@@ -50,36 +51,19 @@ public final class ShapedDimensions {
         return new WorldDimensions(stems);
     }
 
-    public static WorldDimensions withShapes(WorldDimensions dimensions, CarriedShape overworld, CarriedShape nether,
-            CarriedShape end) {
-        WorldDimensions withOverworld = withShape(dimensions, LevelStem.OVERWORLD, overworld);
-        if (withOverworld == dimensions) {
-            return dimensions;
-        }
-
-        return withShape(withShape(withOverworld, LevelStem.NETHER, nether), LevelStem.END, end);
-    }
-
     public static WorldDimensions stripShapes(WorldDimensions dimensions) {
-        Map<ResourceKey<LevelStem>, LevelStem> stripped = null;
+        Map<ResourceKey<LevelStem>, LevelStem> stripped = new HashMap<>(dimensions.dimensions());
         for (Map.Entry<ResourceKey<LevelStem>, LevelStem> entry : dimensions.dimensions().entrySet()) {
             LevelStem stem = entry.getValue();
-            if (stem.generator() instanceof ShapeStamp stamp) {
+            ChunkGenerator copy = copyOf(stem.generator());
+            if (copy != null) {
+                stripped.put(entry.getKey(), Platforms.get().withGenerator(stem, copy));
+            } else if (stem.generator() instanceof ShapeStamp stamp) {
                 stamp.exotic_worlds$clearStamp();
             }
-
-            if (!(stem.generator() instanceof ShapedChunkGenerator shaped)) {
-                continue;
-            }
-
-            if (stripped == null) {
-                stripped = new HashMap<>(dimensions.dimensions());
-            }
-
-            stripped.put(entry.getKey(), Platforms.get().withGenerator(stem, shaped.unshaped()));
         }
 
-        return stripped == null ? dimensions : new WorldDimensions(stripped);
+        return new WorldDimensions(stripped);
     }
 
     public static Registry<LevelStem> restoreStoredShapes(WorldDimensions stored, Registry<LevelStem> datapackDimensions) {
@@ -88,11 +72,11 @@ public final class ShapedDimensions {
         for (Holder.Reference<LevelStem> entry : datapackDimensions.listElements().toList()) {
             LevelStem datapackStem = entry.value();
             LevelStem storedStem = stored.get(entry.key()).orElse(null);
-            if (storedStem == null || datapackStem.generator() instanceof ShapedChunkGenerator) {
+            if (storedStem == null || hasShape(datapackStem.generator())) {
                 continue;
             }
 
-            CarriedShape carried = ShapedChunkGenerator.carriedShapeOf(storedStem.generator());
+            CarriedShape carried = GeneratorShapes.getCarriedShape(storedStem.generator());
             if (carried == null) {
                 continue;
             }
@@ -100,7 +84,7 @@ public final class ShapedDimensions {
             ChunkGenerator shaped = withStoredShape(datapackStem.generator(), carried);
             restored.put(entry.key(),
                     shaped == null ? storedStem : Platforms.get().withGenerator(datapackStem, shaped));
-            overrides.put(entry.key(), override(outcomeOf(shaped), datapackStem));
+            overrides.put(entry.key(), override(outcomeOf(datapackStem.generator(), shaped), datapackStem));
         }
 
         DatapackStemOverrides.replaceAll(overrides);
@@ -116,12 +100,12 @@ public final class ShapedDimensions {
         return isStampableOverStoredShape(replacement) ? stampedGeneratorFor(replacement, carried) : null;
     }
 
-    private static Outcome outcomeOf(@Nullable ChunkGenerator shaped) {
+    private static Outcome outcomeOf(ChunkGenerator datapackGenerator, @Nullable ChunkGenerator shaped) {
         if (shaped == null) {
             return Outcome.REFUSED;
         }
 
-        return shaped instanceof ShapedChunkGenerator ? Outcome.RESHAPED : Outcome.STAMPED;
+        return shaped != datapackGenerator ? Outcome.RESHAPED : Outcome.STAMPED;
     }
 
     private static StemOverride override(Outcome outcome, LevelStem datapackStem) {
@@ -144,11 +128,17 @@ public final class ShapedDimensions {
         dimensions.listElements().forEach(entry -> derivation.stamp(entry.key(), entry.value()));
     }
 
-    public static void stampDerived(Registry<LevelStem> dimensions, ResourceKey<LevelStem> key) {
+    public static void rederive(Registry<LevelStem> dimensions, ResourceKey<LevelStem> key) {
         LevelStem stem = dimensions.getValue(key);
-        if (stem != null) {
-            Derivation.of(dimensions).stamp(key, stem);
+        if (stem == null) {
+            return;
         }
+
+        if (stem.generator() instanceof ShapeStamp stamp) {
+            stamp.exotic_worlds$clearStamp();
+        }
+
+        Derivation.of(dimensions).stamp(key, stem);
     }
 
     private record Derivation(@Nullable CarriedShape overworld, DimensionTable table, double overworldScale) {
@@ -156,31 +146,33 @@ public final class ShapedDimensions {
             LevelStem overworld = dimensions.getOptional(LevelStem.OVERWORLD).orElse(null);
             return overworld == null
                     ? new Derivation(null, DimensionTable.EMPTY, 0.0)
-                    : new Derivation(ShapedChunkGenerator.carriedShapeOf(overworld.generator()),
-                            dimensionTableOf(overworld.generator()), overworld.type().value().coordinateScale());
+                    : new Derivation(GeneratorShapes.getCarriedShape(overworld.generator()),
+                            getDimensionTable(overworld.generator()), overworld.type().value().coordinateScale());
         }
 
         private void stamp(ResourceKey<LevelStem> key, LevelStem stem) {
             if (key == LevelStem.OVERWORLD
-                    || carriesShape(stem.generator())
+                    || hasShape(stem.generator())
                     || !(stem.generator() instanceof ShapeStamp stamp)) {
                 return;
             }
 
-            DimensionTable.Entry chosen = this.table.entry(key);
-            stamp.exotic_worlds$stampBaked(chosen != null && !chosen.fromOverworld()
+            DimensionTable.Entry chosen = this.table.getEntry(key);
+            stamp.exotic_worlds$stampBaked(chosen != null && !chosen.isFromOverworld()
                     ? chosen.carried()
-                    : derivedCarried(this.overworld, this.overworldScale, stem.type().value().coordinateScale()));
+                    : derivedCarried(this.overworld, new DerivedDimension(key, EndTerrain.isEndTerrain(key, stem.generator()),
+                            this.overworldScale, stem.type().value().coordinateScale())));
         }
     }
 
-    private static @Nullable CarriedShape derivedCarried(@Nullable CarriedShape overworld, double overworldScale,
-            double scale) {
-        if (overworld == null || overworld.shape().mirror() != null) {
+    private static @Nullable CarriedShape derivedCarried(@Nullable CarriedShape overworld,
+            DerivedDimension dimension) {
+        if (overworld == null) {
             return null;
         }
 
-        FlatShape derived = derivedShape(overworld.shape(), overworldScale, scale);
+        FlatShape derived = ShapeDerivations.derive(overworld.getShapeId().orElse(null), overworld.getShape(),
+                dimension);
         return derived == null ? null : overworld.withShape(derived);
     }
 
@@ -193,13 +185,13 @@ public final class ShapedDimensions {
         return dimensions;
     }
 
-    public static DimensionTable dimensionTableOf(WorldDimensions dimensions) {
+    public static DimensionTable getDimensionTable(WorldDimensions dimensions) {
         LevelStem overworld = dimensions.get(LevelStem.OVERWORLD).orElse(null);
-        return overworld == null ? DimensionTable.EMPTY : dimensionTableOf(overworld.generator());
+        return overworld == null ? DimensionTable.EMPTY : getDimensionTable(overworld.generator());
     }
 
-    public static DimensionTable dimensionTableOf(ChunkGenerator generator) {
-        return generator instanceof ShapeStamp stamp ? stamp.exotic_worlds$dimensionTable() : DimensionTable.EMPTY;
+    public static DimensionTable getDimensionTable(ChunkGenerator generator) {
+        return generator instanceof ShapeStamp stamp ? stamp.exotic_worlds$getDimensionTable() : DimensionTable.EMPTY;
     }
 
     public static WorldDimensions keepChosenShape(WorldDimensions created, WorldDimensions chosen) {
@@ -207,82 +199,47 @@ public final class ShapedDimensions {
     }
 
     private static boolean isShaped(WorldDimensions dimensions) {
-        return !dimensionTableOf(dimensions).isEmpty() || dimensions.dimensions().values().stream()
-                .anyMatch(stem -> ShapedChunkGenerator.carriedShapeOf(stem.generator()) != null);
+        return !getDimensionTable(dimensions).isEmpty() || dimensions.dimensions().values().stream()
+                .anyMatch(stem -> GeneratorShapes.getCarriedShape(stem.generator()) != null);
     }
 
-    public static @Nullable CarriedShape carriedShapeOf(WorldDimensions dimensions, ResourceKey<LevelStem> key) {
+    public static @Nullable CarriedShape getCarriedShape(WorldDimensions dimensions, ResourceKey<LevelStem> key) {
         LevelStem stem = dimensions.get(key).orElse(null);
-        return stem == null ? null : ShapedChunkGenerator.carriedShapeOf(stem.generator());
+        return stem == null ? null : GeneratorShapes.getCarriedShape(stem.generator());
     }
 
-    public static @Nullable FlatShape shapeOf(WorldDimensions dimensions, ResourceKey<LevelStem> key) {
-        CarriedShape carried = carriedShapeOf(dimensions, key);
-        return carried == null ? null : carried.shape();
-    }
-
-    public static @Nullable FlatShape derivedShape(FlatShape worldShape, double overworldScale, double scale) {
-        if (overworldScale <= 0.0 || scale <= 0.0) {
-            return null;
-        }
-
-        AxisBounds x = derivedAxis(worldShape.bounds().x(), overworldScale, scale);
-        AxisBounds z = derivedAxis(worldShape.bounds().z(), overworldScale, scale);
-        Integer skewChunks = derivedChunks(worldShape.skewChunks(), overworldScale, scale);
-        return x == null || z == null || skewChunks == null
-                ? null
-                : new FlatShape(new WorldLoopBounds(x, z), skewChunks, null);
-    }
-
-    private static @Nullable Integer derivedChunks(int chunks, double overworldScale, double scale) {
-        double derived = chunks * overworldScale / scale;
-        int whole = (int) derived;
-        return derived == whole ? whole : null;
-    }
-
-    private static @Nullable AxisBounds derivedAxis(AxisBounds axis, double overworldScale, double scale) {
-        if (!(axis instanceof AxisBounds.Looped looped)) {
-            return axis;
-        }
-
-        Integer chunkWidth = derivedChunks(looped.chunkWidth(), overworldScale, scale);
-        return chunkWidth != null && WorldLoopSizes.isInRange(chunkWidth)
-                ? AxisBounds.Looped.ofWidth(chunkWidth)
-                : null;
+    public static @Nullable FlatShape getShape(WorldDimensions dimensions, ResourceKey<LevelStem> key) {
+        CarriedShape carried = getCarriedShape(dimensions, key);
+        return carried == null ? null : carried.getShape();
     }
 
     private static @Nullable ChunkGenerator shapedGeneratorFor(ChunkGenerator generator, CarriedShape carried) {
-        ChunkGenerator base = baseOf(generator);
-        if (!isRebuildable(base)) {
-            return null;
+        ChunkGenerator copy = copyOf(generator);
+        return copy == null ? null : stampedGeneratorFor(copy, carried);
+    }
+
+    private static @Nullable ChunkGenerator copyOf(ChunkGenerator generator) {
+        if (generator.getClass() == NoiseBasedChunkGenerator.class) {
+            NoiseBasedChunkGenerator noise = (NoiseBasedChunkGenerator) generator;
+            return new NoiseBasedChunkGenerator(noise.getBiomeSource(), noise.generatorSettings());
         }
 
-        return base instanceof NoiseBasedChunkGenerator noise
-                ? new LoopedChunkGenerator(noise.getBiomeSource(), noise.generatorSettings(), carried)
-                : new LoopedFlatChunkGenerator(((FlatLevelSource) base).settings(), carried);
+        return generator.getClass() == FlatLevelSource.class
+                ? new FlatLevelSource(((FlatLevelSource) generator).settings())
+                : null;
     }
 
     private static @Nullable ChunkGenerator stampedGeneratorFor(ChunkGenerator generator, CarriedShape carried) {
-        ChunkGenerator base = baseOf(generator);
-        if (!(base instanceof ShapeStamp stamp)) {
+        if (!(generator instanceof ShapeStamp stamp)) {
             return null;
         }
 
         stamp.exotic_worlds$stamp(carried);
-        return base;
+        return generator;
     }
 
-    private static boolean carriesShape(ChunkGenerator generator) {
-        return generator instanceof ShapedChunkGenerator
-                || (generator instanceof ShapeStamp stamp && stamp.exotic_worlds$carriedShape() != null);
-    }
-
-    private static ChunkGenerator baseOf(ChunkGenerator generator) {
-        return generator instanceof ShapedChunkGenerator shaped ? shaped.unshaped() : generator;
-    }
-
-    private static boolean isRebuildable(ChunkGenerator base) {
-        return base.getClass() == NoiseBasedChunkGenerator.class || base.getClass() == FlatLevelSource.class;
+    private static boolean hasShape(ChunkGenerator generator) {
+        return generator instanceof ShapeStamp stamp && stamp.exotic_worlds$getCarriedShape() != null;
     }
 
     private static boolean isStampableOverStoredShape(ChunkGenerator datapackGenerator) {

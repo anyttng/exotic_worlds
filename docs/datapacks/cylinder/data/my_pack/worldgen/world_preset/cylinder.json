@@ -3,53 +3,62 @@
     "minecraft:overworld": {
       "type": "minecraft:overworld",
       "generator": {
-        "type": "exotic_worlds:toroidal",
+        "type": "minecraft:noise",
         "biome_source": {
           "type": "minecraft:multi_noise",
           "preset": "minecraft:overworld"
         },
         "settings": "minecraft:overworld",
-        "wrapping": {
-          "x": {
-            "min_chunk": -96,
-            "max_chunk": 96
-          },
-          "z": {}
+        "exotic_worlds:shape": {
+          "id": "exotic_worlds:cylinder",
+          "wrapping": {
+            "x": {
+              "min_chunk": -96,
+              "max_chunk": 96
+            },
+            "z": {}
+          }
         }
       }
     },
     "minecraft:the_nether": {
       "type": "minecraft:the_nether",
       "generator": {
-        "type": "exotic_worlds:toroidal",
+        "type": "minecraft:noise",
         "biome_source": {
           "type": "minecraft:multi_noise",
           "preset": "minecraft:nether"
         },
         "settings": "minecraft:nether",
-        "wrapping": {
-          "x": {
-            "min_chunk": -12,
-            "max_chunk": 12
-          },
-          "z": {}
+        "exotic_worlds:shape": {
+          "id": "exotic_worlds:cylinder",
+          "wrapping": {
+            "x": {
+              "min_chunk": -12,
+              "max_chunk": 12
+            },
+            "z": {}
+          }
         }
       }
     },
     "minecraft:the_end": {
       "type": "minecraft:the_end",
       "generator": {
-        "type": "exotic_worlds:toroidal",
+        "type": "minecraft:noise",
         "biome_source": {
           "type": "minecraft:the_end"
         },
         "settings": "minecraft:end",
-        "wrapping": {
-          "x": {
-            "min_chunk": -128,
-            "max_chunk": 128
-          },
-          "z": {}
+        "exotic_worlds:shape": {
+          "id": "exotic_worlds:cylinder",
+          "wrapping": {
+            "x": {
+              "min_chunk": -128,
+              "max_chunk": 128
+            },
+            "z": {}
+          }
         }
       }
     }

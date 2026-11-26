@@ -15,7 +15,7 @@ import java.util.Set;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-import com.exoticworlds.core.WorldFold;
+import com.exoticworlds.core.fold.WorldFold;
 
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.levelgen.NoiseGeneratorSettings;
@@ -43,13 +43,13 @@ class SurfaceSeedPeriodicityTest {
     void surfaceDepthAgreesOneWorldWidthApartInX() {
         for (WorldFold fold : WORLDS) {
             MaterialSystem surface = surfaceFor(fold);
-            int width = fold.blockDomain(Direction.Axis.X).domainLength;
+            int widthBlocks = fold.getBlockDomain(Direction.Axis.X).domainLength;
             Random random = new Random(SEED);
             for (int i = 0; i < SAMPLES; i++) {
-                int x = blockIn(random, fold.blockDomain(Direction.Axis.X));
-                int z = blockIn(random, fold.blockDomain(Direction.Axis.Z));
-                assertEquals(depth(surface, fold, x, z), depth(surface, fold, x + width, z),
-                        "surface depth in " + fold + " at x=" + x + " vs x=" + (x + width) + ", z=" + z);
+                int x = blockIn(random, fold.getBlockDomain(Direction.Axis.X));
+                int z = blockIn(random, fold.getBlockDomain(Direction.Axis.Z));
+                assertEquals(depthBlocks(surface, fold, x, z), depthBlocks(surface, fold, x + widthBlocks, z),
+                        "surface depth in " + fold + " at x=" + x + " vs x=" + (x + widthBlocks) + ", z=" + z);
             }
         }
     }
@@ -58,13 +58,13 @@ class SurfaceSeedPeriodicityTest {
     void surfaceDepthAgreesOneWorldWidthApartInZ() {
         for (WorldFold fold : WORLDS) {
             MaterialSystem surface = surfaceFor(fold);
-            int width = fold.blockDomain(Direction.Axis.Z).domainLength;
+            int widthBlocks = fold.getBlockDomain(Direction.Axis.Z).domainLength;
             Random random = new Random(SEED);
             for (int i = 0; i < SAMPLES; i++) {
-                int x = blockIn(random, fold.blockDomain(Direction.Axis.X));
-                int z = blockIn(random, fold.blockDomain(Direction.Axis.Z));
-                assertEquals(depth(surface, fold, x, z), depth(surface, fold, x, z + width),
-                        "surface depth in " + fold + " at z=" + z + " vs z=" + (z + width) + ", x=" + x);
+                int x = blockIn(random, fold.getBlockDomain(Direction.Axis.X));
+                int z = blockIn(random, fold.getBlockDomain(Direction.Axis.Z));
+                assertEquals(depthBlocks(surface, fold, x, z), depthBlocks(surface, fold, x, z + widthBlocks),
+                        "surface depth in " + fold + " at z=" + z + " vs z=" + (z + widthBlocks) + ", x=" + x);
             }
         }
     }
@@ -76,8 +76,8 @@ class SurfaceSeedPeriodicityTest {
             Random random = new Random(SEED);
             Set<Integer> depths = new HashSet<>();
             for (int i = 0; i < SAMPLES; i++) {
-                depths.add(depth(surface, fold, blockIn(random, fold.blockDomain(Direction.Axis.X)),
-                        blockIn(random, fold.blockDomain(Direction.Axis.Z))));
+                depths.add(depthBlocks(surface, fold, blockIn(random, fold.getBlockDomain(Direction.Axis.X)),
+                        blockIn(random, fold.getBlockDomain(Direction.Axis.Z))));
             }
 
             assertTrue(depths.size() >= MIN_DISTINCT_DEPTHS,
@@ -89,11 +89,11 @@ class SurfaceSeedPeriodicityTest {
         return ClimateScanFixture.randomState(settings, fold, SEED).surfaceSystem();
     }
 
-    private static int depth(MaterialSystem surface, WorldFold fold, int blockX, int blockZ) {
-        return GenerationFoldContext.withFold(fold, () -> depthAt(surface, blockX, blockZ));
+    private static int depthBlocks(MaterialSystem surface, WorldFold fold, int blockX, int blockZ) {
+        return GenerationFoldContext.withFold(fold, () -> depthBlocksAt(surface, blockX, blockZ));
     }
 
-    private static int depthAt(MaterialSystem surface, int blockX, int blockZ) {
+    private static int depthBlocksAt(MaterialSystem surface, int blockX, int blockZ) {
         try {
             return (int) surfaceDepth.invoke(surface, blockX, blockZ);
         } catch (IllegalAccessException | InvocationTargetException e) {

@@ -7,11 +7,11 @@ import static org.junit.jupiter.api.Assertions.assertSame;
 
 import org.junit.jupiter.api.Test;
 
-import com.exoticworlds.core.ShapeFixtures;
-import com.exoticworlds.core.WorldFold;
-import com.exoticworlds.core.WorldFolds;
-import com.exoticworlds.core.WorldLoopBounds;
-import com.exoticworlds.core.WorldLoopBounds.AxisBounds;
+import com.exoticworlds.core.world.ShapeFixtures;
+import com.exoticworlds.core.fold.WorldFold;
+import com.exoticworlds.core.fold.WorldFolds;
+import com.exoticworlds.core.world.WorldLoopBounds;
+import com.exoticworlds.core.world.WorldLoopBounds.AxisBounds;
 
 import net.minecraft.core.Direction;
 
@@ -42,9 +42,9 @@ class DhLatticeMemoTest {
         DhLattice second = memo.latticeOf(large);
         DhLattice third = memo.latticeOf(small);
 
-        assertEquals(512, first.shape().widthBlocks(Direction.Axis.X));
-        assertEquals(1024, second.shape().widthBlocks(Direction.Axis.X));
-        assertEquals(512, third.shape().widthBlocks(Direction.Axis.X));
+        assertEquals(512, first.fold().getWidthBlocks(Direction.Axis.X));
+        assertEquals(1024, second.fold().getWidthBlocks(Direction.Axis.X));
+        assertEquals(512, third.fold().getWidthBlocks(Direction.Axis.X));
         assertNotSame(first, third);
     }
 

@@ -11,8 +11,8 @@ import org.junit.jupiter.api.Test;
 
 import com.exoticworlds.compat.terraforged.LapWave;
 import com.exoticworlds.compat.terraforged.RtfLap;
-import com.exoticworlds.core.CoordinateConstants;
-import com.exoticworlds.core.WorldLoopSizes;
+import com.exoticworlds.core.world.CoordinateConstants;
+import com.exoticworlds.core.world.WorldLoopSizes;
 
 import net.minecraft.core.Direction;
 
@@ -25,7 +25,7 @@ class DrumlinLatticeTest {
 
     private static final double SKEW = 272.0;
 
-    private static final double WIDEST_LAP = (double) WorldLoopSizes.MAX_CHUNK_WIDTH * CoordinateConstants.CHUNK_WIDTH;
+    private static final double WIDEST_LAP_BLOCKS = (double) WorldLoopSizes.MAX_WIDTH_CHUNKS * CoordinateConstants.CHUNK_WIDTH_BLOCKS;
 
     private static final int DIRECTIONS = 36;
 
@@ -52,8 +52,8 @@ class DrumlinLatticeTest {
     };
 
     private static final LapWave[] WIDEST_LAPS = {
-        new LapWave(WIDEST_LAP, WIDEST_LAP, RtfLap.NO_SKEW),
-        new LapWave(WIDEST_LAP, WIDEST_LAP, SKEW)
+        new LapWave(WIDEST_LAP_BLOCKS, WIDEST_LAP_BLOCKS, RtfLap.NO_SKEW),
+        new LapWave(WIDEST_LAP_BLOCKS, WIDEST_LAP_BLOCKS, SKEW)
     };
 
     private record Seat(int column, int row, float alongOffset, float acrossOffset) {
@@ -123,11 +123,11 @@ class DrumlinLatticeTest {
                     }
 
                     String where = lap + " at " + angle + ", " + x + " " + z;
-                    if (lap.loops(Direction.Axis.X)) {
+                    if (lap.isLooped(Direction.Axis.X)) {
                         assertSameCells(lattice, here, seat(lattice, x + (float) lap.xLap(), z), where);
                     }
 
-                    if (lap.loops(Direction.Axis.Z)) {
+                    if (lap.isLooped(Direction.Axis.Z)) {
                         assertSameCells(lattice, here, seat(lattice, x + (float) lap.skew(), z + (float) lap.zLap()),
                                 where);
                     }

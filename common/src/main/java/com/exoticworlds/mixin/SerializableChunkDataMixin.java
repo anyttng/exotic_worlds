@@ -1,5 +1,6 @@
 package com.exoticworlds.mixin;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
@@ -12,9 +13,10 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import com.exoticworlds.ExoticWorlds;
-import com.exoticworlds.core.WorldFold;
-import com.exoticworlds.core.WorldLoopAttachments;
-import com.exoticworlds.engine.gen.FloatingCrumbs;
+import com.exoticworlds.core.fold.WorldFold;
+import com.exoticworlds.core.fold.WorldLoopAttachments;
+import com.exoticworlds.core.feature.ChunkDataFeature;
+import com.exoticworlds.core.feature.ShapeFeatures;
 import com.exoticworlds.migration.FormerNamespace;
 import com.google.common.collect.Maps;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
@@ -48,49 +50,61 @@ public class SerializableChunkDataMixin {
 
     // Vanilla's own literal, restated because the code it lives in is not reachable from here.
     @Unique
-    private static final int exotic_worlds$MAX_REFERENCE_DISTANCE = 8;
+    private static final int exotic_worlds$MAX_REFERENCE_DISTANCE_CHUNKS = 8;
 
     @Unique
     private static final String exotic_worlds$REFERENCES_KEY = "References";
 
     @Unique
-    private static final String exotic_worlds$TERRAIN_MASK_KEY = ExoticWorlds.MODID + ":terrain_mask";
+    private static final String exotic_worlds$DATA_KEY_PREFIX = ExoticWorlds.MODID + ":";
 
     @Unique
-    private @Nullable CompoundTag exotic_worlds$terrainMask;
+    private Map<String, CompoundTag> exotic_worlds$featureData = Map.of();
 
     @Inject(method = "copyOf", at = @At("RETURN"))
-    private static void exotic_worlds$snapshotTerrainMask(ServerLevel level, ChunkAccess chunk,
+    private static void exotic_worlds$snapshotFeatureData(ServerLevel level, ChunkAccess chunk,
             CallbackInfoReturnable<SerializableChunkData> callback) {
-        ((SerializableChunkDataMixin) (Object) callback.getReturnValue()).exotic_worlds$terrainMask =
-                FloatingCrumbs.savedMask(level, chunk.getPos());
+        Map<String, CompoundTag> saved = new HashMap<>();
+        for (ChunkDataFeature feature : ShapeFeatures.activeOn(level, ChunkDataFeature.class)) {
+            CompoundTag data = feature.getSavedData(level, chunk.getPos());
+            if (data != null) {
+                saved.put(feature.getDataKey(), data);
+            }
+        }
+        ((SerializableChunkDataMixin) (Object) callback.getReturnValue()).exotic_worlds$featureData = saved;
     }
 
     @Inject(method = "write", at = @At("RETURN"))
-    private void exotic_worlds$writeTerrainMask(CallbackInfoReturnable<CompoundTag> callback) {
-        CompoundTag mask = this.exotic_worlds$terrainMask;
-        if (mask != null) {
-            callback.getReturnValue().put(exotic_worlds$TERRAIN_MASK_KEY, mask);
-        }
+    private void exotic_worlds$writeFeatureData(CallbackInfoReturnable<CompoundTag> callback) {
+        this.exotic_worlds$featureData.forEach(
+                (key, data) -> callback.getReturnValue().put(exotic_worlds$DATA_KEY_PREFIX + key, data));
     }
 
     @Inject(method = "parse", at = @At("RETURN"))
-    private static void exotic_worlds$parseTerrainMask(LevelHeightAccessor levelHeight,
+    private static void exotic_worlds$parseFeatureData(LevelHeightAccessor levelHeight,
             PalettedContainerFactory containerFactory, CompoundTag chunkData,
             CallbackInfoReturnable<@Nullable SerializableChunkData> callback) {
         SerializableChunkData data = callback.getReturnValue();
-        if (data != null) {
-            ((SerializableChunkDataMixin) (Object) data).exotic_worlds$terrainMask =
-                    FormerNamespace.compound(chunkData, exotic_worlds$TERRAIN_MASK_KEY).orElse(null);
+        if (data == null) {
+            return;
         }
+
+        Map<String, CompoundTag> parsed = new HashMap<>();
+        for (ChunkDataFeature feature : ShapeFeatures.registeredAt(ChunkDataFeature.class)) {
+            FormerNamespace.compound(chunkData, exotic_worlds$DATA_KEY_PREFIX + feature.getDataKey())
+                    .ifPresent(stored -> parsed.put(feature.getDataKey(), stored));
+        }
+        ((SerializableChunkDataMixin) (Object) data).exotic_worlds$featureData = parsed;
     }
 
     @Inject(method = "read", at = @At("RETURN"))
-    private void exotic_worlds$restoreTerrainMask(ServerLevel level, PoiManager poiManager, RegionStorageInfo regionInfo,
+    private void exotic_worlds$restoreFeatureData(ServerLevel level, PoiManager poiManager, RegionStorageInfo regionInfo,
             ChunkPos pos, CallbackInfoReturnable<ProtoChunk> callback) {
-        CompoundTag mask = this.exotic_worlds$terrainMask;
-        if (mask != null) {
-            FloatingCrumbs.restoreMask(level, callback.getReturnValue(), mask);
+        for (ChunkDataFeature feature : ShapeFeatures.activeOn(level, ChunkDataFeature.class)) {
+            CompoundTag data = this.exotic_worlds$featureData.get(feature.getDataKey());
+            if (data != null) {
+                feature.restoreData(level, callback.getReturnValue(), data);
+            }
         }
     }
 
@@ -105,7 +119,7 @@ public class SerializableChunkDataMixin {
             CompoundTag tag,
             Operation<Map<Structure, LongSet>> original,
             @Local(argsOnly = true) ServerLevel level) {
-        WorldFold fold = WorldLoopAttachments.wrappedFoldOf(level);
+        WorldFold fold = WorldLoopAttachments.getWrappedFold(level);
         if (fold == null) {
             return original.call(registryAccess, pos, tag);
         }
@@ -137,7 +151,7 @@ public class SerializableChunkDataMixin {
         LongSet kept = new LongOpenHashSet();
         for (long referenceKey : stored) {
             ChunkPos referencePos = ChunkPos.unpack(referenceKey);
-            if (pos.getChessboardDistance(fold.nearestCopy(pos, referencePos)) > exotic_worlds$MAX_REFERENCE_DISTANCE) {
+            if (pos.getChessboardDistance(fold.nearestCopy(pos, referencePos)) > exotic_worlds$MAX_REFERENCE_DISTANCE_CHUNKS) {
                 exotic_worlds$LOGGER.warn(
                         "Found invalid structure reference [ {} @ {} ] for chunk {}.", structureId, referencePos, pos);
                 continue;

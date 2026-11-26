@@ -67,7 +67,6 @@
   "gui.exotic_worlds.world_shape_settings.shape.hint.torus": "동서로도 남북으로도 순환합니다. 어느 방향으로든 충분히 가면 출발한 곳으로 돌아옵니다.",
   "gui.exotic_worlds.world_shape_settings.shape.hint.cylinder": "수평 축 하나는 순환하고, 다른 하나는 일반 세계처럼 끝없이 이어집니다.",
   "gui.exotic_worlds.world_shape_settings.shape.hint.from_overworld": "오버월드의 형태를 이 차원 고유의 크기로 이어받습니다.",
-  "gui.exotic_worlds.world_shape_settings.shape.hint.declared": "다른 모드가 추가한 형태입니다. 설명은 이 버튼 아래에 표시됩니다.",
   "gui.exotic_worlds.world_shape_settings.shape.size_error": "이 형태의 너비는 %s 청크입니다. 이 차원에서는 %s~%s만 가능합니다.",
   "gui.exotic_worlds.world_shape_settings.nether_scale": "네더 배율",
   "gui.exotic_worlds.world_shape_settings.size": "청크 단위 세계 크기 (%s-%s)",
@@ -104,8 +103,6 @@
   "gui.exotic_worlds.world_shape_settings.guaranteed_nether_complexes.hint.intro": "네더에 네더 요새와 보루 잔해가 최소 하나씩, 각각 생성될 수 있는 생물 군계에 배치됩니다. 끄면 작은 네더에는 둘 다 없는 경우가 많습니다.",
   "gui.exotic_worlds.world_shape_settings.guaranteed_nether_complexes.hint.on": "둘 다 없었을 네더에 네더 요새와 보루 잔해가 하나씩 생깁니다.",
   "gui.exotic_worlds.world_shape_settings.guaranteed_nether_complexes.hint.off": "작은 네더에는 둘 다 없을 수 있습니다.",
-  "gui.exotic_worlds.world_shape.normal": "일반",
-  "gui.exotic_worlds.world_shape.normal.hint": "일반 세계: 모든 방향으로 끝없이 이어지는 평면입니다.",
   "gui.exotic_worlds.world_shape.seam_warning": "이 세계 유형은 자체 세계 생성기를 사용합니다. 세계 형태로 세계의 경계와 순환은 적용되지만, 세계의 가장자리에서 지형이 이어지지 않습니다.",
 
   "gui.exotic_worlds.settings.title": "Exotic Worlds 설정",

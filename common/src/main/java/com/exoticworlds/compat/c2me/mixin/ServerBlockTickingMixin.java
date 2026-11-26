@@ -24,11 +24,11 @@ public class ServerBlockTickingMixin {
     private static StaticCache2D<GenerationChunkHolder> exotic_worlds$foldRegionSlots(
             int centerX,
             int centerZ,
-            int range,
+            int rangeChunks,
             StaticCache2D.Initializer<GenerationChunkHolder> initializer,
             Operation<StaticCache2D<GenerationChunkHolder>> original,
             @Local(argsOnly = true) ChunkLoadingContext context) {
-        return original.call(centerX, centerZ, range,
+        return original.call(centerX, centerZ, rangeChunks,
                 C2meSeamFold.foldingInitializer(context, centerX, centerZ, initializer));
     }
 }

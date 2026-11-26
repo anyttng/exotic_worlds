@@ -4,7 +4,7 @@ import java.nio.file.Path;
 import java.util.Optional;
 import java.util.function.IntFunction;
 
-import com.exoticworlds.core.FlatShape;
+import com.exoticworlds.core.world.FlatShape;
 import com.exoticworlds.engine.net.DimensionChoicesPayload;
 import com.exoticworlds.engine.net.DimensionChoicesUpdatePayload;
 import com.exoticworlds.engine.net.PositionRowsPayload;

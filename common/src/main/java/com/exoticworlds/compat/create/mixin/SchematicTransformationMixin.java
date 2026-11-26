@@ -9,7 +9,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import com.zurrtum.create.client.content.schematics.client.SchematicTransformation;
 import com.exoticworlds.compat.create.client.CreateClientFrame;
-import com.exoticworlds.core.DeckTransformation;
+import com.exoticworlds.core.fold.DeckTransformation;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.phys.Vec3;

@@ -67,7 +67,6 @@
   "gui.exotic_worlds.world_shape_settings.shape.hint.torus": "uzavírá se do smyčky z východu na západ i ze severu na jih. Když půjdete dost daleko kterýmkoli směrem, vrátíte se tam, kde jste začali.",
   "gui.exotic_worlds.world_shape_settings.shape.hint.cylinder": "jedna vodorovná osa se uzavírá do smyčky, druhá pokračuje donekonečna jako v základní hře.",
   "gui.exotic_worlds.world_shape_settings.shape.hint.from_overworld": "přebírá tvar světa na povrchu ve vlastní velikosti této dimenze.",
-  "gui.exotic_worlds.world_shape_settings.shape.hint.declared": "tvar přidaný jiným modem; jeho popis je pod tímto tlačítkem.",
   "gui.exotic_worlds.world_shape_settings.shape.size_error": "Tento tvar vychází na šířku %s chunků; tato dimenze bere %s až %s.",
   "gui.exotic_worlds.world_shape_settings.nether_scale": "Měřítko Netheru",
   "gui.exotic_worlds.world_shape_settings.size": "Velikost světa v chuncích (%s-%s)",
@@ -104,8 +103,6 @@
   "gui.exotic_worlds.world_shape_settings.guaranteed_nether_complexes.hint.intro": "Zajistí, že v Netheru bude aspoň jedna netherová pevnost a jedna zřícenina bašty, každá v biomu, kde může stát. Bez toho malý Nether často nemá ani jedno.",
   "gui.exotic_worlds.world_shape_settings.guaranteed_nether_complexes.hint.on": "Nether, který by neměl ani jedno, dostane jednu netherovou pevnost a jednu zříceninu bašty.",
   "gui.exotic_worlds.world_shape_settings.guaranteed_nether_complexes.hint.off": "malý Nether nemusí mít ani jedno.",
-  "gui.exotic_worlds.world_shape.normal": "Normální",
-  "gui.exotic_worlds.world_shape.normal.hint": "Svět ze základní hry: nekonečná plocha do všech stran.",
   "gui.exotic_worlds.world_shape.seam_warning": "Tento typ světa má vlastní generátor světa: Tvar světa svět dál ohraničí a uzavře do smyčky, ale terén na okraji světa nebude navazovat.",
 
   "gui.exotic_worlds.settings.title": "Nastavení Exotic Worlds",

@@ -18,7 +18,7 @@ public class GeometryQueriesMixin {
     private static boolean exotic_worlds$copiesOfTheShape(WorldGeometry geometry, BlockPos point, double minX,
             double maxX, double minZ, double maxZ, Predicate<BlockPos> test, Operation<Boolean> original) {
         return geometry instanceof ExoticWorldsGeometry ours
-                ? ours.anyCopyInBounds(point, minX, maxX, minZ, maxZ, test)
+                ? ours.isAnyCopyInBounds(point, minX, maxX, minZ, maxZ, test)
                 : original.call(geometry, point, minX, maxX, minZ, maxZ, test);
     }
 }

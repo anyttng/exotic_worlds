@@ -13,7 +13,7 @@ import com.zurrtum.create.catnip.data.Couple;
 import com.zurrtum.create.content.trains.track.BezierConnection;
 import com.exoticworlds.compat.create.BezierCurveFold;
 import com.exoticworlds.compat.create.CreateSeamFold;
-import com.exoticworlds.core.WorldFold;
+import com.exoticworlds.core.fold.WorldFold;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceKey;
@@ -39,7 +39,7 @@ public abstract class BezierConnectionMixin implements BezierCurveFold {
             this.exotic_worlds$dimension = dimension;
         }
 
-        WorldFold fold = CreateSeamFold.wrappedFoldOf(level, this.exotic_worlds$dimension);
+        WorldFold fold = CreateSeamFold.getWrappedFold(level, this.exotic_worlds$dimension);
         if (fold == null) {
             return;
         }
@@ -62,11 +62,11 @@ public abstract class BezierConnectionMixin implements BezierCurveFold {
     }
 
     @Unique
-    private void exotic_worlds$canonicaliseEnd(WorldFold fold, boolean first) {
-        BlockPos rawEnd = this.bePositions.get(first);
+    private void exotic_worlds$canonicaliseEnd(WorldFold fold, boolean isFirst) {
+        BlockPos rawEnd = this.bePositions.get(isFirst);
         BlockPos end = fold.fold(rawEnd);
         if (end != rawEnd) {
-            this.bePositions.set(first, end);
+            this.bePositions.set(isFirst, end);
         }
     }
 

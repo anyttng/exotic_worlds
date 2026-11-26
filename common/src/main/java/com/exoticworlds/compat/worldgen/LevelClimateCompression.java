@@ -2,10 +2,11 @@ package com.exoticworlds.compat.worldgen;
 
 import org.jspecify.annotations.Nullable;
 
-import com.exoticworlds.core.WorldFold;
+import com.exoticworlds.core.fold.WorldFold;
+import com.exoticworlds.core.gen.DensityNoises;
+import com.exoticworlds.core.gen.RouterField;
 import com.exoticworlds.engine.noise.ClimateScaleCompression;
-import com.exoticworlds.engine.noise.GenerationFoldContext;
-import com.exoticworlds.shape.climate.ClimateCompression;
+import com.exoticworlds.engine.noise.ForeignFieldCompression;
 
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.chunk.ChunkGenerator;
@@ -16,22 +17,22 @@ import net.minecraft.world.level.levelgen.densityfunction.generator.NoiseFunctio
 
 public final class LevelClimateCompression {
     public static DensityFunction temperatureOf(ChunkGenerator own, @Nullable ChunkGenerator overworld) {
-        return temperatureOf(routerTemperatureOf(own), routerTemperatureOf(overworld));
+        return temperatureOf(getRouterTemperature(own), getRouterTemperature(overworld));
     }
 
     static DensityFunction temperatureOf(DensityFunction own, DensityFunction overworld) {
-        return ClimateCompression.climateNoiseOf(own) != null ? own : overworld;
+        return DensityNoises.firstNoiseFunctionUnder(own) != null ? own : overworld;
     }
 
-    static DensityFunction overworldTemperatureOf(@Nullable ServerLevel level) {
-        return routerTemperatureOf(level != null ? level.getServer().overworld() : null);
+    static DensityFunction getOverworldTemperature(@Nullable ServerLevel level) {
+        return getRouterTemperature(level != null ? level.getServer().overworld() : null);
     }
 
-    static DensityFunction routerTemperatureOf(@Nullable ServerLevel level) {
-        return routerTemperatureOf(level != null ? level.getChunkSource().getGenerator() : null);
+    static DensityFunction getRouterTemperature(@Nullable ServerLevel level) {
+        return getRouterTemperature(level != null ? level.getChunkSource().getGenerator() : null);
     }
 
-    private static DensityFunction routerTemperatureOf(@Nullable ChunkGenerator generator) {
+    private static DensityFunction getRouterTemperature(@Nullable ChunkGenerator generator) {
         if (generator instanceof NoiseBasedChunkGenerator noise) {
             return noise.generatorSettings().value().noiseRouter().temperature();
         }
@@ -40,11 +41,11 @@ public final class LevelClimateCompression {
     }
 
     public static double factor(WorldFold fold, DensityFunction temperature) {
-        NoiseFunction climate = ClimateCompression.climateNoiseOf(temperature);
+        NoiseFunction climate = DensityNoises.firstNoiseFunctionUnder(temperature);
         return climate == null
                 ? ClimateScaleCompression.NO_COMPRESSION
-                : ClimateCompression.factor(fold, climate.noise(), climate.xzScale(),
-                        GenerationFoldContext.verticalShare(climate.xzScale(), climate.yScale()));
+                : ForeignFieldCompression.followingNoise(fold, climate.noise(), RouterField.TEMPERATURE,
+                        climate.xzScale(), climate.yScale());
     }
 
     private LevelClimateCompression() {

@@ -3,7 +3,7 @@ package com.exoticworlds.compat.c2me.mixin;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 
-import com.exoticworlds.core.WorldFold;
+import com.exoticworlds.core.fold.WorldFold;
 import com.exoticworlds.engine.noise.GenerationFoldContext;
 import com.bawnorton.mixinsquared.TargetHandler;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
@@ -30,7 +30,7 @@ public class AquiferSeamMixin {
             int gridY,
             int gridZ,
             Operation<Void> original) {
-        WorldFold fold = GenerationFoldContext.context().wrappedFold();
+        WorldFold fold = GenerationFoldContext.getContext().getWrappedFold();
         if (fold == null) {
             original.call(factory, random, gridX, gridY, gridZ);
             return;

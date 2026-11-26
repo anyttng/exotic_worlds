@@ -10,8 +10,8 @@ import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.ModifyArg;
 
-import com.exoticworlds.compat.ultimatemapatlases.AtlasPointSeat;
-import com.exoticworlds.core.WorldFold;
+import com.exoticworlds.compat.map.AtlasPointSeat;
+import com.exoticworlds.core.fold.WorldFold;
 import com.exoticworlds.engine.seam.MapSeamFold;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
@@ -37,7 +37,7 @@ public abstract class AtlasOverviewScreenMixin {
             at = @At(value = "INVOKE", target = "Ljava/util/List;sort(Ljava/util/Comparator;)V", ordinal = 0))
     private Comparator<DecorationBookmarkButton> exotic_worlds$byDistanceAcrossSeam(
             Comparator<DecorationBookmarkButton> byRawDistance) {
-        WorldFold fold = this.exotic_worlds$fold();
+        WorldFold fold = this.exotic_worlds$getFold();
         if (fold == null) {
             return byRawDistance;
         }
@@ -55,7 +55,7 @@ public abstract class AtlasOverviewScreenMixin {
     private double exotic_worlds$bookmarkXNearView(DecorationBookmarkButton bookmark, Operation<Double> original,
             @Local(argsOnly = true, ordinal = 0) int centerX, @Local(argsOnly = true, ordinal = 1) int centerZ) {
         double x = original.call(bookmark);
-        WorldFold fold = this.exotic_worlds$fold();
+        WorldFold fold = this.exotic_worlds$getFold();
         return fold == null
                 ? x
                 : AtlasPointSeat.toward(fold, new Vec3(centerX, 0.0, centerZ), x, bookmark.getWorldZ()).x;
@@ -68,14 +68,14 @@ public abstract class AtlasOverviewScreenMixin {
     private double exotic_worlds$bookmarkZNearView(DecorationBookmarkButton bookmark, Operation<Double> original,
             @Local(argsOnly = true, ordinal = 0) int centerX, @Local(argsOnly = true, ordinal = 1) int centerZ) {
         double z = original.call(bookmark);
-        WorldFold fold = this.exotic_worlds$fold();
+        WorldFold fold = this.exotic_worlds$getFold();
         return fold == null
                 ? z
                 : AtlasPointSeat.toward(fold, new Vec3(centerX, 0.0, centerZ), bookmark.getWorldX(), z).z;
     }
 
     @Unique
-    private @Nullable WorldFold exotic_worlds$fold() {
-        return MapSeamFold.foldFor(null, this.selectedSlice.dimension());
+    private @Nullable WorldFold exotic_worlds$getFold() {
+        return MapSeamFold.getWrappedFold(null, this.selectedSlice.dimension());
     }
 }

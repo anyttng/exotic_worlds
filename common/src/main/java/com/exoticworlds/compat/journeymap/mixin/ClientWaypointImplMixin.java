@@ -29,6 +29,6 @@ public abstract class ClientWaypointImplMixin {
 
     @WrapMethod(method = "distanceSquared")
     private double exotic_worlds$foldDistanceSquared(Entity entity, Operation<Double> original) {
-        return JourneyMapFold.active() ? entity.distanceToSqr(this.getPosition()) : original.call(entity);
+        return JourneyMapFold.isActive() ? entity.distanceToSqr(this.getPosition()) : original.call(entity);
     }
 }

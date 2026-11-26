@@ -5,7 +5,7 @@ import org.jspecify.annotations.Nullable;
 import com.exoticworlds.compat.terraforged.RtfClimateCompression;
 import com.exoticworlds.compat.terraforged.RtfClimateScales;
 import com.exoticworlds.compat.terraforged.RtfLap;
-import com.exoticworlds.core.WorldFold;
+import com.exoticworlds.core.fold.WorldFold;
 import com.exoticworlds.engine.noise.ClimateScaleCompression;
 
 import com.pandaismyname1.ultraterraforged.world.worldgen.GeneratorContext;
@@ -21,20 +21,20 @@ public interface LapCarrier {
         RtfLap.activate();
     }
 
-    static @Nullable WorldFold foldOf(Levels levels) {
-        return ((LapCarrier) (Object) levels).exotic_worlds$fold();
+    static @Nullable WorldFold getFold(Levels levels) {
+        return ((LapCarrier) (Object) levels).exotic_worlds$getFold();
     }
 
-    static double climateCompressionOf(Levels levels) {
+    static double getClimateCompression(Levels levels) {
         LapCarrier carrier = (LapCarrier) (Object) levels;
-        return carrier.exotic_worlds$fold() == null
+        return carrier.exotic_worlds$getFold() == null
                 ? ClimateScaleCompression.NO_COMPRESSION
-                : carrier.exotic_worlds$climateCompression();
+                : carrier.exotic_worlds$getClimateCompression();
     }
 
-    @Nullable WorldFold exotic_worlds$fold();
+    @Nullable WorldFold exotic_worlds$getFold();
 
-    double exotic_worlds$climateCompression();
+    double exotic_worlds$getClimateCompression();
 
     void exotic_worlds$carryFold(WorldFold fold, double climateCompression);
 }

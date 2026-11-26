@@ -4,12 +4,12 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.junit.jupiter.api.Test;
 
-import com.exoticworlds.api.v1.ToroidalShape;
 import com.exoticworlds.compat.map.MapCopies;
-import com.exoticworlds.compat.map.MapShapes;
+import com.exoticworlds.compat.map.MapFolds;
+import com.exoticworlds.core.fold.WorldFold;
 
 class XaeroSlotSourceTest {
-    private static final ToroidalShape SMALL = MapShapes.torus(-16, 16);
+    private static final WorldFold SMALL = MapFolds.torus(-16, 16);
 
     @Test
     void anUnshapedWorldKeepsXaerosTextureAndHidesOurCandidate() {
@@ -33,7 +33,7 @@ class XaeroSlotSourceTest {
     @Test
     void aGlueableSlotPastALatticeSeamReadsTheSlotTheSkewMovesItTo() {
         assertEquals(new XaeroSlotSource(XaeroSlotSource.Kind.CANONICAL, true, -256, -256),
-                source(MapShapes.latticeTorus(-16, 16, 16), MapCopies.REPEATED, false, true, false, 0, 256));
+                source(MapFolds.latticeTorus(-16, 16, 16), MapCopies.REPEATED, false, true, false, 0, 256));
     }
 
     @Test
@@ -48,7 +48,7 @@ class XaeroSlotSourceTest {
         assertEquals(XaeroSlotSource.ANY_CANONICAL, source(SMALL, MapCopies.REPEATED, true, false, true, 0, 0));
     }
 
-    private static XaeroSlotSource source(ToroidalShape shape, MapCopies mapCopies, boolean isCandidate, boolean glueable,
+    private static XaeroSlotSource source(WorldFold shape, MapCopies mapCopies, boolean isCandidate, boolean glueable,
             boolean insideWorld, int viewBlockX, int viewBlockZ) {
         return XaeroSlotSource.of(shape, mapCopies, isCandidate, glueable, insideWorld, viewBlockX, viewBlockZ);
     }

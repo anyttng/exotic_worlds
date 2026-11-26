@@ -30,7 +30,7 @@ public final class SpawnBufferTranslation {
 
     static CustomPacketPayload seated(AdvancedAddEntityPayload payload, TranslationContext context) {
         TagPositions.Subject entity = context.entity().apply(payload.entityId());
-        if (entity == null || !SpawnBufferFold.carriesPositions(entity)) {
+        if (entity == null || !SpawnBufferFold.hasPositions(entity)) {
             return payload;
         }
 

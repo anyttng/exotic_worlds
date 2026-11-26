@@ -12,6 +12,12 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
+import com.exoticworlds.compat.map.MapCopies;
+import com.exoticworlds.compat.map.SeamLine;
+import com.exoticworlds.compat.preview.CreationShape;
+import com.exoticworlds.compat.preview.PreviewView;
+import com.exoticworlds.compat.ultraterraforged.preview.DrawnPreview;
+import com.exoticworlds.core.fold.WorldFold;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.llamalad7.mixinextras.sugar.Local;
@@ -19,12 +25,6 @@ import com.llamalad7.mixinextras.sugar.Share;
 import com.llamalad7.mixinextras.sugar.ref.LocalFloatRef;
 import com.llamalad7.mixinextras.sugar.ref.LocalIntRef;
 import com.llamalad7.mixinextras.sugar.ref.LocalRef;
-import com.exoticworlds.api.v1.ToroidalShape;
-import com.exoticworlds.compat.preview.CreationShape;
-import com.exoticworlds.compat.preview.PreviewView;
-import com.exoticworlds.compat.map.MapCopies;
-import com.exoticworlds.compat.map.SeamLine;
-import com.exoticworlds.compat.ultraterraforged.preview.DrawnPreview;
 
 import com.pandaismyname1.ultraterraforged.client.gui.createworld.TerrainPreview;
 
@@ -37,7 +37,7 @@ import net.minecraft.core.Direction;
 @Mixin(value = TerrainPreview.class, remap = false)
 public abstract class TerrainPreviewCopiesMixin implements DrawnPreview {
     @Unique
-    private static final int SEAM_THICKNESS = 1;
+    private static final int SEAM_THICKNESS_PIXELS = 1;
 
     @Shadow
     @Final
@@ -56,33 +56,33 @@ public abstract class TerrainPreviewCopiesMixin implements DrawnPreview {
     private @Nullable PreviewView exotic_worlds$drawn;
 
     @Override
-    public @Nullable PreviewView exotic_worlds$drawn() {
+    public @Nullable PreviewView exotic_worlds$getDrawn() {
         return this.exotic_worlds$drawn;
     }
 
     @ModifyVariable(method = "generate", at = @At("HEAD"), argsOnly = true, ordinal = 0)
-    private float exotic_worlds$capTheZoom(float zoom, @Share("shape") LocalRef<ToroidalShape> shape,
+    private float exotic_worlds$capTheZoom(float zoom, @Share("fold") LocalRef<WorldFold> fold,
             @Share("copies") LocalRef<MapCopies> copies) {
-        shape.set(CreationShape.routerBuildFold().shapeView());
-        copies.set(MapCopies.current());
+        fold.set(CreationShape.getRouterBuildFold());
+        copies.set(MapCopies.getCurrent());
         int widgetPixels = ((AbstractWidget) (Object) this).getWidth();
-        return Math.min(zoom, PreviewView.zoomCeiling(shape.get(), copies.get(), widgetPixels));
+        return Math.min(zoom, PreviewView.zoomCeiling(fold.get(), copies.get(), widgetPixels));
     }
 
     @ModifyVariable(method = "generate", at = @At(value = "LOAD", ordinal = 1), name = "centerX")
     private float exotic_worlds$holdCenterX(float centerX, @Local(argsOnly = true, ordinal = 0) float zoom,
-            @Share("shape") LocalRef<ToroidalShape> shape, @Share("copies") LocalRef<MapCopies> copies,
+            @Share("fold") LocalRef<WorldFold> fold, @Share("copies") LocalRef<MapCopies> copies,
             @Share("shiftX") LocalFloatRef shiftX) {
-        float held = PreviewView.heldCenter(shape.get(), copies.get(), Direction.Axis.X, centerX, zoom);
+        float held = PreviewView.heldCenter(fold.get(), copies.get(), Direction.Axis.X, centerX, zoom);
         shiftX.set(held - centerX);
         return held;
     }
 
     @ModifyVariable(method = "generate", at = @At(value = "LOAD", ordinal = 1), name = "centerZ")
     private float exotic_worlds$holdCenterZ(float centerZ, @Local(argsOnly = true, ordinal = 0) float zoom,
-            @Share("shape") LocalRef<ToroidalShape> shape, @Share("copies") LocalRef<MapCopies> copies,
+            @Share("fold") LocalRef<WorldFold> fold, @Share("copies") LocalRef<MapCopies> copies,
             @Share("shiftZ") LocalFloatRef shiftZ) {
-        float held = PreviewView.heldCenter(shape.get(), copies.get(), Direction.Axis.Z, centerZ, zoom);
+        float held = PreviewView.heldCenter(fold.get(), copies.get(), Direction.Axis.Z, centerZ, zoom);
         shiftZ.set(held - centerZ);
         return held;
     }
@@ -93,9 +93,9 @@ public abstract class TerrainPreviewCopiesMixin implements DrawnPreview {
             @Local(argsOnly = true, ordinal = 0) int generation, @Local(argsOnly = true, ordinal = 0) float zoom,
             @Local(argsOnly = true, ordinal = 1) float panX, @Local(argsOnly = true, ordinal = 2) float panZ,
             @Local(name = "centerX") float centerX, @Local(name = "centerZ") float centerZ,
-            @Share("shape") LocalRef<ToroidalShape> shape, @Share("copies") LocalRef<MapCopies> copies,
+            @Share("fold") LocalRef<WorldFold> fold, @Share("copies") LocalRef<MapCopies> copies,
             @Share("shiftX") LocalFloatRef shiftX, @Share("shiftZ") LocalFloatRef shiftZ) {
-        PreviewView view = new PreviewView(shape.get(), copies.get(), centerX, centerZ, zoom);
+        PreviewView view = new PreviewView(fold.get(), copies.get(), centerX, centerZ, zoom);
         float heldPanX = panX + shiftX.get();
         float heldPanZ = panZ + shiftZ.get();
         original.call(minecraft, (Runnable) () -> {
@@ -116,17 +116,17 @@ public abstract class TerrainPreviewCopiesMixin implements DrawnPreview {
     private void exotic_worlds$drawTheWorldEdges(GuiGraphicsExtractor graphics, int mouseX, int mouseY,
             float partialTick, CallbackInfo callback) {
         PreviewView view = this.exotic_worlds$drawn;
-        if (view == null || !view.copies().drawsSeamLines()) {
+        if (view == null || !view.copies().isDrawingSeamLines()) {
             return;
         }
 
         AbstractWidget widget = (AbstractWidget) (Object) this;
         int x = widget.getX();
         int y = widget.getY();
-        int size = widget.getWidth();
-        graphics.enableScissor(x, y, x + size, y + size);
-        for (SeamLine line : view.seamLines(x, y, size)) {
-            line.fill(graphics, SEAM_THICKNESS);
+        int sizePixels = widget.getWidth();
+        graphics.enableScissor(x, y, x + sizePixels, y + sizePixels);
+        for (SeamLine line : view.seamLines(x, y, sizePixels)) {
+            line.fill(graphics, SEAM_THICKNESS_PIXELS);
         }
         graphics.disableScissor();
     }

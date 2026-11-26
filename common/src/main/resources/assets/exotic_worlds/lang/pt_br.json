@@ -67,7 +67,6 @@
   "gui.exotic_worlds.world_shape_settings.shape.hint.torus": "fecha-se de leste a oeste e de norte a sul. Ande o bastante em qualquer direção e você volta ao ponto de partida.",
   "gui.exotic_worlds.world_shape_settings.shape.hint.cylinder": "um eixo horizontal se fecha; o outro segue sem fim, como no mundo normal.",
   "gui.exotic_worlds.world_shape_settings.shape.hint.from_overworld": "assume o formato da Superfície no tamanho próprio desta dimensão.",
-  "gui.exotic_worlds.world_shape_settings.shape.hint.declared": "um formato adicionado por outro mod; a descrição aparece abaixo deste botão.",
   "gui.exotic_worlds.world_shape_settings.shape.size_error": "Este formato fica com %s chunks de largura; esta dimensão aceita de %s a %s.",
   "gui.exotic_worlds.world_shape_settings.nether_scale": "Escala do Nether",
   "gui.exotic_worlds.world_shape_settings.size": "Tamanho do mundo em chunks (%s-%s)",
@@ -104,8 +103,6 @@
   "gui.exotic_worlds.world_shape_settings.guaranteed_nether_complexes.hint.intro": "O Nether terá pelo menos uma Fortaleza do Nether e um Bastião em Ruínas, cada uma em um bioma onde pode existir. Sem isso, um Nether pequeno muitas vezes não tem nenhuma.",
   "gui.exotic_worlds.world_shape_settings.guaranteed_nether_complexes.hint.on": "um Nether que não teria nenhuma ganha uma Fortaleza do Nether e um Bastião em Ruínas.",
   "gui.exotic_worlds.world_shape_settings.guaranteed_nether_complexes.hint.off": "um Nether pequeno pode não ter nenhuma.",
-  "gui.exotic_worlds.world_shape.normal": "Normal",
-  "gui.exotic_worlds.world_shape.normal.hint": "O mundo normal: um plano infinito em todas as direções.",
   "gui.exotic_worlds.world_shape.seam_warning": "Este tipo de mundo traz seu próprio gerador de mundo: um Formato do mundo ainda limita o mundo e o fecha em um loop, mas o terreno não vai se encaixar na borda do mundo.",
 
   "gui.exotic_worlds.settings.title": "Configurações do Exotic Worlds",

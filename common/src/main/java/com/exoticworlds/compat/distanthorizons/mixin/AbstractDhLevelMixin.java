@@ -29,7 +29,7 @@ public class AbstractDhLevelMixin implements DhLevelLattice {
     private final DhLatticeMemo exotic_worlds$lattices = new DhLatticeMemo();
 
     @Override
-    public DhLatticeMemo exotic_worlds$lattices() {
+    public DhLatticeMemo exotic_worlds$getLattices() {
         return this.exotic_worlds$lattices;
     }
 

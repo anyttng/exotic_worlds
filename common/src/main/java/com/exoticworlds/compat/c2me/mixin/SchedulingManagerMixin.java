@@ -6,7 +6,7 @@ import org.spongepowered.asm.mixin.Unique;
 
 import com.exoticworlds.accessors.FoldSource;
 import com.exoticworlds.compat.c2me.FoldSourceBindable;
-import com.exoticworlds.core.WorldFold;
+import com.exoticworlds.core.fold.WorldFold;
 import com.ishland.c2me.base.common.scheduler.SchedulingManager;
 
 @Mixin(SchedulingManager.class)
@@ -21,8 +21,8 @@ public class SchedulingManagerMixin implements FoldSource, FoldSourceBindable {
     }
 
     @Override
-    public @Nullable WorldFold exotic_worlds$wrappedFold() {
+    public @Nullable WorldFold exotic_worlds$getWrappedFold() {
         FoldSource source = this.exotic_worlds$source;
-        return source != null ? source.exotic_worlds$wrappedFold() : null;
+        return source != null ? source.exotic_worlds$getWrappedFold() : null;
     }
 }

@@ -1,9 +1,9 @@
 package com.exoticworlds.scan;
 
-import com.exoticworlds.core.WorldFold;
+import com.exoticworlds.core.fold.WorldFold;
+import com.exoticworlds.engine.gen.terrain.TerrainCeiling;
 import com.exoticworlds.engine.noise.ClimateScanFixture;
 import com.exoticworlds.engine.noise.GenerationFoldContext;
-import com.exoticworlds.engine.noise.TerrainCeiling;
 import static com.exoticworlds.engine.noise.ClimateScanFixture.randomState;
 import static com.exoticworlds.engine.noise.ClimateScanFixture.settingsOf;
 import static com.exoticworlds.engine.noise.ClimateScanFixture.torusOfWidth;
@@ -31,7 +31,7 @@ class PillarSiteScan {
 
     private static final int MIN_Y = -64;
 
-    private static final int HEIGHT = 384;
+    private static final int HEIGHT_BLOCKS = 384;
 
     private static final int LISTED_MASSES = 8;
 
@@ -97,12 +97,12 @@ class PillarSiteScan {
     }
 
     private static boolean[] solidGrid(DensitySampler density, SuspendedLand.Site site) {
-        boolean[] solid = new boolean[WINDOW * WINDOW * HEIGHT];
+        boolean[] solid = new boolean[WINDOW * WINDOW * HEIGHT_BLOCKS];
         for (int dx = 0; dx < WINDOW; dx++) {
             for (int dz = 0; dz < WINDOW; dz++) {
                 int blockX = site.blockX() - WINDOW / 2 + dx;
                 int blockZ = site.blockZ() - WINDOW / 2 + dz;
-                for (int y = 0; y < HEIGHT; y++) {
+                for (int y = 0; y < HEIGHT_BLOCKS; y++) {
                     if (density.sampleValue(SamplerContext.EMPTY_UNCACHED, blockX, MIN_Y + y, blockZ) > 0.0F) {
                         solid[index(dx, dz, y)] = true;
                     }
@@ -165,7 +165,7 @@ class PillarSiteScan {
                     int nx = axis == 0 ? dx + step : dx;
                     int nz = axis == 1 ? dz + step : dz;
                     int ny = axis == 2 ? y + step : y;
-                    if (nx < 0 || nz < 0 || ny < 0 || nx >= WINDOW || nz >= WINDOW || ny >= HEIGHT) {
+                    if (nx < 0 || nz < 0 || ny < 0 || nx >= WINDOW || nz >= WINDOW || ny >= HEIGHT_BLOCKS) {
                         continue;
                     }
 

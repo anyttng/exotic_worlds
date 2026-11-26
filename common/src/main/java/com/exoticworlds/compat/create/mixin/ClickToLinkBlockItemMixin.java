@@ -18,10 +18,10 @@ public class ClickToLinkBlockItemMixin {
     @WrapOperation(method = "useOn",
             at = @At(value = "INVOKE",
                     target = InjectionTargets.BLOCK_POS_CLOSER_THAN))
-    private boolean exotic_worlds$foldSelectionReach(BlockPos selected, Vec3i placed, double maxDistance,
+    private boolean exotic_worlds$foldSelectionReach(BlockPos selected, Vec3i placed, double maxDistanceBlocks,
             Operation<Boolean> original, UseOnContext context) {
         BlockPos folded = CreateSeamFold.nearestCopy(context.getLevel(), placed, selected);
-        return original.call(folded, placed, maxDistance);
+        return original.call(folded, placed, maxDistanceBlocks);
     }
 
     @WrapOperation(method = "useOn",

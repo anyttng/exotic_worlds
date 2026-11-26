@@ -18,8 +18,8 @@ import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import com.exoticworlds.InjectionTargets;
-import com.exoticworlds.core.CoordinateConstants;
-import com.exoticworlds.core.WorldFold;
+import com.exoticworlds.core.world.CoordinateConstants;
+import com.exoticworlds.core.fold.WorldFold;
 import com.exoticworlds.engine.fold.FoldedOrder;
 import com.exoticworlds.engine.level.BoundLevelFold;
 import com.exoticworlds.engine.seam.PoiSeamSearch;
@@ -70,36 +70,36 @@ public class PoiManagerMixin {
     private Stream<PoiRecord> exotic_worlds$squareThroughSeam(
             Predicate<Holder<PoiType>> predicate,
             BlockPos center,
-            int radius,
+            int radiusBlocks,
             PoiManager.Occupancy occupancy,
             Operation<Stream<PoiRecord>> original) {
-        WorldFold fold = this.exotic_worlds$bound.wrapped();
+        WorldFold fold = this.exotic_worlds$bound.getWrapped();
         if (fold == null) {
-            return original.call(predicate, center, radius, occupancy);
+            return original.call(predicate, center, radiusBlocks, occupancy);
         }
 
         PoiManager self = (PoiManager) (Object) this;
-        int chunkRadius = Math.floorDiv(radius, CoordinateConstants.CHUNK_WIDTH) + 1;
+        int radiusChunks = Math.floorDiv(radiusBlocks, CoordinateConstants.CHUNK_WIDTH_BLOCKS) + 1;
 
-        return PoiSeamSearch.chunksAround(fold, ChunkPos.containing(center), chunkRadius)
+        return PoiSeamSearch.chunksAround(fold, ChunkPos.containing(center), radiusChunks)
                 .flatMap(chunkPos -> self.getInChunk(predicate, chunkPos, occupancy))
-                .filter(record -> PoiSeamSearch.withinSquare(fold, center, radius, record.getPos()));
+                .filter(record -> PoiSeamSearch.isWithinSquare(fold, center, radiusBlocks, record.getPos()));
     }
 
     @WrapMethod(method = "getInRange")
     private Stream<PoiRecord> exotic_worlds$rangeThroughSeam(
             Predicate<Holder<PoiType>> predicate,
             BlockPos center,
-            int radius,
+            int radiusBlocks,
             PoiManager.Occupancy occupancy,
             Operation<Stream<PoiRecord>> original) {
-        WorldFold fold = this.exotic_worlds$bound.wrapped();
+        WorldFold fold = this.exotic_worlds$bound.getWrapped();
         if (fold == null) {
-            return original.call(predicate, center, radius, occupancy);
+            return original.call(predicate, center, radiusBlocks, occupancy);
         }
 
-        double radiusSqr = (double) radius * radius;
-        return ((PoiManager) (Object) this).getInSquare(predicate, center, radius, occupancy)
+        double radiusSqr = (double) radiusBlocks * radiusBlocks;
+        return ((PoiManager) (Object) this).getInSquare(predicate, center, radiusBlocks, occupancy)
                 .filter(record -> SeamRange.sqr(fold, center, record.getPos()) <= radiusSqr);
     }
 
@@ -107,15 +107,15 @@ public class PoiManagerMixin {
     private Optional<BlockPos> exotic_worlds$closestThroughSeam(
             Predicate<Holder<PoiType>> predicate,
             BlockPos center,
-            int radius,
+            int radiusBlocks,
             PoiManager.Occupancy occupancy,
             Operation<Optional<BlockPos>> original) {
-        WorldFold fold = this.exotic_worlds$bound.wrapped();
+        WorldFold fold = this.exotic_worlds$bound.getWrapped();
         if (fold == null) {
-            return original.call(predicate, center, radius, occupancy);
+            return original.call(predicate, center, radiusBlocks, occupancy);
         }
 
-        return ((PoiManager) (Object) this).getInRange(predicate, center, radius, occupancy)
+        return ((PoiManager) (Object) this).getInRange(predicate, center, radiusBlocks, occupancy)
                 .map(PoiRecord::getPos)
                 .min(PoiSeamSearch.byDistance(fold, center));
     }
@@ -125,15 +125,15 @@ public class PoiManagerMixin {
             Predicate<Holder<PoiType>> predicate,
             Predicate<BlockPos> filter,
             BlockPos center,
-            int radius,
+            int radiusBlocks,
             PoiManager.Occupancy occupancy,
             Operation<Optional<BlockPos>> original) {
-        WorldFold fold = this.exotic_worlds$bound.wrapped();
+        WorldFold fold = this.exotic_worlds$bound.getWrapped();
         if (fold == null) {
-            return original.call(predicate, filter, center, radius, occupancy);
+            return original.call(predicate, filter, center, radiusBlocks, occupancy);
         }
 
-        return ((PoiManager) (Object) this).getInRange(predicate, center, radius, occupancy)
+        return ((PoiManager) (Object) this).getInRange(predicate, center, radiusBlocks, occupancy)
                 .map(PoiRecord::getPos)
                 .filter(filter)
                 .min(PoiSeamSearch.byDistance(fold, center));
@@ -143,15 +143,15 @@ public class PoiManagerMixin {
     private Optional<Pair<Holder<PoiType>, BlockPos>> exotic_worlds$closestWithTypeThroughSeam(
             Predicate<Holder<PoiType>> predicate,
             BlockPos center,
-            int radius,
+            int radiusBlocks,
             PoiManager.Occupancy occupancy,
             Operation<Optional<Pair<Holder<PoiType>, BlockPos>>> original) {
-        WorldFold fold = this.exotic_worlds$bound.wrapped();
+        WorldFold fold = this.exotic_worlds$bound.getWrapped();
         if (fold == null) {
-            return original.call(predicate, center, radius, occupancy);
+            return original.call(predicate, center, radiusBlocks, occupancy);
         }
 
-        return ((PoiManager) (Object) this).getInRange(predicate, center, radius, occupancy)
+        return ((PoiManager) (Object) this).getInRange(predicate, center, radiusBlocks, occupancy)
                 .min(Comparator.comparingDouble(record -> SeamRange.sqr(fold, center, record.getPos())))
                 .map(record -> Pair.of(record.getPoiType(), record.getPos()));
     }
@@ -161,14 +161,14 @@ public class PoiManagerMixin {
             Predicate<Holder<PoiType>> predicate,
             Predicate<BlockPos> filter,
             BlockPos center,
-            int radius,
+            int radiusBlocks,
             PoiManager.Occupancy occupancy,
             Operation<Optional<BlockPos>> original) {
-        if (this.exotic_worlds$bound.wrapped() == null) {
-            return original.call(predicate, filter, center, radius, occupancy);
+        if (this.exotic_worlds$bound.getWrapped() == null) {
+            return original.call(predicate, filter, center, radiusBlocks, occupancy);
         }
 
-        return ((PoiManager) (Object) this).findAll(predicate, filter, center, radius, occupancy).findFirst();
+        return ((PoiManager) (Object) this).findAll(predicate, filter, center, radiusBlocks, occupancy).findFirst();
     }
 
     @WrapMethod(method = "getRandom")
@@ -177,15 +177,15 @@ public class PoiManagerMixin {
             Predicate<BlockPos> filter,
             PoiManager.Occupancy occupancy,
             BlockPos center,
-            int radius,
+            int radiusBlocks,
             RandomSource random,
             Operation<Optional<BlockPos>> original) {
-        if (this.exotic_worlds$bound.wrapped() == null) {
-            return original.call(predicate, filter, occupancy, center, radius, random);
+        if (this.exotic_worlds$bound.getWrapped() == null) {
+            return original.call(predicate, filter, occupancy, center, radiusBlocks, random);
         }
 
         List<PoiRecord> shuffled = Util.toShuffledList(
-                ((PoiManager) (Object) this).getInRange(predicate, center, radius, occupancy), random);
+                ((PoiManager) (Object) this).getInRange(predicate, center, radiusBlocks, occupancy), random);
         return shuffled.stream().filter(record -> filter.test(record.getPos())).findFirst().map(PoiRecord::getPos);
     }
 
@@ -193,14 +193,14 @@ public class PoiManagerMixin {
     private long exotic_worlds$countThroughSeam(
             Predicate<Holder<PoiType>> predicate,
             BlockPos center,
-            int radius,
+            int radiusBlocks,
             PoiManager.Occupancy occupancy,
             Operation<Long> original) {
-        if (this.exotic_worlds$bound.wrapped() == null) {
-            return original.call(predicate, center, radius, occupancy);
+        if (this.exotic_worlds$bound.getWrapped() == null) {
+            return original.call(predicate, center, radiusBlocks, occupancy);
         }
 
-        return ((PoiManager) (Object) this).getInRange(predicate, center, radius, occupancy).count();
+        return ((PoiManager) (Object) this).getInRange(predicate, center, radiusBlocks, occupancy).count();
     }
 
     @ModifyArg(
@@ -209,7 +209,7 @@ public class PoiManagerMixin {
             index = 0)
     private Comparator<Pair<Holder<PoiType>, BlockPos>> exotic_worlds$sortThroughSeam(
             Comparator<Pair<Holder<PoiType>, BlockPos>> original, @Local(argsOnly = true) BlockPos center) {
-        WorldFold fold = this.exotic_worlds$bound.wrapped();
+        WorldFold fold = this.exotic_worlds$bound.getWrapped();
         if (fold == null) {
             return original;
         }
@@ -222,17 +222,17 @@ public class PoiManagerMixin {
     }
 
     @WrapMethod(method = "ensureLoadedAndValid")
-    private void exotic_worlds$loadThroughSeam(LevelReader reader, BlockPos center, int radius, Operation<Void> original) {
-        WorldFold fold = this.exotic_worlds$bound.wrapped();
+    private void exotic_worlds$loadThroughSeam(LevelReader reader, BlockPos center, int radiusBlocks, Operation<Void> original) {
+        WorldFold fold = this.exotic_worlds$bound.getWrapped();
         if (fold == null) {
-            original.call(reader, center, radius);
+            original.call(reader, center, radiusBlocks);
             return;
         }
 
         SectionStorageAccessor storage = (SectionStorageAccessor) this;
         LevelHeightAccessor height = storage.exotic_worlds$getLevelHeightAccessor();
-        int chunkRadius = Math.floorDiv(radius, CoordinateConstants.CHUNK_WIDTH);
-        PoiSeamSearch.chunksAround(fold, ChunkPos.containing(center), chunkRadius)
+        int radiusChunks = Math.floorDiv(radiusBlocks, CoordinateConstants.CHUNK_WIDTH_BLOCKS);
+        PoiSeamSearch.chunksAround(fold, ChunkPos.containing(center), radiusChunks)
                 .filter(chunk -> IntStream.rangeClosed(height.getMinSectionY(), height.getMaxSectionY())
                         .anyMatch(sectionY -> !storage.exotic_worlds$getOrLoad(SectionPos.of(chunk, sectionY).asLong())
                                 .map(section -> ((PoiSection) section).isValid())
@@ -243,7 +243,7 @@ public class PoiManagerMixin {
 
     @WrapMethod(method = "sectionsToVillage")
     private int exotic_worlds$villageDistanceThroughSeam(SectionPos sectionPos, Operation<Integer> original) {
-        return original.call(this.exotic_worlds$bound.fold().fold(sectionPos));
+        return original.call(this.exotic_worlds$bound.getFold().fold(sectionPos));
     }
 
     @ModifyVariable(
@@ -252,6 +252,6 @@ public class PoiManagerMixin {
             ordinal = 0,
             argsOnly = true)
     private BlockPos exotic_worlds$positionThroughSeam(BlockPos pos) {
-        return this.exotic_worlds$bound.fold().fold(pos);
+        return this.exotic_worlds$bound.getFold().fold(pos);
     }
 }

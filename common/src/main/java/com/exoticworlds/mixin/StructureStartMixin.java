@@ -9,9 +9,9 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 
 import com.exoticworlds.accessors.FramedStructureStart;
-import com.exoticworlds.core.DeckTransformation;
-import com.exoticworlds.core.WorldLoopAttachments;
-import com.exoticworlds.engine.gen.MovedStructureStart;
+import com.exoticworlds.core.fold.DeckTransformation;
+import com.exoticworlds.core.fold.WorldLoopAttachments;
+import com.exoticworlds.engine.gen.structure.MovedStructureStart;
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 
@@ -37,7 +37,7 @@ public class StructureStartMixin implements FramedStructureStart {
             return self;
         }
 
-        Map<DeckTransformation, StructureStart> framed = this.exotic_worlds$cache();
+        Map<DeckTransformation, StructureStart> framed = this.exotic_worlds$getCache();
         StructureStart known = framed.get(move);
         if (known != null) {
             return known;
@@ -63,7 +63,7 @@ public class StructureStartMixin implements FramedStructureStart {
         }
 
         BlockPos reference = pieces.getFirst().getBoundingBox().getCenter();
-        DeckTransformation move = WorldLoopAttachments.foldOf(level.getLevel())
+        DeckTransformation move = WorldLoopAttachments.getFold(level.getLevel())
                 .nearestCopyTransformation(reference, chunkPos.getMiddleBlockPosition(reference.getY()));
         if (move.isIdentity()) {
             original.call(level, structureManager, generator, random, chunkBB, chunkPos);
@@ -75,7 +75,7 @@ public class StructureStartMixin implements FramedStructureStart {
     }
 
     @Unique
-    private Map<DeckTransformation, StructureStart> exotic_worlds$cache() {
+    private Map<DeckTransformation, StructureStart> exotic_worlds$getCache() {
         Map<DeckTransformation, StructureStart> framed = this.exotic_worlds$framed;
         if (framed != null) {
             return framed;

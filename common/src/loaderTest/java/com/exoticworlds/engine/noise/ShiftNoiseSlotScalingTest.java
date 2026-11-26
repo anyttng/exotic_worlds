@@ -10,6 +10,8 @@ import java.util.Random;
 
 import org.junit.jupiter.api.Test;
 
+import com.exoticworlds.engine.noise.periodic.PeriodicOctaveSampler;
+
 import net.minecraft.world.level.levelgen.LegacyRandomSource;
 import net.minecraft.world.level.levelgen.densityfunction.DensityFunctions;
 import net.minecraft.world.level.levelgen.densityfunction.DensitySampler;
@@ -17,11 +19,11 @@ import net.minecraft.world.level.levelgen.synth.NoiseStack;
 
 class ShiftNoiseSlotScalingTest {
     private static final int SAMPLES = 16;
-    private static final int COORDINATE_SPAN = 512;
+    private static final int COORDINATE_SPAN_BLOCKS = 512;
     private static final double FLAT_SLOT = 0.0;
 
     private static final NoiseStack STACK =
-            FoldedSamplers.stackOf(NOISE_DATA.value().create(new LegacyRandomSource(SEED)));
+            FoldedSamplers.getStack(NOISE_DATA.value().create(new LegacyRandomSource(SEED)));
 
     private static final DensitySampler SHIFT = compile(DensityFunctions.shift(NOISE_DATA), SQUARE);
 
@@ -58,11 +60,11 @@ class ShiftNoiseSlotScalingTest {
                 GenerationFoldContext.UNDECLARED_VERTICAL_SHARE);
         float value = PeriodicOctaveSampler.compile(SQUARE, frame, NoiseConstants.SHIFT_SCALE, null, STACK)
                 .sample(first, second, third);
-        return value * (float) NoiseConstants.SHIFT_AMPLITUDE;
+        return value * (float) NoiseConstants.SHIFT_AMPLITUDE_BLOCKS;
     }
 
     private static int coordinate(Random random) {
-        return random.nextInt(COORDINATE_SPAN) - COORDINATE_SPAN / 2;
+        return random.nextInt(COORDINATE_SPAN_BLOCKS) - COORDINATE_SPAN_BLOCKS / 2;
     }
 
     private static String at(String slot, int x, int y, int z) {

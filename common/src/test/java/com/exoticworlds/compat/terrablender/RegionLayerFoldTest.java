@@ -8,11 +8,11 @@ import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Test;
 
 import com.exoticworlds.compat.terrablender.RegionLayerFold.LayerAxis;
-import com.exoticworlds.core.FlatShape;
-import com.exoticworlds.core.ShapeFixtures;
-import com.exoticworlds.core.WorldFold;
-import com.exoticworlds.core.WorldFolds;
-import com.exoticworlds.core.WorldLoopBounds;
+import com.exoticworlds.core.world.FlatShape;
+import com.exoticworlds.core.world.ShapeFixtures;
+import com.exoticworlds.core.fold.WorldFold;
+import com.exoticworlds.core.fold.WorldFolds;
+import com.exoticworlds.core.world.WorldLoopBounds;
 
 import net.minecraft.core.Direction;
 import net.minecraft.core.QuartPos;
@@ -35,7 +35,7 @@ class RegionLayerFoldTest {
 
     private static final int DEFAULT_REGION_SIZE = 3;
     private static final int[] REGION_SIZES = {2, 3, 4, 6};
-    private static final int[] CHUNK_WIDTHS = {32, 48, 64, 128, 750, 2500};
+    private static final int[] WIDTHS_CHUNKS = {32, 48, 64, 128, 750, 2500};
 
     private static final int SAMPLE_LINES = 5;
     private static final int SAMPLES_PER_LINE = 400;
@@ -49,12 +49,12 @@ class RegionLayerFoldTest {
     private static final int SIZE_Z_STRIDE = 13;
     private static final int SEAM_STRIP_QUARTS = 64;
 
-    private static WorldFold torus(int chunkWidth) {
-        return WorldFolds.of(ShapeFixtures.torus(WorldLoopBounds.ofWidth(chunkWidth)));
+    private static WorldFold torus(int widthChunks) {
+        return WorldFolds.of(ShapeFixtures.torus(WorldLoopBounds.ofWidth(widthChunks)));
     }
 
-    private static WorldFold latticeTorus(int chunkWidth, int skewChunks) {
-        return WorldFolds.of(FlatShape.latticeTorus(WorldLoopBounds.ofWidth(chunkWidth), skewChunks));
+    private static WorldFold latticeTorus(int widthChunks, int skewChunks) {
+        return WorldFolds.of(FlatShape.latticeTorus(WorldLoopBounds.ofWidth(widthChunks), skewChunks));
     }
 
     private static int topDepth(int regionSize) {
@@ -104,9 +104,9 @@ class RegionLayerFoldTest {
     void foldedMapReadsTheSameRegionOneLapAwayOnBothAxes() {
         for (double factor : FACTORS) {
             for (int regionSize : REGION_SIZES) {
-                for (int chunkWidth : CHUNK_WIDTHS) {
-                    assertPeriodic(RegionLayerFold.of(torus(chunkWidth), topDepth(regionSize), factor), regionSize,
-                            chunkWidth + " chunks, region size " + regionSize + ", factor " + factor);
+                for (int widthChunks : WIDTHS_CHUNKS) {
+                    assertPeriodic(RegionLayerFold.of(torus(widthChunks), topDepth(regionSize), factor), regionSize,
+                            widthChunks + " chunks, region size " + regionSize + ", factor " + factor);
                 }
             }
         }
@@ -115,10 +115,10 @@ class RegionLayerFoldTest {
     @Test
     void latticeMapReadsTheSameRegionAtEveryLatticeCopy() {
         for (double factor : FACTORS) {
-            for (int chunkWidth : CHUNK_WIDTHS) {
-                for (int skewChunks : skewsOf(chunkWidth)) {
-                    String world = chunkWidth + " chunks, skew " + skewChunks + " chunks, factor " + factor;
-                    RegionLayerFold fold = RegionLayerFold.of(latticeTorus(chunkWidth, skewChunks),
+            for (int widthChunks : WIDTHS_CHUNKS) {
+                for (int skewChunks : skewsOf(widthChunks)) {
+                    String world = widthChunks + " chunks, skew " + skewChunks + " chunks, factor " + factor;
+                    RegionLayerFold fold = RegionLayerFold.of(latticeTorus(widthChunks, skewChunks),
                             topDepth(DEFAULT_REGION_SIZE), factor);
                     assertLatticePeriodic(regionMap(DEFAULT_REGION_SIZE, fold), fold.x(),
                             QuartPos.fromSection(skewChunks), world);
@@ -127,25 +127,25 @@ class RegionLayerFoldTest {
         }
     }
 
-    private static int[] skewsOf(int chunkWidth) {
-        return new int[] {1, chunkWidth / 3, -chunkWidth / 4, chunkWidth / 2};
+    private static int[] skewsOf(int widthChunks) {
+        return new int[] {1, widthChunks / 3, -widthChunks / 4, widthChunks / 2};
     }
 
     private static void assertLatticePeriodic(Area map, LayerAxis axis, int skewQuarts, String world) {
-        int lap = axis.lap();
-        int stride = Math.max(1, lap / SAMPLES_PER_LINE);
+        int lapQuarts = axis.lapQuarts();
+        int stride = Math.max(1, lapQuarts / SAMPLES_PER_LINE);
         for (int line = 0; line < SAMPLE_LINES; line++) {
-            int cross = axis.min() + line * lap / SAMPLE_LINES;
-            for (int along = axis.min() - lap; along < axis.min() + lap; along += stride) {
-                assertEquals(map.get(along, cross), map.get(along + lap, cross),
+            int cross = axis.min() + line * lapQuarts / SAMPLE_LINES;
+            for (int along = axis.min() - lapQuarts; along < axis.min() + lapQuarts; along += stride) {
+                assertEquals(map.get(along, cross), map.get(along + lapQuarts, cross),
                         "X quart " + along + " in " + world);
-                assertEquals(map.get(cross, along), map.get(cross + skewQuarts, along + lap),
+                assertEquals(map.get(cross, along), map.get(cross + skewQuarts, along + lapQuarts),
                         "Z quart " + along + " in " + world);
             }
         }
 
         for (int along = axis.min() - SEAM_STRIP_QUARTS; along < axis.min() + SEAM_STRIP_QUARTS; along++) {
-            assertEquals(map.get(0, along), map.get(skewQuarts, along + lap),
+            assertEquals(map.get(0, along), map.get(skewQuarts, along + lapQuarts),
                     "Z seam quart " + along + " in " + world);
         }
     }
@@ -153,13 +153,13 @@ class RegionLayerFoldTest {
     private static void assertPeriodic(RegionLayerFold fold, int regionSize, String world) {
         Area map = regionMap(regionSize, fold);
         LayerAxis axis = fold.x();
-        int stride = Math.max(1, axis.lap() / SAMPLES_PER_LINE);
+        int stride = Math.max(1, axis.lapQuarts() / SAMPLES_PER_LINE);
         for (int line = 0; line < SAMPLE_LINES; line++) {
-            int cross = axis.origin() + line * axis.lap() / SAMPLE_LINES;
-            for (int along = axis.origin() - axis.lap(); along < axis.origin() + axis.lap(); along += stride) {
-                assertEquals(map.get(along, cross), map.get(along + axis.lap(), cross),
+            int cross = axis.origin() + line * axis.lapQuarts() / SAMPLE_LINES;
+            for (int along = axis.origin() - axis.lapQuarts(); along < axis.origin() + axis.lapQuarts(); along += stride) {
+                assertEquals(map.get(along, cross), map.get(along + axis.lapQuarts(), cross),
                         "X quart " + along + " in " + world);
-                assertEquals(map.get(cross, along), map.get(cross, along + axis.lap()),
+                assertEquals(map.get(cross, along), map.get(cross, along + axis.lapQuarts()),
                         "Z quart " + along + " in " + world);
             }
         }
@@ -167,32 +167,32 @@ class RegionLayerFoldTest {
 
     @Test
     void seamStripReadsTheSameRegionOneLapAwayAtEveryQuart() {
-        for (int chunkWidth : CHUNK_WIDTHS) {
-            RegionLayerFold fold = RegionLayerFold.of(torus(chunkWidth), topDepth(DEFAULT_REGION_SIZE), NO_COMPRESSION);
+        for (int widthChunks : WIDTHS_CHUNKS) {
+            RegionLayerFold fold = RegionLayerFold.of(torus(widthChunks), topDepth(DEFAULT_REGION_SIZE), NO_COMPRESSION);
             Area map = regionMap(DEFAULT_REGION_SIZE, fold);
             LayerAxis axis = fold.x();
-            int seam = axis.origin() + axis.lap() - axis.strip();
+            int seam = axis.origin() + axis.lapQuarts() - axis.strip();
             for (int along = seam - axis.cell(); along < seam + axis.strip() + axis.cell(); along++) {
-                assertEquals(map.get(along, 0), map.get(along - axis.lap(), 0),
-                        "quart " + along + " in " + chunkWidth + " chunks");
+                assertEquals(map.get(along, 0), map.get(along - axis.lapQuarts(), 0),
+                        "quart " + along + " in " + widthChunks + " chunks");
             }
         }
     }
 
     @Test
     void wholeCellsInsideTheWorldKeepTerraBlendersLayout() {
-        for (int chunkWidth : CHUNK_WIDTHS) {
-            RegionLayerFold fold = RegionLayerFold.of(torus(chunkWidth), topDepth(DEFAULT_REGION_SIZE), NO_COMPRESSION);
+        for (int widthChunks : WIDTHS_CHUNKS) {
+            RegionLayerFold fold = RegionLayerFold.of(torus(widthChunks), topDepth(DEFAULT_REGION_SIZE), NO_COMPRESSION);
             Area folded = regionMap(DEFAULT_REGION_SIZE, fold);
             Area unfolded = regionMap(DEFAULT_REGION_SIZE, null);
             LayerAxis axis = fold.x();
             int untouchedEnd = axis.origin() + axis.interior() - 2 * axis.cell();
-            int stride = Math.max(1, axis.lap() / SAMPLES_PER_LINE);
+            int stride = Math.max(1, axis.lapQuarts() / SAMPLES_PER_LINE);
 
             for (int x = axis.origin(); x < untouchedEnd; x += stride) {
                 for (int z = axis.origin(); z < untouchedEnd; z += axis.cell()) {
                     assertEquals(unfolded.get(x, z), folded.get(x, z),
-                            "quart " + x + ", " + z + " in " + chunkWidth + " chunks");
+                            "quart " + x + ", " + z + " in " + widthChunks + " chunks");
                 }
             }
         }
@@ -213,9 +213,9 @@ class RegionLayerFoldTest {
     void virtualLapIsWholeCellsAndStretchesTheSeamStripAtMostTwofold() {
         for (double factor : FACTORS) {
             for (int regionSize : REGION_SIZES) {
-                for (int chunkWidth = SWEEP_MIN_CHUNKS; chunkWidth <= SWEEP_MAX_CHUNKS; chunkWidth++) {
-                    assertWholeCells(RegionLayerFold.of(torus(chunkWidth), topDepth(regionSize), factor).x(),
-                            chunkWidth + " chunks, region size " + regionSize + ", factor " + factor);
+                for (int widthChunks = SWEEP_MIN_CHUNKS; widthChunks <= SWEEP_MAX_CHUNKS; widthChunks++) {
+                    assertWholeCells(RegionLayerFold.of(torus(widthChunks), topDepth(regionSize), factor).x(),
+                            widthChunks + " chunks, region size " + regionSize + ", factor " + factor);
                 }
             }
         }
@@ -236,17 +236,17 @@ class RegionLayerFoldTest {
     @Test
     void compressedMapInsideTheWorldReadsTerraBlendersMapAtTheScaledQuart() {
         for (double factor : COMPRESSED_FACTORS) {
-            for (int chunkWidth : CHUNK_WIDTHS) {
-                RegionLayerFold fold = RegionLayerFold.of(torus(chunkWidth), topDepth(DEFAULT_REGION_SIZE), factor);
+            for (int widthChunks : WIDTHS_CHUNKS) {
+                RegionLayerFold fold = RegionLayerFold.of(torus(widthChunks), topDepth(DEFAULT_REGION_SIZE), factor);
                 Area folded = regionMap(DEFAULT_REGION_SIZE, fold);
                 Area unfolded = regionMap(DEFAULT_REGION_SIZE, null);
                 LayerAxis axis = fold.x();
                 int untouchedEnd = axis.origin() + axis.interior() - 2 * axis.cell();
-                int stride = Math.max(1, axis.lap() / SAMPLES_PER_LINE);
-                String world = chunkWidth + " chunks, factor " + factor;
-                for (int x = axis.min(); x < axis.min() + axis.lap(); x += stride) {
+                int stride = Math.max(1, axis.lapQuarts() / SAMPLES_PER_LINE);
+                String world = widthChunks + " chunks, factor " + factor;
+                for (int x = axis.min(); x < axis.min() + axis.lapQuarts(); x += stride) {
                     int scaledX = axis.min() + (int) Math.floor((x - axis.min()) * factor);
-                    for (int z = axis.min(); z < axis.min() + axis.lap(); z += SIZE_Z_STRIDE) {
+                    for (int z = axis.min(); z < axis.min() + axis.lapQuarts(); z += SIZE_Z_STRIDE) {
                         int scaledZ = axis.min() + (int) Math.floor((z - axis.min()) * factor);
                         if (inside(scaledX, axis.origin(), untouchedEnd)
                                 && inside(scaledZ, axis.origin(), untouchedEnd)) {

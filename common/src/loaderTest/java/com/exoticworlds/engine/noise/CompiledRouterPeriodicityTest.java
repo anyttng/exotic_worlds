@@ -19,7 +19,7 @@ import java.util.stream.Stream;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-import com.exoticworlds.core.WorldFold;
+import com.exoticworlds.core.fold.WorldFold;
 
 import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceKey;
@@ -45,8 +45,8 @@ class CompiledRouterPeriodicityTest {
     private static final int CHUNK_BLOCKS = 16;
     private static final float NO_VEIN = -1.0F;
 
-    private static final int CELL_WIDTH = 4;
-    private static final int CELL_HEIGHT = 8;
+    private static final int CELL_WIDTH_BLOCKS = 4;
+    private static final int CELL_HEIGHT_BLOCKS = 8;
     private static final int VOLUME_CELLS_XZ = 5;
     private static final int VOLUME_CELLS_Y = 6;
 
@@ -111,10 +111,10 @@ class CompiledRouterPeriodicityTest {
                     for (Direction.Axis axis : probe.axes()) {
                         int mismatches = 0;
                         for (int i = 0; i < VOLUMES; i++) {
-                            int minX = cellAligned(random, WIDTH_BLOCKS, CELL_WIDTH) - WIDTH_BLOCKS / 2;
+                            int minX = cellAligned(random, WIDTH_BLOCKS, CELL_WIDTH_BLOCKS) - WIDTH_BLOCKS / 2;
                             int minY = settings.noiseSettings().minY() + cellAligned(random,
-                                    settings.noiseSettings().height() - VOLUME_CELLS_Y * CELL_HEIGHT, CELL_HEIGHT);
-                            int minZ = cellAligned(random, WIDTH_BLOCKS, CELL_WIDTH) - WIDTH_BLOCKS / 2;
+                                    settings.noiseSettings().height() - VOLUME_CELLS_Y * CELL_HEIGHT_BLOCKS, CELL_HEIGHT_BLOCKS);
+                            int minZ = cellAligned(random, WIDTH_BLOCKS, CELL_WIDTH_BLOCKS) - WIDTH_BLOCKS / 2;
                             float[] here = volume(sampler, minX, minY, minZ);
                             float[] lapAway = axis == Direction.Axis.X
                                     ? volume(sampler, minX + WIDTH_BLOCKS, minY, minZ)
@@ -175,7 +175,7 @@ class CompiledRouterPeriodicityTest {
     void everyOreVeinSamplerRepeatsOneLapAwayOverTheFillVolume() {
         NoiseGeneratorSettings settings = settingsOf(NoiseGeneratorSettings.OVERWORLD);
         int minY = settings.noiseSettings().minY();
-        int height = settings.noiseSettings().height();
+        int heightBlocks = settings.noiseSettings().height();
         List<String> broken = new ArrayList<>();
         for (Probe probe : PROBES) {
             RandomState state = randomState(settings, probe.fold(), SEED_BASE);
@@ -188,10 +188,10 @@ class CompiledRouterPeriodicityTest {
                     for (int draws = 0; insideVein < VEIN_HITS && draws < MAX_VEIN_VOLUMES; draws++) {
                         int minX = cellAligned(random, WIDTH_BLOCKS, CHUNK_BLOCKS) - WIDTH_BLOCKS / 2;
                         int minZ = cellAligned(random, WIDTH_BLOCKS, CHUNK_BLOCKS) - WIDTH_BLOCKS / 2;
-                        float[] here = fillVolume(sampler, minX, minY, minZ, height);
+                        float[] here = fillVolume(sampler, minX, minY, minZ, heightBlocks);
                         float[] lapAway = axis == Direction.Axis.X
-                                ? fillVolume(sampler, minX + WIDTH_BLOCKS, minY, minZ, height)
-                                : fillVolume(sampler, minX, minY, minZ + WIDTH_BLOCKS, height);
+                                ? fillVolume(sampler, minX + WIDTH_BLOCKS, minY, minZ, heightBlocks)
+                                : fillVolume(sampler, minX, minY, minZ + WIDTH_BLOCKS, heightBlocks);
                         mismatches += mismatchesBetween(here, lapAway);
                         for (float value : here) {
                             insideVein += value > NO_VEIN ? 1 : 0;
@@ -217,11 +217,11 @@ class CompiledRouterPeriodicityTest {
         NoiseGeneratorSettings settings = settingsOf(NoiseGeneratorSettings.OVERWORLD);
         RandomState state = randomState(settings, torusOfWidth(WIDTH_BLOCKS), SEED_BASE);
         DensitySampler sampler = state.getSampler(state.router.continents());
-        int minY = settings.seaLevel() - settings.seaLevel() % CELL_HEIGHT;
+        int minY = settings.seaLevel() - settings.seaLevel() % CELL_HEIGHT_BLOCKS;
         float[] values = volume(sampler, 0, minY, 0);
         DensityVolume volume = volumeAt(0, minY, 0);
 
-        assertEquals(sampler.sampleValue(SamplerContext.EMPTY_UNCACHED, CELL_WIDTH, minY, CELL_WIDTH),
+        assertEquals(sampler.sampleValue(SamplerContext.EMPTY_UNCACHED, CELL_WIDTH_BLOCKS, minY, CELL_WIDTH_BLOCKS),
                 values[volume.indexUnchecked(1, 0, 1)]);
     }
 
@@ -264,7 +264,7 @@ class CompiledRouterPeriodicityTest {
 
     private static DensityVolume volumeAt(int minX, int minY, int minZ) {
         return new DensityVolume(VOLUME_CELLS_XZ, VOLUME_CELLS_Y, VOLUME_CELLS_XZ, minX, minY, minZ,
-                CELL_WIDTH, CELL_HEIGHT, CELL_WIDTH);
+                CELL_WIDTH_BLOCKS, CELL_HEIGHT_BLOCKS, CELL_WIDTH_BLOCKS);
     }
 
     private static float[] volume(DensitySampler sampler, int minX, int minY, int minZ) {
@@ -279,8 +279,8 @@ class CompiledRouterPeriodicityTest {
         return values;
     }
 
-    private static float[] fillVolume(DensitySampler sampler, int minX, int minY, int minZ, int height) {
-        DensityVolume volume = new DensityVolume(CHUNK_BLOCKS, height, CHUNK_BLOCKS, minX, minY, minZ);
+    private static float[] fillVolume(DensitySampler sampler, int minX, int minY, int minZ, int heightBlocks) {
+        DensityVolume volume = new DensityVolume(CHUNK_BLOCKS, heightBlocks, CHUNK_BLOCKS, minX, minY, minZ);
         DensityBuffer buffer = DensityBuffer.createUnpooled(volume.size());
         sampler.sampleVolume(SamplerContext.EMPTY_UNCACHED, buffer, volume);
         float[] values = new float[volume.size()];

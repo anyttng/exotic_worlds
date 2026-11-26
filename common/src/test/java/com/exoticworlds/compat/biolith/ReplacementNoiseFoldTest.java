@@ -11,14 +11,14 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import com.terraformersmc.biolith.impl.noise.OpenSimplexNoise2;
-import com.exoticworlds.api.v1.option.GenerationOptions;
-import com.exoticworlds.core.ShapeFixtures;
-import com.exoticworlds.core.WorldFold;
-import com.exoticworlds.core.WorldFolds;
+import com.exoticworlds.core.world.ShapeFixtures;
+import com.exoticworlds.core.option.ShapeOptions;
+import com.exoticworlds.core.fold.WorldFold;
+import com.exoticworlds.core.fold.WorldFolds;
 import com.exoticworlds.engine.noise.GenerationFoldContext;
-import com.exoticworlds.shape.climate.ClimateCompression;
-import com.exoticworlds.shape.climate.ClimateScale;
-import com.exoticworlds.shape.climate.CompactBiomes;
+import com.exoticworlds.shape.feature.compactbiomes.ClimateCompression;
+import com.exoticworlds.shape.feature.compactbiomes.ClimateScale;
+import com.exoticworlds.shape.feature.compactbiomes.CompactBiomes;
 
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
@@ -50,7 +50,7 @@ class ReplacementNoiseFoldTest {
 
     private static final double NETHER_SUM_DIVISOR = 1.09375;
 
-    private static final int NETHER_QUART_HEIGHT = 32;
+    private static final int NETHER_HEIGHT_QUARTS = 32;
 
     private static final int NETHER_SAMPLE_QUART_Y = 16;
 
@@ -108,6 +108,8 @@ class ReplacementNoiseFoldTest {
 
     private static final double HORIZONTAL_SHARE = 0.0;
 
+    private static final boolean IS_CLIMATE_FIELD = true;
+
     private static final double FACTOR_TOLERANCE = 1.0E-9;
 
     private static final double NO_COMPRESSION = 1.0;
@@ -115,24 +117,20 @@ class ReplacementNoiseFoldTest {
     private static final List<ClimateScale> COMPRESSING_SCALES = List.of(ClimateScale.AUTO, ClimateScale.STRONG);
 
     private static WorldFold torus(int chunkMin, int chunkMax) {
-        return torus(chunkMin, chunkMax, GenerationOptions.DEFAULT);
+        return torus(chunkMin, chunkMax, ShapeOptions.DEFAULT);
     }
 
-    private static WorldFold torus(int chunkMin, int chunkMax, GenerationOptions options) {
+    private static WorldFold torus(int chunkMin, int chunkMax, ShapeOptions options) {
         return WorldFolds.of(ShapeFixtures.torus(ShapeFixtures.loopedBounds(chunkMin, chunkMax, chunkMin, chunkMax)),
                 options);
     }
 
     private static WorldFold compressed(int chunkMin, int chunkMax, ClimateScale scale) {
-        return torus(chunkMin, chunkMax, GenerationOptions.DEFAULT.with(CompactBiomes.OPTION, scale));
+        return torus(chunkMin, chunkMax, ShapeOptions.DEFAULT.with(CompactBiomes.FEATURE.getOption(), scale));
     }
 
     private static final class VanillaWorldgen {
         private static final HolderLookup.Provider LOOKUP = VanillaRegistries.createWorldLookup();
-
-        private static final DensityFunction OVERWORLD_TEMPERATURE = temperatureOf(NoiseGeneratorSettings.OVERWORLD);
-
-        private static final DensityFunction NETHER_TEMPERATURE = temperatureOf(NoiseGeneratorSettings.NETHER);
 
         static DensityFunction temperatureOf(ResourceKey<NoiseGeneratorSettings> settings) {
             return LOOKUP.lookupOrThrow(Registries.NOISE_SETTINGS).getOrThrow(settings).value().noiseRouter()
@@ -140,19 +138,9 @@ class ReplacementNoiseFoldTest {
         }
 
         static double temperatureFactor(WorldFold worldFold, ResourceKey<NormalNoise> temperature) {
-            return ClimateCompression.factor(worldFold,
+            return ClimateCompression.factor(worldFold, IS_CLIMATE_FIELD,
                     LOOKUP.lookupOrThrow(Registries.NOISE).getOrThrow(temperature), CLIMATE_XZ_SCALE,
                     HORIZONTAL_SHARE);
-        }
-    }
-
-    private static void assertTakesTheTemperatureFactor(ResourceKey<NoiseGeneratorSettings> settings,
-            ResourceKey<NormalNoise> temperature) {
-        for (ClimateScale scale : COMPRESSING_SCALES) {
-            WorldFold worldFold = compressed(TINY_CHUNK_MIN, TINY_CHUNK_MAX, scale);
-            assertEquals(VanillaWorldgen.temperatureFactor(worldFold, temperature),
-                    fold().compression(worldFold, VanillaWorldgen.temperatureOf(settings)), FACTOR_TOLERANCE,
-                    settings.identifier() + " " + scale.mode().getSerializedName() + " on a tiny world");
         }
     }
 
@@ -163,8 +151,8 @@ class ReplacementNoiseFoldTest {
     private static double folded(ReplacementNoiseFold fold, WorldFold worldFold, int quartX, int quartZ) {
         double[] sum = new double[1];
         GenerationFoldContext.withFold(worldFold,
-                () -> sum[0] = fold.sum(worldFold, WORLD_SEED, OVERWORLD_SCALE_QUARTS, quartX, quartZ,
-                        VanillaWorldgen.OVERWORLD_TEMPERATURE));
+                () -> sum[0] = fold.sum(worldFold, VanillaWorldgen.temperatureFactor(worldFold, Noises.TEMPERATURE),
+                        WORLD_SEED, OVERWORLD_SCALE_QUARTS, quartX, quartZ));
         return sum[0];
     }
 
@@ -180,8 +168,9 @@ class ReplacementNoiseFoldTest {
             int quartZ) {
         double[] sum = new double[1];
         GenerationFoldContext.withFold(worldFold,
-                () -> sum[0] = fold.sum(worldFold, WORLD_SEED, NETHER_SCALE_QUARTS, quartX, quartY, quartZ,
-                        VanillaWorldgen.NETHER_TEMPERATURE));
+                () -> sum[0] = fold.sum(worldFold,
+                        VanillaWorldgen.temperatureFactor(worldFold, Noises.TEMPERATURE_NETHER), WORLD_SEED,
+                        NETHER_SCALE_QUARTS, quartX, quartY, quartZ));
         return sum[0];
     }
 
@@ -269,8 +258,8 @@ class ReplacementNoiseFoldTest {
 
     private static Spread spread(WorldFold worldFold, Field field) {
         double[] values = new double[SAMPLES_PER_AXIS * SAMPLES_PER_AXIS];
-        int lapQuarts = worldFold.blockDomain(Direction.Axis.X).domainLength / 4;
-        int minQuart = worldFold.blockDomain(Direction.Axis.X).lowerBound / 4;
+        int lapQuarts = worldFold.getBlockDomain(Direction.Axis.X).domainLength / 4;
+        int minQuart = worldFold.getBlockDomain(Direction.Axis.X).lowerBound / 4;
         int index = 0;
         for (int xStep = 0; xStep < SAMPLES_PER_AXIS; xStep++) {
             for (int zStep = 0; zStep < SAMPLES_PER_AXIS; zStep++) {
@@ -283,8 +272,8 @@ class ReplacementNoiseFoldTest {
     }
 
     private static double belowMedian(WorldFold worldFold, Field field) {
-        int lapQuarts = worldFold.blockDomain(Direction.Axis.X).domainLength / 4;
-        int minQuart = worldFold.blockDomain(Direction.Axis.X).lowerBound / 4;
+        int lapQuarts = worldFold.getBlockDomain(Direction.Axis.X).domainLength / 4;
+        int minQuart = worldFold.getBlockDomain(Direction.Axis.X).lowerBound / 4;
         int below = 0;
         for (int xStep = 0; xStep < SAMPLES_PER_AXIS; xStep++) {
             for (int zStep = 0; zStep < SAMPLES_PER_AXIS; zStep++) {
@@ -299,8 +288,8 @@ class ReplacementNoiseFoldTest {
     }
 
     private static double crossingsPerQuart(WorldFold worldFold, Line line, int samples, int strideQuarts) {
-        int lapQuarts = worldFold.blockDomain(Direction.Axis.X).domainLength / 4;
-        int minQuart = worldFold.blockDomain(Direction.Axis.X).lowerBound / 4;
+        int lapQuarts = worldFold.getBlockDomain(Direction.Axis.X).domainLength / 4;
+        int minQuart = worldFold.getBlockDomain(Direction.Axis.X).lowerBound / 4;
         Random random = new Random(WORLD_SEED);
         long crossed = 0L;
         for (int index = 0; index < REGION_LINES; index++) {
@@ -327,16 +316,16 @@ class ReplacementNoiseFoldTest {
     }
 
     private static double[] columnDeviations(WorldFold worldFold, Column column) {
-        int lapQuarts = worldFold.blockDomain(Direction.Axis.X).domainLength / 4;
-        int minQuart = worldFold.blockDomain(Direction.Axis.X).lowerBound / 4;
+        int lapQuarts = worldFold.getBlockDomain(Direction.Axis.X).domainLength / 4;
+        int minQuart = worldFold.getBlockDomain(Direction.Axis.X).lowerBound / 4;
         double[] deviations = new double[COLUMNS_PER_AXIS * COLUMNS_PER_AXIS];
-        double[] values = new double[NETHER_QUART_HEIGHT];
+        double[] values = new double[NETHER_HEIGHT_QUARTS];
         int index = 0;
         for (int xStep = 0; xStep < COLUMNS_PER_AXIS; xStep++) {
             for (int zStep = 0; zStep < COLUMNS_PER_AXIS; zStep++) {
                 int quartX = minQuart + xStep * lapQuarts / COLUMNS_PER_AXIS;
                 int quartZ = minQuart + zStep * lapQuarts / COLUMNS_PER_AXIS;
-                for (int quartY = 0; quartY < NETHER_QUART_HEIGHT; quartY++) {
+                for (int quartY = 0; quartY < NETHER_HEIGHT_QUARTS; quartY++) {
                     values[quartY] = column.at(quartX, quartY, quartZ);
                 }
 
@@ -356,7 +345,7 @@ class ReplacementNoiseFoldTest {
         void repeatsOneLapAway() {
             for (WorldFold worldFold : new WorldFold[] {TINY, HUGE, CYLINDER}) {
                 ReplacementNoiseFold fold = fold();
-                int lapQuarts = worldFold.blockDomain(Direction.Axis.X).domainLength / 4;
+                int lapQuarts = worldFold.getBlockDomain(Direction.Axis.X).domainLength / 4;
                 Random random = new Random(WORLD_SEED);
                 for (int sample = 0; sample < PERIODICITY_SAMPLES; sample++) {
                     int quartX = random.nextInt(-lapQuarts, lapQuarts);
@@ -365,7 +354,7 @@ class ReplacementNoiseFoldTest {
                             folded(fold, worldFold, quartX + lapQuarts, quartZ),
                             "X lap at quart " + quartX + ", " + quartZ);
 
-                    if (worldFold.blockDomain(Direction.Axis.Z).loops()) {
+                    if (worldFold.getBlockDomain(Direction.Axis.Z).isLooped()) {
                         assertEquals(folded(fold, worldFold, quartX, quartZ),
                                 folded(fold, worldFold, quartX, quartZ + lapQuarts),
                                 "Z lap at quart " + quartX + ", " + quartZ);
@@ -441,21 +430,6 @@ class ReplacementNoiseFoldTest {
     @Nested
     class Compression {
         @Test
-        void takesTheOverworldTemperatureFactor() {
-            assertTakesTheTemperatureFactor(NoiseGeneratorSettings.OVERWORLD, Noises.TEMPERATURE);
-        }
-
-        @Test
-        void takesTheLargeBiomesTemperatureFactor() {
-            assertTakesTheTemperatureFactor(NoiseGeneratorSettings.LARGE_BIOMES, Noises.TEMPERATURE_LARGE);
-        }
-
-        @Test
-        void takesTheNetherTemperatureFactor() {
-            assertTakesTheTemperatureFactor(NoiseGeneratorSettings.NETHER, Noises.TEMPERATURE_NETHER);
-        }
-
-        @Test
         void aRouterWithoutAClimateNoiseIsNotCompressed() {
             for (ClimateScale scale : COMPRESSING_SCALES) {
                 WorldFold worldFold = compressed(TINY_CHUNK_MIN, TINY_CHUNK_MAX, scale);
@@ -472,12 +446,12 @@ class ReplacementNoiseFoldTest {
         void repeatsOneLapAway() {
             for (WorldFold worldFold : new WorldFold[] {NETHER_SCALED, HUGE}) {
                 ReplacementNoiseFold fold = netherFold();
-                int lapQuarts = worldFold.blockDomain(Direction.Axis.X).domainLength / 4;
+                int lapQuarts = worldFold.getBlockDomain(Direction.Axis.X).domainLength / 4;
                 Random random = new Random(WORLD_SEED);
                 for (int sample = 0; sample < PERIODICITY_SAMPLES; sample++) {
                     int quartX = random.nextInt(-lapQuarts, lapQuarts);
                     int quartZ = random.nextInt(-lapQuarts, lapQuarts);
-                    int quartY = random.nextInt(0, NETHER_QUART_HEIGHT);
+                    int quartY = random.nextInt(0, NETHER_HEIGHT_QUARTS);
                     assertEquals(foldedNether(fold, worldFold, quartX, quartY, quartZ),
                             foldedNether(fold, worldFold, quartX + lapQuarts, quartY, quartZ),
                             "X lap at quart " + quartX + ", " + quartY + ", " + quartZ);

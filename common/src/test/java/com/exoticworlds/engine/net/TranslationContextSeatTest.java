@@ -5,11 +5,11 @@ import static org.junit.jupiter.api.Assertions.assertSame;
 
 import org.junit.jupiter.api.Test;
 
-import com.exoticworlds.core.DeckTransformation;
-import com.exoticworlds.core.ShapeFixtures;
-import com.exoticworlds.core.WorldFold;
-import com.exoticworlds.core.WorldFolds;
-import com.exoticworlds.core.WorldLoopBounds;
+import com.exoticworlds.core.fold.DeckTransformation;
+import com.exoticworlds.core.world.ShapeFixtures;
+import com.exoticworlds.core.fold.WorldFold;
+import com.exoticworlds.core.fold.WorldFolds;
+import com.exoticworlds.core.world.WorldLoopBounds;
 import com.exoticworlds.engine.seam.ClientPosition;
 
 import net.minecraft.world.level.Level;
@@ -17,8 +17,8 @@ import net.minecraft.world.phys.Vec3;
 
 class TranslationContextSeatTest {
     private static final int WIDTH_IN_CHUNKS = 32;
-    private static final int WIDTH = WIDTH_IN_CHUNKS * 16;
-    private static final int VIEW_DISTANCE = 12;
+    private static final int WIDTH_BLOCKS = WIDTH_IN_CHUNKS * 16;
+    private static final int VIEW_DISTANCE_CHUNKS = 12;
 
     private static final WorldFold TORUS = WorldFolds.of(ShapeFixtures.torus(WorldLoopBounds.ofWidth(WIDTH_IN_CHUNKS)));
 
@@ -36,8 +36,8 @@ class TranslationContextSeatTest {
                     throw new UnsupportedOperationException();
                 },
                 Level.OVERWORLD,
-                VIEW_DISTANCE,
-                VIEW_DISTANCE,
+                VIEW_DISTANCE_CHUNKS,
+                VIEW_DISTANCE_CHUNKS,
                 entityId -> null,
                 entityId -> null,
                 () -> {
@@ -53,7 +53,7 @@ class TranslationContextSeatTest {
     @Test
     void theTransformationTowardAnAnchorAcrossTheSeamSeatsThePointInTheLappedCopy() {
         TranslationContext context = contextAnchoredAt(ANCHOR_ACROSS_THE_SEAM);
-        assertEquals(TARGET.subtract(WIDTH, 0.0, 0.0), context.nearestCopyTransformation(TARGET).apply(TARGET));
+        assertEquals(TARGET.subtract(WIDTH_BLOCKS, 0.0, 0.0), context.nearestCopyTransformation(TARGET).apply(TARGET));
     }
 
     @Test

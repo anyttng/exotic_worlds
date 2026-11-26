@@ -1,7 +1,8 @@
 package com.exoticworlds.engine.noise;
 
-import com.exoticworlds.core.WorldFold;
+import com.exoticworlds.core.fold.WorldFold;
 import com.exoticworlds.engine.noise.ClimateScanFixture.WorldType;
+import com.exoticworlds.engine.noise.check.ClimateTargets;
 import com.exoticworlds.shape.WorldLoopPresets;
 import static com.exoticworlds.engine.noise.ClimateScanFixture.SCAN_Y_BLOCKS;
 import static com.exoticworlds.engine.noise.ClimateScanFixture.SEED_BASE;
@@ -37,20 +38,20 @@ class ClimateSamplerPeriodicityTest {
     void theSamplerRepeatsOneWidthAwayOnATorus() {
         WorldType type = TYPES.getFirst();
         MultiNoiseBiomeSource source = biomeSource(type);
-        int width = WorldLoopPresets.TINY.blockWidth();
-        WorldFold fold = torusOfWidth(width);
+        int widthBlocks = WorldLoopPresets.TINY.getWidthBlocks();
+        WorldFold fold = torusOfWidth(widthBlocks);
         Climate.Sampler sampler = randomState(type, fold, SEED_BASE).createClimateSampler(SamplerContext.EMPTY_UNCACHED);
         int quartY = QuartPos.fromBlock(SCAN_Y_BLOCKS);
         Map<String, Integer> broken = new HashMap<>();
 
         GenerationFoldContext.runWithFold(fold, () -> {
             for (int i = 0; i < SAMPLES; i++) {
-                int x = i * (width / SAMPLES);
-                int z = (i * 37) % width;
+                int x = i * (widthBlocks / SAMPLES);
+                int z = (i * 37) % widthBlocks;
                 Climate.TargetPoint here =
                         ClimateTargets.at(sampler, QuartPos.fromBlock(x), quartY, QuartPos.fromBlock(z));
                 Climate.TargetPoint lapAway =
-                        ClimateTargets.at(sampler, QuartPos.fromBlock(x + width), quartY, QuartPos.fromBlock(z));
+                        ClimateTargets.at(sampler, QuartPos.fromBlock(x + widthBlocks), quartY, QuartPos.fromBlock(z));
                 collect(broken, "temperature", here.temperature(), lapAway.temperature());
                 collect(broken, "humidity", here.humidity(), lapAway.humidity());
                 collect(broken, "continentalness", here.continentalness(), lapAway.continentalness());
@@ -68,8 +69,8 @@ class ClimateSamplerPeriodicityTest {
     @Test
     void theCylinderSamplerRepeatsOnItsLoopedAxisAlone() {
         WorldType type = TYPES.getFirst();
-        int width = WorldLoopPresets.TINY.blockWidth();
-        WorldFold fold = cylinderOfWidth(width);
+        int widthBlocks = WorldLoopPresets.TINY.getWidthBlocks();
+        WorldFold fold = cylinderOfWidth(widthBlocks);
         Climate.Sampler sampler = randomState(type, fold, SEED_BASE).createClimateSampler(SamplerContext.EMPTY_UNCACHED);
         int quartY = QuartPos.fromBlock(SCAN_Y_BLOCKS);
         Map<String, Integer> broken = new HashMap<>();
@@ -77,14 +78,14 @@ class ClimateSamplerPeriodicityTest {
 
         GenerationFoldContext.runWithFold(fold, () -> {
             for (int i = 0; i < SAMPLES; i++) {
-                int x = i * (width / SAMPLES);
-                int z = (i * 37) % width;
+                int x = i * (widthBlocks / SAMPLES);
+                int z = (i * 37) % widthBlocks;
                 Climate.TargetPoint here =
                         ClimateTargets.at(sampler, QuartPos.fromBlock(x), quartY, QuartPos.fromBlock(z));
                 Climate.TargetPoint alongX =
-                        ClimateTargets.at(sampler, QuartPos.fromBlock(x + width), quartY, QuartPos.fromBlock(z));
+                        ClimateTargets.at(sampler, QuartPos.fromBlock(x + widthBlocks), quartY, QuartPos.fromBlock(z));
                 Climate.TargetPoint alongZ =
-                        ClimateTargets.at(sampler, QuartPos.fromBlock(x), quartY, QuartPos.fromBlock(z + width));
+                        ClimateTargets.at(sampler, QuartPos.fromBlock(x), quartY, QuartPos.fromBlock(z + widthBlocks));
                 collect(broken, "temperature", here.temperature(), alongX.temperature());
                 collect(broken, "humidity", here.humidity(), alongX.humidity());
                 collect(broken, "continentalness", here.continentalness(), alongX.continentalness());

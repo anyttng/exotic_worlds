@@ -1,0 +1,48 @@
+package com.exoticworlds.bridge.v2.geometry;
+
+import com.exoticworlds.api.v2.geometry.OrientationV2;
+import com.exoticworlds.api.v2.geometry.SeamShiftV2;
+import com.exoticworlds.core.fold.DeckTransformation;
+
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.ChunkPos;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec3;
+
+final class GeometryShiftView implements SeamShiftV2 {
+    private final DeckTransformation transformation;
+
+    GeometryShiftView(DeckTransformation transformation) {
+        this.transformation = transformation;
+    }
+
+    @Override
+    public boolean isIdentity() {
+        return this.transformation.isIdentity();
+    }
+
+    @Override
+    public OrientationV2 getOrientation() {
+        return OrientationView.of(this.transformation.getOrientation());
+    }
+
+    @Override
+    public Vec3 apply(Vec3 pos) {
+        return this.transformation.apply(pos);
+    }
+
+    @Override
+    public BlockPos apply(BlockPos pos) {
+        return this.transformation.apply(pos);
+    }
+
+    @Override
+    public ChunkPos apply(ChunkPos chunk) {
+        return this.transformation.apply(chunk);
+    }
+
+    @Override
+    public AABB apply(AABB box) {
+        return this.transformation.apply(box);
+    }
+}

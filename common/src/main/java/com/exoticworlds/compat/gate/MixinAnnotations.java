@@ -34,7 +34,7 @@ final class MixinAnnotations {
         return Optional.empty();
     }
 
-    static Optional<AnnotationValue> element(Annotation annotation, String name) {
+    static Optional<AnnotationValue> getElement(Annotation annotation, String name) {
         for (AnnotationElement element : annotation.elements()) {
             if (element.name().equalsString(name)) {
                 return Optional.of(element.value());
@@ -44,24 +44,24 @@ final class MixinAnnotations {
         return Optional.empty();
     }
 
-    static List<AnnotationValue> values(Annotation annotation, String name) {
-        return element(annotation, name)
+    static List<AnnotationValue> getValues(Annotation annotation, String name) {
+        return getElement(annotation, name)
                 .map(value -> value instanceof AnnotationValue.OfArray array ? array.values() : List.of(value))
                 .orElse(List.of());
     }
 
-    static List<String> strings(Annotation annotation, String name) {
+    static List<String> getStrings(Annotation annotation, String name) {
         List<String> strings = new ArrayList<>();
-        for (AnnotationValue value : values(annotation, name)) {
+        for (AnnotationValue value : getValues(annotation, name)) {
             strings.add(asString(value));
         }
 
         return strings;
     }
 
-    static List<Annotation> nested(Annotation annotation, String name) {
+    static List<Annotation> getNested(Annotation annotation, String name) {
         List<Annotation> nested = new ArrayList<>();
-        for (AnnotationValue value : values(annotation, name)) {
+        for (AnnotationValue value : getValues(annotation, name)) {
             if (value instanceof AnnotationValue.OfAnnotation inner) {
                 nested.add(inner.annotation());
             }
@@ -70,12 +70,12 @@ final class MixinAnnotations {
         return nested;
     }
 
-    static String string(Annotation annotation, String name) {
-        return element(annotation, name).map(MixinAnnotations::asString).orElse("");
+    static String getString(Annotation annotation, String name) {
+        return getElement(annotation, name).map(MixinAnnotations::asString).orElse("");
     }
 
-    static int integer(Annotation annotation, String name, int fallback) {
-        return element(annotation, name)
+    static int getInteger(Annotation annotation, String name, int fallback) {
+        return getElement(annotation, name)
                 .map(value -> value instanceof AnnotationValue.OfInt number ? number.intValue() : fallback)
                 .orElse(fallback);
     }

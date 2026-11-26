@@ -33,7 +33,7 @@ import org.jspecify.annotations.Nullable;
 final class ReferenceCheck {
     private static final String OBJECT = "java/lang/Object";
     private static final String ARRAY_PREFIX = "[";
-    private static final Set<String> OBJECT_METHODS = objectMethods();
+    private static final Set<String> OBJECT_METHODS = readObjectMethods();
 
     private final ClassFiles classFiles;
     private final List<String> modPackages;
@@ -109,7 +109,7 @@ final class ReferenceCheck {
 
     private void requireClass(String className, String type, Set<Refusal> refusals) {
         String element = elementOf(type);
-        if (element != null && inMod(element) && !this.classFiles.load(element).present()) {
+        if (element != null && isInMod(element) && !this.classFiles.load(element).isPresent()) {
             refusals.add(new Refusal(className, element, Reason.MISSING_CLASS));
         }
     }
@@ -121,57 +121,57 @@ final class ReferenceCheck {
             return;
         }
 
-        if (!inMod(owner)) {
+        if (!isInMod(owner)) {
             return;
         }
 
-        if (!this.classFiles.load(owner).present()) {
+        if (!this.classFiles.load(owner).isPresent()) {
             refusals.add(new Refusal(className, owner, Reason.MISSING_CLASS));
             return;
         }
 
-        boolean constructor = name.equals(MemberRef.CONSTRUCTOR);
-        Predicate<ClassModel> declares = model -> declaresMethod(model, name, descriptor);
-        boolean found = constructor ? declaredBy(owner, declares) : resolves(owner, declares,
+        boolean isConstructor = name.equals(MemberRef.CONSTRUCTOR);
+        Predicate<ClassModel> declares = model -> hasDeclaredMethod(model, name, descriptor);
+        boolean isFound = isConstructor ? isDeclaredBy(owner, declares) : isResolving(owner, declares,
                 OBJECT_METHODS.contains(name + descriptor));
-        if (!found) {
+        if (!isFound) {
             refusals.add(new Refusal(className, owner + "#" + name + descriptor, Reason.MISSING_METHOD));
         }
     }
 
     private void requireField(String className, String owner, String name, String descriptor,
             Set<Refusal> refusals) {
-        if (!inMod(owner)) {
+        if (!isInMod(owner)) {
             return;
         }
 
-        if (!this.classFiles.load(owner).present()) {
+        if (!this.classFiles.load(owner).isPresent()) {
             refusals.add(new Refusal(className, owner, Reason.MISSING_CLASS));
             return;
         }
 
-        if (!resolves(owner, model -> declaresField(model, name, descriptor), false)) {
+        if (!isResolving(owner, model -> hasDeclaredField(model, name, descriptor), false)) {
             refusals.add(new Refusal(className, owner + "#" + name + ":" + descriptor, Reason.MISSING_FIELD));
         }
     }
 
-    private boolean declaredBy(String owner, Predicate<ClassModel> declares) {
+    private boolean isDeclaredBy(String owner, Predicate<ClassModel> declares) {
         ClassModel model = this.classFiles.load(owner).model();
         return model == null || declares.test(model);
     }
 
     // A supertype outside the mod's packages is never loaded during mixin bootstrap, so what it may declare counts.
-    private boolean resolves(String owner, Predicate<ClassModel> declares, boolean onObject) {
+    private boolean isResolving(String owner, Predicate<ClassModel> declares, boolean isOnObject) {
         if (owner.equals(OBJECT)) {
-            return onObject;
+            return isOnObject;
         }
 
-        if (!inMod(owner)) {
+        if (!isInMod(owner)) {
             return true;
         }
 
         Loaded loaded = this.classFiles.load(owner);
-        if (!loaded.present()) {
+        if (!loaded.isPresent()) {
             return false;
         }
 
@@ -181,12 +181,12 @@ final class ReferenceCheck {
         }
 
         if (model.superclass().isPresent()
-                && resolves(model.superclass().get().asInternalName(), declares, onObject)) {
+                && isResolving(model.superclass().get().asInternalName(), declares, isOnObject)) {
             return true;
         }
 
         for (ClassEntry type : model.interfaces()) {
-            if (resolves(type.asInternalName(), declares, false)) {
+            if (isResolving(type.asInternalName(), declares, false)) {
                 return true;
             }
         }
@@ -194,7 +194,7 @@ final class ReferenceCheck {
         return false;
     }
 
-    private static boolean declaresMethod(ClassModel model, String name, String descriptor) {
+    private static boolean hasDeclaredMethod(ClassModel model, String name, String descriptor) {
         for (MethodModel method : model.methods()) {
             if (method.methodName().equalsString(name) && method.methodType().equalsString(descriptor)) {
                 return true;
@@ -204,7 +204,7 @@ final class ReferenceCheck {
         return false;
     }
 
-    private static boolean declaresField(ClassModel model, String name, String descriptor) {
+    private static boolean hasDeclaredField(ClassModel model, String name, String descriptor) {
         for (FieldModel field : model.fields()) {
             if (field.fieldName().equalsString(name) && field.fieldType().equalsString(descriptor)) {
                 return true;
@@ -214,7 +214,7 @@ final class ReferenceCheck {
         return false;
     }
 
-    private boolean inMod(String internalName) {
+    private boolean isInMod(String internalName) {
         for (String modPackage : this.modPackages) {
             if (internalName.startsWith(modPackage)) {
                 return true;
@@ -233,7 +233,7 @@ final class ReferenceCheck {
         return element.startsWith("L") && element.endsWith(";") ? MemberRef.unwrapDescriptor(element) : null;
     }
 
-    private static Set<String> objectMethods() {
+    private static Set<String> readObjectMethods() {
         Set<String> methods = new LinkedHashSet<>();
         for (Method method : Object.class.getDeclaredMethods()) {
             methods.add(method.getName()
