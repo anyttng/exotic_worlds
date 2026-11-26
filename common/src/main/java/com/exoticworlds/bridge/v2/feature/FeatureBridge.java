@@ -6,9 +6,7 @@ import java.util.List;
 import com.exoticworlds.api.v2.feature.FeatureV2;
 import com.exoticworlds.api.v2.feature.OptionFeatureV2;
 import com.exoticworlds.api.v2.feature.OptionPartV2;
-import com.exoticworlds.core.feature.ShapeFeatures;
 import com.exoticworlds.core.option.ShapeOption;
-import com.exoticworlds.core.option.ShapeOptionRegistry;
 import com.exoticworlds.core.registry.StartupRegistry;
 import com.exoticworlds.shape.feature.ShapeFeature;
 import com.exoticworlds.shape.option.OptionPart;
@@ -23,11 +21,7 @@ public final class FeatureBridge {
                 ? new BridgedOptionFeature<>(offered)
                 : new BridgedFeature(feature);
         FEATURES.register(feature.getId(), internal);
-        if (internal instanceof BridgedOptionFeature<?> offered) {
-            ShapeOptionRegistry.register(offered.getOption());
-        }
-
-        ShapeFeatures.register(internal);
+        internal.register();
     }
 
     public static ShapeFeature internalOf(FeatureV2 feature) {

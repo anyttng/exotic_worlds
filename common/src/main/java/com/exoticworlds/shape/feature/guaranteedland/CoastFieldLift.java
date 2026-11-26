@@ -2,7 +2,6 @@ package com.exoticworlds.shape.feature.guaranteedland;
 
 import com.exoticworlds.core.feature.RandomStateMoment;
 import com.exoticworlds.core.fold.WorldFold;
-import com.exoticworlds.engine.noise.GenerationFoldContext;
 import com.exoticworlds.shape.noise.DensityNoises;
 
 import net.minecraft.core.Direction;
@@ -24,13 +23,8 @@ public final class CoastFieldLift {
 
     static void lift(GuaranteedLand feature, RandomStateMoment moment) {
         RandomState randomState = moment.randomState();
-        WorldFold dimensionFold = moment.fold();
-        if (!dimensionFold.isLooped(Direction.Axis.X) || !dimensionFold.isLooped(Direction.Axis.Z)) {
-            return;
-        }
-
-        WorldFold fold = GenerationFoldContext.getContext().getRouterBuildFold();
-        if (fold == null) {
+        WorldFold fold = moment.fold();
+        if (!fold.isLooped(Direction.Axis.X) || !fold.isLooped(Direction.Axis.Z)) {
             return;
         }
 
@@ -39,16 +33,15 @@ public final class CoastFieldLift {
             return;
         }
 
-        searchLift(feature, moment, router, fold);
+        searchLift(feature, moment, router);
     }
 
-    private static void searchLift(GuaranteedLand feature, RandomStateMoment moment, NoiseRouter router,
-            WorldFold fold) {
+    private static void searchLift(GuaranteedLand feature, RandomStateMoment moment, NoiseRouter router) {
         RandomState randomState = moment.randomState();
-        WorldFold dimensionFold = moment.fold();
+        WorldFold fold = moment.fold();
         int seaLevel = moment.seaLevel();
-        int xLengthBlocks = dimensionFold.getWidthBlocks(Direction.Axis.X);
-        int zLengthBlocks = dimensionFold.getWidthBlocks(Direction.Axis.Z);
+        int xLengthBlocks = fold.getWidthBlocks(Direction.Axis.X);
+        int zLengthBlocks = fold.getWidthBlocks(Direction.Axis.Z);
         DensitySampler density = randomState.getSampler(router.finalDensity());
         int strideBlocks = Math.max(STRIDE_BLOCKS, Math.max(xLengthBlocks, zLengthBlocks) / GRID_CAP);
         int xGrid = Math.max(1, xLengthBlocks / strideBlocks);

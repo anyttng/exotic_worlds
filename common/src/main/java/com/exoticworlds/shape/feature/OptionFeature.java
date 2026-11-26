@@ -3,6 +3,7 @@ package com.exoticworlds.shape.feature;
 import java.util.List;
 
 import com.exoticworlds.core.option.ShapeOption;
+import com.exoticworlds.core.option.ShapeOptionRegistry;
 import com.exoticworlds.shape.option.DimensionOption;
 import com.exoticworlds.shape.option.OptionPart;
 
@@ -20,6 +21,12 @@ public abstract class OptionFeature<T> extends ShapeFeature {
         this.option = option;
         this.newWorldValue = newWorldValue;
         this.shown = DimensionOption.of(option, captionKey, parts);
+    }
+
+    @Override
+    public final void register() {
+        ShapeOptionRegistry.register(this.option);
+        super.register();
     }
 
     public final ShapeOption<T> getOption() {
