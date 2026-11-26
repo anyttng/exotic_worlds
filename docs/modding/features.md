@@ -38,7 +38,7 @@ FeaturesV2.register(BandBeacons.FEATURE);
 ShapesV2.attach(ShapesV2.TORUS, BandBeacons.FEATURE, DimensionScopeV2.of(List.of(LevelStem.OVERWORLD)));
 ```
 
-Call both from your mod's initializer. Features run within one moment in the order of the `register` calls. `attach` puts the feature on one shape in the dimensions of its scope, and the shape's page lists options in the order of the `attach` calls. `DimensionScopeV2.ALL` covers every dimension, a mod's own included. The shape may be `ShapesV2.TORUS`, `ShapesV2.CYLINDER`, [a shape of your own](shapes.md) or another mod's, by its id.
+Call both from your mod's initializer. Features run within one moment in the order of the `register` calls. `attach` puts the feature on one shape in the dimensions of its scope, and the shape's page lists options in the order of the `attach` calls. Exotic Worlds' own features and options come first, then each mod's in the alphabetical order of namespaces. `DimensionScopeV2.ALL` covers every dimension, a mod's own included. The shape may be `ShapesV2.TORUS`, `ShapesV2.CYLINDER`, [a shape of your own](shapes.md) or another mod's, by its id.
 
 ## The moments
 

@@ -23,6 +23,11 @@ final class BridgedOptionFeature<T> extends OptionFeature<T> {
     }
 
     @Override
+    public String getNamespace() {
+        return this.feature.getId().getNamespace();
+    }
+
+    @Override
     public boolean isOn(ShapeOptions options) {
         return this.feature.isOn(options.get(getOption()));
     }
