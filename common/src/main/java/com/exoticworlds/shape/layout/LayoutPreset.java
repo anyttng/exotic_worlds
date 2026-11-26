@@ -10,7 +10,6 @@ import com.exoticworlds.shape.dimension.DeclaredShapes;
 import com.exoticworlds.shape.dimension.DimensionContext;
 import com.exoticworlds.shape.dimension.DimensionShape;
 import com.exoticworlds.shape.option.DimensionOption;
-import com.exoticworlds.shape.torus.Torus;
 
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.level.dimension.LevelStem;
@@ -80,7 +79,7 @@ public final class LayoutPreset {
 
     private static @Nullable DimensionShape getPresetShape(DimensionLayout overworld) {
         Identifier chosen = overworld.shape();
-        DimensionShape shape = chosen == null ? Torus.SHAPE : DeclaredShapes.of(chosen);
+        DimensionShape shape = chosen == null ? DeclaredShapes.getPresetDefault() : DeclaredShapes.of(chosen);
         return shape != null && shape.canTakePresets() ? shape : null;
     }
 
