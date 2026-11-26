@@ -122,7 +122,7 @@ final class OptionControls {
             declared.getParts().forEach(part -> OptionControls.this.section.add(this.control(part)));
             FeatureView<T> view = FeatureViews.of(declared.getOption());
             if (view != null) {
-                view.extend(this);
+                view.extendPanel(this);
             }
         }
 
@@ -161,7 +161,7 @@ final class OptionControls {
         }
 
         @Override
-        public void add(GuiComponent component) {
+        public void addComponent(GuiComponent component) {
             OptionControls.this.section.add(component);
         }
 

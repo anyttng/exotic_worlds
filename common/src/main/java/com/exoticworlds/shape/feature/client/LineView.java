@@ -10,11 +10,11 @@ import net.minecraft.network.chat.Component;
 
 public record LineView<T>(BiFunction<T, FlatShape, Component> line) implements FeatureView<T> {
     @Override
-    public void extend(FeaturePanel<T> panel) {
+    public void extendPanel(FeaturePanel<T> panel) {
         Label label = new Label(panel.getFill(), LabelRole.MUTED, Component.empty());
         label.setText(() -> this.text(panel));
         label.setVisible(() -> panel.isOffered() && !this.text(panel).getString().isEmpty());
-        panel.add(label);
+        panel.addComponent(label);
     }
 
     private Component text(FeaturePanel<T> panel) {

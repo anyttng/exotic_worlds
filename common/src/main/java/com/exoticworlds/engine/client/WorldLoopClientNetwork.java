@@ -20,7 +20,7 @@ public final class WorldLoopClientNetwork {
     private static volatile Consumer<DimensionChoicesPayload> dimensionChoicesOpener = choices -> {
     };
 
-    public static void apply(ResourceKey<Level> dimension, FlatShape shape) {
+    public static void setDimensionShape(ResourceKey<Level> dimension, FlatShape shape) {
         WorldFold fold = WorldFolds.of(shape);
         PublishedShapes.publish(dimension, fold);
         ClientLevel level = Minecraft.getInstance().level;
@@ -29,12 +29,12 @@ public final class WorldLoopClientNetwork {
         }
     }
 
-    public static void declare(PositionRowsPayload rows) {
+    public static void declarePositionRows(PositionRowsPayload rows) {
         SyncedTagFold.declare(rows.blockEntities());
         ComponentPositions.declare(rows.components());
     }
 
-    public static void openDimensionChoicesWith(Consumer<DimensionChoicesPayload> opener) {
+    public static void setDimensionChoicesOpener(Consumer<DimensionChoicesPayload> opener) {
         dimensionChoicesOpener = opener;
     }
 

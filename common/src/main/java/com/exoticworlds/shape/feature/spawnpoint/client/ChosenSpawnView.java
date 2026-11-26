@@ -40,7 +40,7 @@ public final class ChosenSpawnView implements FeatureView<SpawnPoint> {
     }
 
     @Override
-    public void extend(FeaturePanel<SpawnPoint> panel) {
+    public void extendPanel(FeaturePanel<SpawnPoint> panel) {
         Theme theme = panel.getTheme();
         FillStyle fill = panel.getFill();
         Value<SpawnPoint.Mode> mode = Value.of(SpawnPoint.Mode.DEFAULT);
@@ -63,7 +63,7 @@ public final class ChosenSpawnView implements FeatureView<SpawnPoint> {
         section.add(new Label(fill, LabelRole.NORMAL, POINT));
         section.add(point);
         section.setVisible(() -> panel.isOffered() && panel.getSpans() != null);
-        panel.add(section);
+        panel.addComponent(section);
 
         panel.onShow(shown -> {
             mode.set(shown.mode());

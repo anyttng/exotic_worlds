@@ -65,7 +65,7 @@ public final class ShapeFeatures {
         return atMoment(List.copyOf(FEATURES.getEntries().values()), moment);
     }
 
-    public static <F extends GenerationFeature> List<F> onLevel(ServerLevel level, Class<F> moment) {
+    public static <F extends GenerationFeature> List<F> activeOn(ServerLevel level, Class<F> moment) {
         return atMoment(((ActiveFeaturesHolder) level).exotic_worlds$getActiveFeatures(), moment);
     }
 

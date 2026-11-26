@@ -47,7 +47,7 @@ class LineViewV2Test {
     @Test
     void aLineIsWorkedOutFromTheValueAndTheSpans() {
         assertEquals(CHOSEN + " of " + WIDTH_CHUNKS,
-                FeatureViewBridge.internal(LINE).line().apply(CHOSEN, SPANS).getString());
+                FeatureViewBridge.toInternal(LINE).line().apply(CHOSEN, SPANS).getString());
     }
 
     @Test
