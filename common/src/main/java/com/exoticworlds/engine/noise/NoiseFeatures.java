@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import com.exoticworlds.accessors.NoiseOriginHolder;
+import com.exoticworlds.core.feature.ClimateFieldMoment;
 import com.exoticworlds.core.feature.GenerationFeature;
 import com.exoticworlds.core.feature.NoiseFeature;
 import com.exoticworlds.core.feature.NoiseMoment;
@@ -28,12 +29,25 @@ public final class NoiseFeatures {
     }
 
     public static double warpDivisor(List<NoiseFeature> features, NoiseMoment moment) {
-        double divisor = moment.xzScale();
+        return moment.xzScale() * warpFactor(features, moment);
+    }
+
+    public static double warpFactor(List<NoiseFeature> features, NoiseMoment moment) {
+        double product = NoiseFeature.UNCHANGED;
         for (NoiseFeature feature : features) {
-            divisor *= feature.warpFactor(moment);
+            product *= feature.warpFactor(moment);
         }
 
-        return divisor;
+        return product;
+    }
+
+    public static double climateFieldFactor(List<NoiseFeature> features, ClimateFieldMoment moment) {
+        double product = NoiseFeature.UNCHANGED;
+        for (NoiseFeature feature : features) {
+            product *= feature.climateFieldFactor(moment);
+        }
+
+        return product;
     }
 
     public static NoiseOffset offsetOf(List<NoiseFeature> features, NoiseOffsets offsets, NoiseMoment moment) {
