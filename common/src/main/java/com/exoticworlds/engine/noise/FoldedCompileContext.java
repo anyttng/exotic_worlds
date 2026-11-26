@@ -15,11 +15,11 @@ import net.minecraft.world.level.levelgen.densityfunction.DensityFunction;
 
 public record FoldedCompileContext(DensityFunction.CompileContext vanilla, WorldFold fold,
         ResourceKey<LevelStem> dimension, List<NoiseFeature> noiseFeatures, NoiseOffsets offsets,
-        NoiseScaleLadder ladder, double xDivisor, double zDivisor) {
+        NoiseScaleLadder ladder, NoiseRouterFields routerFields, double xDivisor, double zDivisor) {
     public FoldedCompileContext(DensityFunction.CompileContext vanilla, WorldFold fold,
             ResourceKey<LevelStem> dimension, List<NoiseFeature> noiseFeatures, NoiseOffsets offsets,
-            NoiseScaleLadder ladder) {
-        this(vanilla, fold, dimension, noiseFeatures, offsets, ladder, NoiseConstants.UNDIVIDED,
+            NoiseScaleLadder ladder, NoiseRouterFields routerFields) {
+        this(vanilla, fold, dimension, noiseFeatures, offsets, ladder, routerFields, NoiseConstants.UNDIVIDED,
                 NoiseConstants.UNDIVIDED);
     }
 
@@ -37,7 +37,7 @@ public record FoldedCompileContext(DensityFunction.CompileContext vanilla, World
         return scope.getXDivisor() == folded.xDivisor && scope.getZDivisor() == folded.zDivisor
                 ? folded
                 : new FoldedCompileContext(folded.vanilla, folded.fold, folded.dimension, folded.noiseFeatures,
-                        folded.offsets, folded.ladder,
+                        folded.offsets, folded.ladder, folded.routerFields,
                         scope.getXDivisor(), scope.getZDivisor());
     }
 }

@@ -8,7 +8,6 @@ import com.exoticworlds.engine.noise.ClimateScanFixture.WorldType;
 import com.exoticworlds.engine.noise.GenerationFoldContext;
 import com.exoticworlds.engine.noise.periodic.OctaveVarianceCorrection;
 import com.exoticworlds.shape.feature.compactbiomes.ClimateCompression;
-import com.exoticworlds.shape.feature.compactbiomes.ClimateFields;
 import static com.exoticworlds.engine.noise.ClimateScanFixture.TYPES;
 import static com.exoticworlds.engine.noise.ClimateScanFixture.noiseParameters;
 import static com.exoticworlds.engine.noise.ClimateScanFixture.randomState;
@@ -21,6 +20,7 @@ import java.util.Locale;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Set;
 
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -74,6 +74,8 @@ class TerrainWallScan {
 
     private static final List<ResourceKey<NormalNoise>> TERRAIN_FIELDS = List.of(
             Noises.CONTINENTALNESS, Noises.EROSION, Noises.RIDGE, Noises.TEMPERATURE, Noises.VEGETATION);
+
+    private static final Set<ResourceKey<NormalNoise>> CLIMATE_FIELDS = Set.of(Noises.TEMPERATURE, Noises.VEGETATION);
 
     private record Site(int blockX, int blockY, int blockZ, double thicknessBlocks, double density,
             double continents, double erosion, double ridges, double depth) {
@@ -218,7 +220,7 @@ class TerrainWallScan {
         NormalNoise.Parameters parameters = noiseParameters(key).parameters;
         DoubleList amplitudes = ClimateCompression.octaveAmplitudes(parameters);
         double lowestFreqInputFactor = Math.pow(2.0, parameters.baseOctave());
-        double compression = ClimateCompression.factor(fold, ClimateFields.isClimate(key), amplitudes,
+        double compression = ClimateCompression.factor(fold, CLIMATE_FIELDS.contains(key), amplitudes,
                 lowestFreqInputFactor, CLIMATE_XZ_SCALE, HORIZONTAL_SHARE);
 
         report.append("  ").append(key.identifier().getPath())

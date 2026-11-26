@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertSame;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 
 import org.junit.jupiter.api.Test;
 
@@ -77,7 +78,7 @@ class NoiseFeaturesTest {
     }
 
     private static NoiseMoment moment(Holder<NormalNoise> noise) {
-        return new NoiseMoment(FOLD, LevelStem.OVERWORLD, noise, STACK, XZ_SCALE, SHARE);
+        return new NoiseMoment(FOLD, LevelStem.OVERWORLD, noise, Set.of(), STACK, XZ_SCALE, SHARE);
     }
 
     private record Scaling(String key, double factor) implements NoiseFeature {

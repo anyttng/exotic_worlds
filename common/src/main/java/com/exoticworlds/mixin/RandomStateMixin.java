@@ -26,6 +26,7 @@ import com.exoticworlds.engine.gen.CanonicalRandomFactory;
 import com.exoticworlds.engine.noise.AquiferCells;
 import com.exoticworlds.engine.noise.FoldedCompileContext;
 import com.exoticworlds.engine.noise.GenerationFoldContext;
+import com.exoticworlds.engine.noise.NoiseRouterFields;
 import com.exoticworlds.engine.noise.NoiseScaleLadder;
 import com.llamalad7.mixinextras.injector.ModifyReturnValue;
 import com.llamalad7.mixinextras.sugar.Local;
@@ -91,7 +92,7 @@ public class RandomStateMixin implements FoldSource, FoldedRandomState {
         List<NoiseFeature> features = ShapeFeatures.atMoment(
                 GenerationFoldContext.getContext().getRouterBuildFeatures(), NoiseFeature.class);
         this.exotic_worlds$compileContext = new FoldedCompileContext(context, fold,
-                GenerationFoldContext.getContext().getRouterBuildDimension(), features, exotic_worlds$getNoiseOffsets(), NoiseScaleLadder.of(fold, exotic_worlds$roots(router), context));
+                GenerationFoldContext.getContext().getRouterBuildDimension(), features, exotic_worlds$getNoiseOffsets(), NoiseScaleLadder.of(fold, exotic_worlds$roots(router), context), NoiseRouterFields.of(router));
         ((FoldedCompileSource) context).exotic_worlds$setFoldedCompile(this.exotic_worlds$compileContext);
         return context;
     }

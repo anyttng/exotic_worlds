@@ -2,17 +2,11 @@ package com.exoticworlds.shape.feature.guaranteedland;
 
 import java.util.Set;
 
-import net.minecraft.resources.ResourceKey;
-import net.minecraft.world.level.levelgen.Noises;
-import net.minecraft.world.level.levelgen.synth.NormalNoise;
+import com.exoticworlds.core.gen.RouterField;
 
 public final class CoastFields {
-    private static final Set<ResourceKey<NormalNoise>> KEYS = Set.of(
-            Noises.CONTINENTALNESS,
-            Noises.CONTINENTALNESS_LARGE);
-
-    public static boolean isCoast(ResourceKey<NormalNoise> key) {
-        return KEYS.contains(key);
+    public static boolean isCoast(Set<RouterField> readUnder) {
+        return readUnder.contains(RouterField.CONTINENTS);
     }
 
     private CoastFields() {

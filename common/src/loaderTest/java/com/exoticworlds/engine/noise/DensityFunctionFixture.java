@@ -89,7 +89,8 @@ public final class DensityFunctionFixture {
     private static DensitySampler compileFolded(DensityFunction function, WorldFold fold, NoiseScaleLadder ladder) {
         FoldedSeeded context = new FoldedSeeded();
         context.exotic_worlds$setFoldedCompile(new FoldedCompileContext(context, fold, LevelStem.OVERWORLD,
-                StartupRegistrations.noiseFeaturesFor(fold.getOptions()), new NoiseOffsets(), ladder));
+                StartupRegistrations.noiseFeaturesFor(fold.getOptions()), new NoiseOffsets(), ladder,
+                NoiseRouterFields.NONE));
         return new DensityFunctionCompiler(context).getSampler(function);
     }
 

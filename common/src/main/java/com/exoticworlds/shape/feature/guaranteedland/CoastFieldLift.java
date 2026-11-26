@@ -2,7 +2,7 @@ package com.exoticworlds.shape.feature.guaranteedland;
 
 import com.exoticworlds.core.feature.RandomStateMoment;
 import com.exoticworlds.core.fold.WorldFold;
-import com.exoticworlds.shape.noise.DensityNoises;
+import com.exoticworlds.core.gen.DensityNoises;
 
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.levelgen.NoiseRouter;
@@ -29,7 +29,7 @@ public final class CoastFieldLift {
         }
 
         NoiseRouter router = randomState.router;
-        if (DensityNoises.matching(router.continents(), CoastFields::isCoast).isEmpty()) {
+        if (DensityNoises.noisesUnder(router.continents()).isEmpty()) {
             return;
         }
 

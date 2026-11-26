@@ -14,6 +14,8 @@ import com.exoticworlds.core.feature.NoiseMoment;
 import com.exoticworlds.core.feature.NoiseOffsets;
 import com.exoticworlds.core.fold.WorldFold;
 import com.exoticworlds.core.fold.WorldFolds;
+import com.exoticworlds.core.gen.DensityNoises;
+import com.exoticworlds.core.gen.RouterField;
 import com.exoticworlds.core.option.ShapeOptions;
 import com.exoticworlds.core.world.ShapeFixtures;
 import com.exoticworlds.shape.feature.compactbiomes.ClimateCompression;
@@ -56,6 +58,8 @@ class ForeignFieldCompressionTest {
 
     private static final double HORIZONTAL_SHARE = 0.0;
 
+    private static final boolean IS_CLIMATE_FIELD = true;
+
     private static final double FITTED = 2.5;
 
     private static final double NO_COMPRESSION = 1.0;
@@ -86,7 +90,7 @@ class ForeignFieldCompressionTest {
             NoiseFunction climate = climateOf(settings);
             for (ClimateScale scale : COMPRESSING_SCALES) {
                 WorldFold fold = tiny(scale);
-                double expected = ClimateCompression.factor(fold, climate.noise(), climate.xzScale(),
+                double expected = ClimateCompression.factor(fold, IS_CLIMATE_FIELD, climate.noise(), climate.xzScale(),
                         GenerationFoldContext.verticalShare(climate.xzScale(), climate.yScale()));
                 String leg = settings.identifier() + " " + scale.mode().getSerializedName();
                 assertEquals(expected, following(fold, climate, List.of(CompactBiomes.FEATURE)), FACTOR_TOLERANCE,
@@ -100,16 +104,16 @@ class ForeignFieldCompressionTest {
         WorldFold fold = tiny(ClimateScale.custom(CUSTOM_FACTOR));
         NoiseFunction climate = climateOf(NoiseGeneratorSettings.OVERWORLD);
         FoldedCompileContexts.register(new FoldedCompileContext(SEEDED, fold, LevelStem.OVERWORLD,
-                List.of(CompactBiomes.FEATURE), new NoiseOffsets(), NoiseScaleLadder.NONE));
-        assertEquals(CUSTOM_FACTOR, ForeignFieldCompression.followingNoise(fold, climate.noise(), climate.xzScale(),
-                climate.yScale()), FACTOR_TOLERANCE);
+                List.of(CompactBiomes.FEATURE), new NoiseOffsets(), NoiseScaleLadder.NONE, NoiseRouterFields.NONE));
+        assertEquals(CUSTOM_FACTOR, ForeignFieldCompression.followingNoise(fold, climate.noise(),
+                RouterField.TEMPERATURE, climate.xzScale(), climate.yScale()), FACTOR_TOLERANCE);
     }
 
     @Test
     void aFieldFollowingANoiseOnAFoldNoContextHoldsStaysUnchanged() {
         NoiseFunction climate = climateOf(NoiseGeneratorSettings.OVERWORLD);
         assertEquals(NO_COMPRESSION, ForeignFieldCompression.followingNoise(tiny(ClimateScale.custom(CUSTOM_FACTOR)),
-                climate.noise(), climate.xzScale(), climate.yScale()));
+                climate.noise(), RouterField.TEMPERATURE, climate.xzScale(), climate.yScale()));
     }
 
     @Test
@@ -150,14 +154,15 @@ class ForeignFieldCompressionTest {
 
     private static double following(WorldFold fold, NoiseFunction climate, List<NoiseFeature> features) {
         FoldedCompileContext context = new FoldedCompileContext(SEEDED, fold, LevelStem.OVERWORLD, features,
-                new NoiseOffsets(), NoiseScaleLadder.NONE);
-        return ForeignFieldCompression.followingNoise(context, climate.noise(), climate.xzScale(), climate.yScale());
+                new NoiseOffsets(), NoiseScaleLadder.NONE, NoiseRouterFields.NONE);
+        return ForeignFieldCompression.followingNoise(context, climate.noise(), RouterField.TEMPERATURE,
+                climate.xzScale(), climate.yScale());
     }
 
     private static NoiseFunction climateOf(ResourceKey<NoiseGeneratorSettings> settings) {
         DensityFunction temperature = LOOKUP.lookupOrThrow(Registries.NOISE_SETTINGS).getOrThrow(settings).value()
                 .noiseRouter().temperature();
-        return Objects.requireNonNull(ClimateCompression.climateNoiseOf(temperature));
+        return Objects.requireNonNull(DensityNoises.firstNoiseFunctionUnder(temperature));
     }
 
     private static WorldFold tiny(ClimateScale scale) {

@@ -9,7 +9,7 @@ import java.util.List;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-import com.exoticworlds.shape.feature.compactbiomes.ClimateCompression;
+import com.exoticworlds.core.gen.DensityNoises;
 
 import net.minecraft.SharedConstants;
 import net.minecraft.core.HolderLookup;
@@ -39,7 +39,7 @@ class ClimateFactorPreviewTest {
     }
 
     private static ResourceKey<NormalNoise> foundIn(ResourceKey<NoiseGeneratorSettings> settings) {
-        NoiseFunction found = ClimateCompression.climateNoiseOf(temperatureOf(settings));
+        NoiseFunction found = DensityNoises.firstNoiseFunctionUnder(temperatureOf(settings));
         assertNotNull(found, settings.identifier() + ": the router carries no climate noise to find");
         return found.noise().unwrapKey().orElseThrow();
     }
@@ -66,7 +66,7 @@ class ClimateFactorPreviewTest {
 
     @Test
     void aRouterWithoutAClimateNoiseIsAnswerlessRatherThanWrong() {
-        assertNull(ClimateCompression.climateNoiseOf(temperatureOf(NoiseGeneratorSettings.END)),
+        assertNull(DensityNoises.firstNoiseFunctionUnder(temperatureOf(NoiseGeneratorSettings.END)),
                 "the End router carries no climate noise, so nothing may be reported as one");
     }
 }

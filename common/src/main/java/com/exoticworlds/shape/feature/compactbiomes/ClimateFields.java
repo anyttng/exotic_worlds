@@ -2,21 +2,11 @@ package com.exoticworlds.shape.feature.compactbiomes;
 
 import java.util.Set;
 
-import net.minecraft.resources.ResourceKey;
-import net.minecraft.world.level.levelgen.Noises;
-import net.minecraft.world.level.levelgen.synth.NormalNoise;
+import com.exoticworlds.core.gen.RouterField;
 
 public final class ClimateFields {
-    private static final Set<ResourceKey<NormalNoise>> KEYS = Set.of(
-            Noises.TEMPERATURE,
-            Noises.TEMPERATURE_LARGE,
-            Noises.TEMPERATURE_NETHER,
-            Noises.VEGETATION,
-            Noises.VEGETATION_LARGE,
-            Noises.VEGETATION_NETHER);
-
-    public static boolean isClimate(ResourceKey<NormalNoise> key) {
-        return KEYS.contains(key);
+    public static boolean isClimate(Set<RouterField> readUnder) {
+        return readUnder.contains(RouterField.TEMPERATURE) || readUnder.contains(RouterField.VEGETATION);
     }
 
     private ClimateFields() {

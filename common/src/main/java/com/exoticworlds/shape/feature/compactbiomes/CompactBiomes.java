@@ -48,13 +48,14 @@ public final class CompactBiomes extends OptionFeature<ClimateScale> implements 
 
     @Override
     public double[] layerFactors(NoiseMoment moment) {
-        return ClimateCompression.layerFactors(moment.fold(), moment.noise(), moment.stack(), moment.xzScale(),
-                moment.verticalShare());
+        return ClimateCompression.layerFactors(moment.fold(), ClimateFields.isClimate(moment.routerFields()),
+                moment.noise(), moment.stack(), moment.xzScale(), moment.verticalShare());
     }
 
     @Override
     public double warpFactor(NoiseMoment moment) {
-        return ClimateCompression.factor(moment.fold(), moment.noise(), moment.xzScale(), moment.verticalShare());
+        return ClimateCompression.factor(moment.fold(), ClimateFields.isClimate(moment.routerFields()),
+                moment.noise(), moment.xzScale(), moment.verticalShare());
     }
 
     @Override

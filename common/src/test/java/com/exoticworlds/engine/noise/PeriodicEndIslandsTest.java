@@ -187,7 +187,8 @@ class PeriodicEndIslandsTest {
         @Test
         void theMainIslandIsTheSameAtEveryDeckCopy() {
             DensitySampler distance = FoldedSamplers.distanceToPoint(
-                    new FoldedCompileContext(SEEDED, SKEWED, LevelStem.END, List.of(), new NoiseOffsets(), NoiseScaleLadder.NONE),
+                    new FoldedCompileContext(SEEDED, SKEWED, LevelStem.END, List.of(), new NoiseOffsets(), NoiseScaleLadder.NONE,
+                            NoiseRouterFields.NONE),
                     Vec3i.ZERO, DistanceMetric.EUCLIDEAN);
             Random random = new Random(SEED);
             for (int i = 0; i < SAMPLES; i++) {
@@ -249,7 +250,8 @@ class PeriodicEndIslandsTest {
 
     private static float mainIslandHeight(WorldFold fold, Direction.Axis axis, int along, int across) {
         DensitySampler distance = FoldedSamplers.distanceToPoint(
-                new FoldedCompileContext(SEEDED, fold, LevelStem.END, List.of(), new NoiseOffsets(), NoiseScaleLadder.NONE),
+                new FoldedCompileContext(SEEDED, fold, LevelStem.END, List.of(), new NoiseOffsets(), NoiseScaleLadder.NONE,
+                        NoiseRouterFields.NONE),
                 Vec3i.ZERO, DistanceMetric.EUCLIDEAN);
         float blocks = axis == Direction.Axis.X
                 ? distance.sampleValue(SamplerContext.EMPTY_UNCACHED, along, 0, across)

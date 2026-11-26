@@ -50,7 +50,8 @@ public final class FoldedSamplers {
         double xzScale = context.ladder().getSeparated(noise, vanillaXzScale);
         double verticalShare = GenerationFoldContext.verticalShare(xzScale, yScale);
         NoiseStack stack = stack(context, noise);
-        NoiseMoment moment = new NoiseMoment(context.fold(), context.dimension(), noise, stack, xzScale, verticalShare);
+        NoiseMoment moment = new NoiseMoment(context.fold(), context.dimension(), noise,
+                context.routerFields().getFields(noise), stack, xzScale, verticalShare);
         double[] layerFactors = NoiseFeatures.layerFactors(context.noiseFeatures(), moment);
         NoiseOffset offset = NoiseFeatures.offsetOf(context.noiseFeatures(), context.offsets(), moment);
         DensityFunction zero = DensityFunctions.zero();
