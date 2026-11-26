@@ -7,9 +7,9 @@ import java.util.function.Predicate;
 
 import org.jspecify.annotations.Nullable;
 
+import com.exoticworlds.core.world.StemTerrain;
+
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceKey;
-import net.minecraft.world.level.dimension.LevelStem;
 
 public sealed interface OptionPart<T>
         permits OptionPart.Toggle, OptionPart.Choice, OptionPart.WholeNumber, OptionPart.Row {
@@ -31,7 +31,7 @@ public sealed interface OptionPart<T>
         }
     }
 
-    record WholeNumber<T>(String key, BiFunction<ResourceKey<LevelStem>, T, NumberRange> range,
+    record WholeNumber<T>(String key, BiFunction<StemTerrain, T, NumberRange> range,
             Function<T, Integer> read, BiFunction<T, Integer, T> write, BiFunction<T, Integer, Component> valueLine,
             Predicate<T> shownWhen) implements OptionPart<T> {
         public WholeNumber(String key, int min, int max, Function<T, Integer> read, BiFunction<T, Integer, T> write,
@@ -39,8 +39,8 @@ public sealed interface OptionPart<T>
             this(key, fixed(new NumberRange(min, max)), read, write, (value, number) -> Component.empty(), shownWhen);
         }
 
-        private static <T> BiFunction<ResourceKey<LevelStem>, T, NumberRange> fixed(NumberRange range) {
-            return (dimension, value) -> range;
+        private static <T> BiFunction<StemTerrain, T, NumberRange> fixed(NumberRange range) {
+            return (stem, value) -> range;
         }
     }
 

@@ -1,8 +1,6 @@
 package com.exoticworlds.core.world;
 
-import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.level.border.WorldBorder;
-import net.minecraft.world.level.dimension.LevelStem;
 
 public final class WorldLoopSizes {
     private static final int MIN_PLAYABLE_VIEW_DISTANCE_CHUNKS = 5;
@@ -38,12 +36,12 @@ public final class WorldLoopSizes {
         return Math.min(MAX_WIDTH_CHUNKS, END_MIN_WIDTH_CHUNKS + overworldWidthChunks - MIN_WIDTH_CHUNKS);
     }
 
-    public static int getMinWidthChunks(ResourceKey<LevelStem> dimension) {
-        return dimension == LevelStem.END ? END_MIN_WIDTH_CHUNKS : MIN_WIDTH_CHUNKS;
+    public static int getMinWidthChunks(StemTerrain stem) {
+        return stem.isEndTerrain() ? END_MIN_WIDTH_CHUNKS : MIN_WIDTH_CHUNKS;
     }
 
-    public static int getDefaultWidthChunks(ResourceKey<LevelStem> dimension) {
-        return dimension == LevelStem.END ? END_DEFAULT_WIDTH_CHUNKS : DEFAULT_WIDTH_CHUNKS;
+    public static int getDefaultWidthChunks(StemTerrain stem) {
+        return stem.isEndTerrain() ? END_DEFAULT_WIDTH_CHUNKS : DEFAULT_WIDTH_CHUNKS;
     }
 
     public static int minSpawnChunk(int widthChunks) {

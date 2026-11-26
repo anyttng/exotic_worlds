@@ -2,6 +2,7 @@ package com.exoticworlds.shape.torus;
 
 import java.util.List;
 
+import com.exoticworlds.core.world.StemTerrain;
 import com.exoticworlds.core.option.ShapeOption;
 import com.exoticworlds.core.option.ShapeOptions;
 import com.exoticworlds.core.world.WorldLoopSizes;
@@ -10,9 +11,6 @@ import com.exoticworlds.shape.dimension.LoopSizeLines;
 import com.exoticworlds.shape.option.DimensionOption;
 import com.exoticworlds.shape.option.NumberRange;
 import com.exoticworlds.shape.option.OptionPart;
-
-import net.minecraft.resources.ResourceKey;
-import net.minecraft.world.level.dimension.LevelStem;
 
 public final class TorusParameters extends LoopParameters {
     private static final String SIZE_KEY = "torus_size";
@@ -34,7 +32,7 @@ public final class TorusParameters extends LoopParameters {
                                     (size, widthChunks) -> new TorusSize(size.xWidthChunks(), widthChunks,
                                             size.shiftChunks())))),
                     new OptionPart.WholeNumber<>(SHIFT_KEY,
-                            (dimension, size) -> new NumberRange(0, size.xWidthChunks() - 1),
+                            (stem, size) -> new NumberRange(0, size.xWidthChunks() - 1),
                             TorusSize::shiftChunks,
                             (size, shiftChunks) -> new TorusSize(size.xWidthChunks(), size.zWidthChunks(), shiftChunks),
                             (size, shiftChunks) -> LoopSizeLines.shiftLaps(size.xWidthChunks(), shiftChunks),
@@ -51,7 +49,7 @@ public final class TorusParameters extends LoopParameters {
     }
 
     @Override
-    public ShapeOptions defaultOptions(ResourceKey<LevelStem> dimension) {
-        return ShapeOptions.DEFAULT.with(SIZE, TorusSize.square(WorldLoopSizes.getDefaultWidthChunks(dimension)));
+    public ShapeOptions defaultOptions(StemTerrain stem) {
+        return ShapeOptions.DEFAULT.with(SIZE, TorusSize.square(WorldLoopSizes.getDefaultWidthChunks(stem)));
     }
 }

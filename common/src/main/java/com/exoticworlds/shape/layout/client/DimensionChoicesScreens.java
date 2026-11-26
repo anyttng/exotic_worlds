@@ -2,8 +2,10 @@ package com.exoticworlds.shape.layout.client;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import com.exoticworlds.core.world.DimensionTable;
 import com.exoticworlds.engine.gen.DimensionChoices;
@@ -23,19 +25,23 @@ public final class DimensionChoicesScreens {
         Map<ResourceKey<LevelStem>, DimensionLock> locks = new HashMap<>();
         List<ResourceKey<LevelStem>> modStems = new ArrayList<>();
         Map<ResourceKey<LevelStem>, Double> scales = new HashMap<>();
+        Set<ResourceKey<LevelStem>> endTerrain = new HashSet<>();
         for (DimensionChoicesPayload.Row row : choices.rows()) {
             entries.put(row.stem(), row.entry());
             scales.put(row.stem(), row.coordinateScale());
+            if (row.isEndTerrain()) {
+                endTerrain.add(row.stem());
+            }
             row.lock().ifPresent(refusal -> locks.put(row.stem(), lockOf(refusal)));
             if (!DimensionTable.isVanillaStem(row.stem())) {
                 modStems.add(row.stem());
             }
         }
 
-        CoordinateScales coordinateScales = new CoordinateScales(scales);
+        StemFacts facts = new StemFacts(scales, endTerrain);
         Minecraft.getInstance().gui.setScreen(WorldShapeSettingsScreen.forExistingWorld(
                 LayoutDimensions.ofRows(entries), modStems,
-                coordinateScales, locks,
+                facts, locks,
                 chosen -> send(chosen, modStems, locks)));
     }
 

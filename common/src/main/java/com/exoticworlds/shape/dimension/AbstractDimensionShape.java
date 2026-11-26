@@ -5,6 +5,7 @@ import java.util.Optional;
 
 import org.jspecify.annotations.Nullable;
 
+import com.exoticworlds.core.world.StemTerrain;
 import com.exoticworlds.core.option.ShapeOptions;
 import com.exoticworlds.core.world.DerivedDimension;
 import com.exoticworlds.core.world.FlatShape;
@@ -12,8 +13,6 @@ import com.exoticworlds.shape.WorldLoopPresets;
 import com.exoticworlds.shape.option.DimensionOption;
 
 import net.minecraft.resources.Identifier;
-import net.minecraft.resources.ResourceKey;
-import net.minecraft.world.level.dimension.LevelStem;
 
 public abstract class AbstractDimensionShape implements DimensionShape {
     private final Identifier id;
@@ -42,8 +41,8 @@ public abstract class AbstractDimensionShape implements DimensionShape {
     }
 
     @Override
-    public final ShapeOptions defaultOptions(ResourceKey<LevelStem> dimension) {
-        return this.parameters.defaultOptions(dimension);
+    public final ShapeOptions defaultOptions(StemTerrain stem) {
+        return this.parameters.defaultOptions(stem);
     }
 
     @Override
