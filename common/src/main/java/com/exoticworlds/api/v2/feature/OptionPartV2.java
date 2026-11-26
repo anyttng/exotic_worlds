@@ -22,8 +22,8 @@ public sealed interface OptionPartV2<T>
      */
     String key();
 
-    /** Whether the part is shown while the option holds the value. */
-    Predicate<T> shownWhen();
+    /** Whether the part takes input while the option holds the value. A part that does not is drawn disabled. */
+    Predicate<T> enabledWhen();
 
     /**
      * An on/off switch.
@@ -31,21 +31,22 @@ public sealed interface OptionPartV2<T>
      * @param read the switch's state in the value
      * @param write the value with the switch set
      */
-    record Toggle<T>(String key, Function<T, Boolean> read, BiFunction<T, Boolean, T> write, Predicate<T> shownWhen)
+    record Toggle<T>(String key, Function<T, Boolean> read, BiFunction<T, Boolean, T> write, Predicate<T> enabledWhen)
             implements OptionPartV2<T> {
     }
 
     /**
-     * A button cycling through a list of values.
+     * A pick of one value from a list, drawn as segments side by side where they fit the row and as a button cycling
+     * through them where they do not.
      *
-     * @param values the values, in the order the button cycles them
+     * @param values the values, in the order they are drawn
      * @param valueKey the key of one value, appended to the part's caption key with a dot for its name and its hint
      * @param read the picked value in the option's value
      * @param write the option's value with another one picked
-     * @param <V> the type of the values cycled
+     * @param <V> the type of the values
      */
     record Choice<T, V>(String key, List<V> values, Function<V, String> valueKey, Function<T, V> read,
-            BiFunction<T, V, T> write, Predicate<T> shownWhen) implements OptionPartV2<T> {
+            BiFunction<T, V, T> write, Predicate<T> enabledWhen) implements OptionPartV2<T> {
         public Choice {
             values = List.copyOf(values);
         }
@@ -58,7 +59,7 @@ public sealed interface OptionPartV2<T>
      * @param write the value with another number
      */
     record WholeNumber<T>(String key, int min, int max, Function<T, Integer> read, BiFunction<T, Integer, T> write,
-            Predicate<T> shownWhen) implements OptionPartV2<T> {
+            Predicate<T> enabledWhen) implements OptionPartV2<T> {
         public WholeNumber {
             if (min > max) {
                 throw new IllegalArgumentException("A number part needs min <= max, got " + min + " and " + max);
@@ -82,7 +83,7 @@ public sealed interface OptionPartV2<T>
         }
 
         @Override
-        public Predicate<T> shownWhen() {
+        public Predicate<T> enabledWhen() {
             return value -> true;
         }
     }

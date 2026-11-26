@@ -5,8 +5,6 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.OptionalDouble;
 
-import com.ascendiacore.gui.widget.label.Label;
-import com.ascendiacore.gui.widget.label.model.LabelRole;
 import com.exoticworlds.shape.feature.client.FeaturePanel;
 import com.exoticworlds.shape.feature.client.FeatureView;
 import com.exoticworlds.shape.feature.client.FeatureViews;
@@ -16,13 +14,11 @@ import com.exoticworlds.shape.feature.compactbiomes.ClimateScale;
 import com.exoticworlds.shape.feature.compactbiomes.CompactBiomes;
 
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.network.chat.CommonComponents;
-import net.minecraft.network.chat.Component;
 
 public final class CompactBiomesView implements FeatureView<ClimateScale> {
-    private static final Component FACTOR =
-            Component.translatable("gui.exotic_worlds.world_shape_settings.compact_biomes.factor");
     private static final String FRACTIONAL_FACTOR_FORMAT = "%.2f";
+    private static final String OFF_FACTOR = "1";
+    private static final String UNKNOWN_FACTOR = "";
 
     private record Shown(ClimateScale scale, FlatShape spans) {
     }
@@ -33,36 +29,35 @@ public final class CompactBiomesView implements FeatureView<ClimateScale> {
 
     @Override
     public void extendPanel(FeaturePanel<ClimateScale> panel) {
-        Map<Shown, Component> lines = new HashMap<>();
-        Label label = new Label(panel.getFill(), LabelRole.MUTED, Component.empty());
-        label.setText(() -> line(panel, lines));
-        label.setVisible(() -> panel.isOffered() && !line(panel, lines).getString().isEmpty());
-        panel.addComponent(label);
+        Map<Shown, String> factors = new HashMap<>();
+        panel.setDisabledNumberText(CompactBiomes.FACTOR_KEY, scale -> factorText(panel, scale, factors));
     }
 
-    private static Component line(FeaturePanel<ClimateScale> panel, Map<Shown, Component> lines) {
-        Screen creation = panel.getCreationScreen();
-        ClimateScale scale = panel.getValue();
-        FlatShape spans = panel.getSpans();
-        if (creation == null || scale == null || spans == null || scale.mode() == ClimateScale.Mode.OFF
-                || scale.mode() == ClimateScale.Mode.CUSTOM) {
-            return Component.empty();
+    private static String factorText(FeaturePanel<ClimateScale> panel, ClimateScale scale, Map<Shown, String> factors) {
+        if (scale.mode() == ClimateScale.Mode.OFF) {
+            return OFF_FACTOR;
         }
 
-        return lines.computeIfAbsent(new Shown(scale, spans), shown -> factorLine(creation, shown));
+        Screen creation = panel.getCreationScreen();
+        FlatShape spans = panel.getSpans();
+        if (creation == null || spans == null || scale.mode() == ClimateScale.Mode.CUSTOM) {
+            return UNKNOWN_FACTOR;
+        }
+
+        return factors.computeIfAbsent(new Shown(scale, spans), shown -> previewFactor(creation, shown));
     }
 
-    private static Component factorLine(Screen creation, Shown shown) {
+    private static String previewFactor(Screen creation, Shown shown) {
         OptionalDouble factor = ClimateFactorPreview.temperatureFactor(creation,
                 ShapeOptions.DEFAULT.with(CompactBiomes.FEATURE.getOption(), shown.scale()), shown.spans());
         if (factor.isEmpty()) {
-            return Component.empty();
+            return UNKNOWN_FACTOR;
         }
 
         double value = factor.getAsDouble();
-        return CommonComponents.optionNameValue(FACTOR, Component.literal(value == Math.rint(value)
+        return value == Math.rint(value)
                 ? Integer.toString((int) value)
-                : String.format(Locale.ROOT, FRACTIONAL_FACTOR_FORMAT, value)));
+                : String.format(Locale.ROOT, FRACTIONAL_FACTOR_FORMAT, value);
     }
 
     private CompactBiomesView() {
