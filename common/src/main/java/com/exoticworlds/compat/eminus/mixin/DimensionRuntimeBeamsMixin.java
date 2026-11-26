@@ -5,13 +5,14 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
+import com.eminus.beam.BeamSet;
 import com.eminus.session.DimensionRuntime;
 import com.exoticworlds.compat.eminus.CellFoldHolder;
 
 @Mixin(DimensionRuntime.class)
 public class DimensionRuntimeBeamsMixin {
     @Inject(method = "openBeams", at = @At("RETURN"))
-    private void exotic_worlds$foldTheBeams(CallbackInfoReturnable<Object> cir) {
+    private void exotic_worlds$foldTheBeams(CallbackInfoReturnable<BeamSet> cir) {
         CellFoldHolder.setFold(cir.getReturnValue(), CellFoldHolder.getFold(this));
     }
 }
