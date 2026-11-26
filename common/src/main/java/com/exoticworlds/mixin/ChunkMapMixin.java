@@ -25,9 +25,9 @@ import com.exoticworlds.core.gen.GeneratorShapes;
 import com.exoticworlds.core.fold.WorldFold;
 import com.exoticworlds.core.fold.WorldLoopAttachments;
 import com.exoticworlds.engine.fold.NearestCopy;
+import com.exoticworlds.engine.gen.RouterBuild;
 import com.exoticworlds.engine.gen.SeamDriveRequest;
 import com.exoticworlds.engine.noise.GenerationFoldContext;
-import com.exoticworlds.engine.gen.terrain.TerrainCeiling;
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import com.llamalad7.mixinextras.injector.ModifyReturnValue;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
@@ -233,11 +233,9 @@ public class ChunkMapMixin implements LevelHolder, ChunkResender, SeamDriveSched
             Operation<RandomState> original,
             @Local(argsOnly = true) ChunkGenerator generator,
             @Local(argsOnly = true) ServerLevel level) {
-        WorldFold fold = GeneratorShapes.getWrappedFold(generator);
-        NoiseGeneratorSettings shaped = TerrainCeiling.shaped(fold, settings);
-        return GenerationFoldContext.withRouterBuild(fold, Registries.levelToLevelStem(level.dimension()),
-                GeneratorShapes.activeFeatures(generator, level.dimension()),
-                () -> original.call(shaped, noiseParameters, seed));
+        RouterBuild build = RouterBuild.of(generator, level.dimension(), settings);
+        return GenerationFoldContext.withRouterBuild(build.fold(), build.dimension(), build.features(),
+                () -> original.call(build.settings(), noiseParameters, seed));
     }
 
     @ModifyExpressionValue(
