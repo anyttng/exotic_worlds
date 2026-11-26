@@ -6,6 +6,7 @@ import java.util.Optional;
 import org.jspecify.annotations.Nullable;
 
 import com.exoticworlds.core.option.ShapeOptions;
+import com.exoticworlds.core.world.DerivedDimension;
 import com.exoticworlds.core.world.FlatShape;
 import com.exoticworlds.shape.WorldLoopPresets;
 import com.exoticworlds.shape.option.DimensionOption;
@@ -61,8 +62,7 @@ public abstract class AbstractDimensionShape implements DimensionShape {
     }
 
     @Override
-    public final @Nullable FlatShape derive(FlatShape overworld, ResourceKey<LevelStem> dimension, double overworldScale,
-            double coordinateScale) {
-        return this.logic.derive(overworld, dimension, overworldScale, coordinateScale);
+    public final @Nullable FlatShape derive(FlatShape overworld, DerivedDimension dimension) {
+        return this.logic.derive(overworld, dimension);
     }
 }

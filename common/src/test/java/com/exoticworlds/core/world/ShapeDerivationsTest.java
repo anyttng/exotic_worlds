@@ -10,13 +10,20 @@ import com.exoticworlds.shape.StartupRegistrations;
 import com.exoticworlds.shape.dimension.DeclaredShapes;
 
 import net.minecraft.core.Direction;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.level.dimension.LevelStem;
 
 class ShapeDerivationsTest {
     private static final Identifier UNREGISTERED = Identifier.fromNamespaceAndPath("example_mod", "unregistered");
 
     private static final FlatShape OVERWORLD = ShapeFixtures.torus(64);
+
+    private static final ResourceKey<LevelStem> MOD_STEM =
+            ResourceKey.create(Registries.LEVEL_STEM, Identifier.fromNamespaceAndPath("example_mod", "islands"));
+
+    private static final boolean IS_END_TERRAIN = true;
 
     @BeforeAll
     static void registerShapes() {
@@ -28,19 +35,20 @@ class ShapeDerivationsTest {
         FlatShape overworld = FlatShape.latticeTorus(WorldLoopBounds.ofWidths(256, 128), 16);
 
         assertEquals(FlatShape.latticeTorus(WorldLoopBounds.ofWidths(32, 16), 2),
-                ShapeDerivations.derive(null, overworld, LevelStem.NETHER, 1.0, 8.0));
+                ShapeDerivations.derive(null, overworld, DerivedDimension.ofKey(LevelStem.NETHER, 1.0, 8.0)));
     }
 
     @Test
     void aSkewThatScalesToNoWholeChunkDerivesNothing() {
         FlatShape overworld = FlatShape.latticeTorus(WorldLoopBounds.ofWidths(256, 128), 12);
 
-        assertNull(ShapeDerivations.derive(null, overworld, LevelStem.NETHER, 1.0, 8.0));
+        assertNull(ShapeDerivations.derive(null, overworld, DerivedDimension.ofKey(LevelStem.NETHER, 1.0, 8.0)));
     }
 
     @Test
     void aWorldWithoutAStoredShapeIdKeepsTheOldEndOfTheOverworldsWidth() {
-        assertEquals(OVERWORLD, ShapeDerivations.derive(null, OVERWORLD, LevelStem.END, 1.0, 1.0));
+        assertEquals(OVERWORLD, ShapeDerivations.derive(null, OVERWORLD,
+                DerivedDimension.ofKey(LevelStem.END, 1.0, 1.0)));
     }
 
     @Test
@@ -48,7 +56,8 @@ class ShapeDerivationsTest {
         int endWidthChunks = WorldLoopSizes.endWidthChunksFor(64);
 
         assertEquals(FlatShape.unskewed(WorldLoopBounds.ofWidths(endWidthChunks, endWidthChunks)),
-                ShapeDerivations.derive(DeclaredShapes.TORUS, OVERWORLD, LevelStem.END, 1.0, 1.0));
+                ShapeDerivations.derive(DeclaredShapes.TORUS, OVERWORLD,
+                        DerivedDimension.ofKey(LevelStem.END, 1.0, 1.0)));
     }
 
     @Test
@@ -56,18 +65,37 @@ class ShapeDerivationsTest {
         FlatShape cylinder = ShapeFixtures.cylinder(Direction.Axis.X, 64);
 
         assertEquals(FlatShape.unskewed(WorldLoopBounds.ofWidth(Direction.Axis.X, WorldLoopSizes.endWidthChunksFor(64))),
-                ShapeDerivations.derive(DeclaredShapes.CYLINDER, cylinder, LevelStem.END, 1.0, 1.0));
+                ShapeDerivations.derive(DeclaredShapes.CYLINDER, cylinder,
+                        DerivedDimension.ofKey(LevelStem.END, 1.0, 1.0)));
+    }
+
+    @Test
+    void aModDimensionWithEndTerrainDerivesItsWidthByTheEndRule() {
+        int endWidthChunks = WorldLoopSizes.endWidthChunksFor(64);
+
+        assertEquals(FlatShape.unskewed(WorldLoopBounds.ofWidths(endWidthChunks, endWidthChunks)),
+                ShapeDerivations.derive(DeclaredShapes.TORUS, OVERWORLD,
+                        new DerivedDimension(MOD_STEM, IS_END_TERRAIN, 1.0, 1.0)));
+    }
+
+    @Test
+    void aModDimensionWithoutEndTerrainTakesTheScaledCopy() {
+        assertEquals(OVERWORLD, ShapeDerivations.derive(DeclaredShapes.TORUS, OVERWORLD,
+                new DerivedDimension(MOD_STEM, !IS_END_TERRAIN, 1.0, 1.0)));
     }
 
     @Test
     void aShapeWithNoRuleOfItsOwnTakesTheScaledCopy() {
         assertEquals(ShapeFixtures.torus(16),
-                ShapeDerivations.derive(UNREGISTERED, ShapeFixtures.torus(128), LevelStem.NETHER, 1.0, 8.0));
-        assertEquals(OVERWORLD, ShapeDerivations.derive(UNREGISTERED, OVERWORLD, LevelStem.END, 1.0, 1.0));
+                ShapeDerivations.derive(UNREGISTERED, ShapeFixtures.torus(128),
+                        DerivedDimension.ofKey(LevelStem.NETHER, 1.0, 8.0)));
+        assertEquals(OVERWORLD, ShapeDerivations.derive(UNREGISTERED, OVERWORLD,
+                DerivedDimension.ofKey(LevelStem.END, 1.0, 1.0)));
     }
 
     @Test
     void anOverworldThatLoopsNoAxisDerivesNothing() {
-        assertNull(ShapeDerivations.derive(DeclaredShapes.TORUS, FlatShape.rectangle(), LevelStem.END, 1.0, 1.0));
+        assertNull(ShapeDerivations.derive(DeclaredShapes.TORUS, FlatShape.rectangle(),
+                DerivedDimension.ofKey(LevelStem.END, 1.0, 1.0)));
     }
 }

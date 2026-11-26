@@ -20,6 +20,7 @@ accessible class net/minecraft/world/level/levelgen/DensityFunctions$PureTransfo
 accessible class net/minecraft/world/level/levelgen/DensityFunctions$TransformerWithContext
 accessible class net/minecraft/world/level/levelgen/DensityFunctions$RangeChoice
 accessible class net/minecraft/world/level/levelgen/DensityFunctions$FindTopSurface
+accessible class net/minecraft/world/level/levelgen/DensityFunctions$EndIslandDensityFunction
 accessible field net/minecraft/world/level/levelgen/synth/ImprovedNoise p [B
 accessible field net/minecraft/world/level/levelgen/synth/NormalNoise first Lnet/minecraft/world/level/levelgen/synth/PerlinNoise;
 accessible field net/minecraft/world/level/levelgen/synth/NormalNoise second Lnet/minecraft/world/level/levelgen/synth/PerlinNoise;

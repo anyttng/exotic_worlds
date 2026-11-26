@@ -19,6 +19,7 @@ import com.exoticworlds.core.world.CarriedShape;
 import com.exoticworlds.core.world.DimensionTable;
 import com.exoticworlds.core.world.FlatShape;
 import com.exoticworlds.core.world.NetherScales;
+import com.exoticworlds.core.world.DerivedDimension;
 import com.exoticworlds.core.world.ShapeDerivations;
 import com.exoticworlds.core.world.ShapeFixtures;
 import com.exoticworlds.core.option.ShapeOptions;
@@ -191,10 +192,11 @@ class LayoutDimensionsTest {
     void aModDimensionFromTheOverworldTakesItsSizeOverTheCoordinateScales() {
         FlatShape overworld = ShapeFixtures.latticeTorus(128, 64, 16);
 
-        assertEquals(overworld, ShapeDerivations.derive(null, overworld, MOD_STEM, 1.0, 1.0));
-        assertEquals(ShapeFixtures.latticeTorus(32, 16, 4), ShapeDerivations.derive(null, overworld, MOD_STEM, 1.0, 4.0));
-        assertNull(ShapeDerivations.derive(null, ShapeFixtures.torus(100), MOD_STEM, 1.0, 8.0));
-        assertNull(ShapeDerivations.derive(null, null, MOD_STEM, 1.0, 1.0));
+        assertEquals(overworld, ShapeDerivations.derive(null, overworld, DerivedDimension.ofKey(MOD_STEM, 1.0, 1.0)));
+        assertEquals(ShapeFixtures.latticeTorus(32, 16, 4), ShapeDerivations.derive(null, overworld,
+                DerivedDimension.ofKey(MOD_STEM, 1.0, 4.0)));
+        assertNull(ShapeDerivations.derive(null, ShapeFixtures.torus(100), DerivedDimension.ofKey(MOD_STEM, 1.0, 8.0)));
+        assertNull(ShapeDerivations.derive(null, null, DerivedDimension.ofKey(MOD_STEM, 1.0, 1.0)));
     }
 
     @Test
