@@ -3,7 +3,6 @@ package com.exoticworlds.shape.layout.client;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -17,7 +16,7 @@ import com.ascendiacore.gui.layout.Column;
 import com.ascendiacore.gui.layout.Row;
 import com.ascendiacore.gui.layout.model.Length;
 import com.ascendiacore.gui.theme.Theme;
-import com.ascendiacore.gui.widget.cyclebutton.CycleButton;
+import com.ascendiacore.gui.widget.field.Field;
 import com.ascendiacore.gui.widget.numberfield.NumberField;
 import com.ascendiacore.gui.widget.numberfield.model.Bounds;
 import com.ascendiacore.gui.widget.panel.model.FillStyle;
@@ -173,6 +172,15 @@ final class OptionControls {
         }
 
         @Override
+        public void setDisabledNumberText(String partKey, Function<T, String> text) {
+            for (NumberPart<T> number : this.numbers) {
+                if (number.part().key().equals(partKey)) {
+                    number.field().setDisabledText(() -> text.apply(this.value));
+                }
+            }
+        }
+
+        @Override
         public boolean isOffered() {
             Identifier chosen = OptionControls.this.shape.get();
             return chosen != null && this.isForShape.test(chosen);
@@ -201,7 +209,7 @@ final class OptionControls {
 
             T chosen = this.value;
             for (NumberPart<T> number : this.numbers) {
-                if (!number.part().shownWhen().test(this.value)) {
+                if (!number.part().enabledWhen().test(this.value)) {
                     continue;
                 }
 
@@ -223,7 +231,7 @@ final class OptionControls {
 
             for (NumberPart<T> number : this.numbers) {
                 Integer typed = number.field().getValue();
-                if (typed != null && number.part().shownWhen().test(this.value)) {
+                if (typed != null && number.part().enabledWhen().test(this.value)) {
                     this.value = number.part().write().apply(this.value, typed);
                 }
             }
@@ -239,7 +247,8 @@ final class OptionControls {
                 case OptionPart.WholeNumber<T> number -> this.number(captionKey, number);
                 case OptionPart.Row<T> row -> this.row(row);
             };
-            control.setVisible(() -> this.isOffered() && part.shownWhen().test(this.value));
+            control.setVisible(this::isOffered);
+            control.setEnabled(() -> part.enabledWhen().test(this.value));
             return control;
         }
 
@@ -259,23 +268,12 @@ final class OptionControls {
         }
 
         private <V> GuiComponent choice(String captionKey, OptionPart.Choice<T, V> part) {
-            return this.cycle(captionKey, part.values(), picked -> {
-                Component own = part.ownName().apply(picked);
-                return own != null
-                        ? own
-                        : Component.translatable(captionKey + KEY_SEPARATOR + part.valueKey().apply(picked));
-            }, part.valueKey(), part.read(), part.write());
-        }
-
-        private <V> GuiComponent cycle(String captionKey, List<V> values, Function<V, Component> valueName,
-                Function<V, String> valueKey, Function<T, V> read, BiFunction<T, V, T> write) {
-            Value<V> picked = Value.of(read.apply(this.value));
-            CycleButton<V> button = new CycleButton<>(OptionControls.this.theme.button(),
-                    Component.translatable(captionKey), () -> values, picked, valueName);
-            button.setHint(OptionControls.this.theme.tooltip(), captionKey, valueKey);
-            button.setOnChange(changed -> this.value = write.apply(this.value, changed));
-            this.shownValues.add(() -> picked.set(read.apply(this.value)));
-            return button;
+            Value<V> picked = Value.of(part.read().apply(this.value));
+            ChoiceControl<V> control = new ChoiceControl<>(OptionControls.this.theme.button(),
+                    OptionControls.this.theme.tooltip(), captionKey, part, picked);
+            control.setOnChange(changed -> this.value = part.write().apply(this.value, changed));
+            this.shownValues.add(() -> picked.set(part.read().apply(this.value)));
+            return new Field(OptionControls.this.fill, Component.translatable(captionKey), control);
         }
 
         private GuiComponent number(String captionKey, OptionPart.WholeNumber<T> part) {

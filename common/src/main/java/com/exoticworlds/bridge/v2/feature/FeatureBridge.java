@@ -55,17 +55,17 @@ public final class FeatureBridge {
     private static <T> OptionPart<T> toInternal(OptionPartV2<T> part) {
         return switch (part) {
             case OptionPartV2.Toggle<T> toggle ->
-                    new OptionPart.Toggle<>(toggle.key(), toggle.read(), toggle.write(), toggle.shownWhen());
+                    new OptionPart.Toggle<>(toggle.key(), toggle.read(), toggle.write(), toggle.enabledWhen());
             case OptionPartV2.Choice<T, ?> choice -> toInternal(choice);
             case OptionPartV2.WholeNumber<T> number -> new OptionPart.WholeNumber<>(number.key(), number.min(),
-                    number.max(), number.read(), number.write(), number.shownWhen());
+                    number.max(), number.read(), number.write(), number.enabledWhen());
             case OptionPartV2.Row<T> row -> new OptionPart.Row<>(toInternal(row.parts()));
         };
     }
 
     private static <T, V> OptionPart<T> toInternal(OptionPartV2.Choice<T, V> choice) {
         return new OptionPart.Choice<>(choice.key(), choice.values(), choice.valueKey(), value -> null, choice.read(),
-                choice.write(), choice.shownWhen());
+                choice.write(), choice.enabledWhen());
     }
 
     private FeatureBridge() {

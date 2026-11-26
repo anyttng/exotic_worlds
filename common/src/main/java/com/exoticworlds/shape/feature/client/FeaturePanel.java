@@ -1,6 +1,7 @@
 package com.exoticworlds.shape.feature.client;
 
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.function.Supplier;
 
 import org.jspecify.annotations.Nullable;
@@ -30,4 +31,6 @@ public interface FeaturePanel<T> {
     void onShow(Consumer<T> shown);
 
     void takeValueFrom(Supplier<@Nullable T> chosen);
+
+    void setDisabledNumberText(String partKey, Function<T, String> text);
 }

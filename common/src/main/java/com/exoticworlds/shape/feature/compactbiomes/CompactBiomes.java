@@ -17,7 +17,7 @@ public final class CompactBiomes extends OptionFeature<ClimateScale> implements 
 
     private static final String CAPTION_KEY = "gui.exotic_worlds.world_shape_settings.compact_biomes";
 
-    private static final String FACTOR_KEY = "factor";
+    public static final String FACTOR_KEY = "factor";
 
     private static final int POSITION = 0;
 
