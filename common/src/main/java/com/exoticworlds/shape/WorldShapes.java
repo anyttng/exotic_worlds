@@ -1,7 +1,5 @@
 package com.exoticworlds.shape;
 
-import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
@@ -43,16 +41,7 @@ public final class WorldShapes {
     }
 
     public static List<WorldShape> getShapes() {
-        List<WorldShape> own = new ArrayList<>();
-        List<WorldShape> foreign = new ArrayList<>();
-        for (WorldShape shape : SHAPES.getEntries().values()) {
-            (ExoticWorlds.MODID.equals(shape.id().getNamespace()) ? own : foreign).add(shape);
-        }
-        foreign.sort(Comparator.comparing(shape -> shape.id().toString()));
-
-        return Stream.of(Stream.of(NORMAL), own.stream(), foreign.stream())
-                .flatMap(shapes -> shapes)
-                .toList();
+        return Stream.concat(Stream.of(NORMAL), SHAPES.getEntries().values().stream()).toList();
     }
 
     public static void select(WorldShape shape) {

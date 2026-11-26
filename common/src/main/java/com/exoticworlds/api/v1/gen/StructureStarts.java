@@ -3,6 +3,7 @@ package com.exoticworlds.api.v1.gen;
 import java.util.List;
 import java.util.Optional;
 
+import com.exoticworlds.api.v1.Broken;
 import com.exoticworlds.api.v1.ToroidalShape;
 import com.exoticworlds.api.v1.option.GenerationOptions;
 
@@ -12,10 +13,13 @@ import net.minecraft.world.level.levelgen.structure.Structure;
 import net.minecraft.world.level.levelgen.structure.StructureSet;
 
 /**
- * One structure set of a folding level, as a {@link GenerationHooks.StructureStartsHook} reads it: what its own
- * placement puts inside the bounds, and whether a structure could start in a given chunk. Every answer depends on the
- * seed, the shape and the options alone, so a hook that reads only this returns the same starts on every load.
+ * The type a {@link GenerationHooks.StructureStartsHook} takes. No call hands one out.
+ *
+ * @deprecated generation no longer runs the hook this type is for. Use
+ *     {@link com.exoticworlds.api.v2.feature.StructureStartsV2}.
  */
+@Deprecated
+@Broken(GenerationHooks.NO_HOOKS)
 public interface StructureStarts {
 
     ToroidalShape shape();

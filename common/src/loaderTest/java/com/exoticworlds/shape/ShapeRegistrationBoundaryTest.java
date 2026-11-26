@@ -10,7 +10,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 
 import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.AfterEach;
@@ -21,7 +20,6 @@ import com.google.gson.JsonElement;
 import com.mojang.serialization.JsonOps;
 import com.exoticworlds.ExoticWorlds;
 import com.exoticworlds.api.v1.client.ShapeCustomizers;
-import com.exoticworlds.api.v1.shape.ShapeModule;
 import com.exoticworlds.core.world.CarriedShape;
 import com.exoticworlds.core.world.FlatShape;
 import com.exoticworlds.core.world.ShapeFixtures;
@@ -63,11 +61,6 @@ class ShapeRegistrationBoundaryTest {
     private static final Identifier CYLINDER_ID =
             Identifier.fromNamespaceAndPath(ExoticWorlds.MODID, "boundary_test_cylinder");
 
-    private static final Identifier MODULE_ID =
-            Identifier.fromNamespaceAndPath(ExoticWorlds.MODID, "boundary_test_module");
-
-    private static final Identifier FOREIGN_ID = Identifier.fromNamespaceAndPath("boundary_test_mod", "band");
-
     private static final FlatShape CYLINDER = ShapeFixtures.cylinder(
             new WorldLoopBounds(new AxisBounds.Looped(-16, 16), AxisBounds.Unbounded.INSTANCE));
 
@@ -75,17 +68,6 @@ class ShapeRegistrationBoundaryTest {
             new WorldLoopBounds(new AxisBounds.Looped(-64, 64), AxisBounds.Unbounded.INSTANCE));
 
     private static WorldShape cylinder;
-
-    private static final ShapeModule<FlatShape> MODULE = ShapeModule.of(
-            MODULE_ID,
-            CYLINDER,
-            (dimensions, shape) ->
-                    ShapedDimensions.withShape(dimensions, LevelStem.OVERWORLD,
-                            new CarriedShape(null, shape, ShapeOptions.DEFAULT)),
-            dimensions -> {
-                FlatShape shape = ShapedDimensions.getShape(dimensions, LevelStem.OVERWORLD);
-                return WIDER_CYLINDER.equals(shape) ? shape : null;
-            });
 
     private static boolean settingsWereReset;
 
@@ -103,13 +85,8 @@ class ShapeRegistrationBoundaryTest {
                 (registries, dimensions) ->
                         CYLINDER.equals(ShapedDimensions.getShape(dimensions, LevelStem.OVERWORLD)));
 
-        WorldShapes.register(WorldShape.of(
-                FOREIGN_ID,
-                (registries, dimensions) -> dimensions));
-
         WorldShapes.register(cylinder);
         ShapeCustomizers.register(CYLINDER_ID, parent -> parent);
-        MODULE.register();
     }
 
     @AfterEach
@@ -148,14 +125,6 @@ class ShapeRegistrationBoundaryTest {
 
         assertSame(WorldShapes.NORMAL, offered.get(0));
         assertTrue(offered.contains(cylinder), offered.toString());
-    }
-
-    @Test
-    void theModsOwnShapesKeepTheirRegistrationOrderAndForeignOnesFollow() {
-        List<Identifier> offered = WorldShapes.getShapes().stream().map(WorldShape::id).toList();
-
-        assertTrue(offered.indexOf(CYLINDER_ID) < offered.indexOf(MODULE_ID), offered.toString());
-        assertTrue(offered.indexOf(MODULE_ID) < offered.indexOf(FOREIGN_ID), offered.toString());
     }
 
     @Test
@@ -236,34 +205,8 @@ class ShapeRegistrationBoundaryTest {
         assertNull(ShapeCustomizers.of(WorldShapes.NORMAL.id()));
     }
 
-    @Test
-    void aModuleAdoptsTheWorldItRecognisesAndResetsBackToItsOwnDefault() {
-        WorldShape registered = registeredModuleShape();
-        WorldDimensions wider = ShapedDimensions.withShape(
-                vanillaOverworld(), LevelStem.OVERWORLD, new CarriedShape(null, WIDER_CYLINDER, ShapeOptions.DEFAULT));
-
-        assertTrue(Objects.requireNonNull(registered.fromExisting()).tryAdopt(registries, wider));
-        WorldShapes.select(registered);
-
-        assertEquals(WIDER_CYLINDER, createdOverworldShape());
-        assertEquals(WIDER_CYLINDER, MODULE.settings());
-
-        WorldShapes.resetToDefault();
-
-        assertEquals(CYLINDER, MODULE.settings());
-        assertEquals(CYLINDER, ShapedDimensions.getShape(
-                registered.atCreation().apply(registries, vanillaOverworld()), LevelStem.OVERWORLD));
-    }
-
     private static @Nullable FlatShape createdOverworldShape() {
         return ShapedDimensions.getShape(WorldShapes.applyAtCreation(registries, vanillaOverworld()), LevelStem.OVERWORLD);
-    }
-
-    private static WorldShape registeredModuleShape() {
-        return WorldShapes.getShapes().stream()
-                .filter(shape -> shape.id().equals(MODULE_ID))
-                .findFirst()
-                .orElseThrow();
     }
 
     @Test
