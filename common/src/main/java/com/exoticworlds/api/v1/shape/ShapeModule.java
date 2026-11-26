@@ -3,9 +3,6 @@ package com.exoticworlds.api.v1.shape;
 import com.exoticworlds.api.v1.Broken;
 import org.jspecify.annotations.Nullable;
 
-import com.exoticworlds.bridge.v1.shape.ModuleBridge;
-
-import net.minecraft.core.RegistryAccess;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.level.levelgen.WorldDimensions;
 
@@ -20,9 +17,8 @@ import net.minecraft.world.level.levelgen.WorldDimensions;
  * written on the client thread and read once as the world is made.</p>
  *
  * @param <S> the shape's own settings type, opaque to Exotic Worlds
- * @deprecated a shape declared here still registers, but no screen lists it and nothing opens a Customize screen
- *     for it: the World Shape Settings screen sets a shape per dimension. Declare a
- *     {@link com.exoticworlds.api.v2.shape.ShapeV2} instead.
+ * @deprecated a shape declared here registers nothing. The World Shape Settings screen sets a shape per dimension.
+ *     Declare a {@link com.exoticworlds.api.v2.shape.ShapeV2} instead.
  */
 @Deprecated
 @Broken("No screen lists a shape declared here, so it is never chosen, applied or read back."
@@ -46,17 +42,11 @@ public final class ShapeModule<S> {
     }
 
     private final Identifier id;
-    private final S defaultSettings;
-    private final Apply<S> apply;
-    private final Read<S> read;
 
     private S settings;
 
-    private ShapeModule(Identifier id, S defaultSettings, Apply<S> apply, Read<S> read) {
+    private ShapeModule(Identifier id, S defaultSettings) {
         this.id = id;
-        this.defaultSettings = defaultSettings;
-        this.apply = apply;
-        this.read = read;
         this.settings = defaultSettings;
     }
 
@@ -65,7 +55,7 @@ public final class ShapeModule<S> {
      * create screen starts from and what a reset returns to.
      */
     public static <S> ShapeModule<S> of(Identifier id, S defaultSettings, Apply<S> apply, Read<S> read) {
-        return new ShapeModule<>(id, defaultSettings, apply, read);
+        return new ShapeModule<>(id, defaultSettings);
     }
 
     public Identifier id() {
@@ -80,31 +70,7 @@ public final class ShapeModule<S> {
         this.settings = chosen;
     }
 
-    /**
-     * Registers the shape in the World Shape list.
-     *
-     * @throws IllegalStateException if the registration boundary has already closed, or a shape is already
-     *         registered under this module's id
-     */
+    /** Does nothing. */
     public void register() {
-        ModuleBridge.register(this.id, this::applyAtCreation, this::resetSettings, this::restoreFromExisting);
-    }
-
-    private void resetSettings() {
-        this.settings = this.defaultSettings;
-    }
-
-    private boolean restoreFromExisting(RegistryAccess.Frozen registries, WorldDimensions dimensions) {
-        S restored = this.read.read(dimensions);
-        if (restored == null) {
-            return false;
-        }
-
-        this.settings = restored;
-        return true;
-    }
-
-    private WorldDimensions applyAtCreation(RegistryAccess.Frozen registries, WorldDimensions dimensions) {
-        return this.apply.apply(dimensions, this.settings);
     }
 }

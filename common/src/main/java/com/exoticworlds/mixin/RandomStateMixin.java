@@ -19,7 +19,6 @@ import com.exoticworlds.core.feature.GenerationFeature;
 import com.exoticworlds.core.feature.RandomStateFeature;
 import com.exoticworlds.core.feature.RandomStateMoment;
 import com.exoticworlds.core.feature.ShapeFeatures;
-import com.exoticworlds.core.gen.GenerationMoments;
 import com.exoticworlds.core.fold.WorldFold;
 import com.exoticworlds.engine.gen.BaseHeights;
 import com.exoticworlds.engine.gen.CanonicalRandomFactory;
@@ -91,7 +90,7 @@ public class RandomStateMixin implements BaseHeightsHolder {
     }
 
     @Inject(method = CONSTRUCTOR, at = @At("RETURN"))
-    private void exotic_worlds$runGenerationHooks(NoiseGeneratorSettings settings,
+    private void exotic_worlds$runRandomStateFeatures(NoiseGeneratorSettings settings,
             HolderGetter<NormalNoise.NoiseParameters> noises, long seed, CallbackInfo callback) {
         WorldFold fold = GenerationFoldContext.getContext().getRouterBuildFold();
         if (fold != null) {
@@ -105,7 +104,6 @@ public class RandomStateMixin implements BaseHeightsHolder {
             for (RandomStateFeature feature : ShapeFeatures.atMoment(features, RandomStateFeature.class)) {
                 feature.atRandomState(moment);
             }
-            GenerationMoments.runAtRandomState(randomState, fold, settings.seaLevel());
         }
     }
 
