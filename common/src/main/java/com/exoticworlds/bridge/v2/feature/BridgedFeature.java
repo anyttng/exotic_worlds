@@ -7,11 +7,18 @@ import com.exoticworlds.core.feature.GenerationFeature;
 import com.exoticworlds.shape.feature.ShapeFeature;
 
 final class BridgedFeature extends ShapeFeature {
+    private final String namespace;
     private final FeatureMoments moments;
 
     BridgedFeature(FeatureV2 feature) {
         super(FeatureBridge.keyOf(feature));
+        this.namespace = feature.getId().getNamespace();
         this.moments = new FeatureMoments(this, feature);
+    }
+
+    @Override
+    public String getNamespace() {
+        return this.namespace;
     }
 
     @Override

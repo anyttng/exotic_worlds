@@ -10,6 +10,7 @@ import org.jspecify.annotations.Nullable;
 
 import com.exoticworlds.accessors.ActiveFeaturesHolder;
 import com.exoticworlds.core.gen.GeneratorShapes;
+import com.exoticworlds.core.registry.NamespaceOrder;
 import com.exoticworlds.core.registry.StartupRegistry;
 import com.exoticworlds.core.world.CarriedShape;
 
@@ -19,17 +20,39 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.dimension.LevelStem;
 
 public final class ShapeFeatures {
-    private static final StartupRegistry<String, GenerationFeature> FEATURES = new StartupRegistry<>("Shape features");
+    private record Registered(String namespace, GenerationFeature feature) {
+    }
+
+    private record RunOrder(Map<String, Registered> source, List<GenerationFeature> features) {
+    }
+
+    private static final StartupRegistry<String, Registered> FEATURES = new StartupRegistry<>("Shape features");
 
     private static final StartupRegistry<Identifier, Map<String, DimensionScope>> SCOPES =
             new StartupRegistry<>("Shape feature scopes");
 
-    public static void register(GenerationFeature feature) {
-        FEATURES.register(feature.getKey(), feature);
+    private static volatile RunOrder runOrder = new RunOrder(Map.of(), List.of());
+
+    public static void register(String namespace, GenerationFeature feature) {
+        FEATURES.register(feature.getKey(), new Registered(namespace, feature));
+    }
+
+    private static List<GenerationFeature> inRunOrder() {
+        Map<String, Registered> registered = FEATURES.getEntries();
+        RunOrder held = runOrder;
+        if (held.source() != registered) {
+            held = new RunOrder(registered, NamespaceOrder.sorted(registered.values(), Registered::namespace).stream()
+                    .map(Registered::feature)
+                    .toList());
+            runOrder = held;
+        }
+
+        return held.features();
     }
 
     public static void attach(Identifier shape, GenerationFeature feature, DimensionScope scope) {
-        if (FEATURES.getEntries().get(feature.getKey()) != feature) {
+        Registered registered = FEATURES.getEntries().get(feature.getKey());
+        if (registered == null || registered.feature() != feature) {
             throw new IllegalStateException("The feature " + feature.getKey() + " is attached to the shape " + shape
                     + " before it is registered, so it has no place in the feature order.");
         }
@@ -45,7 +68,7 @@ public final class ShapeFeatures {
         Map<String, DimensionScope> scopes = carried.findShapeId()
                 .map(shape -> SCOPES.getEntries().get(shape))
                 .orElse(Map.of());
-        return FEATURES.getEntries().values().stream()
+        return inRunOrder().stream()
                 .filter(feature -> isInScope(scopes.get(feature.getKey()), dimension))
                 .filter(feature -> feature.isOn(carried.getOptions()))
                 .toList();
@@ -62,7 +85,7 @@ public final class ShapeFeatures {
     }
 
     public static <F extends GenerationFeature> List<F> registeredAt(Class<F> moment) {
-        return atMoment(List.copyOf(FEATURES.getEntries().values()), moment);
+        return atMoment(inRunOrder(), moment);
     }
 
     public static <F extends GenerationFeature> List<F> activeOn(ServerLevel level, Class<F> moment) {
