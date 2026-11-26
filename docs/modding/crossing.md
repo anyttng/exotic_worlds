@@ -40,16 +40,19 @@ A `BlockPos` component that is not a world position (an offset, a size, a positi
 {
   "payloads": {
     "your_mod:structure_bounds": { "origin": "world", "size": "untouched" },
-    "your_mod:selection": { "from": "group", "to": "group" }
+    "your_mod:selection": { "from": "group", "to": "group" },
+    "your_mod:trail": { "curve": { "tangent": "untouched" } }
   }
 }
 ```
 
 - `world` folds the component as a world position, as it would be unnamed.
 - `untouched` crosses as sent, both ways.
-- `group` members move together. The first of them (in the record's component order, past an empty `Optional` or a `null`) is taken into the world's bounds on the way in, or to the copy nearest the player on the way out. The others move by the same shift and keep their distance from it, past the bounds if that is where it puts them.
+- `group` members move together, at any depth. The first of them is taken into the world's bounds on the way in, or to the copy nearest the player on the way out. Members are read in component order, a nested record's components in that record's place, past an empty `Optional` or a `null`. The others move by the same shift and keep their distance from it, past the bounds if that is where it puts them.
 
-A component the row does not name folds by its type. A name the record does not declare is skipped, with a warning in the server log. A row reaches the record's own components, not those of a record nested in one. Where two namespaces give one component different roles, it folds by its type and the server log says so.
+A component that holds a record takes an object of its own in place of a role, naming that record's components the same way. It works at any depth and reaches every record an `Optional` or a `List` holds. A role on such a component applies to the whole record.
+
+A component the row does not name folds by its type, at any depth. A name the record does not declare is skipped, with a warning in the server log, and so is an object on a component that holds no record. Two objects that two namespaces give one component join name by name. Where two namespaces give one component different entries, it folds by its type and the server log says so.
 
 To leave a whole payload alone, list its id under `deny`. It then crosses untouched in both directions, whatever a `payloads` row says.
 
