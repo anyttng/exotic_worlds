@@ -5,11 +5,9 @@ import org.jspecify.annotations.Nullable;
 import com.exoticworlds.api.v1.gen.TerrainSnapshot;
 import com.exoticworlds.core.feature.CarvedChunkFeature;
 import com.exoticworlds.core.feature.ShapeFeatures;
-import com.exoticworlds.core.fold.WorldFold;
-import com.exoticworlds.core.gen.GeneratorShapes;
 import com.exoticworlds.core.fold.WorldLoopAttachments;
+import com.exoticworlds.engine.gen.RouterBuild;
 import com.exoticworlds.shape.feature.floatingcrumbs.FloatingCrumbs;
-import com.exoticworlds.engine.gen.terrain.TerrainCeiling;
 import com.exoticworlds.shape.feature.floatingcrumbs.TerrainMask;
 import com.exoticworlds.engine.noise.GenerationFoldContext;
 
@@ -19,7 +17,6 @@ import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.chunk.ChunkAccess;
 import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.levelgen.NoiseBasedChunkGenerator;
-import net.minecraft.world.level.levelgen.NoiseGeneratorSettings;
 import net.minecraft.world.level.levelgen.RandomState;
 
 public final class ProbeBridge {
@@ -32,12 +29,10 @@ public final class ProbeBridge {
                     "The level's generator is not noise based: " + generator.getClass().getName());
         }
 
-        @Nullable WorldFold fold = WorldLoopAttachments.getWrappedFold(level);
-        NoiseGeneratorSettings settings = noise.generatorSettings().value();
-        NoiseGeneratorSettings shaped = fold != null ? TerrainCeiling.withCeiling(settings) : settings;
-        return GenerationFoldContext.withRouterBuild(fold, Registries.levelToLevelStem(level.dimension()),
-                GeneratorShapes.activeFeatures(generator, level.dimension()),
-                () -> RandomState.create(level.registryAccess().lookupOrThrow(Registries.NOISE), seed, shaped));
+        RouterBuild build = RouterBuild.of(generator, level.dimension(), noise.generatorSettings().value());
+        return GenerationFoldContext.withRouterBuild(build.fold(), build.dimension(), build.features(),
+                () -> RandomState.create(level.registryAccess().lookupOrThrow(Registries.NOISE), seed,
+                        build.settings()));
     }
 
     public static void withFold(ServerLevel level, Runnable body) {
