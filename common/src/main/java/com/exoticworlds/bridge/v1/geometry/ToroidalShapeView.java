@@ -35,7 +35,7 @@ final class ToroidalShapeView implements ToroidalShape {
 
     @Override
     public int maxChunk(Direction.Axis axis) {
-        return this.fold.getMaxChunk(axis);
+        return this.fold.getMinChunk(axis) + this.fold.getWidthChunks(axis);
     }
 
     @Override
@@ -60,22 +60,22 @@ final class ToroidalShapeView implements ToroidalShape {
 
     @Override
     public double foldCoord(Direction.Axis axis, double coord) {
-        return this.fold.foldCoord(axis, coord);
+        return axis == Direction.Axis.Y ? coord : this.fold.getBlockDomain(axis).wrap(coord);
     }
 
     @Override
     public int foldBlock(Direction.Axis axis, int coord) {
-        return this.fold.foldBlock(axis, coord);
+        return axis == Direction.Axis.Y ? coord : this.fold.getBlockDomain(axis).wrap(coord);
     }
 
     @Override
     public int foldChunk(Direction.Axis axis, int chunk) {
-        return this.fold.foldChunk(axis, chunk);
+        return axis == Direction.Axis.Y ? chunk : this.fold.getChunkDomain(axis).wrap(chunk);
     }
 
     @Override
     public double nearestCoord(Direction.Axis axis, double ref, double coord) {
-        return this.fold.nearestCoord(axis, ref, coord);
+        return axis == Direction.Axis.Y ? coord : this.fold.getBlockDomain(axis).unwrapAround(ref, coord);
     }
 
     @Override

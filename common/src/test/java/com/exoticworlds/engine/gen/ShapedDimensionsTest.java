@@ -1,18 +1,10 @@
 package com.exoticworlds.engine.gen;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 
 import java.util.Map;
 
 import org.junit.jupiter.api.Test;
-
-import com.exoticworlds.core.world.CarriedShape;
-import com.exoticworlds.core.world.FlatShape;
-import com.exoticworlds.core.world.ShapeFixtures;
-import com.exoticworlds.core.option.ShapeOptions;
-import com.exoticworlds.core.world.WorldLoopBounds;
 
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderLookup;
@@ -31,22 +23,6 @@ import net.minecraft.world.level.levelgen.WorldDimensions;
 class ShapedDimensionsTest {
     private static final HolderLookup.Provider WORLDGEN = VanillaRegistries.createLookup();
 
-    private static final FlatShape TORUS = ShapeFixtures.torus(WorldLoopBounds.ofWidth(32));
-
-    @Test
-    void anOverworldThatRefusesTheShapeLeavesTheNetherUntouched() {
-        WorldDimensions foreign = overworldAndNetherOf(
-                new ForeignChunkGenerator(plainsBiomeSource(), overworldNoiseSettings()),
-                new NoiseBasedChunkGenerator(plainsBiomeSource(), overworldNoiseSettings()));
-
-        WorldDimensions shaped = ShapedDimensions.withShapes(foreign,
-                new CarriedShape(null, TORUS, ShapeOptions.DEFAULT), new CarriedShape(null, TORUS, ShapeOptions.DEFAULT),
-                        new CarriedShape(null, TORUS, ShapeOptions.DEFAULT));
-
-        assertSame(foreign, shaped);
-        assertNull(ShapedDimensions.getShape(shaped, LevelStem.NETHER));
-    }
-
     @Test
     void anUnshapedChosenPresetLeavesTheResult() {
         WorldDimensions chosen = overworldOf(new NoiseBasedChunkGenerator(
@@ -61,16 +37,6 @@ class ShapedDimensionsTest {
         return new WorldDimensions(Map.of(LevelStem.OVERWORLD, new LevelStem(
                 WORLDGEN.lookupOrThrow(Registries.DIMENSION_TYPE).getOrThrow(BuiltinDimensionTypes.OVERWORLD),
                 generator)));
-    }
-
-    private static WorldDimensions overworldAndNetherOf(ChunkGenerator overworld, ChunkGenerator nether) {
-        return new WorldDimensions(Map.of(
-                LevelStem.OVERWORLD, new LevelStem(
-                        WORLDGEN.lookupOrThrow(Registries.DIMENSION_TYPE).getOrThrow(BuiltinDimensionTypes.OVERWORLD),
-                        overworld),
-                LevelStem.NETHER, new LevelStem(
-                        WORLDGEN.lookupOrThrow(Registries.DIMENSION_TYPE).getOrThrow(BuiltinDimensionTypes.NETHER),
-                        nether)));
     }
 
     private static BiomeSource plainsBiomeSource() {

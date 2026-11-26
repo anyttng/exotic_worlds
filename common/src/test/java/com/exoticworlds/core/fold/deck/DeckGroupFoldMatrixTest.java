@@ -113,7 +113,7 @@ class DeckGroupFoldMatrixTest {
         }
 
         FoldOrientation mirrorOrientation() {
-            return FoldOrientation.of(this.mirrorsX, this.mirrorsZ);
+            return FoldOrientation.of(false, this.mirrorsX, this.mirrorsZ);
         }
 
         int[] oneMirroredLap() {
