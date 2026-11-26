@@ -5,11 +5,9 @@ import java.util.BitSet;
 import org.jspecify.annotations.Nullable;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Pseudo;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Coerce;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
@@ -18,11 +16,14 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import com.eminus.cell.ColumnCoverage;
 import com.eminus.ingest.IngestService;
 import com.eminus.ingest.SectionPyramid;
+import com.eminus.ingest.saved.ImportTiles;
+import com.eminus.ingest.saved.SaveImport;
+import com.eminus.ingest.saved.SaveSource;
+import com.eminus.ingest.saved.SavedChunk;
 import com.eminus.work.WorkService;
 import com.exoticworlds.InjectionTargets;
 import com.exoticworlds.compat.eminus.CellFold;
 import com.exoticworlds.compat.eminus.CellFoldHolder;
-import com.exoticworlds.compat.eminus.EminusImports;
 import com.exoticworlds.compat.eminus.FoldedRegions;
 import com.exoticworlds.compat.eminus.SavedChunkOwner;
 import com.exoticworlds.compat.eminus.SavedLevelSource;
@@ -37,8 +38,7 @@ import it.unimi.dsi.fastutil.longs.LongSet;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.ChunkPos;
 
-@Pseudo
-@Mixin(targets = "com.eminus.ingest.saved.SaveImport", remap = false)
+@Mixin(SaveImport.class)
 public class SaveImportMixin {
     @Shadow
     @Final
@@ -54,13 +54,13 @@ public class SaveImportMixin {
     private @Nullable ServerLevel exotic_worlds$savedLevel;
 
     @Inject(method = "<init>", at = @At("RETURN"))
-    private void exotic_worlds$readTheSavedLevel(@Coerce Object source, IngestService ingest, ColumnCoverage columns,
+    private void exotic_worlds$readTheSavedLevel(SaveSource source, IngestService ingest, ColumnCoverage columns,
             WorkService<SectionPyramid> service, long biomeZoomSeed, CallbackInfo ci) {
         exotic_worlds$savedLevel = source instanceof SavedLevelSource saved ? saved.exotic_worlds$getSavedLevel() : null;
     }
 
     @Inject(method = "saved", at = @At("HEAD"))
-    private void exotic_worlds$ownedByTheSavedLevel(@Coerce Object chunk, CallbackInfo ci) {
+    private void exotic_worlds$ownedByTheSavedLevel(SavedChunk chunk, CallbackInfo ci) {
         ServerLevel level = exotic_worlds$savedLevel;
         if (level != null) {
             SavedChunkOwner.stamp(chunk, level);
@@ -130,7 +130,7 @@ public class SaveImportMixin {
                     target = "Lcom/eminus/ingest/saved/ImportTiles;plan(Lit/unimi/dsi/fastutil/longs/LongSet;III)[J"))
     private long[] exotic_worlds$planOverStoredRegions(LongSet regions, int viewX, int viewZ, int radiusChunks,
             Operation<long[]> original) {
-        return original.call(FoldedRegions.of(regions, CellFoldHolder.getFold(coverage), 1 << EminusImports.getTileBits()),
+        return original.call(FoldedRegions.of(regions, CellFoldHolder.getFold(coverage), 1 << ImportTiles.TILE_BITS),
                 viewX, viewZ, radiusChunks);
     }
 }
