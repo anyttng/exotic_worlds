@@ -70,9 +70,9 @@ class AttachedFeaturesTest {
         OptionPart.WholeNumber<ClimateScale> factor = (OptionPart.WholeNumber<ClimateScale>) parts.get(1);
 
         assertEquals(2, parts.size());
-        assertTrue(parts.get(0).shownWhen().test(ClimateScale.AUTO));
-        assertFalse(factor.shownWhen().test(ClimateScale.AUTO));
-        assertTrue(factor.shownWhen().test(ClimateScale.custom(6)));
+        assertTrue(parts.get(0).enabledWhen().test(ClimateScale.AUTO));
+        assertFalse(factor.enabledWhen().test(ClimateScale.AUTO));
+        assertTrue(factor.enabledWhen().test(ClimateScale.custom(6)));
         assertEquals(6, factor.read().apply(ClimateScale.custom(6)));
         assertEquals(ClimateScale.custom(9), factor.write().apply(ClimateScale.custom(6), 9));
     }

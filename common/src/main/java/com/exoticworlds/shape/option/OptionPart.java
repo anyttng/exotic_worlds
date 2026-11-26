@@ -17,15 +17,15 @@ public sealed interface OptionPart<T>
 
     String key();
 
-    Predicate<T> shownWhen();
+    Predicate<T> enabledWhen();
 
-    record Toggle<T>(String key, Function<T, Boolean> read, BiFunction<T, Boolean, T> write, Predicate<T> shownWhen)
+    record Toggle<T>(String key, Function<T, Boolean> read, BiFunction<T, Boolean, T> write, Predicate<T> enabledWhen)
             implements OptionPart<T> {
     }
 
     record Choice<T, V>(String key, List<V> values, Function<V, String> valueKey,
             Function<V, @Nullable Component> ownName, Function<T, V> read, BiFunction<T, V, T> write,
-            Predicate<T> shownWhen) implements OptionPart<T> {
+            Predicate<T> enabledWhen) implements OptionPart<T> {
         public Choice {
             values = List.copyOf(values);
         }
@@ -33,10 +33,10 @@ public sealed interface OptionPart<T>
 
     record WholeNumber<T>(String key, BiFunction<StemTerrain, T, NumberRange> range,
             Function<T, Integer> read, BiFunction<T, Integer, T> write, BiFunction<T, Integer, Component> valueLine,
-            Predicate<T> shownWhen) implements OptionPart<T> {
+            Predicate<T> enabledWhen) implements OptionPart<T> {
         public WholeNumber(String key, int min, int max, Function<T, Integer> read, BiFunction<T, Integer, T> write,
-                Predicate<T> shownWhen) {
-            this(key, fixed(new NumberRange(min, max)), read, write, (value, number) -> Component.empty(), shownWhen);
+                Predicate<T> enabledWhen) {
+            this(key, fixed(new NumberRange(min, max)), read, write, (value, number) -> Component.empty(), enabledWhen);
         }
 
         private static <T> BiFunction<StemTerrain, T, NumberRange> fixed(NumberRange range) {
@@ -55,7 +55,7 @@ public sealed interface OptionPart<T>
         }
 
         @Override
-        public Predicate<T> shownWhen() {
+        public Predicate<T> enabledWhen() {
             return value -> true;
         }
     }
