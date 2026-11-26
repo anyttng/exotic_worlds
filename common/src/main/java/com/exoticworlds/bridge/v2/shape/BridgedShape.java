@@ -10,6 +10,7 @@ import com.exoticworlds.api.v2.shape.ShapeDimensionV2;
 import com.exoticworlds.api.v2.shape.ShapeV2;
 import com.exoticworlds.api.v2.shape.ShapeValuesV2;
 import com.exoticworlds.core.option.ShapeOptions;
+import com.exoticworlds.core.world.DerivedDimension;
 import com.exoticworlds.core.world.FlatShape;
 import com.exoticworlds.core.world.LegacyDerivation;
 import com.exoticworlds.shape.WorldLoopPresets;
@@ -63,10 +64,8 @@ final class BridgedShape extends AbstractDimensionShape {
         }
 
         @Override
-        public @Nullable FlatShape derive(FlatShape overworld, ResourceKey<LevelStem> dimension, double overworldScale,
-                double coordinateScale) {
-            LoopSpansV2 derived = this.shape.derivedSpans(
-                    new Derived(overworld, dimension, overworldScale, coordinateScale));
+        public @Nullable FlatShape derive(FlatShape overworld, DerivedDimension dimension) {
+            LoopSpansV2 derived = this.shape.derivedSpans(new Derived(overworld, dimension));
             return derived == null ? null : ShapeSpansAdapter.flatShape(derived);
         }
     }
@@ -106,11 +105,10 @@ final class BridgedShape extends AbstractDimensionShape {
         }
     }
 
-    private record Derived(FlatShape overworld, ResourceKey<LevelStem> dimension, double overworldScale,
-            double coordinateScale) implements DerivedDimensionV2 {
+    private record Derived(FlatShape overworld, DerivedDimension dimension) implements DerivedDimensionV2 {
         @Override
         public ResourceKey<LevelStem> getDimension() {
-            return this.dimension;
+            return this.dimension.dimension();
         }
 
         @Override
@@ -120,17 +118,18 @@ final class BridgedShape extends AbstractDimensionShape {
 
         @Override
         public double getOverworldScale() {
-            return this.overworldScale;
+            return this.dimension.overworldScale();
         }
 
         @Override
         public double getCoordinateScale() {
-            return this.coordinateScale;
+            return this.dimension.coordinateScale();
         }
 
         @Override
         public @Nullable LoopSpansV2 scaledCopy() {
-            FlatShape scaled = LegacyDerivation.derive(this.overworld, this.overworldScale, this.coordinateScale);
+            FlatShape scaled = LegacyDerivation.derive(this.overworld, this.dimension.overworldScale(),
+                    this.dimension.coordinateScale());
             return scaled == null ? null : ShapeSpansAdapter.loopSpans(scaled);
         }
     }

@@ -4,6 +4,7 @@ import java.util.Map;
 
 import org.jspecify.annotations.Nullable;
 
+import com.exoticworlds.core.world.DerivedDimension;
 import com.exoticworlds.core.world.FlatShape;
 import com.exoticworlds.core.world.ShapeDerivations;
 import com.exoticworlds.shape.layout.DimensionLayout;
@@ -19,8 +20,8 @@ public record CoordinateScales(Map<ResourceKey<LevelStem>, Double> byDimension) 
     }
 
     @Nullable FlatShape modDimension(ResourceKey<LevelStem> dimension, DimensionLayout overworld) {
-        return ShapeDerivations.derive(overworld.shape(), overworld.spans(), dimension, this.of(LevelStem.OVERWORLD),
-                this.of(dimension));
+        return ShapeDerivations.derive(overworld.shape(), overworld.spans(),
+                DerivedDimension.ofKey(dimension, this.of(LevelStem.OVERWORLD), this.of(dimension)));
     }
 
     public double of(ResourceKey<LevelStem> dimension) {

@@ -14,6 +14,7 @@ import static com.exoticworlds.engine.gen.BakeStampFixture.OVERWORLD_WIDTH_CHUNK
 import static com.exoticworlds.engine.gen.BakeStampFixture.carriedShapeOf;
 import static com.exoticworlds.engine.gen.BakeStampFixture.widthChunks;
 import static com.exoticworlds.engine.gen.BakeStampFixture.datapackRegistry;
+import static com.exoticworlds.engine.gen.BakeStampFixture.endIslandsGenerator;
 import static com.exoticworlds.engine.gen.BakeStampFixture.foreignGenerator;
 import static com.exoticworlds.engine.gen.BakeStampFixture.generatorOf;
 import static com.exoticworlds.engine.gen.BakeStampFixture.noiseGenerator;
@@ -133,11 +134,38 @@ class BakeStampTest {
         ((ShapeStamp) overworld).exotic_worlds$stamp(new CarriedShape(DeclaredShapes.TORUS,
                 squareTorus(OVERWORLD_WIDTH_CHUNKS), ShapeOptions.DEFAULT));
         Registry<LevelStem> baked = bake(Map.of(LevelStem.OVERWORLD, stem(SAME_SCALE, overworld)),
-                Map.of(LevelStem.END, stem(SAME_SCALE, foreignGenerator())));
+                Map.of(LevelStem.END, stem(SAME_SCALE, endIslandsGenerator(worldgen))));
 
         FlatShape end = shapeOf(baked, LevelStem.END);
         assertNotNull(end, "the End took no derived shape");
         assertEquals(WorldLoopSizes.endWidthChunksFor(OVERWORLD_WIDTH_CHUNKS), widthChunks(end, Direction.Axis.X));
+    }
+
+    @Test
+    void aModStemWithEndIslandsBakedUnderATorusTakesTheLoopsEndRule() {
+        ChunkGenerator overworld = foreignGenerator();
+        ((ShapeStamp) overworld).exotic_worlds$stamp(new CarriedShape(DeclaredShapes.TORUS,
+                squareTorus(OVERWORLD_WIDTH_CHUNKS), ShapeOptions.DEFAULT));
+        Registry<LevelStem> baked = bake(Map.of(LevelStem.OVERWORLD, stem(SAME_SCALE, overworld)),
+                Map.of(FOREIGN, stem(SAME_SCALE, endIslandsGenerator(worldgen))));
+
+        FlatShape islands = shapeOf(baked, FOREIGN);
+        assertNotNull(islands, "the mod stem took no derived shape");
+        assertEquals(WorldLoopSizes.endWidthChunksFor(OVERWORLD_WIDTH_CHUNKS),
+                widthChunks(islands, Direction.Axis.X));
+    }
+
+    @Test
+    void anEndWithoutEndIslandsBakedUnderATorusTakesTheScaledCopy() {
+        ChunkGenerator overworld = foreignGenerator();
+        ((ShapeStamp) overworld).exotic_worlds$stamp(new CarriedShape(DeclaredShapes.TORUS,
+                squareTorus(OVERWORLD_WIDTH_CHUNKS), ShapeOptions.DEFAULT));
+        Registry<LevelStem> baked = bake(Map.of(LevelStem.OVERWORLD, stem(SAME_SCALE, overworld)),
+                Map.of(LevelStem.END, stem(SAME_SCALE, foreignGenerator())));
+
+        FlatShape end = shapeOf(baked, LevelStem.END);
+        assertNotNull(end, "the End took no derived shape");
+        assertEquals(OVERWORLD_WIDTH_CHUNKS, widthChunks(end, Direction.Axis.X));
     }
 
     @Test

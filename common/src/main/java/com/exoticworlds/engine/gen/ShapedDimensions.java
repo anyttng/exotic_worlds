@@ -7,9 +7,11 @@ import org.jspecify.annotations.Nullable;
 
 import com.exoticworlds.accessors.ShapeStamp;
 import com.exoticworlds.core.world.CarriedShape;
+import com.exoticworlds.core.world.DerivedDimension;
 import com.exoticworlds.core.world.DimensionTable;
 import com.exoticworlds.core.world.FlatShape;
 import com.exoticworlds.core.world.ShapeDerivations;
+import com.exoticworlds.core.gen.EndTerrain;
 import com.exoticworlds.core.gen.GeneratorShapes;
 import com.exoticworlds.core.world.WorldLoopBounds;
 import com.exoticworlds.engine.gen.DatapackStemOverrides.Outcome;
@@ -158,18 +160,19 @@ public final class ShapedDimensions {
             DimensionTable.Entry chosen = this.table.getEntry(key);
             stamp.exotic_worlds$stampBaked(chosen != null && !chosen.isFromOverworld()
                     ? chosen.carried()
-                    : derivedCarried(this.overworld, key, this.overworldScale, stem.type().value().coordinateScale()));
+                    : derivedCarried(this.overworld, new DerivedDimension(key, EndTerrain.isEndTerrain(stem.generator()),
+                            this.overworldScale, stem.type().value().coordinateScale())));
         }
     }
 
     private static @Nullable CarriedShape derivedCarried(@Nullable CarriedShape overworld,
-            ResourceKey<LevelStem> dimension, double overworldScale, double coordinateScale) {
+            DerivedDimension dimension) {
         if (overworld == null) {
             return null;
         }
 
         FlatShape derived = ShapeDerivations.derive(overworld.getShapeId().orElse(null), overworld.getShape(),
-                dimension, overworldScale, coordinateScale);
+                dimension);
         return derived == null ? null : overworld.withShape(derived);
     }
 

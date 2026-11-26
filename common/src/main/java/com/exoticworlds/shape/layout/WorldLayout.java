@@ -5,6 +5,7 @@ import java.util.Map;
 
 import org.jspecify.annotations.Nullable;
 
+import com.exoticworlds.core.world.DerivedDimension;
 import com.exoticworlds.core.world.FlatShape;
 import com.exoticworlds.core.world.NetherScales;
 import com.exoticworlds.core.world.ShapeDerivations;
@@ -80,12 +81,13 @@ public record WorldLayout(DimensionLayout overworld, DimensionLayout nether, Dim
         FlatShape spans = overworld.spans();
         return spans == null
                 ? null
-                : ShapeDerivations.derive(overworld.shape(), spans, LevelStem.NETHER, UNSCALED,
-                        NetherScales.normalize(netherScale, NetherScales.allowedFor(spans)));
+                : ShapeDerivations.derive(overworld.shape(), spans, DerivedDimension.ofKey(LevelStem.NETHER,
+                        UNSCALED, NetherScales.normalize(netherScale, NetherScales.allowedFor(spans))));
     }
 
     public static @Nullable FlatShape derivedEnd(DimensionLayout overworld) {
-        return ShapeDerivations.derive(overworld.shape(), overworld.spans(), LevelStem.END, UNSCALED, UNSCALED);
+        return ShapeDerivations.derive(overworld.shape(), overworld.spans(),
+                DerivedDimension.ofKey(LevelStem.END, UNSCALED, UNSCALED));
     }
 
     public <T> @Nullable WorldLayout withOverworldValue(OptionFeature<T> feature, T value) {

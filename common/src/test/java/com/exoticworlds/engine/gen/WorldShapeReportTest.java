@@ -133,6 +133,12 @@ class WorldShapeReportTest {
     }
 
     @Test
+    void aDimensionWithEndTerrainIsHeldToTheThresholdAndOneWithoutIsNot() {
+        assertTrue(WorldShapeReport.endWidth(true, square(NARROW_END_WIDTH_CHUNKS)).isBroken());
+        assertEquals(WorldShapeReport.Note.NONE, WorldShapeReport.endWidth(false, square(NARROW_END_WIDTH_CHUNKS)));
+    }
+
+    @Test
     void aCylinderEndIsHeldToTheThresholdOnItsLoopingAxis() {
         WorldShapeReport.Note note = WorldShapeReport.endWidthNote(loopedZ(NARROW_END_WIDTH_CHUNKS));
 

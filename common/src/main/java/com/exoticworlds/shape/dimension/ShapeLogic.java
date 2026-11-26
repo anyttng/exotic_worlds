@@ -5,12 +5,10 @@ import java.util.Optional;
 import org.jspecify.annotations.Nullable;
 
 import com.exoticworlds.core.option.ShapeOptions;
+import com.exoticworlds.core.world.DerivedDimension;
 import com.exoticworlds.core.world.FlatShape;
 import com.exoticworlds.core.world.LegacyDerivation;
 import com.exoticworlds.shape.WorldLoopPresets;
-
-import net.minecraft.resources.ResourceKey;
-import net.minecraft.world.level.dimension.LevelStem;
 
 public interface ShapeLogic {
     FlatShape spans(DimensionContext context);
@@ -27,8 +25,7 @@ public interface ShapeLogic {
         return Optional.empty();
     }
 
-    default @Nullable FlatShape derive(FlatShape overworld, ResourceKey<LevelStem> dimension, double overworldScale,
-            double coordinateScale) {
-        return LegacyDerivation.derive(overworld, overworldScale, coordinateScale);
+    default @Nullable FlatShape derive(FlatShape overworld, DerivedDimension dimension) {
+        return LegacyDerivation.derive(overworld, dimension.overworldScale(), dimension.coordinateScale());
     }
 }

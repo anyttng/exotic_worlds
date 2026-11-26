@@ -10,9 +10,11 @@ import com.google.common.math.LongMath;
 import com.exoticworlds.accessors.ShapeStamp;
 import com.exoticworlds.core.world.CarriedShape;
 import com.exoticworlds.core.world.CoordinateConstants;
+import com.exoticworlds.core.world.DerivedDimension;
 import com.exoticworlds.core.world.DimensionTable;
 import com.exoticworlds.core.world.FlatShape;
 import com.exoticworlds.core.world.ShapeDerivations;
+import com.exoticworlds.core.gen.EndTerrain;
 import com.exoticworlds.core.gen.GeneratorShapes;
 import com.exoticworlds.core.world.WorldLoopBounds;
 import com.exoticworlds.core.world.WorldLoopBounds.AxisBounds;
@@ -105,7 +107,8 @@ public final class WorldShapeReport {
         double scale = level.dimensionType().coordinateScale();
         CarriedShape overworld = GeneratorShapes.getCarriedShape(server.overworld());
         FlatShape derived = ShapeDerivations.derive(overworld == null ? null : overworld.getShapeId().orElse(null),
-                overworldShape, Registries.levelToLevelStem(level.dimension()), overworldScale, scale);
+                overworldShape, new DerivedDimension(Registries.levelToLevelStem(level.dimension()),
+                        EndTerrain.isEndTerrain(level.getChunkSource().getGenerator()), overworldScale, scale));
         return derived == null
                 ? "coordinate scale " + scale + " derives no whole-chunk width in range or whole-chunk skew from the"
                         + " overworld's " + widths(overworldShape.bounds()) + skew(overworldShape)
@@ -236,7 +239,11 @@ public final class WorldShapeReport {
     }
 
     private static Note endWidth(ServerLevel level, WorldLoopBounds bounds) {
-        return level.dimension() != Level.END ? Note.NONE : endWidthNote(bounds);
+        return endWidth(EndTerrain.isEndTerrain(level.getChunkSource().getGenerator()), bounds);
+    }
+
+    static Note endWidth(boolean isEndTerrain, WorldLoopBounds bounds) {
+        return isEndTerrain ? endWidthNote(bounds) : Note.NONE;
     }
 
     static Note endWidthNote(WorldLoopBounds end) {

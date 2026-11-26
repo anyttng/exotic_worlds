@@ -3,14 +3,13 @@ package com.exoticworlds.shape.dimension;
 import org.jspecify.annotations.Nullable;
 
 import com.exoticworlds.core.option.ShapeOptions;
+import com.exoticworlds.core.world.DerivedDimension;
 import com.exoticworlds.core.world.FlatShape;
 import com.exoticworlds.core.world.WorldLoopBounds;
 import com.exoticworlds.core.world.WorldLoopSizes;
 import com.exoticworlds.shape.WorldLoopPresets;
 
 import net.minecraft.core.Direction;
-import net.minecraft.resources.ResourceKey;
-import net.minecraft.world.level.dimension.LevelStem;
 
 public abstract class LoopLogic implements ShapeLogic {
 
@@ -27,10 +26,9 @@ public abstract class LoopLogic implements ShapeLogic {
     protected abstract ShapeOptions withWidth(int widthChunks, ShapeOptions options);
 
     @Override
-    public @Nullable FlatShape derive(FlatShape overworld, ResourceKey<LevelStem> dimension, double overworldScale,
-            double coordinateScale) {
-        if (dimension != LevelStem.END) {
-            return ShapeLogic.super.derive(overworld, dimension, overworldScale, coordinateScale);
+    public @Nullable FlatShape derive(FlatShape overworld, DerivedDimension dimension) {
+        if (!dimension.isEndTerrain()) {
+            return ShapeLogic.super.derive(overworld, dimension);
         }
 
         boolean isXLooped = overworld.bounds().isLooped(Direction.Axis.X);

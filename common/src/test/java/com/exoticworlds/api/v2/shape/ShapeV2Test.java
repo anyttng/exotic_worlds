@@ -18,6 +18,7 @@ import com.exoticworlds.api.v2.feature.OptionPartV2;
 import com.exoticworlds.core.option.ShapeOption;
 import com.exoticworlds.core.option.ShapeOptions;
 import com.exoticworlds.core.world.FlatShape;
+import com.exoticworlds.core.world.DerivedDimension;
 import com.exoticworlds.core.world.ShapeDerivations;
 import com.exoticworlds.core.world.ShapeFixtures;
 import com.exoticworlds.shape.WorldLoopPresets;
@@ -118,15 +119,18 @@ class ShapeV2Test {
         FlatShape overworld = ShapeFixtures.cylinder(Direction.Axis.X, CHOSEN_WIDTH_CHUNKS);
 
         assertEquals(ShapeFixtures.cylinder(Direction.Axis.X, CHOSEN_WIDTH_CHUNKS / (int) NETHER_SCALE),
-                ShapeDerivations.derive(BAND.getId(), overworld, LevelStem.NETHER, 1.0, NETHER_SCALE));
+                ShapeDerivations.derive(BAND.getId(), overworld,
+                        DerivedDimension.ofKey(LevelStem.NETHER, 1.0, NETHER_SCALE)));
     }
 
     @Test
     void aShapeDecidesWhatFollowsItsOverworld() {
         FlatShape overworld = ShapeFixtures.cylinder(Direction.Axis.Z, STRIP_WIDTH_CHUNKS);
 
-        assertNull(ShapeDerivations.derive(STRIP.getId(), overworld, LevelStem.NETHER, 1.0, NETHER_SCALE));
-        assertEquals(overworld, ShapeDerivations.derive(STRIP.getId(), overworld, LevelStem.END, 1.0, 1.0));
+        assertNull(ShapeDerivations.derive(STRIP.getId(), overworld,
+                DerivedDimension.ofKey(LevelStem.NETHER, 1.0, NETHER_SCALE)));
+        assertEquals(overworld, ShapeDerivations.derive(STRIP.getId(), overworld,
+                DerivedDimension.ofKey(LevelStem.END, 1.0, 1.0)));
     }
 
     @Test
