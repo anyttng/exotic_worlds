@@ -1,13 +1,13 @@
 package com.exoticworlds.api.v1.gen;
 
+import com.exoticworlds.api.v1.Broken;
+
 /**
- * What the carvers tail recorded about one chunk's terrain: which cells the generator had filled by then, and which
- * of those a later step has since written over. A pass that removes terrain may take only what still stands in both
- * readings, which is what keeps it off the blocks features and structures put down.
+ * The type {@link GenerationProbe#snapshotOf} answers with and the crumb calls beside it take. No call hands one out.
  *
- * <p>Opaque by design — a harness holds one per chunk and hands the nine of a window back to
- * {@link GenerationProbe#borderCrumbs}. One is obtained from {@link GenerationProbe#snapshotOf} after that chunk has
- * been through {@link GenerationProbe#sweepCrumbs}; a chunk that never was carries none.</p>
+ * @deprecated the crumb passes are not offered outside the chunk map, and nothing replaces this type.
  */
+@Deprecated
+@Broken(GenerationProbe.NO_CRUMB_PASSES)
 public interface TerrainSnapshot {
 }

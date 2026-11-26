@@ -76,7 +76,8 @@ class UnreachedMembersTest {
     private static final Set<String> READ_BY_HARNESS = Set.of(
             "compat.distanthorizons.DhFold.periodSections",
             "compat.gate.ModPresenceGatePlugin.getGates",
-            "core.fold.TranslationLattice.nearestZLaps");
+            "core.fold.TranslationLattice.nearestZLaps",
+            "shape.feature.floatingcrumbs.FloatingCrumbs.crumbPositions");
     private static final Set<String> CALLED_BY_EMITTED_CODE = Set.of(
             "engine.noise.ContextScaledNoise.sampleWrapped",
             "engine.noise.ContextScaledNoise.sampleWrappedWarped");
