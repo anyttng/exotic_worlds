@@ -57,7 +57,7 @@ In `atStructureStarts`, `getPicks()` lists the chunks the set's own placement pi
 
 ## The option's controls
 
-The last constructor argument of `OptionFeatureV2` lists the controls that edit the value, top to bottom. A part is one control, built with `OptionPartV2.toggle()`, `OptionPartV2.choice(values, valueKey)` or `OptionPartV2.number(min, max)`. A value with several pieces takes one part per piece, built with the record constructors `Toggle`, `Choice`, `WholeNumber` and `Row`, each given how to read its piece, how to write it back and when to show it.
+The last constructor argument of `OptionFeatureV2` lists the controls that edit the value, top to bottom. A part is one control, built with `OptionPartV2.toggle()`, `OptionPartV2.choice(values, valueKey)` or `OptionPartV2.number(min, max)`. A value with several pieces takes one part per piece, built with the record constructors `Toggle`, `Choice`, `WholeNumber` and `Row`, each given how to read its piece, how to write it back and when it is enabled.
 
 Every text is a translation key under the caption key.
 

@@ -153,7 +153,7 @@ The Nether's `wrapping` takes the overworld's skew divided by the portal scale, 
 
 - **Overworld** needs every looping axis at least 16 chunks (256 blocks) wide, centered on zero as the example does (`min_chunk = -width/2`).
 - **Nether** needs at least 16 chunks (256 blocks) on every looping axis, even and centered. Portals link by the ratio of the two widths on each axis, so any pair of widths lines up at the world's edge. For vanilla's 1:8 travel, make the Nether an eighth of the overworld. An overworld that is a multiple of 16 chunks and 128 or wider always allows it. With `skew_chunks`, the Nether's skew is the overworld's scaled by the same ratio, and it must come out a whole number of chunks (`BROKEN nether skew`).
-- **End** is independent of the other two. It needs at least 192 chunks (3072 blocks) on every looping axis (`BROKEN End width`), and in a cylinder it loops along the same axis as the overworld. Smaller Ends lose the outer island ring (no end cities, no elytra) and let gateway teleports reach across the world's edge.
+- **End** is independent of the other two. It needs at least 192 chunks (3072 blocks) on every looping axis (`BROKEN End width`), and in a cylinder it loops along the same axis as the overworld. Smaller Ends lose the outer island ring (no end cities, no elytra) and let gateway teleports reach across the world's edge. A dimension another mod adds with the End's island terrain follows the same rule.
 
 ## World options
 
