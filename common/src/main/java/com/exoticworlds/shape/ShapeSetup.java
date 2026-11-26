@@ -9,7 +9,8 @@ import com.exoticworlds.core.option.ShapeOptionRegistry;
 import com.exoticworlds.core.registry.RegistrationBoundary;
 import com.exoticworlds.core.world.FlatShape;
 import com.exoticworlds.core.world.LegacyShapeIds;
-import com.exoticworlds.core.world.SpawnPoint;
+import com.exoticworlds.shape.feature.OptionFeature;
+import com.exoticworlds.shape.feature.ShapeFeature;
 import com.exoticworlds.shape.feature.compactbiomes.CompactBiomes;
 import com.exoticworlds.shape.cylinder.Cylinder;
 import com.exoticworlds.shape.dimension.AttachedFeatures;
@@ -31,7 +32,6 @@ public final class ShapeSetup {
 
     public static void registerAll(boolean isClient) {
         LegacyShapeIds.register(ShapeSetup::recognizeLegacy);
-        registerSavedOptions();
         registerFeatures();
         if (isClient) {
             registerFeatureViews();
@@ -42,19 +42,20 @@ public final class ShapeSetup {
         registerLayout(isClient);
     }
 
-    private static void registerSavedOptions() {
-        ShapeOptionRegistry.register(SpawnPoint.OPTION);
-        ShapeOptionRegistry.register(CompactBiomes.FEATURE.getOption());
-        ShapeOptionRegistry.register(GuaranteedLand.FEATURE.getOption());
-        ShapeOptionRegistry.register(GuaranteedNetherComplexes.FEATURE.getOption());
+    private static void registerFeatures() {
+        registerFeature(ChosenSpawn.FEATURE);
+        registerFeature(CompactBiomes.FEATURE);
+        registerFeature(GuaranteedLand.FEATURE);
+        registerFeature(GuaranteedNetherComplexes.FEATURE);
+        registerFeature(FloatingCrumbs.FEATURE);
     }
 
-    private static void registerFeatures() {
-        ShapeFeatures.register(ChosenSpawn.FEATURE);
-        ShapeFeatures.register(CompactBiomes.FEATURE);
-        ShapeFeatures.register(GuaranteedLand.FEATURE);
-        ShapeFeatures.register(GuaranteedNetherComplexes.FEATURE);
-        ShapeFeatures.register(FloatingCrumbs.FEATURE);
+    private static void registerFeature(ShapeFeature feature) {
+        if (feature instanceof OptionFeature<?> offered) {
+            ShapeOptionRegistry.register(offered.getOption());
+        }
+
+        ShapeFeatures.register(feature);
     }
 
     private static void registerFeatureViews() {
@@ -62,8 +63,10 @@ public final class ShapeSetup {
         CompactBiomesView.register();
     }
 
-    private static void registerLayout(boolean isClient) {
+    static void registerLayout(boolean isClient) {
         LayoutShape.register(isClient);
+        WorldShapes.takesSpawn(LayoutShape.ID,
+                spawn -> LayoutShape.trySetOverworldValue(ChosenSpawn.FEATURE, spawn));
         RegistrationBoundary.STARTUP.atFirstClose(DeclaredShapes::warnOfUnknownShapes);
     }
 

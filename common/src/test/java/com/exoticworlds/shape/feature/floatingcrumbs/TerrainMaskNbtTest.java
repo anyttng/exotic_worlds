@@ -43,7 +43,7 @@ class TerrainMaskNbtTest {
             for (int z = 0; z < SIDE_BLOCKS; z++) {
                 for (int x = 0; x < SIDE_BLOCKS; x++) {
                     if (written(x, y, z)) {
-                        mask.wrote(new BlockPos(POS.getMinBlockX() + x, MIN_Y + y, POS.getMinBlockZ() + z));
+                        mask.beforeBlockWrite(new BlockPos(POS.getMinBlockX() + x, MIN_Y + y, POS.getMinBlockZ() + z));
                     }
                 }
             }

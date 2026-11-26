@@ -9,10 +9,9 @@ import com.exoticworlds.core.world.FlatShape;
 import com.exoticworlds.core.world.NetherScales;
 import com.exoticworlds.core.world.ShapeDerivations;
 import com.exoticworlds.core.option.ShapeOptions;
-import com.exoticworlds.core.world.SpawnPoint;
 import com.exoticworlds.core.feature.ShapeFeatures;
+import com.exoticworlds.shape.feature.OptionFeature;
 import com.exoticworlds.shape.feature.OptionFeatures;
-import com.exoticworlds.shape.feature.spawnpoint.ChosenSpawn;
 
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
@@ -89,14 +88,14 @@ public record WorldLayout(DimensionLayout overworld, DimensionLayout nether, Dim
         return ShapeDerivations.derive(overworld.shape(), overworld.spans(), LevelStem.END, UNSCALED, UNSCALED);
     }
 
-    public @Nullable WorldLayout withSpawn(SpawnPoint spawn) {
+    public <T> @Nullable WorldLayout withOverworldValue(OptionFeature<T> feature, T value) {
         Identifier shape = this.overworld.shape();
         if (shape == null || this.overworld.spans() == null
-                || !ShapeFeatures.isAttached(shape, ChosenSpawn.FEATURE, LevelStem.OVERWORLD)) {
+                || !ShapeFeatures.isAttached(shape, feature, LevelStem.OVERWORLD)) {
             return null;
         }
 
-        return new WorldLayout(this.overworld.withOptions(this.overworld.options().with(SpawnPoint.OPTION, spawn)),
+        return new WorldLayout(this.overworld.withOptions(this.overworld.options().with(feature.getOption(), value)),
                 this.nether, this.end, this.modDimensions, this.netherScale);
     }
 }

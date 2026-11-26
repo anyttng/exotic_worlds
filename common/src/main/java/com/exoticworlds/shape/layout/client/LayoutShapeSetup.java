@@ -8,6 +8,7 @@ import java.util.Map;
 import com.ascendiacore.client.createworld.WorldTabRows;
 import com.exoticworlds.shape.client.WorldShapeRow;
 import com.exoticworlds.core.world.DimensionTable;
+import com.exoticworlds.engine.client.WorldLoopClientNetwork;
 import com.exoticworlds.shape.WorldShapes;
 import com.exoticworlds.shape.layout.LayoutShape;
 import com.exoticworlds.shape.layout.WorldLayout;
@@ -23,6 +24,7 @@ public final class LayoutShapeSetup {
 
     public static void register() {
         WorldTabRows.register(new WorldShapeRow(LayoutShapeSetup::createScreen));
+        WorldLoopClientNetwork.openDimensionChoicesWith(DimensionChoicesScreens::open);
     }
 
     private static Screen createScreen(Screen parent) {

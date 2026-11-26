@@ -26,13 +26,12 @@ class ImportRulesTest {
     private static final String MIXIN_SEGMENT = "mixin";
     private static final String ROOT_GROUP = "";
     private static final String API_GROUP = "api";
-    private static final String ENGINE_CLIENT_GROUP = "engine.client";
     private static final String BRIDGE_GROUP = "bridge";
     private static final Set<String> VERSIONED_ROOTS = Set.of(API_GROUP, BRIDGE_GROUP);
     private static final Set<String> VERSIONS = Set.of("v1", "v2");
 
     private static final Set<String> ENGINE_READERS =
-            Set.of("engine", "mixin", "accessors", "compat", "platform", ENGINE_CLIENT_GROUP, BRIDGE_GROUP);
+            Set.of("engine", "mixin", "accessors", "compat", "platform", BRIDGE_GROUP);
     private static final String MIGRATION_GROUP = "migration";
     private static final String CLIENT_SEGMENT = "client";
     private static final String GAME_CLIENT_IMPORT = "import net.minecraft.client.";
@@ -46,7 +45,11 @@ class ImportRulesTest {
             "shape.feature.floatingcrumbs.FloatingCrumbs -> engine.gen.terrain.TerrainCeiling",
             "shape.feature.guaranteedland.CoastFieldLift -> engine.noise.GenerationFoldContext",
             "shape.WorldShapes -> engine.gen.ShapedDimensions",
-            "shape.layout.LayoutDimensions -> engine.gen.ShapedDimensions");
+            "shape.layout.LayoutDimensions -> engine.gen.ShapedDimensions",
+            "shape.layout.client.DimensionChoicesScreens -> engine.gen.DimensionChoices",
+            "shape.layout.client.DimensionChoicesScreens -> engine.net.DimensionChoicesPayload",
+            "shape.layout.client.DimensionChoicesScreens -> engine.net.DimensionChoicesUpdatePayload",
+            "shape.layout.client.LayoutShapeSetup -> engine.client.WorldLoopClientNetwork");
 
     @Test
     void everyImportStaysInsideItsGroup() throws IOException {
@@ -86,10 +89,10 @@ class ImportRulesTest {
         if (importedGroup.equals("engine")
                 && !ENGINE_READERS.contains(readerGroup)
                 && !LOADER_ENTRIES.contains(simpleNameOf(reader))) {
-            return "engine is read by mixins, accessors, compat, platform, engine/client and the loader entries alone";
+            return "engine is read by mixins, accessors, compat, platform and the loader entries alone";
         }
         if (readerGroup.equals("engine") && (importedGroup.equals("shape")
-                || (isClientSide(packageOf(imported)) && !importedGroup.equals(ENGINE_CLIENT_GROUP)))) {
+                || (isClientSide(packageOf(imported)) && !importedGroup.equals("engine")))) {
             return "engine never reads a shape or the client";
         }
         if (readerGroup.equals("core") && !importedGroup.equals("core") && !isVocabulary(importedGroup)) {
@@ -130,7 +133,7 @@ class ImportRulesTest {
     }
 
     private static boolean isVocabulary(String group) {
-        return group.equals("accessors") || group.equals("api") || group.equals("platform") || group.equals(ROOT_GROUP);
+        return group.equals("accessors") || group.equals("platform") || group.equals(ROOT_GROUP);
     }
 
     private static String versionOf(String type) {
@@ -150,9 +153,6 @@ class ImportRulesTest {
         List<String> segments = List.of(packageName.split("\\."));
         if (segments.contains(MIXIN_SEGMENT)) {
             return MIXIN_SEGMENT;
-        }
-        if (packageName.startsWith(ENGINE_CLIENT_GROUP)) {
-            return ENGINE_CLIENT_GROUP;
         }
         return segments.isEmpty() ? ROOT_GROUP : segments.get(0);
     }

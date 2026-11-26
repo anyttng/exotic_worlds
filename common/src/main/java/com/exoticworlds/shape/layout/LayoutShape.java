@@ -2,9 +2,9 @@ package com.exoticworlds.shape.layout;
 
 import com.exoticworlds.ExoticWorlds;
 import com.exoticworlds.shape.layout.client.LayoutShapeSetup;
-import com.exoticworlds.core.world.SpawnPoint;
 import com.exoticworlds.shape.WorldShape;
 import com.exoticworlds.shape.WorldShapes;
+import com.exoticworlds.shape.feature.OptionFeature;
 
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.level.levelgen.WorldDimensions;
@@ -26,11 +26,10 @@ public final class LayoutShape {
 
     public static void register(boolean isClient) {
         chosen = WorldLayout.newWorld();
-        WorldShapes.register(WorldShape.of(ID, WorldShape.label(ID), WorldShape.hint(ID),
+        WorldShapes.register(WorldShape.of(ID,
                 (registries, dimensions) -> LayoutDimensions.apply(dimensions, chosen),
                 () -> chosen = WorldLayout.newWorld(),
                 (registries, dimensions) -> tryAdopt(dimensions)));
-        WorldShapes.takesSpawn(ID, LayoutShape::tryMoveSpawn);
 
         if (isClient) {
             LayoutShapeSetup.register();
@@ -47,13 +46,13 @@ public final class LayoutShape {
         return true;
     }
 
-    private static boolean tryMoveSpawn(SpawnPoint spawn) {
-        WorldLayout moved = chosen.withSpawn(spawn);
-        if (moved == null) {
+    public static <T> boolean trySetOverworldValue(OptionFeature<T> feature, T value) {
+        WorldLayout changed = chosen.withOverworldValue(feature, value);
+        if (changed == null) {
             return false;
         }
 
-        chosen = moved;
+        chosen = changed;
         return true;
     }
 

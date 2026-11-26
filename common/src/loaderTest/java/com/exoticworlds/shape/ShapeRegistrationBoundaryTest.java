@@ -42,7 +42,6 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.data.registries.VanillaRegistries;
 import net.minecraft.network.RegistryFriendlyByteBuf;
-import net.minecraft.network.chat.Component;
 import net.minecraft.server.Bootstrap;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
@@ -98,8 +97,6 @@ class ShapeRegistrationBoundaryTest {
         worldgen = VanillaRegistries.createLookup();
         cylinder = WorldShape.of(
                 CYLINDER_ID,
-                Component.literal("Boundary test cylinder"),
-                Component.literal("A cylinder registered by the boundary test"),
                 (registries, dimensions) -> ShapedDimensions.withShape(dimensions, LevelStem.OVERWORLD,
                         new CarriedShape(null, CYLINDER, ShapeOptions.DEFAULT)),
                 () -> settingsWereReset = true,
@@ -108,8 +105,6 @@ class ShapeRegistrationBoundaryTest {
 
         WorldShapes.register(WorldShape.of(
                 FOREIGN_ID,
-                Component.literal("Boundary test band"),
-                Component.literal("A shape registered from another namespace"),
                 (registries, dimensions) -> dimensions));
 
         WorldShapes.register(cylinder);

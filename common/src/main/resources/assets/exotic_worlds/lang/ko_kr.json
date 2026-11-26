@@ -103,8 +103,6 @@
   "gui.exotic_worlds.world_shape_settings.guaranteed_nether_complexes.hint.intro": "네더에 네더 요새와 보루 잔해가 최소 하나씩, 각각 생성될 수 있는 생물 군계에 배치됩니다. 끄면 작은 네더에는 둘 다 없는 경우가 많습니다.",
   "gui.exotic_worlds.world_shape_settings.guaranteed_nether_complexes.hint.on": "둘 다 없었을 네더에 네더 요새와 보루 잔해가 하나씩 생깁니다.",
   "gui.exotic_worlds.world_shape_settings.guaranteed_nether_complexes.hint.off": "작은 네더에는 둘 다 없을 수 있습니다.",
-  "gui.exotic_worlds.world_shape.normal": "일반",
-  "gui.exotic_worlds.world_shape.normal.hint": "일반 세계: 모든 방향으로 끝없이 이어지는 평면입니다.",
   "gui.exotic_worlds.world_shape.seam_warning": "이 세계 유형은 자체 세계 생성기를 사용합니다. 세계 형태로 세계의 경계와 순환은 적용되지만, 세계의 가장자리에서 지형이 이어지지 않습니다.",
 
   "gui.exotic_worlds.settings.title": "Exotic Worlds 설정",
