@@ -1,12 +1,15 @@
 package com.exoticworlds.engine.noise.check;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.jspecify.annotations.Nullable;
 
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.Identifier;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.feature.Feature;
 import net.minecraft.world.level.levelgen.placement.FeaturePlacer;
 import net.minecraft.world.level.levelgen.placement.FixedPlacement;
@@ -31,15 +34,31 @@ final class FeatureCauseSearch {
                 return new SeamCause.NotFound();
             }
 
-            if (hereEntry.isPastTheReach() || thereEntry.isPastTheReach()
-                    || hereEntry.getSteps().equals(thereEntry.getSteps())) {
+            if (hereEntry.getSteps().equals(thereEntry.getSteps())) {
                 continue;
             }
 
-            return causeIn(hereEntry, thereEntry.getSteps(), lookups);
+            if (!hereEntry.isPastTheReach() && !thereEntry.isPastTheReach()) {
+                return causeIn(hereEntry, thereEntry.getSteps(), lookups);
+            }
+
+            if (!writtenBy(hereEntry).equals(writtenBy(thereEntry))) {
+                return null;
+            }
         }
 
         return hereEntries.size() == thereEntries.size() ? null : new SeamCause.NotFound();
+    }
+
+    private static Map<Long, BlockState> writtenBy(FeatureRecording.Entry entry) {
+        Map<Long, BlockState> written = new HashMap<>();
+        for (FeatureRecording.Step step : entry.getSteps()) {
+            if (step instanceof FeatureRecording.Place place) {
+                written.putAll(place.written());
+            }
+        }
+
+        return written;
     }
 
     private static @Nullable SeamCause causeIn(FeatureRecording.Entry here, List<FeatureRecording.Step> there,
