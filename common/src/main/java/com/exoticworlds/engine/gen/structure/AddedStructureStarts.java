@@ -16,7 +16,6 @@ import com.exoticworlds.core.feature.ShapeFeatures;
 import com.exoticworlds.core.feature.StructureStartsFeature;
 import com.exoticworlds.core.gen.AddedStart;
 import com.exoticworlds.core.world.CarriedShape;
-import com.exoticworlds.core.gen.GenerationMoments;
 import com.exoticworlds.core.option.ShapeOptions;
 import com.exoticworlds.core.gen.StructurePick;
 import com.exoticworlds.core.gen.StructureStartSet;
@@ -68,9 +67,7 @@ public final class AddedStructureStarts {
                 ResourceKey<LevelStem> dimension = Registries.levelToLevelStem(level);
                 List<StructureStartsFeature> features =
                         ShapeFeatures.activeAt(carried, dimension, StructureStartsFeature.class);
-                known = features.isEmpty() && !GenerationMoments.hasStructureStartHooks()
-                        ? NONE
-                        : compute(state, check, carried, dimension, features);
+                known = features.isEmpty() ? NONE : compute(state, check, carried, dimension, features);
                 holder.exotic_worlds$setAddedStarts(known);
             }
 
@@ -83,7 +80,6 @@ public final class AddedStructureStarts {
         for (StructureStartsFeature feature : features) {
             starts.addAll(feature.startsIn(view));
         }
-        starts.addAll(GenerationMoments.runAtStructureStarts(view));
         return starts;
     }
 
