@@ -21,10 +21,6 @@ class ClientFrameTest {
     private static final BlockPos SAME_LAP_ANCHOR = new BlockPos(480, 64, 500);
     private static final BlockPos LAP_AWAY_ANCHOR = new BlockPos(-500, 64, 500);
     private static final BlockPos HELD_COPY = new BlockPos(-524, 64, 500);
-    private static final ChunkPos CANONICAL_CHUNK = new ChunkPos(31, 31);
-    private static final ChunkPos SAME_LAP_ANCHOR_CHUNK = new ChunkPos(30, 31);
-    private static final ChunkPos LAP_AWAY_ANCHOR_CHUNK = new ChunkPos(-32, 31);
-    private static final ChunkPos HELD_COPY_CHUNK = new ChunkPos(-33, 31);
     private static final WorldFold LATTICE_TORUS =
             WorldFolds.of(FlatShape.latticeTorus(WorldLoopBounds.ofWidths(64, 128), 8));
     private static final ChunkPos ORIGIN_CHUNK = new ChunkPos(0, 0);
@@ -50,28 +46,6 @@ class ClientFrameTest {
     @Test
     void withoutAFoldTheArgumentComesBack() {
         assertSame(CANONICAL, ClientFrame.heldCopy(null, LAP_AWAY_ANCHOR, CANONICAL, pos -> false));
-    }
-
-    @Test
-    void theChunkTheClientAlreadyHoldsComesBackUnchanged() {
-        assertEquals(CANONICAL_CHUNK,
-                ClientFrame.heldCopy(TORUS, SAME_LAP_ANCHOR_CHUNK, CANONICAL_CHUNK, pos -> true));
-    }
-
-    @Test
-    void aChunkOneLapAwayResolvesToTheSpellingTheClientHolds() {
-        assertEquals(HELD_COPY_CHUNK,
-                ClientFrame.heldCopy(TORUS, LAP_AWAY_ANCHOR_CHUNK, CANONICAL_CHUNK, HELD_COPY_CHUNK::equals));
-    }
-
-    @Test
-    void aChunkTheClientDoesNotHoldAnswersNothing() {
-        assertNull(ClientFrame.heldCopy(TORUS, LAP_AWAY_ANCHOR_CHUNK, CANONICAL_CHUNK, pos -> false));
-    }
-
-    @Test
-    void withoutAFoldTheChunkArgumentComesBack() {
-        assertSame(CANONICAL_CHUNK, ClientFrame.heldCopy(null, LAP_AWAY_ANCHOR_CHUNK, CANONICAL_CHUNK, pos -> false));
     }
 
     @Test
@@ -108,7 +82,7 @@ class ClientFrameTest {
     }
 
     @Test
-    void theChunkKeyNamesTheCopyHeldCopyAsksAbout() {
+    void theChunkKeyNamesTheNearestCopyOfTheChunk() {
         for (WorldFold fold : new WorldFold[] {TORUS, LATTICE_TORUS}) {
             for (int anchorX = -96; anchorX <= 96; anchorX += 24) {
                 for (int anchorZ = -160; anchorZ <= 160; anchorZ += 40) {
@@ -116,7 +90,7 @@ class ClientFrameTest {
                     for (int targetX : SWEEP_COORDINATES) {
                         for (int targetZ : SWEEP_COORDINATES) {
                             ChunkPos target = new ChunkPos(targetX, targetZ);
-                            assertEquals(ClientFrame.heldCopy(fold, anchor, target, pos -> true),
+                            assertEquals(fold.nearestCopy(anchor, target),
                                     ChunkPos.unpack(ClientFrame.nearestChunkKey(fold, anchor, targetX, targetZ)),
                                     "anchor " + anchor + ", target " + target);
                         }

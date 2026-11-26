@@ -58,12 +58,6 @@ public final class ClientFrame {
         return nearestCopy(player == null ? null : player.position(), target);
     }
 
-    @Contract("!null -> !null")
-    public static @Nullable ChunkPos nearestToPlayer(@Nullable ChunkPos target) {
-        LocalPlayer player = Minecraft.getInstance().player;
-        return nearestCopy(player == null ? null : player.chunkPosition(), target);
-    }
-
     public static DeckTransformation nearestCopyTransformation(BlockPos target) {
         LocalPlayer player = Minecraft.getInstance().player;
         if (player == null) {
@@ -90,11 +84,6 @@ public final class ClientFrame {
         return heldCopy(getFold(), player == null ? null : player.blockPosition(), canonical, pos -> isHeld(level, pos));
     }
 
-    public static @Nullable ChunkPos heldCopy(ChunkPos canonical, Predicate<ChunkPos> holds) {
-        LocalPlayer player = Minecraft.getInstance().player;
-        return heldCopy(getFold(), player == null ? null : player.chunkPosition(), canonical, holds);
-    }
-
     public static @Nullable BlockPos heldCopy(@Nullable WorldFold fold, @Nullable BlockPos anchor, BlockPos canonical,
             Predicate<BlockPos> holds) {
         if (fold == null || anchor == null) {
@@ -102,16 +91,6 @@ public final class ClientFrame {
         }
 
         BlockPos nearest = fold.nearestCopy(anchor, canonical);
-        return holds.test(nearest) ? nearest : null;
-    }
-
-    public static @Nullable ChunkPos heldCopy(@Nullable WorldFold fold, @Nullable ChunkPos anchor, ChunkPos canonical,
-            Predicate<ChunkPos> holds) {
-        if (fold == null || anchor == null) {
-            return canonical;
-        }
-
-        ChunkPos nearest = fold.nearestCopy(anchor, canonical);
         return holds.test(nearest) ? nearest : null;
     }
 
