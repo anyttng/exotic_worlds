@@ -15,8 +15,7 @@ public final class ModuleBridge {
     public static void register(Identifier id,
             BiFunction<RegistryAccess.Frozen, WorldDimensions, WorldDimensions> atCreation, Runnable resetSettings,
             BiPredicate<RegistryAccess.Frozen, WorldDimensions> fromExisting) {
-        WorldShapes.register(WorldShape.of(id, WorldShape.label(id), WorldShape.hint(id), atCreation::apply,
-                resetSettings, fromExisting::test));
+        WorldShapes.register(WorldShape.of(id, atCreation::apply, resetSettings, fromExisting::test));
     }
 
     private ModuleBridge() {

@@ -4,6 +4,7 @@ import java.util.BitSet;
 
 import org.jspecify.annotations.Nullable;
 
+import com.exoticworlds.core.feature.ChunkWriteListener;
 import com.exoticworlds.core.world.CoordinateConstants;
 import com.exoticworlds.core.fold.FoldOrientation;
 import com.exoticworlds.core.fold.WorldFold;
@@ -12,7 +13,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.level.ChunkPos;
 
-public final class TerrainMask {
+public final class TerrainMask implements ChunkWriteListener {
     private static final String MIN_Y_KEY = "min_y";
 
     private static final String CELLS_KEY = "cells";
@@ -104,7 +105,8 @@ public final class TerrainMask {
         return tag;
     }
 
-    public void wrote(BlockPos pos) {
+    @Override
+    public void beforeBlockWrite(BlockPos pos) {
         int cell = this.cellOf(pos.getX() & (CoordinateConstants.CHUNK_WIDTH_BLOCKS - 1), pos.getY(),
                 pos.getZ() & (CoordinateConstants.CHUNK_WIDTH_BLOCKS - 1));
         if (cell == CellGrid.NO_CELL) {

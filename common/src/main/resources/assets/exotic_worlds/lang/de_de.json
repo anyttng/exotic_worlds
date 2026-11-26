@@ -103,8 +103,6 @@
   "gui.exotic_worlds.world_shape_settings.guaranteed_nether_complexes.hint.intro": "Der Nether enthält mindestens eine Netherfestung und eine Bastionsruine, jede in einem Biom, in dem sie stehen kann. Ohne diese Option hat ein kleiner Nether oft keine von beiden.",
   "gui.exotic_worlds.world_shape_settings.guaranteed_nether_complexes.hint.on": "ein Nether, der keine von beiden hätte, bekommt eine Netherfestung und eine Bastionsruine.",
   "gui.exotic_worlds.world_shape_settings.guaranteed_nether_complexes.hint.off": "ein kleiner Nether hat vielleicht keine von beiden.",
-  "gui.exotic_worlds.world_shape.normal": "Normal",
-  "gui.exotic_worlds.world_shape.normal.hint": "Die Vanilla-Welt: eine endlose Ebene in alle Richtungen.",
   "gui.exotic_worlds.world_shape.seam_warning": "Dieser Welttyp bringt einen eigenen Weltgenerator mit: Eine Weltform begrenzt die Welt und schließt sie zur Schleife, aber das Gelände passt am Weltrand nicht zusammen.",
 
   "gui.exotic_worlds.settings.title": "Einstellungen von Exotic Worlds",

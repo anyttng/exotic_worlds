@@ -63,7 +63,6 @@ class UnreachedMembersTest {
             "compat.distanthorizons.DhProbes.getFoldedKeyLines",
             "compat.distanthorizons.DhProbes.getUnchangedKeys",
             "compat.distanthorizons.DhProbes.resetKeyGates",
-            "engine.fold.ChunkViewSweep.positions",
             "compat.wover.LapAxis.latticeBlocks",
             "shape.WorldLoopPresets.getWidthBlocks",
             "engine.net.PacketTranslator.toClient",

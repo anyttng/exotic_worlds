@@ -103,8 +103,6 @@
   "gui.exotic_worlds.world_shape_settings.guaranteed_nether_complexes.hint.intro": "O Nether terá pelo menos uma Fortaleza do Nether e um Bastião em Ruínas, cada uma em um bioma onde pode existir. Sem isso, um Nether pequeno muitas vezes não tem nenhuma.",
   "gui.exotic_worlds.world_shape_settings.guaranteed_nether_complexes.hint.on": "um Nether que não teria nenhuma ganha uma Fortaleza do Nether e um Bastião em Ruínas.",
   "gui.exotic_worlds.world_shape_settings.guaranteed_nether_complexes.hint.off": "um Nether pequeno pode não ter nenhuma.",
-  "gui.exotic_worlds.world_shape.normal": "Normal",
-  "gui.exotic_worlds.world_shape.normal.hint": "O mundo normal: um plano infinito em todas as direções.",
   "gui.exotic_worlds.world_shape.seam_warning": "Este tipo de mundo traz seu próprio gerador de mundo: um Formato do mundo ainda limita o mundo e o fecha em um loop, mas o terreno não vai se encaixar na borda do mundo.",
 
   "gui.exotic_worlds.settings.title": "Configurações do Exotic Worlds",

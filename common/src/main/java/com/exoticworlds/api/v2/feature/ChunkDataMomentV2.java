@@ -8,7 +8,8 @@ import net.minecraft.nbt.CompoundTag;
 
 /**
  * The moments a chunk is written to disk, read back and dropped from memory, for a feature that keeps data of its own
- * with each chunk. The data is saved inside the chunk under the feature's id.
+ * with each chunk. The data is saved inside the chunk under the
+ * feature's id with {@code exotic_worlds:} before it.
  */
 @ExperimentalV2
 public interface ChunkDataMomentV2 extends LevelMomentV2 {

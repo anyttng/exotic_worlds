@@ -103,8 +103,6 @@
   "gui.exotic_worlds.world_shape_settings.guaranteed_nether_complexes.hint.intro": "ネザーに少なくとも1つのネザー要塞と1つの砦の遺跡を、それぞれ生成できるバイオームに配置します。オフの場合、小さなネザーにはどちらもないことがよくあります。",
   "gui.exotic_worlds.world_shape_settings.guaranteed_nether_complexes.hint.on": "どちらもないはずのネザーに、ネザー要塞と砦の遺跡が1つずつできます。",
   "gui.exotic_worlds.world_shape_settings.guaranteed_nether_complexes.hint.off": "小さなネザーにはどちらもないことがあります。",
-  "gui.exotic_worlds.world_shape.normal": "通常",
-  "gui.exotic_worlds.world_shape.normal.hint": "通常のワールド：あらゆる方向に無限に広がる平面。",
   "gui.exotic_worlds.world_shape.seam_warning": "このワールドタイプは独自のワールドジェネレーターを使います。ワールドの形状でワールドの範囲とループは適用されますが、ワールドの端で地形はつながりません。",
 
   "gui.exotic_worlds.settings.title": "Exotic Worlds 設定",

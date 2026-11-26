@@ -18,7 +18,7 @@ public final class StartupRegistrations {
 
     public static synchronized void layoutShape() {
         if (WorldShapes.getShapes().stream().noneMatch(shape -> shape.id().equals(LayoutShape.ID))) {
-            LayoutShape.register(false);
+            ShapeSetup.registerLayout(false);
         }
     }
 
