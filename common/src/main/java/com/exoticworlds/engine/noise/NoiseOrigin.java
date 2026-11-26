@@ -45,6 +45,12 @@ public record NoiseOrigin(List<NoiseFeature> features, ResourceKey<LevelStem> di
                 : NoiseFeatures.warpDivisor(this.features, momentOf(shaped, fold, xzScale, verticalShare));
     }
 
+    public double warpFactorAt(WorldFold fold, double xzScale, double verticalShare) {
+        Holder<NormalNoise.NoiseParameters> shaped = this.noise;
+        return shaped == null ? NoiseFeature.UNCHANGED
+                : NoiseFeatures.warpFactor(this.features, momentOf(shaped, fold, xzScale, verticalShare));
+    }
+
     public NoiseOffset offsetAt(WorldFold fold, double xzScale, double verticalShare) {
         Holder<NormalNoise.NoiseParameters> shaped = this.noise;
         return shaped == null ? NoiseOffset.NONE
