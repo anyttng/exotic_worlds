@@ -1,6 +1,7 @@
 package com.exoticworlds.mixin;
 
 import java.util.List;
+import java.util.function.Supplier;
 
 import org.jspecify.annotations.Nullable;
 import org.objectweb.asm.Opcodes;
@@ -14,6 +15,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import com.exoticworlds.accessors.BaseHeightsHolder;
+import com.exoticworlds.accessors.FoldBoundState;
 import com.exoticworlds.accessors.FoldedClimateSampler;
 import com.exoticworlds.core.feature.GenerationFeature;
 import com.exoticworlds.core.feature.RandomStateFeature;
@@ -35,12 +37,15 @@ import net.minecraft.world.level.levelgen.RandomState;
 import net.minecraft.world.level.levelgen.synth.NormalNoise;
 
 @Mixin(RandomState.class)
-public class RandomStateMixin implements BaseHeightsHolder {
+public class RandomStateMixin implements BaseHeightsHolder, FoldBoundState {
     private static final String CONSTRUCTOR = "<init>(Lnet/minecraft/world/level/levelgen/NoiseGeneratorSettings;"
             + "Lnet/minecraft/core/HolderGetter;J)V";
 
     @Unique
     private @Nullable BaseHeights exotic_worlds$baseHeights;
+
+    @Unique
+    private @Nullable WorldFold exotic_worlds$fold;
 
     @ModifyExpressionValue(method = CONSTRUCTOR, at = @At(value = "INVOKE",
             target = "Lnet/minecraft/world/level/levelgen/NoiseGeneratorSettings;noiseRouter()Lnet/minecraft/world/level/levelgen/NoiseRouter;"))
@@ -96,6 +101,7 @@ public class RandomStateMixin implements BaseHeightsHolder {
         if (fold != null) {
             ((FoldedClimateSampler) (Object) ((RandomState) (Object) this).sampler()).exotic_worlds$setFold(fold);
             this.exotic_worlds$baseHeights = new BaseHeights(fold);
+            this.exotic_worlds$fold = fold;
             RandomState randomState = (RandomState) (Object) this;
             GenerationFoldContext.Context context = GenerationFoldContext.getContext();
             List<GenerationFeature> features = context.getRouterBuildFeatures();
@@ -117,6 +123,12 @@ public class RandomStateMixin implements BaseHeightsHolder {
     private static List<DensityFunction> exotic_worlds$roots(NoiseRouter router) {
         return List.of(router.temperature(), router.vegetation(), router.continents(), router.erosion(),
                 router.depth(), router.ridges(), router.preliminarySurfaceLevel(), router.finalDensity());
+    }
+
+    @Override
+    public <T> T exotic_worlds$inFold(Supplier<T> action) {
+        WorldFold fold = this.exotic_worlds$fold;
+        return fold == null ? action.get() : GenerationFoldContext.withFold(fold, action);
     }
 
     @Override

@@ -1,7 +1,6 @@
 package com.exoticworlds.shape.layout;
 
 import com.exoticworlds.ExoticWorlds;
-import com.exoticworlds.shape.layout.client.LayoutShapeSetup;
 import com.exoticworlds.shape.WorldShape;
 import com.exoticworlds.shape.WorldShapes;
 import com.exoticworlds.shape.feature.OptionFeature;
@@ -24,16 +23,12 @@ public final class LayoutShape {
         chosen = layout;
     }
 
-    public static void register(boolean isClient) {
+    public static void register() {
         chosen = WorldLayout.newWorld();
         WorldShapes.register(WorldShape.of(ID,
                 (registries, dimensions) -> LayoutDimensions.apply(dimensions, chosen),
                 () -> chosen = WorldLayout.newWorld(),
                 (registries, dimensions) -> tryAdopt(dimensions)));
-
-        if (isClient) {
-            LayoutShapeSetup.register();
-        }
     }
 
     private static boolean tryAdopt(WorldDimensions dimensions) {

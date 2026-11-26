@@ -24,9 +24,22 @@ public final class DeclaredShapes {
     private static final StartupRegistry<Identifier, DimensionShape> SHAPES =
             new StartupRegistry<>("Dimension shapes");
 
+    private static final String PRESET_DEFAULT_KEY = "preset_default";
+
+    private static final StartupRegistry<String, DimensionShape> PRESET_DEFAULT =
+            new StartupRegistry<>("Preset default shape");
+
     public static void register(DimensionShape shape) {
         SHAPES.register(shape.getId(), shape);
         ShapeDerivations.register(shape.getId(), shape::derive);
+    }
+
+    public static void registerPresetDefault(DimensionShape shape) {
+        PRESET_DEFAULT.register(PRESET_DEFAULT_KEY, shape);
+    }
+
+    public static @Nullable DimensionShape getPresetDefault() {
+        return PRESET_DEFAULT.getEntries().get(PRESET_DEFAULT_KEY);
     }
 
     public static List<DimensionShape> getAll() {
