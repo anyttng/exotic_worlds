@@ -21,6 +21,7 @@ import com.ascendiacore.gui.widget.cyclebutton.CycleButton;
 import com.ascendiacore.gui.widget.numberfield.NumberField;
 import com.ascendiacore.gui.widget.numberfield.model.Bounds;
 import com.ascendiacore.gui.widget.panel.model.FillStyle;
+import com.ascendiacore.gui.widget.toggleswitch.ToggleSwitch;
 import com.exoticworlds.core.world.StemTerrain;
 import com.exoticworlds.shape.feature.client.FeaturePanel;
 import com.exoticworlds.shape.feature.client.FeatureView;
@@ -32,13 +33,10 @@ import com.exoticworlds.shape.option.NumberRange;
 import com.exoticworlds.shape.option.OptionPart;
 
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 
 final class OptionControls {
-    private static final String HINT_ON = "on";
-    private static final String HINT_OFF = "off";
     private static final String KEY_SEPARATOR = ".";
     private static final int NUMBER_MAX_LENGTH = 7;
     private static final int ROW_GAP_PIXELS = 6;
@@ -236,9 +234,7 @@ final class OptionControls {
                     ? this.declared.getCaptionKey()
                     : this.declared.getCaptionKey() + KEY_SEPARATOR + part.key();
             GuiComponent control = switch (part) {
-                case OptionPart.Toggle<T> toggle -> this.cycle(captionKey, List.of(false, true),
-                        on -> on ? CommonComponents.OPTION_ON : CommonComponents.OPTION_OFF,
-                        on -> on ? HINT_ON : HINT_OFF, toggle.read(), toggle.write());
+                case OptionPart.Toggle<T> toggle -> this.toggleSwitch(captionKey, toggle);
                 case OptionPart.Choice<T, ?> choice -> this.choice(captionKey, choice);
                 case OptionPart.WholeNumber<T> number -> this.number(captionKey, number);
                 case OptionPart.Row<T> row -> this.row(row);
@@ -252,6 +248,14 @@ final class OptionControls {
             row.setGapPixels(ROW_GAP_PIXELS);
             part.parts().forEach(child -> row.add(this.control(child), Length.fill()));
             return row;
+        }
+
+        private GuiComponent toggleSwitch(String captionKey, OptionPart.Toggle<T> part) {
+            ToggleSwitch control = ToggleSwitch.following(OptionControls.this.theme.toggleSwitch(),
+                    OptionControls.this.fill, Component.translatable(captionKey), () -> part.read().apply(this.value),
+                    on -> this.value = part.write().apply(this.value, on));
+            control.setHint(OptionControls.this.theme.tooltip(), captionKey);
+            return control;
         }
 
         private <V> GuiComponent choice(String captionKey, OptionPart.Choice<T, V> part) {
