@@ -49,10 +49,6 @@ public interface WorldFold {
         return looped(axis).minChunk();
     }
 
-    default int getMaxChunk(Direction.Axis axis) {
-        return looped(axis).maxChunk();
-    }
-
     default int getWidthChunks(Direction.Axis axis) {
         return looped(axis).getWidthChunks();
     }
@@ -67,22 +63,6 @@ public interface WorldFold {
 
     default int getWidthBlocks(Direction.Axis axis) {
         return getWidthChunks(axis) * CoordinateConstants.CHUNK_WIDTH_BLOCKS;
-    }
-
-    default double foldCoord(Direction.Axis axis, double coord) {
-        return axis == Direction.Axis.Y ? coord : getBlockDomain(axis).wrap(coord);
-    }
-
-    default int foldBlock(Direction.Axis axis, int coord) {
-        return axis == Direction.Axis.Y ? coord : getBlockDomain(axis).wrap(coord);
-    }
-
-    default int foldChunk(Direction.Axis axis, int chunk) {
-        return axis == Direction.Axis.Y ? chunk : getChunkDomain(axis).wrap(chunk);
-    }
-
-    default double nearestCoord(Direction.Axis axis, double ref, double coord) {
-        return axis == Direction.Axis.Y ? coord : getBlockDomain(axis).unwrapAround(ref, coord);
     }
 
     TranslationLattice getBlockLattice();

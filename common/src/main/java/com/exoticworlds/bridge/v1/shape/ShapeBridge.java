@@ -22,10 +22,15 @@ public final class ShapeBridge {
 
     public static WorldDimensions withSpans(WorldDimensions dimensions, LoopSpans overworld, LoopSpans nether,
             LoopSpans end, GenerationOptions options) {
-        return ShapedDimensions.withShapes(dimensions,
-                carried(overworld, options),
-                carried(nether, options),
-                carried(end, options));
+        WorldDimensions withOverworld =
+                ShapedDimensions.withShape(dimensions, LevelStem.OVERWORLD, carried(overworld, options));
+        if (withOverworld == dimensions) {
+            return dimensions;
+        }
+
+        WorldDimensions withNether =
+                ShapedDimensions.withShape(withOverworld, LevelStem.NETHER, carried(nether, options));
+        return ShapedDimensions.withShape(withNether, LevelStem.END, carried(end, options));
     }
 
     public static @Nullable LoopSpans spansOf(WorldDimensions dimensions, ResourceKey<LevelStem> key) {

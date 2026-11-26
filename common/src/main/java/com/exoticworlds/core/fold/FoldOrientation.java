@@ -58,10 +58,6 @@ public enum FoldOrientation {
         };
     }
 
-    public static FoldOrientation of(boolean isXFlipped, boolean isZFlipped) {
-        return of(false, isXFlipped, isZFlipped);
-    }
-
     public static FoldOrientation of(boolean isSwappingAxes, boolean isXFlipped, boolean isZFlipped) {
         return BY_PARTS[(isSwappingAxes ? SWAP_BIT : 0) | (isXFlipped ? FLIP_X_BIT : 0) | (isZFlipped ? FLIP_Z_BIT : 0)];
     }
