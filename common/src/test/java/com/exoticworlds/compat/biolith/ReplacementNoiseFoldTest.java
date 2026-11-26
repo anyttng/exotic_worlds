@@ -130,10 +130,6 @@ class ReplacementNoiseFoldTest {
     private static final class VanillaWorldgen {
         private static final HolderLookup.Provider LOOKUP = VanillaRegistries.createLookup();
 
-        private static final DensityFunction OVERWORLD_TEMPERATURE = temperatureOf(NoiseGeneratorSettings.OVERWORLD);
-
-        private static final DensityFunction NETHER_TEMPERATURE = temperatureOf(NoiseGeneratorSettings.NETHER);
-
         static DensityFunction temperatureOf(ResourceKey<NoiseGeneratorSettings> settings) {
             return LOOKUP.lookupOrThrow(Registries.NOISE_SETTINGS).getOrThrow(settings).value().noiseRouter()
                     .temperature();
@@ -147,16 +143,6 @@ class ReplacementNoiseFoldTest {
         }
     }
 
-    private static void assertTakesTheTemperatureFactor(ResourceKey<NoiseGeneratorSettings> settings,
-            ResourceKey<NormalNoise.NoiseParameters> temperature) {
-        for (ClimateScale scale : COMPRESSING_SCALES) {
-            WorldFold worldFold = compressed(TINY_CHUNK_MIN, TINY_CHUNK_MAX, scale);
-            assertEquals(VanillaWorldgen.temperatureFactor(worldFold, temperature),
-                    fold().compression(worldFold, VanillaWorldgen.temperatureOf(settings)), FACTOR_TOLERANCE,
-                    settings.identifier() + " " + scale.mode().getSerializedName() + " on a tiny world");
-        }
-    }
-
     private static ReplacementNoiseFold fold() {
         return new ReplacementNoiseFold(OVERWORLD_WEIGHTS);
     }
@@ -164,8 +150,8 @@ class ReplacementNoiseFoldTest {
     private static double folded(ReplacementNoiseFold fold, WorldFold worldFold, int quartX, int quartZ) {
         double[] sum = new double[1];
         GenerationFoldContext.withFold(worldFold,
-                () -> sum[0] = fold.sum(worldFold, WORLD_SEED, OVERWORLD_SCALE_QUARTS, quartX, quartZ,
-                        VanillaWorldgen.OVERWORLD_TEMPERATURE));
+                () -> sum[0] = fold.sum(worldFold, VanillaWorldgen.temperatureFactor(worldFold, Noises.TEMPERATURE),
+                        WORLD_SEED, OVERWORLD_SCALE_QUARTS, quartX, quartZ));
         return sum[0];
     }
 
@@ -181,8 +167,9 @@ class ReplacementNoiseFoldTest {
             int quartZ) {
         double[] sum = new double[1];
         GenerationFoldContext.withFold(worldFold,
-                () -> sum[0] = fold.sum(worldFold, WORLD_SEED, NETHER_SCALE_QUARTS, quartX, quartY, quartZ,
-                        VanillaWorldgen.NETHER_TEMPERATURE));
+                () -> sum[0] = fold.sum(worldFold,
+                        VanillaWorldgen.temperatureFactor(worldFold, Noises.TEMPERATURE_NETHER), WORLD_SEED,
+                        NETHER_SCALE_QUARTS, quartX, quartY, quartZ));
         return sum[0];
     }
 
@@ -441,21 +428,6 @@ class ReplacementNoiseFoldTest {
 
     @Nested
     class Compression {
-        @Test
-        void takesTheOverworldTemperatureFactor() {
-            assertTakesTheTemperatureFactor(NoiseGeneratorSettings.OVERWORLD, Noises.TEMPERATURE);
-        }
-
-        @Test
-        void takesTheLargeBiomesTemperatureFactor() {
-            assertTakesTheTemperatureFactor(NoiseGeneratorSettings.LARGE_BIOMES, Noises.TEMPERATURE_LARGE);
-        }
-
-        @Test
-        void takesTheNetherTemperatureFactor() {
-            assertTakesTheTemperatureFactor(NoiseGeneratorSettings.NETHER, Noises.TEMPERATURE_NETHER);
-        }
-
         @Test
         void aRouterWithoutAClimateNoiseIsNotCompressed() {
             for (ClimateScale scale : COMPRESSING_SCALES) {
