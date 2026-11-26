@@ -75,7 +75,8 @@ class UnreachedMembersTest {
             "core.fold.FoldOrientation.getStateRotation");
     private static final Set<String> READ_BY_HARNESS = Set.of(
             "compat.distanthorizons.DhFold.periodSections",
-            "compat.gate.ModPresenceGatePlugin.getGates");
+            "compat.gate.ModPresenceGatePlugin.getGates",
+            "shape.feature.floatingcrumbs.FloatingCrumbs.crumbPositions");
 
     @Test
     void noMainMemberIsCalledByTestsAlone() throws IOException {

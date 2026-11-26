@@ -2,6 +2,7 @@ package com.exoticworlds.api.v1.gen;
 
 import org.jspecify.annotations.Nullable;
 
+import com.exoticworlds.api.v1.Broken;
 import com.exoticworlds.bridge.v1.gen.ProbeBridge;
 
 import net.minecraft.server.level.ServerLevel;
@@ -10,17 +11,21 @@ import net.minecraft.world.level.chunk.ChunkAccess;
 import net.minecraft.world.level.levelgen.RandomState;
 
 /**
- * What this mod does to terrain, offered to a mod that reproduces generation outside the chunk map — an LOD generator
- * sampling on its own threads, or a harness measuring many seeds in one server session with no world on disk. Three
- * pieces make a folded chunk what a player would see: the
- * router a seed is given, which carries the fold in its compiled density functions, the fold bound on the thread for
- * the noise read outside them, and the crumb sweep the carvers tail applies.
+ * What this mod does to terrain, offered to a mod that reproduces generation outside the chunk map: an LOD generator
+ * sampling on its own threads, or a harness measuring many seeds in one server session with no world on disk. Two
+ * pieces are offered: the router a seed is given, which carries the fold in its compiled density functions, and the
+ * fold bound on the thread for the noise read outside them. The crumb passes the chunk map runs are not offered, so a
+ * chunk filled outside it keeps the detached masses a generated one loses.
  *
- * <p>Nothing here generates a chunk. The caller drives vanilla's own generator — {@code fillFromNoise},
- * {@code buildSurface}, {@code applyCarvers} — and uses these three to make that run the folded world's rather than
+ * <p>Nothing here generates a chunk. The caller drives vanilla's own generator ({@code fillFromNoise},
+ * {@code buildSurface}, {@code applyCarvers}) and uses these two to make that run the folded world's rather than
  * an unbounded vanilla one.</p>
  */
 public final class GenerationProbe {
+    static final String NO_CRUMB_PASSES = "The crumb passes are not offered outside the chunk map, so nothing is"
+            + " cleared, recorded or named. Nothing replaces this.";
+
+    private static final long[] NO_POSITIONS = new long[0];
 
     /**
      * The noise router a folding level would build for {@code seed}, terrain ceiling and fold included, as the chunk
@@ -46,51 +51,47 @@ public final class GenerationProbe {
     }
 
     /**
-     * Clears the detached crumbs of one filled chunk, as the tail of the carvers step does for a folding level: a
-     * mass under the sweep's ceiling that touches no side of the chunk takes the fluid around it. A level that does
-     * not sweep — an unfolded one, or one whose generator carries no terrain ceiling — is left alone, so a caller
-     * measuring the twin passes the same chunk through this call and reads no change.
+     * Does nothing and leaves the chunk as it was.
+     *
+     * @deprecated the crumb passes are not offered outside the chunk map, and nothing replaces this call.
      */
+    @Deprecated
+    @Broken(NO_CRUMB_PASSES)
     public static void sweepCrumbs(ServerLevel level, ChunkAccess chunk) {
-        ProbeBridge.sweepCrumbs(level, chunk);
     }
 
     /**
-     * What {@link #sweepCrumbs} recorded about this chunk's terrain, to be held for as long as the caller needs the
-     * chunk's shape rather than the chunk. A chunk that never went through that call carries none.
+     * Answers {@code null} for every chunk.
+     *
+     * @deprecated the crumb passes are not offered outside the chunk map, and nothing replaces this call.
      */
+    @Deprecated
+    @Broken(NO_CRUMB_PASSES)
+    @SuppressWarnings("InlineMeSuggester")
     public static @Nullable TerrainSnapshot snapshotOf(ChunkAccess chunk) {
-        return ProbeBridge.snapshotOf(chunk);
+        return null;
     }
 
     /**
-     * The block positions the tail of the {@code LIGHT} step clears in the center chunk of a 3 x 3 window: a mass
-     * under the sweep's ceiling that stays inside the window, made of terrain no later step has written over. Only
-     * the center chunk's own blocks are named, so a caller sweeping a lap asks once per chunk and a mass straddling
-     * a border loses each of its shares to the chunk that holds it. A window with a snapshot missing names nothing.
+     * Names no position, whatever the window holds.
      *
-     * @param window the window's nine snapshots, row major from the lowest corner, the center at index 4
-     * @throws IllegalArgumentException if the window does not hold nine snapshots
+     * @deprecated the crumb passes are not offered outside the chunk map, and nothing replaces this call.
      */
+    @Deprecated
+    @Broken(NO_CRUMB_PASSES)
     public static long[] borderCrumbs(TerrainSnapshot[] window) {
-        return ProbeBridge.borderCrumbs(window);
+        return NO_POSITIONS;
     }
 
     /**
-     * Writes into the center chunk of a 3 x 3 window what the tail of the {@code LIGHT} step writes there: every
-     * position {@link #borderCrumbs} names takes the fluid around it or air, and then every block above one of them
-     * that can no longer stand, by its own survival check, takes the fluid it carried or air. A caller holding chunks
-     * outside the chunk map applies the pass with this and reads the world a player gets. A window with a snapshot
-     * missing writes nothing.
+     * Writes nothing and answers no position, whatever the window holds.
      *
-     * @param chunk the center chunk, written in place
-     * @param window the window's nine snapshots, row major from the lowest corner, the center at index 4
-     * @param reader what the survival checks read: the center chunk and the eight around it
-     * @return every position written, the positions {@link #borderCrumbs} names first
-     * @throws IllegalArgumentException if the window does not hold nine snapshots
+     * @deprecated the crumb passes are not offered outside the chunk map, and nothing replaces this call.
      */
+    @Deprecated
+    @Broken(NO_CRUMB_PASSES)
     public static long[] clearBorderCrumbs(ChunkAccess chunk, TerrainSnapshot[] window, LevelReader reader) {
-        return ProbeBridge.clearBorderCrumbs(chunk, window, reader);
+        return NO_POSITIONS;
     }
 
     private GenerationProbe() {
