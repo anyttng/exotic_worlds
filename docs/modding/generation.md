@@ -18,12 +18,4 @@ The binding is per thread and lasts for the call, so each worker thread wraps it
 
 **Key by the folded position.** A column past the world's edge is a copy of one inside it. Store and look it up by `fold`, as [Which operation to reach for](../modding.md#which-operation-to-reach-for) describes.
 
-**Clear what the chunk map clears.** On a toroidal level the chunk map removes masses of terrain left detached from the ground, in two passes. `GenerationProbe.sweepCrumbs(level, chunk)` applies the first to a chunk filled outside the chunk map, after the carvers. The second runs after lighting, over a 3 by 3 window of chunks.
-
-1. Take `GenerationProbe.snapshotOf(chunk)` of every swept chunk. A chunk that never went through `sweepCrumbs` has none.
-2. Put the nine snapshots of a window in row-major order from the lowest corner, the center at index 4.
-3. Call `clearBorderCrumbs(center, window, reader)`, where `reader` reads the center chunk and the eight around it. It writes the center chunk alone, so a caller covering a region calls it once per chunk.
-
-`borderCrumbs(window)` names the same positions without writing them. A window with a snapshot missing changes nothing.
-
 **What the API does not cover.** Features, structures and End spikes a mod places with its own code miss what a toroidal level changes about them.
