@@ -4,7 +4,7 @@ import org.jspecify.annotations.Nullable;
 
 import com.exoticworlds.core.fold.WorldFold;
 import com.exoticworlds.engine.noise.ClimateScaleCompression;
-import com.exoticworlds.engine.noise.GenerationFoldContext;
+import com.exoticworlds.engine.noise.ForeignFieldCompression;
 import com.exoticworlds.shape.feature.compactbiomes.ClimateCompression;
 
 import net.minecraft.server.level.ServerLevel;
@@ -43,8 +43,7 @@ public final class LevelClimateCompression {
         NoiseFunction climate = ClimateCompression.climateNoiseOf(temperature);
         return climate == null
                 ? ClimateScaleCompression.NO_COMPRESSION
-                : ClimateCompression.factor(fold, climate.noise(), climate.xzScale(),
-                        GenerationFoldContext.verticalShare(climate.xzScale(), climate.yScale()));
+                : ForeignFieldCompression.followingNoise(fold, climate.noise(), climate.xzScale(), climate.yScale());
     }
 
     private LevelClimateCompression() {

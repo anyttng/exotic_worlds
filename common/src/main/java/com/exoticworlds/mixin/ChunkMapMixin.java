@@ -27,6 +27,7 @@ import com.exoticworlds.core.fold.WorldLoopAttachments;
 import com.exoticworlds.engine.fold.NearestCopy;
 import com.exoticworlds.engine.gen.RouterBuild;
 import com.exoticworlds.engine.gen.SeamDriveRequest;
+import com.exoticworlds.engine.noise.FoldedCompileContexts;
 import com.exoticworlds.engine.noise.GenerationFoldContext;
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import com.llamalad7.mixinextras.injector.ModifyReturnValue;
@@ -240,8 +241,10 @@ public class ChunkMapMixin implements LevelHolder, ChunkResender, SeamDriveSched
             @Local(argsOnly = true) ServerLevel level,
             @Local(argsOnly = true) ChunkGenerator generator) {
         RouterBuild build = RouterBuild.of(generator, level.dimension(), settings);
-        return GenerationFoldContext.withRouterBuild(build.fold(), build.dimension(), build.features(),
+        RandomState state = GenerationFoldContext.withRouterBuild(build.fold(), build.dimension(), build.features(),
                 () -> original.call(noises, seed, build.settings()));
+        FoldedCompileContexts.register(state);
+        return state;
     }
 
     @WrapOperation(
@@ -263,10 +266,12 @@ public class ChunkMapMixin implements LevelHolder, ChunkResender, SeamDriveSched
             Operation<RandomState> original,
             @Local(argsOnly = true) ServerLevel level,
             @Local(argsOnly = true) ChunkGenerator generator) {
-        return GenerationFoldContext.withRouterBuild(GeneratorShapes.getWrappedFold(generator),
+        RandomState state = GenerationFoldContext.withRouterBuild(GeneratorShapes.getWrappedFold(generator),
                 Registries.levelToLevelStem(level.dimension()),
                 GeneratorShapes.activeFeatures(generator, level.dimension()),
                 () -> original.call(noises, seed, useLegacyRandom, defaultBlock, seaLevel, router));
+        FoldedCompileContexts.register(state);
+        return state;
     }
 
     @ModifyExpressionValue(

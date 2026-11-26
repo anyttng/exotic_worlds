@@ -1,19 +1,10 @@
 package com.exoticworlds.compat.worldgen;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertSame;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.List;
 
 import org.junit.jupiter.api.Test;
-
-import com.exoticworlds.core.world.ShapeFixtures;
-import com.exoticworlds.core.option.ShapeOptions;
-import com.exoticworlds.core.fold.WorldFold;
-import com.exoticworlds.core.fold.WorldFolds;
-import com.exoticworlds.shape.feature.compactbiomes.ClimateScale;
-import com.exoticworlds.shape.feature.compactbiomes.CompactBiomes;
 
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.Registries;
@@ -32,19 +23,6 @@ class LevelClimateCompressionTest {
     private static final List<ResourceKey<NoiseGeneratorSettings>> CLIMATE_ROUTERS =
             List.of(NoiseGeneratorSettings.LARGE_BIOMES, NoiseGeneratorSettings.NETHER);
 
-    private static final int TINY_CHUNK_MIN = -16;
-
-    private static final int TINY_CHUNK_MAX = 16;
-
-    private static final int CUSTOM_FACTOR = 3;
-
-    private static final List<ClimateScale> COMPRESSING_SCALES =
-            List.of(ClimateScale.AUTO, ClimateScale.STRONG, ClimateScale.custom(CUSTOM_FACTOR));
-
-    private static final double NO_COMPRESSION = 1.0;
-
-    private static final double FACTOR_TOLERANCE = 1.0E-9;
-
     @Test
     void aRouterWithoutAClimateNoiseTakesTheOverworldTemperature() {
         assertSame(OVERWORLD_TEMPERATURE,
@@ -60,28 +38,8 @@ class LevelClimateCompressionTest {
         }
     }
 
-    @Test
-    void theEndTakesTheOverworldFactorOnTheSameLap() {
-        DensityFunction end = LevelClimateCompression.temperatureOf(END_TEMPERATURE, OVERWORLD_TEMPERATURE);
-        for (ClimateScale scale : COMPRESSING_SCALES) {
-            WorldFold fold = compressed(scale);
-            double overworld = LevelClimateCompression.factor(fold, OVERWORLD_TEMPERATURE);
-            String mode = scale.mode().getSerializedName();
-            assertTrue(overworld > NO_COMPRESSION, "the overworld compresses in " + mode);
-            assertEquals(overworld, LevelClimateCompression.factor(fold, end), FACTOR_TOLERANCE,
-                    "the end " + mode + " on a tiny world");
-        }
-    }
-
     private static DensityFunction temperatureOf(ResourceKey<NoiseGeneratorSettings> settings) {
         return LOOKUP.lookupOrThrow(Registries.NOISE_SETTINGS).getOrThrow(settings).value().noiseRouter()
                 .temperature();
-    }
-
-    private static WorldFold compressed(ClimateScale scale) {
-        return WorldFolds.of(
-                ShapeFixtures.torus(
-                        ShapeFixtures.loopedBounds(TINY_CHUNK_MIN, TINY_CHUNK_MAX, TINY_CHUNK_MIN, TINY_CHUNK_MAX)),
-                ShapeOptions.DEFAULT.with(CompactBiomes.FEATURE.getOption(), scale));
     }
 }

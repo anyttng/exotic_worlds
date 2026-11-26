@@ -9,7 +9,7 @@ import com.exoticworlds.core.fold.TranslationLattice;
 import com.exoticworlds.core.fold.WorldFold;
 import com.exoticworlds.core.fold.WrapDomain;
 import com.exoticworlds.engine.noise.ClimateScaleCompression;
-import com.exoticworlds.shape.feature.compactbiomes.ClimateCompression;
+import com.exoticworlds.engine.noise.ForeignFieldCompression;
 
 import net.minecraft.core.Direction;
 
@@ -22,8 +22,6 @@ public final class RtfClimateCompression {
 
     static final double MOISTURE_HALF_Z = 0.233;
 
-    private static final boolean IS_CLIMATE_FIELD = true;
-
     private static final double HORIZONTAL_SHARE = 0.0;
 
     private static final Direction.Axis[] HORIZONTAL = {Direction.Axis.X, Direction.Axis.Z};
@@ -31,7 +29,7 @@ public final class RtfClimateCompression {
     private static final Map<WorldFold, Double> BY_FOLD = new MapMaker().weakKeys().makeMap();
 
     public static double factor(WorldFold fold, RtfClimateScales scales) {
-        return ClimateCompression.factor(fold, IS_CLIMATE_FIELD, HORIZONTAL_SHARE, () -> fitted(fold, scales));
+        return ForeignFieldCompression.ofField(fold, HORIZONTAL_SHARE, () -> fitted(fold, scales));
     }
 
     public static double carry(WorldFold fold, RtfClimateScales scales) {

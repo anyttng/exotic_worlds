@@ -56,12 +56,21 @@ public final class ReplacementNoiseFold {
 
     public double sum(WorldFold fold, long seed, double[] scaleQuarts, int quartX, int quartZ,
             DensityFunction temperature) {
-        return sum(fold, seed, scaleQuarts, quartX, FLAT_QUART_Y, quartZ, OPEN_SIMPLEX_FLAT_AMPLITUDE, temperature);
+        return sum(fold, compression(fold, temperature), seed, scaleQuarts, quartX, quartZ);
     }
 
     public double sum(WorldFold fold, long seed, double[] scaleQuarts, int quartX, int quartY, int quartZ,
             DensityFunction temperature) {
-        return sum(fold, seed, scaleQuarts, quartX, quartY, quartZ, OPEN_SIMPLEX_VOLUME_AMPLITUDE, temperature);
+        return sum(fold, compression(fold, temperature), seed, scaleQuarts, quartX, quartY, quartZ);
+    }
+
+    double sum(WorldFold fold, double factor, long seed, double[] scaleQuarts, int quartX, int quartZ) {
+        return sum(fold, factor, seed, scaleQuarts, quartX, FLAT_QUART_Y, quartZ, OPEN_SIMPLEX_FLAT_AMPLITUDE);
+    }
+
+    double sum(WorldFold fold, double factor, long seed, double[] scaleQuarts, int quartX, int quartY,
+            int quartZ) {
+        return sum(fold, factor, seed, scaleQuarts, quartX, quartY, quartZ, OPEN_SIMPLEX_VOLUME_AMPLITUDE);
     }
 
     double compression(WorldFold fold, DensityFunction temperature) {
@@ -75,9 +84,8 @@ public final class ReplacementNoiseFold {
         return factor;
     }
 
-    private double sum(WorldFold fold, long seed, double[] scaleQuarts, int quartX, int quartY, int quartZ,
-            double amplitude, DensityFunction temperature) {
-        double factor = compression(fold, temperature);
+    private double sum(WorldFold fold, double factor, long seed, double[] scaleQuarts, int quartX, int quartY,
+            int quartZ, double amplitude) {
         Lattices resolved = latticesFor(fold, factor, seed, scaleQuarts);
         double x = QuartPos.toBlock(quartX);
         double y = QuartPos.toBlock(quartY);
