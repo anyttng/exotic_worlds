@@ -3,6 +3,7 @@ package com.exoticworlds.shape.feature.compactbiomes;
 import java.util.List;
 
 import com.exoticworlds.core.option.ShapeOption;
+import com.exoticworlds.core.feature.ClimateFieldMoment;
 import com.exoticworlds.core.feature.NoiseFeature;
 import com.exoticworlds.core.feature.NoiseMoment;
 import com.exoticworlds.core.option.ShapeOptions;
@@ -19,6 +20,8 @@ public final class CompactBiomes extends OptionFeature<ClimateScale> implements 
     private static final String FACTOR_KEY = "factor";
 
     private static final int POSITION = 0;
+
+    private static final boolean IS_CLIMATE_FIELD = true;
 
     public static final CompactBiomes FEATURE = new CompactBiomes();
 
@@ -52,5 +55,10 @@ public final class CompactBiomes extends OptionFeature<ClimateScale> implements 
     @Override
     public double warpFactor(NoiseMoment moment) {
         return ClimateCompression.factor(moment.fold(), moment.noise(), moment.xzScale(), moment.verticalShare());
+    }
+
+    @Override
+    public double climateFieldFactor(ClimateFieldMoment moment) {
+        return ClimateCompression.factor(moment.fold(), IS_CLIMATE_FIELD, moment.verticalShare(), moment.fitted());
     }
 }

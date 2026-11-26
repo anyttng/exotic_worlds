@@ -18,4 +18,8 @@ public interface NoiseFeature extends GenerationFeature {
     default boolean isOffsetting(NoiseMoment moment) {
         return false;
     }
+
+    default double climateFieldFactor(ClimateFieldMoment moment) {
+        return UNCHANGED;
+    }
 }

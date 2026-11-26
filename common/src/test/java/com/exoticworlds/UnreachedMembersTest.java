@@ -72,7 +72,8 @@ class UnreachedMembersTest {
             "compat.gate.ModPresence.scanClasses",
             "compat.gate.ModPresence.optional",
             "core.fold.FoldOrientation.getStateMirror",
-            "core.fold.FoldOrientation.getStateRotation");
+            "core.fold.FoldOrientation.getStateRotation",
+            "engine.noise.ForeignFieldCompression.ofField");
     private static final Set<String> READ_BY_HARNESS = Set.of(
             "compat.distanthorizons.DhFold.periodSections",
             "compat.gate.ModPresenceGatePlugin.getGates",
