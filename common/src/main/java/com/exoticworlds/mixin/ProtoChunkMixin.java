@@ -60,7 +60,7 @@ public class ProtoChunkMixin implements ChunkWriteListenerHolder {
                 : ChunkFrame.toReader(original.call(seated.value()), seated.orientation());
     }
 
-    // Must stay above markWritten: Mixin runs them in declaration order, and the write listener takes the seated position.
+    // Must stay above notifyWriteListener: Mixin runs them in declaration order, and the write listener takes the seated position.
     @ModifyVariable(
             method = {SET_BLOCK_STATE, "getFluidState", "markPosForPostprocessing"},
             at = @At("HEAD"), argsOnly = true, require = 3)
@@ -74,7 +74,7 @@ public class ProtoChunkMixin implements ChunkWriteListenerHolder {
     }
 
     @Inject(method = SET_BLOCK_STATE, at = @At("HEAD"))
-    private void exotic_worlds$markWritten(BlockPos pos, BlockState state, int flags,
+    private void exotic_worlds$notifyWriteListener(BlockPos pos, BlockState state, int flags,
             CallbackInfoReturnable<@Nullable BlockState> callback) {
         ChunkWriteListener listener = this.exotic_worlds$writeListener;
         if (listener != null) {

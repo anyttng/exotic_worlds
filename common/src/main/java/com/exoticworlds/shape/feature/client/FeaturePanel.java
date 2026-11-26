@@ -25,7 +25,7 @@ public interface FeaturePanel<T> {
 
     FillStyle getFill();
 
-    void add(GuiComponent component);
+    void addComponent(GuiComponent component);
 
     void onShow(Consumer<T> shown);
 

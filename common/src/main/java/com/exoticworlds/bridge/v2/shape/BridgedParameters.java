@@ -37,10 +37,10 @@ final class BridgedParameters implements ShapeParameters {
                 parameter.getCodec(), parameter.getStoredDefault());
         this.options.put(parameter, option);
         this.shown.add(DimensionOption.of(option, parameter.getCaptionKey(),
-                FeatureBridge.internal(parameter.getParts())));
+                FeatureBridge.toInternal(parameter.getParts())));
     }
 
-    void registerSaved() {
+    void registerOptions() {
         this.options.values().forEach(ShapeOptionRegistry::register);
     }
 

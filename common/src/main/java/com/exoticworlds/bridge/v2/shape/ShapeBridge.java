@@ -15,7 +15,7 @@ public final class ShapeBridge {
     public static void register(ShapeV2 shape) {
         BridgedParameters parameters = new BridgedParameters(shape);
         DeclaredShapes.register(new BridgedShape(shape, parameters));
-        parameters.registerSaved();
+        parameters.registerOptions();
     }
 
     public static void attach(Identifier shape, FeatureV2 feature, DimensionScopeV2 scope) {

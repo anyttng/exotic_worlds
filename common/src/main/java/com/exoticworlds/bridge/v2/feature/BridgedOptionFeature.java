@@ -17,7 +17,7 @@ final class BridgedOptionFeature<T> extends OptionFeature<T> {
     BridgedOptionFeature(OptionFeatureV2<T> feature) {
         super(new ShapeOption<>(FeatureBridge.keyOf(feature), AFTER_THE_MODS_OWN_OPTIONS, feature.getCodec(),
                 feature.getStoredDefault()), feature.getNewWorldValue(), feature.getCaptionKey(),
-                FeatureBridge.internal(feature.getParts()));
+                FeatureBridge.toInternal(feature.getParts()));
         this.feature = feature;
         this.moments = new FeatureMoments(this, feature);
     }

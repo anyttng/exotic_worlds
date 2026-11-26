@@ -79,4 +79,4 @@ Call it from your client entry point. The line is asked every frame, so keep it 
 
 ## The experimental parts
 
-Members marked `@ExperimentalV2` may change between releases. They are the chunk moments (`LevelMomentV2`, `CarvedChunkMomentV2`, `LitChunkMomentV2`, `ChunkDataMomentV2`) and `FeatureViewV2`, which puts widgets of your own on the page and compiles against Ascendia Core.
+Members marked `@ExperimentalV2` may change between releases. They are the chunk moments (`LevelMomentV2`, `CarvedChunkMomentV2`, `LitChunkMomentV2`, `ChunkDataMomentV2`).

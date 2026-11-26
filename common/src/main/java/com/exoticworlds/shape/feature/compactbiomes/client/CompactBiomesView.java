@@ -32,12 +32,12 @@ public final class CompactBiomesView implements FeatureView<ClimateScale> {
     }
 
     @Override
-    public void extend(FeaturePanel<ClimateScale> panel) {
+    public void extendPanel(FeaturePanel<ClimateScale> panel) {
         Map<Shown, Component> lines = new HashMap<>();
         Label label = new Label(panel.getFill(), LabelRole.MUTED, Component.empty());
         label.setText(() -> line(panel, lines));
         label.setVisible(() -> panel.isOffered() && !line(panel, lines).getString().isEmpty());
-        panel.add(label);
+        panel.addComponent(label);
     }
 
     private static Component line(FeaturePanel<ClimateScale> panel, Map<Shown, Component> lines) {
