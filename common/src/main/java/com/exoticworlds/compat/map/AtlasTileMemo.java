@@ -1,10 +1,9 @@
-package com.exoticworlds.compat.ultimatemapatlases;
+package com.exoticworlds.compat.map;
 
 import java.util.List;
 
 import org.jspecify.annotations.Nullable;
 
-import com.exoticworlds.compat.map.SeamLine;
 import com.exoticworlds.core.fold.WorldFold;
 
 import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
