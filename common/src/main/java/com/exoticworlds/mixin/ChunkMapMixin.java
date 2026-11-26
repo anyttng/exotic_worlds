@@ -98,7 +98,7 @@ public class ChunkMapMixin implements LevelHolder, ChunkResender, SeamDriveSched
     }
 
     @Inject(method = "save(Lnet/minecraft/world/level/chunk/ChunkAccess;)Z", at = @At("RETURN"))
-    private void exotic_worlds$releaseTerrainMask(ChunkAccess chunk, CallbackInfoReturnable<Boolean> callback) {
+    private void exotic_worlds$releaseChunkData(ChunkAccess chunk, CallbackInfoReturnable<Boolean> callback) {
         long key = chunk.getPos().pack();
         if (this.getUpdatingChunkIfPresent(key) == null && !this.pendingUnloads.containsKey(key)) {
             for (ChunkDataFeature feature : ShapeFeatures.activeOn(this.level, ChunkDataFeature.class)) {
