@@ -1,12 +1,10 @@
-package com.exoticworlds.compat.ultimatemapatlases;
+package com.exoticworlds.compat.map;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import org.jspecify.annotations.Nullable;
 
-import com.exoticworlds.compat.map.SeamLine;
-import com.exoticworlds.compat.map.WorldCopies;
 import com.exoticworlds.core.fold.WorldFold;
 
 import net.minecraft.client.gui.GuiGraphicsExtractor;

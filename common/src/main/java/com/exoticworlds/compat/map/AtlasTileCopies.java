@@ -1,4 +1,4 @@
-package com.exoticworlds.compat.ultimatemapatlases;
+package com.exoticworlds.compat.map;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -6,7 +6,6 @@ import java.util.TreeSet;
 
 import org.jspecify.annotations.Nullable;
 
-import com.exoticworlds.compat.map.WorldCopies;
 import com.exoticworlds.core.fold.RectangleCopies;
 import com.exoticworlds.core.fold.WorldFold;
 

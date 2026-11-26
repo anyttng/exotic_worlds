@@ -10,7 +10,7 @@ import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.ModifyArg;
 
-import com.exoticworlds.compat.ultimatemapatlases.AtlasPointSeat;
+import com.exoticworlds.compat.map.AtlasPointSeat;
 import com.exoticworlds.core.fold.WorldFold;
 import com.exoticworlds.engine.seam.MapSeamFold;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;

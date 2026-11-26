@@ -12,12 +12,12 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
+import com.exoticworlds.compat.map.AtlasPointSeat;
+import com.exoticworlds.compat.map.AtlasSeamLines;
+import com.exoticworlds.compat.map.AtlasTileCopies;
+import com.exoticworlds.compat.map.AtlasTileMemo;
 import com.exoticworlds.compat.map.ClientFolds;
 import com.exoticworlds.compat.map.MapCopies;
-import com.exoticworlds.compat.ultimatemapatlases.AtlasPointSeat;
-import com.exoticworlds.compat.ultimatemapatlases.AtlasSeamLines;
-import com.exoticworlds.compat.ultimatemapatlases.AtlasTileCopies;
-import com.exoticworlds.compat.ultimatemapatlases.AtlasTileMemo;
 import com.exoticworlds.compat.ultimatemapatlases.BrowsedDimension;
 import com.exoticworlds.core.fold.WorldFold;
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
