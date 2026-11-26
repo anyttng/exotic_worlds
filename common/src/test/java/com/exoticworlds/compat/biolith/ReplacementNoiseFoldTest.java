@@ -108,6 +108,8 @@ class ReplacementNoiseFoldTest {
 
     private static final double HORIZONTAL_SHARE = 0.0;
 
+    private static final boolean IS_CLIMATE_FIELD = true;
+
     private static final double FACTOR_TOLERANCE = 1.0E-9;
 
     private static final double NO_COMPRESSION = 1.0;
@@ -137,7 +139,7 @@ class ReplacementNoiseFoldTest {
 
         static double temperatureFactor(WorldFold worldFold,
                 ResourceKey<NormalNoise.NoiseParameters> temperature) {
-            return ClimateCompression.factor(worldFold,
+            return ClimateCompression.factor(worldFold, IS_CLIMATE_FIELD,
                     LOOKUP.lookupOrThrow(Registries.NOISE).getOrThrow(temperature),
                     CLIMATE_XZ_SCALE, HORIZONTAL_SHARE);
         }

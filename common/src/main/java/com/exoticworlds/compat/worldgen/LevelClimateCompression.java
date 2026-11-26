@@ -3,10 +3,10 @@ package com.exoticworlds.compat.worldgen;
 import org.jspecify.annotations.Nullable;
 
 import com.exoticworlds.core.fold.WorldFold;
+import com.exoticworlds.core.gen.DensityNoises;
+import com.exoticworlds.core.gen.RouterField;
 import com.exoticworlds.engine.noise.ClimateScaleCompression;
 import com.exoticworlds.engine.noise.ForeignFieldCompression;
-import com.exoticworlds.shape.feature.compactbiomes.ClimateCompression;
-import com.exoticworlds.shape.noise.DensityNoises;
 
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.chunk.ChunkGenerator;
@@ -20,7 +20,7 @@ public final class LevelClimateCompression {
     }
 
     static DensityFunction temperatureOf(DensityFunction own, DensityFunction overworld) {
-        return ClimateCompression.climateNoiseOf(own) != null ? own : overworld;
+        return DensityNoises.firstScaledNoiseUnder(own) != null ? own : overworld;
     }
 
     static DensityFunction getOverworldTemperature(@Nullable ServerLevel level) {
@@ -40,10 +40,11 @@ public final class LevelClimateCompression {
     }
 
     public static double factor(WorldFold fold, DensityFunction temperature) {
-        DensityNoises.ScaledNoise climate = ClimateCompression.climateNoiseOf(temperature);
+        DensityNoises.ScaledNoise climate = DensityNoises.firstScaledNoiseUnder(temperature);
         return climate == null
                 ? ClimateScaleCompression.NO_COMPRESSION
-                : ForeignFieldCompression.followingNoise(fold, climate.noise().noiseData(), climate.xzScale(), climate.yScale());
+                : ForeignFieldCompression.followingNoise(fold, climate.noise().noiseData(), RouterField.TEMPERATURE,
+                        climate.xzScale(), climate.yScale());
     }
 
     private LevelClimateCompression() {

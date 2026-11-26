@@ -10,7 +10,6 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 
 import com.exoticworlds.accessors.ClimateCompressionCache;
-import com.exoticworlds.accessors.ClimateFieldMark;
 import com.exoticworlds.accessors.IndexableNoise;
 import com.exoticworlds.accessors.NoiseHalfHolder;
 import com.exoticworlds.accessors.WrappedPerlinNoise;
@@ -31,13 +30,10 @@ import net.minecraft.world.level.levelgen.synth.ImprovedNoise;
 import net.minecraft.world.level.levelgen.synth.PerlinNoise;
 
 @Mixin(PerlinNoise.class)
-public class PerlinNoiseMixin implements ClimateCompressionCache, ClimateFieldMark, IndexableNoise,
+public class PerlinNoiseMixin implements ClimateCompressionCache, IndexableNoise,
         NoiseHalfHolder, WrappedPerlinNoise {
     @Unique
     private @Nullable Resolved exotic_worlds$climateCompression;
-
-    @Unique
-    private volatile boolean exotic_worlds$climateField;
 
     @Unique
     private volatile NoiseOrigin exotic_worlds$noiseOrigin = NoiseOrigin.NONE;
@@ -123,16 +119,6 @@ public class PerlinNoiseMixin implements ClimateCompressionCache, ClimateFieldMa
         this.exotic_worlds$noiseOrigin = origin;
         this.exotic_worlds$isSecondHalf = isSecondHalf;
         this.exotic_worlds$climateCompression = null;
-    }
-
-    @Override
-    public boolean exotic_worlds$climateField() {
-        return this.exotic_worlds$climateField;
-    }
-
-    @Override
-    public void exotic_worlds$markClimateField() {
-        this.exotic_worlds$climateField = true;
     }
 
     @Override

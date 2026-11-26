@@ -13,12 +13,14 @@ import com.exoticworlds.core.feature.NoiseFeature;
 import com.exoticworlds.core.feature.NoiseMoment;
 import com.exoticworlds.core.fold.WorldFold;
 import com.exoticworlds.core.fold.WorldFolds;
+import com.exoticworlds.core.gen.DensityNoises;
+import com.exoticworlds.core.gen.RouterField;
 import com.exoticworlds.core.option.ShapeOptions;
 import com.exoticworlds.core.world.ShapeFixtures;
 import com.exoticworlds.shape.feature.compactbiomes.ClimateCompression;
 import com.exoticworlds.shape.feature.compactbiomes.ClimateScale;
 import com.exoticworlds.shape.feature.compactbiomes.CompactBiomes;
-import com.exoticworlds.shape.noise.DensityNoises;
+import com.exoticworlds.core.gen.DensityNoises;
 
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.Registries;
@@ -47,6 +49,8 @@ class ForeignFieldCompressionTest {
 
     private static final double HORIZONTAL_SHARE = 0.0;
 
+    private static final boolean IS_CLIMATE_FIELD = true;
+
     private static final double FITTED = 2.5;
 
     private static final double NO_COMPRESSION = 1.0;
@@ -59,7 +63,7 @@ class ForeignFieldCompressionTest {
             DensityNoises.ScaledNoise climate = climateOf(settings);
             for (ClimateScale scale : COMPRESSING_SCALES) {
                 WorldFold fold = tiny(scale);
-                double expected = ClimateCompression.factor(fold, climate.noise().noiseData(), climate.xzScale(),
+                double expected = ClimateCompression.factor(fold, IS_CLIMATE_FIELD, climate.noise().noiseData(), climate.xzScale(),
                         GenerationFoldContext.verticalShare(climate.xzScale(), climate.yScale()));
                 String leg = settings.identifier() + " " + scale.mode().getSerializedName();
                 assertEquals(expected, following(fold, climate, List.of(CompactBiomes.FEATURE)), FACTOR_TOLERANCE,
@@ -74,7 +78,7 @@ class ForeignFieldCompressionTest {
         DensityNoises.ScaledNoise climate = climateOf(NoiseGeneratorSettings.OVERWORLD);
         double factor = GenerationFoldContext.withRouterBuild(fold, LevelStem.OVERWORLD,
                 List.of(CompactBiomes.FEATURE), () -> ForeignFieldCompression.followingNoise(fold,
-                        climate.noise().noiseData(), climate.xzScale(), climate.yScale()));
+                        climate.noise().noiseData(), RouterField.TEMPERATURE, climate.xzScale(), climate.yScale()));
         assertEquals(CUSTOM_FACTOR, factor, FACTOR_TOLERANCE);
     }
 
@@ -82,7 +86,7 @@ class ForeignFieldCompressionTest {
     void aFieldFollowingANoiseOnAFoldNoContextHoldsStaysUnchanged() {
         DensityNoises.ScaledNoise climate = climateOf(NoiseGeneratorSettings.OVERWORLD);
         assertEquals(NO_COMPRESSION, ForeignFieldCompression.followingNoise(tiny(ClimateScale.custom(CUSTOM_FACTOR)),
-                climate.noise().noiseData(), climate.xzScale(), climate.yScale()));
+                climate.noise().noiseData(), RouterField.TEMPERATURE, climate.xzScale(), climate.yScale()));
     }
 
     @Test
@@ -122,14 +126,14 @@ class ForeignFieldCompressionTest {
     }
 
     private static double following(WorldFold fold, DensityNoises.ScaledNoise climate, List<NoiseFeature> features) {
-        return ForeignFieldCompression.followingNoise(fold, LevelStem.OVERWORLD, features, climate.noise().noiseData(),
+        return ForeignFieldCompression.followingNoise(fold, LevelStem.OVERWORLD, features, climate.noise().noiseData(), RouterField.TEMPERATURE,
                 climate.xzScale(), climate.yScale());
     }
 
     private static DensityNoises.ScaledNoise climateOf(ResourceKey<NoiseGeneratorSettings> settings) {
         DensityFunction temperature = LOOKUP.lookupOrThrow(Registries.NOISE_SETTINGS).getOrThrow(settings).value()
                 .noiseRouter().temperature();
-        return Objects.requireNonNull(ClimateCompression.climateNoiseOf(temperature));
+        return Objects.requireNonNull(DensityNoises.firstScaledNoiseUnder(temperature));
     }
 
     private static WorldFold tiny(ClimateScale scale) {

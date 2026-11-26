@@ -7,7 +7,6 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 
-import com.exoticworlds.accessors.ClimateFieldMark;
 import com.exoticworlds.accessors.IndexableNoise;
 import com.exoticworlds.accessors.NoiseHalfHolder;
 import com.exoticworlds.accessors.NoiseOriginHolder;
@@ -29,7 +28,7 @@ import net.minecraft.world.level.levelgen.synth.NormalNoise;
 import net.minecraft.world.level.levelgen.synth.PerlinNoise;
 
 @Mixin(NormalNoise.class)
-public class NormalNoiseMixin implements ClimateFieldMark, NoiseOriginHolder, NoiseScaleRungs, IndexableNoise,
+public class NormalNoiseMixin implements NoiseOriginHolder, NoiseScaleRungs, IndexableNoise,
         WrappedNormalNoise {
     @Shadow
     @Final
@@ -54,12 +53,6 @@ public class NormalNoiseMixin implements ClimateFieldMark, NoiseOriginHolder, No
 
     @Unique
     private final ContextKeyedCache<Boolean> exotic_worlds$indexability = new ContextKeyedCache<>();
-
-    @Override
-    public void exotic_worlds$markClimateField() {
-        ((ClimateFieldMark) (Object) this.first).exotic_worlds$markClimateField();
-        ((ClimateFieldMark) (Object) this.second).exotic_worlds$markClimateField();
-    }
 
     @Override
     public NoiseOrigin exotic_worlds$getNoiseOrigin() {

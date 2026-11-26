@@ -17,15 +17,19 @@ import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import com.exoticworlds.accessors.BaseHeightsHolder;
 import com.exoticworlds.accessors.FoldBoundState;
 import com.exoticworlds.accessors.FoldedClimateSampler;
+import com.exoticworlds.accessors.NoiseOriginHolder;
 import com.exoticworlds.core.feature.GenerationFeature;
 import com.exoticworlds.core.feature.RandomStateFeature;
 import com.exoticworlds.core.feature.RandomStateMoment;
 import com.exoticworlds.core.feature.ShapeFeatures;
 import com.exoticworlds.core.fold.WorldFold;
+import com.exoticworlds.core.gen.DensityNoises;
+import com.exoticworlds.core.gen.RouterField;
 import com.exoticworlds.engine.gen.BaseHeights;
 import com.exoticworlds.engine.gen.CanonicalRandomFactory;
 import com.exoticworlds.engine.noise.DensityRewrites;
 import com.exoticworlds.engine.noise.GenerationFoldContext;
+import com.exoticworlds.engine.noise.NoiseRouterFields;
 import com.exoticworlds.engine.noise.NoiseScaleLadder;
 
 import net.minecraft.core.HolderGetter;
@@ -102,6 +106,7 @@ public class RandomStateMixin implements BaseHeightsHolder, FoldBoundState {
             ((FoldedClimateSampler) (Object) ((RandomState) (Object) this).sampler()).exotic_worlds$setFold(fold);
             this.exotic_worlds$baseHeights = new BaseHeights(fold);
             this.exotic_worlds$fold = fold;
+            exotic_worlds$stampRouterFields(((RandomState) (Object) this).router());
             RandomState randomState = (RandomState) (Object) this;
             GenerationFoldContext.Context context = GenerationFoldContext.getContext();
             List<GenerationFeature> features = context.getRouterBuildFeatures();
@@ -109,6 +114,19 @@ public class RandomStateMixin implements BaseHeightsHolder, FoldBoundState {
                     settings.seaLevel(), context.getRouterBuildOffsets());
             for (RandomStateFeature feature : ShapeFeatures.atMoment(features, RandomStateFeature.class)) {
                 feature.atRandomState(moment);
+            }
+        }
+    }
+
+    @Unique
+    private static void exotic_worlds$stampRouterFields(NoiseRouter router) {
+        NoiseRouterFields fields = NoiseRouterFields.of(router);
+        for (RouterField field : RouterField.values()) {
+            for (DensityFunction.NoiseHolder noise : DensityNoises.noisesUnder(field.getFunction(router))) {
+                if (noise.noise() instanceof NoiseOriginHolder holder) {
+                    holder.exotic_worlds$setNoiseOrigin(holder.exotic_worlds$getNoiseOrigin()
+                            .withRouterFields(fields.getFields(noise.noiseData())));
+                }
             }
         }
     }

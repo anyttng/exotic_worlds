@@ -7,8 +7,9 @@ import org.jspecify.annotations.Nullable;
 import com.exoticworlds.core.world.FlatShape;
 import com.exoticworlds.core.option.ShapeOptions;
 import com.exoticworlds.core.fold.WorldFolds;
+import com.exoticworlds.core.gen.DensityNoises;
 import com.exoticworlds.shape.feature.compactbiomes.ClimateCompression;
-import com.exoticworlds.shape.noise.DensityNoises;
+import com.exoticworlds.core.gen.DensityNoises;
 
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.worldselection.CreateWorldScreen;
@@ -21,6 +22,8 @@ final class ClimateFactorPreview {
 
     private static final double HORIZONTAL_SHARE = 0.0;
 
+    private static final boolean IS_CLIMATE_FIELD = true;
+
     static OptionalDouble temperatureFactor(Screen parent, ShapeOptions options, FlatShape spans) {
         DensityNoises.ScaledNoise temperature = temperatureNoise(parent);
         if (temperature == null) {
@@ -29,6 +32,7 @@ final class ClimateFactorPreview {
 
         return OptionalDouble.of(ClimateCompression.factor(
                 WorldFolds.of(spans, options),
+                IS_CLIMATE_FIELD,
                 temperature.noise().noiseData(),
                 CLIMATE_XZ_SCALE,
                 HORIZONTAL_SHARE));
@@ -47,7 +51,7 @@ final class ClimateFactorPreview {
             return null;
         }
 
-        return ClimateCompression.climateNoiseOf(noise.generatorSettings().value().noiseRouter().temperature());
+        return DensityNoises.firstScaledNoiseUnder(noise.generatorSettings().value().noiseRouter().temperature());
     }
 
     private ClimateFactorPreview() {
