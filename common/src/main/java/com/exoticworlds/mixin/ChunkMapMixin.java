@@ -107,7 +107,7 @@ public class ChunkMapMixin implements LevelHolder, ChunkResender, SeamDriveSched
     private void exotic_worlds$releaseTerrainMask(ChunkAccess chunk, CallbackInfoReturnable<Boolean> callback) {
         long key = chunk.getPos().pack();
         if (this.getUpdatingChunkIfPresent(key) == null && !this.pendingUnloads.containsKey(key)) {
-            for (ChunkDataFeature feature : ShapeFeatures.onLevel(this.level, ChunkDataFeature.class)) {
+            for (ChunkDataFeature feature : ShapeFeatures.activeOn(this.level, ChunkDataFeature.class)) {
                 feature.releaseData(this.level, chunk.getPos());
             }
         }

@@ -65,7 +65,7 @@ public final class ShapeSetup {
 
     static void registerLayout(boolean isClient) {
         LayoutShape.register(isClient);
-        WorldShapes.takesSpawn(LayoutShape.ID,
+        WorldShapes.registerSpawnMove(LayoutShape.ID,
                 spawn -> LayoutShape.trySetOverworldValue(ChosenSpawn.FEATURE, spawn));
         RegistrationBoundary.STARTUP.atFirstClose(DeclaredShapes::warnOfUnknownShapes);
     }

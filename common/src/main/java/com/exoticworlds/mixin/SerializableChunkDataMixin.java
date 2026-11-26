@@ -65,7 +65,7 @@ public class SerializableChunkDataMixin {
     private static void exotic_worlds$snapshotFeatureData(ServerLevel level, ChunkAccess chunk,
             CallbackInfoReturnable<SerializableChunkData> callback) {
         Map<String, CompoundTag> saved = new HashMap<>();
-        for (ChunkDataFeature feature : ShapeFeatures.onLevel(level, ChunkDataFeature.class)) {
+        for (ChunkDataFeature feature : ShapeFeatures.activeOn(level, ChunkDataFeature.class)) {
             CompoundTag data = feature.getSavedData(level, chunk.getPos());
             if (data != null) {
                 saved.put(feature.getDataKey(), data);
@@ -100,7 +100,7 @@ public class SerializableChunkDataMixin {
     @Inject(method = "read", at = @At("RETURN"))
     private void exotic_worlds$restoreFeatureData(ServerLevel level, PoiManager poiManager, RegionStorageInfo regionInfo,
             ChunkPos pos, CallbackInfoReturnable<ProtoChunk> callback) {
-        for (ChunkDataFeature feature : ShapeFeatures.onLevel(level, ChunkDataFeature.class)) {
+        for (ChunkDataFeature feature : ShapeFeatures.activeOn(level, ChunkDataFeature.class)) {
             CompoundTag data = this.exotic_worlds$featureData.get(feature.getDataKey());
             if (data != null) {
                 feature.restoreData(level, callback.getReturnValue(), data);

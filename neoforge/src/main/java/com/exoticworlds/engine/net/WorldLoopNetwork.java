@@ -24,11 +24,11 @@ public final class WorldLoopNetwork {
         registrar.playToClient(
                 WrappingSettingsPayload.TYPE,
                 WrappingSettingsPayload.STREAM_CODEC,
-                (payload, context) -> context.enqueueWork(() -> WorldLoopClientNetwork.apply(payload.dimension(), payload.shape())));
+                (payload, context) -> context.enqueueWork(() -> WorldLoopClientNetwork.setDimensionShape(payload.dimension(), payload.shape())));
         registrar.playToClient(
                 PositionRowsPayload.TYPE,
                 PositionRowsPayload.STREAM_CODEC,
-                (payload, context) -> context.enqueueWork(() -> WorldLoopClientNetwork.declare(payload)));
+                (payload, context) -> context.enqueueWork(() -> WorldLoopClientNetwork.declarePositionRows(payload)));
         registrar.playToClient(
                 DimensionChoicesPayload.TYPE,
                 DimensionChoicesPayload.STREAM_CODEC,

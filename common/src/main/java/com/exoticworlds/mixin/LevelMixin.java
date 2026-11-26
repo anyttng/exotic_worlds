@@ -196,8 +196,8 @@ public class LevelMixin implements FoldCache, ActiveFeaturesHolder, FeatureState
 
     @Override
     @SuppressWarnings("unchecked")
-    public <S> S exotic_worlds$featureState(GenerationFeature feature, Supplier<S> created) {
-        return (S) this.exotic_worlds$featureStates.computeIfAbsent(feature.getKey(), key -> created.get());
+    public <S> S exotic_worlds$featureState(GenerationFeature feature, Supplier<S> newState) {
+        return (S) this.exotic_worlds$featureStates.computeIfAbsent(feature.getKey(), key -> newState.get());
     }
 
     @Override

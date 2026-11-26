@@ -24,7 +24,7 @@ public final class LayoutShapeSetup {
 
     public static void register() {
         WorldTabRows.register(new WorldShapeRow(LayoutShapeSetup::createScreen));
-        WorldLoopClientNetwork.openDimensionChoicesWith(DimensionChoicesScreens::open);
+        WorldLoopClientNetwork.setDimensionChoicesOpener(DimensionChoicesScreens::open);
     }
 
     private static Screen createScreen(Screen parent) {

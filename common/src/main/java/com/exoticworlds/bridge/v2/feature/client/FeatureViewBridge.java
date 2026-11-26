@@ -9,10 +9,10 @@ import com.exoticworlds.shape.feature.client.LineView;
 
 public final class FeatureViewBridge {
     public static <T> void registerLine(OptionFeatureV2<T> feature, LineViewV2<T> line) {
-        FeatureViews.register(FeatureBridge.optionOf(feature), internal(line));
+        FeatureViews.register(FeatureBridge.optionOf(feature), toInternal(line));
     }
 
-    public static <T> LineView<T> internal(LineViewV2<T> line) {
+    public static <T> LineView<T> toInternal(LineViewV2<T> line) {
         return new LineView<>((value, spans) -> line.line(value, ShapeSpansAdapter.loopSpans(spans)));
     }
 

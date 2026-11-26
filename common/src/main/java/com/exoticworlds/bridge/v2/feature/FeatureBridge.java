@@ -49,27 +49,27 @@ public final class FeatureBridge {
         return feature.getId().toString();
     }
 
-    public static <T> List<OptionPart<T>> internal(List<OptionPartV2<T>> parts) {
+    public static <T> List<OptionPart<T>> toInternal(List<OptionPartV2<T>> parts) {
         List<OptionPart<T>> converted = new ArrayList<>(parts.size());
         for (OptionPartV2<T> part : parts) {
-            converted.add(internal(part));
+            converted.add(toInternal(part));
         }
 
         return converted;
     }
 
-    private static <T> OptionPart<T> internal(OptionPartV2<T> part) {
+    private static <T> OptionPart<T> toInternal(OptionPartV2<T> part) {
         return switch (part) {
             case OptionPartV2.Toggle<T> toggle ->
                     new OptionPart.Toggle<>(toggle.key(), toggle.read(), toggle.write(), toggle.shownWhen());
-            case OptionPartV2.Choice<T, ?> choice -> internal(choice);
+            case OptionPartV2.Choice<T, ?> choice -> toInternal(choice);
             case OptionPartV2.WholeNumber<T> number -> new OptionPart.WholeNumber<>(number.key(), number.min(),
                     number.max(), number.read(), number.write(), number.shownWhen());
-            case OptionPartV2.Row<T> row -> new OptionPart.Row<>(internal(row.parts()));
+            case OptionPartV2.Row<T> row -> new OptionPart.Row<>(toInternal(row.parts()));
         };
     }
 
-    private static <T, V> OptionPart<T> internal(OptionPartV2.Choice<T, V> choice) {
+    private static <T, V> OptionPart<T> toInternal(OptionPartV2.Choice<T, V> choice) {
         return new OptionPart.Choice<>(choice.key(), choice.values(), choice.valueKey(), value -> null, choice.read(),
                 choice.write(), choice.shownWhen());
     }

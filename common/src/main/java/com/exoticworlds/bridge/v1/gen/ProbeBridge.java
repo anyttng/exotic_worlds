@@ -45,7 +45,7 @@ public final class ProbeBridge {
     }
 
     public static void sweepCrumbs(ServerLevel level, ChunkAccess chunk) {
-        if (ShapeFeatures.onLevel(level, CarvedChunkFeature.class).contains(FloatingCrumbs.FEATURE)) {
+        if (ShapeFeatures.activeOn(level, CarvedChunkFeature.class).contains(FloatingCrumbs.FEATURE)) {
             FloatingCrumbs.sweep(level, chunk);
         }
     }

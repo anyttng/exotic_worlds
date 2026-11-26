@@ -62,7 +62,7 @@ public class ChunkStatusTasksMixin {
             StaticCache2D<GenerationChunkHolder> chunks,
             ChunkAccess chunk) {
         return original.thenApply(carved -> {
-            for (CarvedChunkFeature feature : ShapeFeatures.onLevel(context.level(), CarvedChunkFeature.class)) {
+            for (CarvedChunkFeature feature : ShapeFeatures.activeOn(context.level(), CarvedChunkFeature.class)) {
                 feature.atCarved(context.level(), carved);
             }
             return carved;
@@ -77,7 +77,7 @@ public class ChunkStatusTasksMixin {
             StaticCache2D<GenerationChunkHolder> chunks,
             ChunkAccess chunk) {
         return original.thenApply(lit -> {
-            for (LitChunkFeature feature : ShapeFeatures.onLevel(context.level(), LitChunkFeature.class)) {
+            for (LitChunkFeature feature : ShapeFeatures.activeOn(context.level(), LitChunkFeature.class)) {
                 feature.atLit(context.level(), lit, chunks, context.mainThreadExecutor());
             }
             return lit;

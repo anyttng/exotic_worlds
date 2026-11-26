@@ -33,7 +33,7 @@ public final class WorldShapes {
         SHAPES.register(shape.id(), shape);
     }
 
-    public static void takesSpawn(Identifier shapeId, Predicate<SpawnPoint> move) {
+    public static void registerSpawnMove(Identifier shapeId, Predicate<SpawnPoint> move) {
         SPAWN_MOVES.register(shapeId, move);
     }
 
