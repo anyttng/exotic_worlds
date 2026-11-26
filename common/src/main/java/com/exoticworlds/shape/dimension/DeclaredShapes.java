@@ -9,6 +9,7 @@ import org.jspecify.annotations.Nullable;
 import com.exoticworlds.ExoticWorlds;
 import com.exoticworlds.core.feature.ShapeFeatures;
 import com.exoticworlds.core.world.FlatShape;
+import com.exoticworlds.core.registry.NamespaceOrder;
 import com.exoticworlds.core.registry.StartupRegistry;
 import com.exoticworlds.core.world.ShapeDerivations;
 
@@ -43,7 +44,7 @@ public final class DeclaredShapes {
     }
 
     public static List<DimensionShape> getAll() {
-        return List.copyOf(SHAPES.getEntries().values());
+        return NamespaceOrder.sorted(SHAPES.getEntries().values(), shape -> shape.getId().getNamespace());
     }
 
     public static @Nullable DimensionShape of(Identifier id) {

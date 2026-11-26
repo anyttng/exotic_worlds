@@ -1,5 +1,6 @@
 package com.exoticworlds.shape.feature;
 
+import com.exoticworlds.ExoticWorlds;
 import com.exoticworlds.core.feature.GenerationFeature;
 import com.exoticworlds.core.feature.ShapeFeatures;
 
@@ -15,7 +16,11 @@ public abstract class ShapeFeature implements GenerationFeature {
         return this.key;
     }
 
+    public String getNamespace() {
+        return ExoticWorlds.MODID;
+    }
+
     public void register() {
-        ShapeFeatures.register(this);
+        ShapeFeatures.register(getNamespace(), this);
     }
 }

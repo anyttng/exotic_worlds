@@ -10,6 +10,7 @@ import java.util.List;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
+import com.exoticworlds.ExoticWorlds;
 import com.exoticworlds.core.option.ShapeOptions;
 import com.exoticworlds.core.world.CarriedShape;
 import com.exoticworlds.core.world.ShapeFixtures;
@@ -34,14 +35,29 @@ class ShapeFeaturesTest {
 
     private static final GenerationFeature NEVER_REGISTERED = new Named("shape_features_test_never_registered");
 
+    private static final Identifier ORDER_SHAPE = Identifier.fromNamespaceAndPath("example_mod", "feature_order_shape");
+
+    private static final String EARLY_NAMESPACE = "alpha_mod";
+
+    private static final String LATE_NAMESPACE = "zeta_mod";
+
+    private static final GenerationFeature FROM_EARLY_NAMESPACE = new Named("alpha_mod:shape_features_test");
+
+    private static final GenerationFeature FROM_LATE_NAMESPACE = new Named("zeta_mod:shape_features_test");
+
     private static final ShapeOptions LAND = ShapeOptions.DEFAULT.with(GuaranteedLand.FEATURE.getOption(), true);
 
     @BeforeAll
     static void registerFeatures() {
         StartupRegistrations.options();
-        ShapeFeatures.register(FIRST);
-        ShapeFeatures.register(SECOND);
-        ShapeFeatures.register(OVERWORLD_ONLY);
+        ShapeFeatures.register(LATE_NAMESPACE, FROM_LATE_NAMESPACE);
+        ShapeFeatures.register(EARLY_NAMESPACE, FROM_EARLY_NAMESPACE);
+        ShapeFeatures.register(ExoticWorlds.MODID, FIRST);
+        ShapeFeatures.register(ExoticWorlds.MODID, SECOND);
+        ShapeFeatures.register(ExoticWorlds.MODID, OVERWORLD_ONLY);
+        ShapeFeatures.attach(ORDER_SHAPE, FROM_LATE_NAMESPACE, DimensionScope.ALL);
+        ShapeFeatures.attach(ORDER_SHAPE, FROM_EARLY_NAMESPACE, DimensionScope.ALL);
+        ShapeFeatures.attach(ORDER_SHAPE, FIRST, DimensionScope.ALL);
         ShapeFeatures.attach(TEST_SHAPE, SECOND, DimensionScope.ALL);
         ShapeFeatures.attach(TEST_SHAPE, FIRST, DimensionScope.ALL);
         ShapeFeatures.attach(TEST_SHAPE, OVERWORLD_ONLY, DimensionScope.of(List.of(LevelStem.OVERWORLD)));
@@ -51,6 +67,12 @@ class ShapeFeaturesTest {
     void featuresComeInTheGlobalOrderRatherThanTheOrderTheShapeTookThem() {
         assertEquals(List.of(FIRST, SECOND, OVERWORLD_ONLY),
                 active(TEST_SHAPE, ShapeOptions.DEFAULT, LevelStem.OVERWORLD));
+    }
+
+    @Test
+    void theModsOwnFeaturesRunFirstAndAnotherModsFollowByNamespaceWhateverRegisteredFirst() {
+        assertEquals(List.of(FIRST, FROM_EARLY_NAMESPACE, FROM_LATE_NAMESPACE),
+                active(ORDER_SHAPE, ShapeOptions.DEFAULT, LevelStem.OVERWORLD));
     }
 
     @Test
