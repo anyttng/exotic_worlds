@@ -1,4 +1,4 @@
-package com.exoticworlds.compat.ultimatemapatlases;
+package com.exoticworlds.compat.map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotSame;
@@ -9,9 +9,7 @@ import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
-import com.exoticworlds.compat.map.MapFolds;
-import com.exoticworlds.compat.map.SeamLine;
-import com.exoticworlds.compat.ultimatemapatlases.AtlasTileCopies.TileCenter;
+import com.exoticworlds.compat.map.AtlasTileCopies.TileCenter;
 import com.exoticworlds.core.fold.WorldFold;
 
 class AtlasTileMemoTest {

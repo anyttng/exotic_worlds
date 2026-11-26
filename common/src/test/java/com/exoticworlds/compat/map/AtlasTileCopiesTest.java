@@ -1,4 +1,4 @@
-package com.exoticworlds.compat.ultimatemapatlases;
+package com.exoticworlds.compat.map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -11,14 +11,15 @@ import java.util.Set;
 import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Test;
 
-import com.exoticworlds.compat.map.MapFolds;
-import com.exoticworlds.compat.ultimatemapatlases.AtlasTileCopies.TileCenter;
+import com.exoticworlds.compat.map.AtlasTileCopies.TileCenter;
 import com.exoticworlds.core.fold.WorldFold;
 
 import net.minecraft.core.BlockPos;
 
 class AtlasTileCopiesTest {
     private static final int MAP_BLOCKS = 128;
+    private static final int MAX_MAP_SCALE = 4;
+    private static final WorldFold OFF_GRID = MapFolds.torus(-937, 938);
 
     @Test
     void aKeyOnTheUpperBoundFindsTheMapHeldOnTheLowerBound() {
@@ -213,5 +214,28 @@ class AtlasTileCopiesTest {
         assertTrue(centers.contains(new TileCenter(256, 5000)), "X folds a lap back");
         assertTrue(centers.contains(new TileCenter(-256, 5000)), "and two laps back");
         assertFalse(centers.stream().anyMatch(center -> center.z() != 5000), "the unbounded Z never moves");
+    }
+
+    @Test
+    void aWorldNoMapSizeDividesAnswersTheRequestAlone() {
+        for (int scale = 0; scale <= MAX_MAP_SCALE; scale++) {
+            int mapBlocks = MAP_BLOCKS << scale;
+            assertEquals(List.of(new TileCenter(14976, 14976)),
+                    AtlasTileCopies.of(OFF_GRID, 14976, 14976, mapBlocks),
+                    "a 30000-block lap is no whole number of " + mapBlocks + "-block maps on either axis");
+        }
+    }
+
+    @Test
+    void theCopiesPastTheEdgeOfAWideWorldFollowTheView() {
+        TileCenter edge = new TileCenter(14976, 0);
+        AtlasTileCopies.TileLookup<TileCenter> held = holdingGrid(-15000, 15000);
+        assertEquals(List.of(new AtlasTileCopies.Placed<>(new TileCenter(-14976, 0), new TileCenter(15024, 0))),
+                AtlasTileCopies.shifted(OFF_GRID, edge, 0, MAP_BLOCKS, held),
+                "the tile across the seam at 15008 meets one map past it, the map on the lower bound a lap along X");
+        List<AtlasTileCopies.Placed<TileCenter>> ring = AtlasTileCopies.shifted(OFF_GRID, edge, 1, MAP_BLOCKS, held);
+        assertEquals(6, ring.size(), "the ring around it meets two columns past the seam, three rows each");
+        assertTrue(ring.stream().allMatch(copy -> copy.at().x() - copy.map().x() == 30000
+                && copy.at().z() == copy.map().z()), "every one moved a lap along X");
     }
 }

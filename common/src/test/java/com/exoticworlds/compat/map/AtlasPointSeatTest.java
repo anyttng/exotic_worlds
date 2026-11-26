@@ -1,4 +1,4 @@
-package com.exoticworlds.compat.ultimatemapatlases;
+package com.exoticworlds.compat.map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
