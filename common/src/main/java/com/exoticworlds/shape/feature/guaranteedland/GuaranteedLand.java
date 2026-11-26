@@ -26,6 +26,6 @@ public final class GuaranteedLand extends ToggleFeature implements RandomStateFe
 
     @Override
     public boolean isOffsetting(NoiseMoment moment) {
-        return moment.noise().unwrapKey().filter(CoastFields::isCoast).isPresent();
+        return CoastFields.isCoast(moment.routerFields());
     }
 }

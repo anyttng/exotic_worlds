@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertSame;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 
 import org.junit.jupiter.api.Test;
 
@@ -79,14 +80,14 @@ class NoiseFeaturesTest {
     @Test
     void anOriginListsTwoDetunedLayersForEveryAudibleOctave() {
         NoiseOrigin origin = NoiseOrigin.of(List.of(), LevelStem.OVERWORLD,
-                Holder.direct(new NormalNoise.NoiseParameters(0, 1.0, 0.0, 1.0)), new NoiseOffsets());
+                Holder.direct(new NormalNoise.NoiseParameters(0, 1.0, 0.0, 1.0)), Set.of(), new NoiseOffsets());
 
         assertEquals(DoubleList.of(1.0, NoiseConstants.SECOND_LAYER_DETUNE, 4.0,
                 4.0 * NoiseConstants.SECOND_LAYER_DETUNE), origin.layerFrequencies());
     }
 
     private static NoiseMoment moment(Holder<NormalNoise.NoiseParameters> noise) {
-        return new NoiseMoment(FOLD, LevelStem.OVERWORLD, noise, LAYER_FREQUENCIES, XZ_SCALE, SHARE);
+        return new NoiseMoment(FOLD, LevelStem.OVERWORLD, noise, Set.of(), LAYER_FREQUENCIES, XZ_SCALE, SHARE);
     }
 
     private record Scaling(String key, double factor) implements NoiseFeature {

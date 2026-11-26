@@ -1,6 +1,7 @@
 package com.exoticworlds.engine.noise;
 
 import java.util.List;
+import java.util.Set;
 import java.util.function.DoubleSupplier;
 
 import com.exoticworlds.core.feature.ClimateFieldMoment;
@@ -8,6 +9,7 @@ import com.exoticworlds.core.feature.NoiseFeature;
 import com.exoticworlds.core.feature.NoiseOffsets;
 import com.exoticworlds.core.feature.ShapeFeatures;
 import com.exoticworlds.core.fold.WorldFold;
+import com.exoticworlds.core.gen.RouterField;
 
 import net.minecraft.core.Holder;
 import net.minecraft.resources.ResourceKey;
@@ -15,17 +17,17 @@ import net.minecraft.world.level.dimension.LevelStem;
 import net.minecraft.world.level.levelgen.synth.NormalNoise;
 
 public final class ForeignFieldCompression {
-    public static double followingNoise(WorldFold fold, Holder<NormalNoise.NoiseParameters> noise, double xzScale,
-            double yScale) {
+    public static double followingNoise(WorldFold fold, Holder<NormalNoise.NoiseParameters> noise,
+            RouterField foundUnder, double xzScale, double yScale) {
         FoldFeatures owner = FoldFeatures.of(fold);
         return owner == null ? NoiseFeature.UNCHANGED
                 : followingNoise(fold, owner.dimension(), ShapeFeatures.atMoment(owner.features(), NoiseFeature.class),
-                        noise, xzScale, yScale);
+                        noise, foundUnder, xzScale, yScale);
     }
 
     static double followingNoise(WorldFold fold, ResourceKey<LevelStem> dimension, List<NoiseFeature> features,
-            Holder<NormalNoise.NoiseParameters> noise, double xzScale, double yScale) {
-        return NoiseOrigin.of(features, dimension, noise, new NoiseOffsets())
+            Holder<NormalNoise.NoiseParameters> noise, RouterField foundUnder, double xzScale, double yScale) {
+        return NoiseOrigin.of(features, dimension, noise, Set.of(foundUnder), new NoiseOffsets())
                 .warpFactorAt(fold, xzScale, GenerationFoldContext.verticalShare(xzScale, yScale));
     }
 

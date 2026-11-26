@@ -1,6 +1,7 @@
 package com.exoticworlds.mixin;
 
 import java.util.List;
+import java.util.Set;
 
 import org.jspecify.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
@@ -8,13 +9,11 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import com.exoticworlds.accessors.ClimateFieldMark;
 import com.exoticworlds.accessors.NoiseOriginHolder;
 import com.exoticworlds.core.feature.NoiseFeature;
 import com.exoticworlds.core.feature.ShapeFeatures;
 import com.exoticworlds.engine.noise.GenerationFoldContext;
 import com.exoticworlds.engine.noise.NoiseOrigin;
-import com.exoticworlds.shape.feature.compactbiomes.ClimateFields;
 
 import net.minecraft.core.Holder;
 import net.minecraft.world.level.levelgen.DensityFunction;
@@ -26,15 +25,6 @@ public class NoiseHolderMixin {
             "<init>(Lnet/minecraft/core/Holder;Lnet/minecraft/world/level/levelgen/synth/NormalNoise;)V";
 
     @Inject(method = CONSTRUCTOR, at = @At("RETURN"))
-    private void exotic_worlds$markClimateField(Holder<NormalNoise.NoiseParameters> noiseData, NormalNoise noise,
-            CallbackInfo callback) {
-        if (noise instanceof ClimateFieldMark mark
-                && noiseData.unwrapKey().filter(ClimateFields::isClimate).isPresent()) {
-            mark.exotic_worlds$markClimateField();
-        }
-    }
-
-    @Inject(method = CONSTRUCTOR, at = @At("RETURN"))
     private void exotic_worlds$stampNoiseOrigin(Holder<NormalNoise.NoiseParameters> noiseData,
             @Nullable NormalNoise noise, CallbackInfo callback) {
         GenerationFoldContext.Context context = GenerationFoldContext.getContext();
@@ -44,6 +34,6 @@ public class NoiseHolderMixin {
 
         List<NoiseFeature> features = ShapeFeatures.atMoment(context.getRouterBuildFeatures(), NoiseFeature.class);
         ((NoiseOriginHolder) noise).exotic_worlds$setNoiseOrigin(NoiseOrigin.of(features,
-                context.getRouterBuildDimension(), noiseData, context.getRouterBuildOffsets()));
+                context.getRouterBuildDimension(), noiseData, Set.of(), context.getRouterBuildOffsets()));
     }
 }
