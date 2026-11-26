@@ -7,6 +7,7 @@ public record DerivedDimension(ResourceKey<LevelStem> dimension, boolean isEndTe
         double coordinateScale) {
     public static DerivedDimension ofKey(ResourceKey<LevelStem> dimension, double overworldScale,
             double coordinateScale) {
-        return new DerivedDimension(dimension, dimension == LevelStem.END, overworldScale, coordinateScale);
+        return new DerivedDimension(dimension, StemTerrain.ofKey(dimension).isEndTerrain(), overworldScale,
+                coordinateScale);
     }
 }

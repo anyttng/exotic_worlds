@@ -1,5 +1,6 @@
 package com.exoticworlds.api.v2.shape;
 
+import com.exoticworlds.core.world.StemTerrain;
 import com.exoticworlds.api.v2.geometry.LoopSpansV2;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -90,8 +91,8 @@ class ShapeV2Test {
 
     @Test
     void aNewWorldStartsEachDimensionAtTheParametersValueForIt() {
-        assertEquals(STORED_WIDTH_CHUNKS, band().defaultOptions(LevelStem.OVERWORLD).get(widthOption()));
-        assertEquals(NETHER_WIDTH_CHUNKS, band().defaultOptions(LevelStem.NETHER).get(widthOption()));
+        assertEquals(STORED_WIDTH_CHUNKS, band().defaultOptions(StemTerrain.ofKey(LevelStem.OVERWORLD)).get(widthOption()));
+        assertEquals(NETHER_WIDTH_CHUNKS, band().defaultOptions(StemTerrain.ofKey(LevelStem.NETHER)).get(widthOption()));
     }
 
     @Test

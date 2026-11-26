@@ -160,7 +160,7 @@ public final class ShapedDimensions {
             DimensionTable.Entry chosen = this.table.getEntry(key);
             stamp.exotic_worlds$stampBaked(chosen != null && !chosen.isFromOverworld()
                     ? chosen.carried()
-                    : derivedCarried(this.overworld, new DerivedDimension(key, EndTerrain.isEndTerrain(stem.generator()),
+                    : derivedCarried(this.overworld, new DerivedDimension(key, EndTerrain.isEndTerrain(key, stem.generator()),
                             this.overworldScale, stem.type().value().coordinateScale())));
         }
     }

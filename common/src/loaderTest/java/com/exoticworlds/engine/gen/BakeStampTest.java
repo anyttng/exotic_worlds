@@ -156,7 +156,7 @@ class BakeStampTest {
     }
 
     @Test
-    void anEndWithoutEndIslandsBakedUnderATorusTakesTheScaledCopy() {
+    void anEndWithoutEndIslandsBakedUnderATorusStillTakesTheLoopsEndRule() {
         ChunkGenerator overworld = foreignGenerator();
         ((ShapeStamp) overworld).exotic_worlds$stamp(new CarriedShape(DeclaredShapes.TORUS,
                 squareTorus(OVERWORLD_WIDTH_CHUNKS), ShapeOptions.DEFAULT));
@@ -165,7 +165,7 @@ class BakeStampTest {
 
         FlatShape end = shapeOf(baked, LevelStem.END);
         assertNotNull(end, "the End took no derived shape");
-        assertEquals(OVERWORLD_WIDTH_CHUNKS, widthChunks(end, Direction.Axis.X));
+        assertEquals(WorldLoopSizes.endWidthChunksFor(OVERWORLD_WIDTH_CHUNKS), widthChunks(end, Direction.Axis.X));
     }
 
     @Test

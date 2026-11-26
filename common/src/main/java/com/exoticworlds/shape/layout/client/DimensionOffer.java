@@ -28,8 +28,8 @@ record DimensionOffer(ResourceKey<LevelStem> dimension, Component title, List<Di
     static final DimensionOffer END = new DimensionOffer(LevelStem.END, SettingsLines.END, DERIVED_MODES, false,
             (overworld, netherScale) -> WorldLayout.derivedEnd(overworld));
 
-    static DimensionOffer modDimension(ResourceKey<LevelStem> dimension, CoordinateScales scales) {
+    static DimensionOffer modDimension(ResourceKey<LevelStem> dimension, StemFacts facts) {
         return new DimensionOffer(dimension, Component.literal(dimension.identifier().toString()), DERIVED_MODES,
-                false, (overworld, netherScale) -> scales.modDimension(dimension, overworld));
+                false, (overworld, netherScale) -> facts.modDimension(dimension, overworld));
     }
 }

@@ -21,6 +21,7 @@ import com.ascendiacore.gui.widget.cyclebutton.CycleButton;
 import com.ascendiacore.gui.widget.numberfield.NumberField;
 import com.ascendiacore.gui.widget.numberfield.model.Bounds;
 import com.ascendiacore.gui.widget.panel.model.FillStyle;
+import com.exoticworlds.core.world.StemTerrain;
 import com.exoticworlds.shape.feature.client.FeaturePanel;
 import com.exoticworlds.shape.feature.client.FeatureView;
 import com.exoticworlds.shape.feature.client.FeatureViews;
@@ -34,8 +35,6 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
-import net.minecraft.resources.ResourceKey;
-import net.minecraft.world.level.dimension.LevelStem;
 
 final class OptionControls {
     private static final String HINT_ON = "on";
@@ -46,7 +45,7 @@ final class OptionControls {
 
     private final Theme theme;
     private final FillStyle fill;
-    private final ResourceKey<LevelStem> dimension;
+    private final StemTerrain stem;
     private final Supplier<@Nullable Identifier> shape;
     private final Supplier<@Nullable FlatShape> spans;
     private final @Nullable Screen creation;
@@ -56,11 +55,11 @@ final class OptionControls {
     record Offer(DimensionOption<?> option, Predicate<Identifier> isForShape) {
     }
 
-    OptionControls(Theme theme, FillStyle fill, ResourceKey<LevelStem> dimension, List<Offer> offered,
+    OptionControls(Theme theme, FillStyle fill, StemTerrain stem, List<Offer> offered,
             Supplier<@Nullable Identifier> shape, Supplier<@Nullable FlatShape> spans, @Nullable Screen creation) {
         this.theme = theme;
         this.fill = fill;
-        this.dimension = dimension;
+        this.stem = stem;
         this.shape = shape;
         this.spans = spans;
         this.creation = creation;
@@ -276,10 +275,10 @@ final class OptionControls {
         }
 
         private GuiComponent number(String captionKey, OptionPart.WholeNumber<T> part) {
-            NumberRange shown = part.range().apply(OptionControls.this.dimension, this.value);
+            NumberRange shown = part.range().apply(OptionControls.this.stem, this.value);
             NumberField field = new NumberField(OptionControls.this.fill, OptionControls.this.theme.textField(),
                     Component.translatable(captionKey, shown.min(), shown.max()),
-                    () -> Optional.of(boundsOf(part.range().apply(OptionControls.this.dimension, this.value))),
+                    () -> Optional.of(boundsOf(part.range().apply(OptionControls.this.stem, this.value))),
                     this::takeTypedNumbers);
             field.setSigned(shown.min() < 0);
             field.setMaxCharacterCount(NUMBER_MAX_LENGTH);

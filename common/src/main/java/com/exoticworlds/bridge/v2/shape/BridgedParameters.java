@@ -5,6 +5,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.exoticworlds.core.world.StemTerrain;
 import com.exoticworlds.api.v2.shape.ParameterV2;
 import com.exoticworlds.api.v2.shape.ShapeV2;
 import com.exoticworlds.bridge.v2.feature.FeatureBridge;
@@ -79,10 +80,10 @@ final class BridgedParameters implements ShapeParameters {
     }
 
     @Override
-    public ShapeOptions defaultOptions(ResourceKey<LevelStem> dimension) {
+    public ShapeOptions defaultOptions(StemTerrain stem) {
         ShapeOptions defaults = ShapeOptions.DEFAULT;
         for (ParameterV2<?> parameter : this.declared) {
-            defaults = withNewWorldValue(parameter, defaults, dimension);
+            defaults = withNewWorldValue(parameter, defaults, stem.stem());
         }
 
         return defaults;
