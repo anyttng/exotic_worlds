@@ -59,6 +59,7 @@ final class LapTwinChunks {
     private static final int TICKET_LEVEL = 0;
     private static final Set<Heightmap.Types> PRIMED_HEIGHTMAPS = EnumSet.of(Heightmap.Types.MOTION_BLOCKING,
             Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, Heightmap.Types.OCEAN_FLOOR, Heightmap.Types.WORLD_SURFACE);
+    private static final ChunkStatus FEATURES_INPUT_STATUS = ChunkStatus.FEATURES.getParent();
 
     record Inputs(ServerLevel level, NoiseBasedChunkGenerator generator, RandomState randomState,
             BiomeManager biomeManager, WorldFold fold, SeamCauseSearch.Lap lap) {
@@ -105,7 +106,11 @@ final class LapTwinChunks {
             return recording;
         }
 
-        private FeatureRecording features(ChunkAccess[] grid) {
+        private FeatureRecording features(ProtoChunk[] grid) {
+            for (ProtoChunk gridChunk : grid) {
+                gridChunk.setPersistedStatus(FEATURES_INPUT_STATUS);
+            }
+
             Heightmap.primeHeightmaps(this.chunk, PRIMED_HEIGHTMAPS);
             FeatureRecording recording = new FeatureRecording(this.chunk);
             ServerLevel level = this.inputs.level();
@@ -233,8 +238,8 @@ final class LapTwinChunks {
             return null;
         }
 
-        ChunkAccess[] hereGrid = gridAround(inputs, here.chunk);
-        ChunkAccess[] thereGrid = gridAround(inputs, there.chunk);
+        ProtoChunk[] hereGrid = gridAround(inputs, here.chunk);
+        ProtoChunk[] thereGrid = gridAround(inputs, there.chunk);
         for (int index = 0; index < hereGrid.length; index++) {
             if (!areBiomesEqual(hereGrid[index], thereGrid[index])) {
                 LOGGER.warn("[ew/world-loop] features_unread level={} chunk_x={} chunk_z={} reason=neighbor_biomes",
@@ -249,8 +254,8 @@ final class LapTwinChunks {
                         registries.lookupOrThrow(Registries.CONFIGURED_FEATURE)));
     }
 
-    private static ChunkAccess[] gridAround(Inputs inputs, ProtoChunk center) {
-        ChunkAccess[] grid = new ChunkAccess[LapTwinRegion.SIDE_CHUNKS * LapTwinRegion.SIDE_CHUNKS];
+    private static ProtoChunk[] gridAround(Inputs inputs, ProtoChunk center) {
+        ProtoChunk[] grid = new ProtoChunk[LapTwinRegion.SIDE_CHUNKS * LapTwinRegion.SIDE_CHUNKS];
         ChunkPos centerPos = center.getPos();
         for (int offsetZ = -LapTwinRegion.REACH_CHUNKS; offsetZ <= LapTwinRegion.REACH_CHUNKS; offsetZ++) {
             for (int offsetX = -LapTwinRegion.REACH_CHUNKS; offsetX <= LapTwinRegion.REACH_CHUNKS; offsetX++) {
