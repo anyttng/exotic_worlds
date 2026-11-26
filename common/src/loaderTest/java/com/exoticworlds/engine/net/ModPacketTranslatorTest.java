@@ -15,6 +15,7 @@ import org.junit.jupiter.api.Test;
 
 import com.exoticworlds.ExoticWorlds;
 import com.exoticworlds.api.v1.net.PacketRewriters;
+import com.exoticworlds.engine.net.RecordPayloadFold.ComponentRole;
 import com.exoticworlds.engine.net.RecordPayloadFold.Role;
 
 import net.minecraft.core.BlockPos;
@@ -31,7 +32,8 @@ import net.minecraft.network.protocol.game.ServerGamePacketListener;
 import net.minecraft.resources.Identifier;
 
 class ModPacketTranslatorTest {
-    private static final Map<String, Role> UNTOUCHED_OFFSET_ROW = Map.of("offset", Role.UNTOUCHED);
+    private static final Map<String, ComponentRole> UNTOUCHED_OFFSET_ROW =
+            Map.of("offset", new ComponentRole.Direct(Role.UNTOUCHED));
     private static final double PARTICLE_Y = 64.0;
 
     record ClientboundProbePacket(BlockPos pos, BlockPos offset) implements Packet<ClientGamePacketListener> {
