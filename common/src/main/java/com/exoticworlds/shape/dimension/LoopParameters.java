@@ -11,7 +11,7 @@ public abstract class LoopParameters implements ShapeParameters {
 
     protected static <T> OptionPart<T> width(String key, Function<T, Integer> read, BiFunction<T, Integer, T> write) {
         return new OptionPart.WholeNumber<>(key,
-                (dimension, value) -> new NumberRange(WorldLoopSizes.getMinWidthChunks(dimension),
+                (stem, value) -> new NumberRange(WorldLoopSizes.getMinWidthChunks(stem),
                         WorldLoopSizes.MAX_WIDTH_CHUNKS),
                 read, write, (value, widthChunks) -> LoopSizeLines.widthLine(widthChunks), value -> true);
     }

@@ -15,6 +15,7 @@ import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
+import com.exoticworlds.core.world.StemTerrain;
 import com.exoticworlds.bridge.v2.geometry.ShapeSpansAdapter;
 import com.exoticworlds.core.world.DimensionTable;
 import com.exoticworlds.core.world.FlatShape;
@@ -169,7 +170,7 @@ class DeclaredShapeTest {
         }
 
         @Override
-        public final ShapeOptions defaultOptions(ResourceKey<LevelStem> dimension) {
+        public final ShapeOptions defaultOptions(StemTerrain stem) {
             return ShapeOptions.DEFAULT;
         }
 

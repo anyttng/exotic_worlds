@@ -57,7 +57,7 @@ public final class WorldShapeSettingsScreen extends Screen {
 
     private final @Nullable Screen parent;
     private final List<ResourceKey<LevelStem>> modDimensions;
-    private final CoordinateScales scales;
+    private final StemFacts facts;
     private final Map<ResourceKey<LevelStem>, DimensionLock> locks;
     private final boolean isExistingWorld;
     private final Consumer<WorldLayout> onDone;
@@ -82,12 +82,12 @@ public final class WorldShapeSettingsScreen extends Screen {
     }
 
     private WorldShapeSettingsScreen(@Nullable Screen parent, WorldLayout current,
-            List<ResourceKey<LevelStem>> modDimensions, CoordinateScales scales,
+            List<ResourceKey<LevelStem>> modDimensions, StemFacts facts,
             Map<ResourceKey<LevelStem>, DimensionLock> locks, boolean isExistingWorld, Consumer<WorldLayout> onDone) {
         super(SettingsLines.TITLE);
         this.parent = parent;
         this.modDimensions = List.copyOf(modDimensions);
-        this.scales = scales;
+        this.facts = facts;
         this.locks = Map.copyOf(locks);
         this.isExistingWorld = isExistingWorld;
         this.onDone = onDone;
@@ -95,14 +95,14 @@ public final class WorldShapeSettingsScreen extends Screen {
     }
 
     public static WorldShapeSettingsScreen forNewWorld(Screen parent, WorldLayout current,
-            List<ResourceKey<LevelStem>> modDimensions, CoordinateScales scales, Consumer<WorldLayout> onDone) {
-        return new WorldShapeSettingsScreen(parent, current, modDimensions, scales, Map.of(), false, onDone);
+            List<ResourceKey<LevelStem>> modDimensions, StemFacts facts, Consumer<WorldLayout> onDone) {
+        return new WorldShapeSettingsScreen(parent, current, modDimensions, facts, Map.of(), false, onDone);
     }
 
     public static WorldShapeSettingsScreen forExistingWorld(WorldLayout current,
-            List<ResourceKey<LevelStem>> modDimensions, CoordinateScales scales,
+            List<ResourceKey<LevelStem>> modDimensions, StemFacts facts,
             Map<ResourceKey<LevelStem>, DimensionLock> locks, Consumer<WorldLayout> onDone) {
-        return new WorldShapeSettingsScreen(null, current, modDimensions, scales, locks, true, onDone);
+        return new WorldShapeSettingsScreen(null, current, modDimensions, facts, locks, true, onDone);
     }
 
     public @Nullable Screen getCreationScreen() {
@@ -151,7 +151,7 @@ public final class WorldShapeSettingsScreen extends Screen {
         this.slots.add(this.slot(DimensionOffer.END, LevelStem.END, WorldLayout::end, WorldLayout::getEndSpans,
                 (layout, page, shown) -> layout.withEnd(shown), nothing));
         for (ResourceKey<LevelStem> key : this.modDimensions) {
-            this.slots.add(this.slot(DimensionOffer.modDimension(key, this.scales), key,
+            this.slots.add(this.slot(DimensionOffer.modDimension(key, this.facts), key,
                     layout -> layout.getModDimension(key), layout -> this.modSpans(layout, key),
                     (layout, page, shown) -> layout.withModDimension(key, shown), nothing));
         }
@@ -160,7 +160,7 @@ public final class WorldShapeSettingsScreen extends Screen {
     private @Nullable FlatShape modSpans(WorldLayout layout, ResourceKey<LevelStem> key) {
         DimensionLayout chosen = layout.getModDimension(key);
         return chosen.mode() == DimensionMode.FROM_OVERWORLD
-                ? this.scales.modDimension(key, layout.overworld())
+                ? this.facts.modDimension(key, layout.overworld())
                 : chosen.spans();
     }
 
@@ -168,7 +168,7 @@ public final class WorldShapeSettingsScreen extends Screen {
             Function<WorldLayout, @Nullable FlatShape> spans, Fold fold, BiConsumer<DimensionPage, WorldLayout> extra) {
         Supplier<DimensionLayout> overworld = () -> this.chosen.overworld();
         DimensionLock lock = this.locks.get(key);
-        DimensionPage page = new DimensionPage(offer, this.theme, this.fill, this.scales, overworld, shown.apply(this.chosen),
+        DimensionPage page = new DimensionPage(offer, this.theme, this.fill, this.facts, overworld, shown.apply(this.chosen),
                 lock == null ? null : SettingsLines.lockReason(lock), this.parent);
         extra.accept(page, this.chosen);
         return new Slot(page, lock != null, shown, spans, fold, extra);
@@ -293,7 +293,7 @@ public final class WorldShapeSettingsScreen extends Screen {
     }
 
     private void apply(WorldLoopPresets preset) {
-        this.chosen = LayoutPreset.apply(this.getCurrent(), preset, this.scales.of(LevelStem.OVERWORLD));
+        this.chosen = LayoutPreset.apply(this.getCurrent(), preset, this.facts.getCoordinateScale(LevelStem.OVERWORLD));
         for (Slot slot : this.slots) {
             slot.page().show(slot.shown().apply(this.chosen));
             slot.extra().accept(slot.page(), this.chosen);

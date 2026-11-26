@@ -16,6 +16,7 @@ import org.jspecify.annotations.Nullable;
 import com.exoticworlds.accessors.ShapeStamp;
 import com.exoticworlds.core.world.CarriedShape;
 import com.exoticworlds.core.world.DimensionTable;
+import com.exoticworlds.core.gen.EndTerrain;
 import com.exoticworlds.core.gen.GeneratorShapes;
 import com.exoticworlds.engine.level.LevelRebuild;
 import com.exoticworlds.engine.net.DimensionChoicesPayload;
@@ -56,7 +57,7 @@ public final class DimensionChoices {
             DimensionTable.Entry entry = table.getEntry(key);
             return new DimensionChoicesPayload.Row(key, Optional.ofNullable(refusal),
                     entry != null ? entry : refusal == null ? DimensionTable.Entry.FROM_OVERWORLD : getLiveEntry(server, key),
-                    coordinateScale(server, key));
+                    coordinateScale(server, key), isEndTerrain(server, key));
         }).toList();
     }
 
@@ -172,6 +173,11 @@ public final class DimensionChoices {
     private static boolean isShaped(MinecraftServer server) {
         return !getStoredTable(server).isEmpty() || getLiveStems(server).stream()
                 .anyMatch(stem -> GeneratorShapes.getCarriedShape(stem.generator()) != null);
+    }
+
+    private static boolean isEndTerrain(MinecraftServer server, ResourceKey<LevelStem> key) {
+        LevelStem stem = getLiveStems(server).getValue(key);
+        return stem != null && EndTerrain.isEndTerrain(key, stem.generator());
     }
 
     private static double coordinateScale(MinecraftServer server, ResourceKey<LevelStem> key) {

@@ -42,7 +42,7 @@ final class DimensionPage {
     static final int GAP_PIXELS = 4;
 
     private final DimensionOffer offer;
-    private final CoordinateScales scales;
+    private final StemFacts facts;
     private final Supplier<DimensionLayout> overworld;
     private final Value<ShapeChoice> chosen = Value.of(ShapeChoice.of(DimensionMode.NORMAL));
     private final Value<Integer> netherScale = Value.of(NetherScales.DEFAULT);
@@ -51,16 +51,16 @@ final class DimensionPage {
     private final Column page = new Column();
     private ShapeOptions options;
 
-    DimensionPage(DimensionOffer offer, Theme theme, FillStyle fill, CoordinateScales scales,
+    DimensionPage(DimensionOffer offer, Theme theme, FillStyle fill, StemFacts facts,
             Supplier<DimensionLayout> overworld, DimensionLayout shown, @Nullable Component lockReason,
             @Nullable Screen creation) {
         this.offer = offer;
-        this.scales = scales;
+        this.facts = facts;
         this.overworld = overworld;
         this.options = shown.options();
-        this.parameters = new OptionControls(theme, fill, offer.dimension(), getParameters(), this::getChosenShape,
+        this.parameters = new OptionControls(theme, fill, facts.terrainOf(offer.dimension()), getParameters(), this::getChosenShape,
                 this::getResolvedSpans, creation);
-        this.declared = new OptionControls(theme, fill, offer.dimension(), getAdditionalOptions(offer.dimension()),
+        this.declared = new OptionControls(theme, fill, facts.terrainOf(offer.dimension()), getAdditionalOptions(offer.dimension()),
                 this::getResolvedShape, this::getResolvedSpans, creation);
         this.build(theme, fill, lockReason);
         this.show(shown);
@@ -195,7 +195,7 @@ final class DimensionPage {
         for (Direction.Axis axis : List.of(Direction.Axis.X, Direction.Axis.Z)) {
             if (spans.bounds().isLooped(axis) && !this.isAllowed(spans.bounds().getWidthChunks(axis))) {
                 return SettingsLines.shapeSizeError(spans.bounds().getWidthChunks(axis),
-                        WorldLoopSizes.getMinWidthChunks(this.offer.dimension()));
+                        WorldLoopSizes.getMinWidthChunks(this.facts.terrainOf(this.offer.dimension())));
             }
         }
 
@@ -203,7 +203,7 @@ final class DimensionPage {
     }
 
     private boolean isAllowed(int widthChunks) {
-        return widthChunks >= WorldLoopSizes.getMinWidthChunks(this.offer.dimension())
+        return widthChunks >= WorldLoopSizes.getMinWidthChunks(this.facts.terrainOf(this.offer.dimension()))
                 && widthChunks <= WorldLoopSizes.MAX_WIDTH_CHUNKS;
     }
 
@@ -236,8 +236,8 @@ final class DimensionPage {
 
         boolean isOverworldItself = this.offer.dimension() == LevelStem.OVERWORLD;
         return DeclaredShapes.resolve(shape, new DimensionContext(this.offer.dimension(), chosenOptions,
-                isOverworldItself ? null : this.overworld.get().spans(), this.scales.of(LevelStem.OVERWORLD),
-                this.scales.of(this.offer.dimension())));
+                isOverworldItself ? null : this.overworld.get().spans(), this.facts.getCoordinateScale(LevelStem.OVERWORLD),
+                this.facts.getCoordinateScale(this.offer.dimension())));
     }
 
     private boolean isShowingOwnSummary() {
@@ -263,7 +263,7 @@ final class DimensionPage {
         ShapeOptions shown = ShapeOptions.DEFAULT;
         for (DimensionShape shape : DeclaredShapes.getAll()) {
             ShapeOptions source = (spans == null ? Optional.<ShapeOptions>empty() : shape.optionsFor(spans))
-                    .orElseGet(() -> shape.defaultOptions(this.offer.dimension()));
+                    .orElseGet(() -> shape.defaultOptions(this.facts.terrainOf(this.offer.dimension())));
             for (DimensionOption<?> parameter : shape.getParameters()) {
                 shown = copied(parameter, source, shown);
             }

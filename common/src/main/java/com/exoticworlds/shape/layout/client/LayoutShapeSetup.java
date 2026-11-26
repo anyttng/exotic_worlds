@@ -2,11 +2,14 @@ package com.exoticworlds.shape.layout.client;
 
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import com.ascendiacore.client.createworld.WorldTabRows;
 import com.exoticworlds.shape.client.WorldShapeRow;
+import com.exoticworlds.core.gen.EndTerrain;
 import com.exoticworlds.core.world.DimensionTable;
 import com.exoticworlds.engine.client.WorldLoopClientNetwork;
 import com.exoticworlds.shape.WorldShapes;
@@ -30,13 +33,12 @@ public final class LayoutShapeSetup {
     private static Screen createScreen(Screen parent) {
         if (!(parent instanceof CreateWorldScreen create)) {
             return WorldShapeSettingsScreen.forNewWorld(parent, LayoutShape.getLayout(), List.of(),
-                    new CoordinateScales(Map.of()), LayoutShapeSetup::choose);
+                    StemFacts.NONE, LayoutShapeSetup::choose);
         }
 
         WorldCreationContext settings = create.getUiState().getSettings();
-        CoordinateScales scales = scalesOf(settings);
         return WorldShapeSettingsScreen.forNewWorld(parent, LayoutShape.getLayout(),
-                modDimensions(settings.datapackDimensions()), scales, LayoutShapeSetup::choose);
+                modDimensions(settings.datapackDimensions()), factsOf(settings), LayoutShapeSetup::choose);
     }
 
     private static List<ResourceKey<LevelStem>> modDimensions(Registry<LevelStem> datapackDimensions) {
@@ -46,13 +48,22 @@ public final class LayoutShapeSetup {
                 .toList();
     }
 
-    private static CoordinateScales scalesOf(WorldCreationContext settings) {
+    private static StemFacts factsOf(WorldCreationContext settings) {
         Map<ResourceKey<LevelStem>, Double> scales = new HashMap<>();
+        Set<ResourceKey<LevelStem>> endTerrain = new HashSet<>();
         settings.datapackDimensions().entrySet()
-                .forEach(stem -> scales.put(stem.getKey(), getCoordinateScale(stem.getValue())));
+                .forEach(stem -> addFacts(stem.getKey(), stem.getValue(), scales, endTerrain));
         settings.selectedDimensions().dimensions()
-                .forEach((key, stem) -> scales.put(key, getCoordinateScale(stem)));
-        return new CoordinateScales(scales);
+                .forEach((key, stem) -> addFacts(key, stem, scales, endTerrain));
+        return new StemFacts(scales, endTerrain);
+    }
+
+    private static void addFacts(ResourceKey<LevelStem> key, LevelStem stem, Map<ResourceKey<LevelStem>, Double> scales,
+            Set<ResourceKey<LevelStem>> endTerrain) {
+        scales.put(key, getCoordinateScale(stem));
+        if (EndTerrain.isEndTerrain(key, stem.generator())) {
+            endTerrain.add(key);
+        }
     }
 
     private static double getCoordinateScale(LevelStem stem) {

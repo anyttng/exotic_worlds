@@ -5,6 +5,7 @@ import java.util.Optional;
 
 import org.jspecify.annotations.Nullable;
 
+import com.exoticworlds.core.world.StemTerrain;
 import com.exoticworlds.core.world.DerivedDimension;
 import com.exoticworlds.core.world.FlatShape;
 import com.exoticworlds.core.world.LegacyDerivation;
@@ -14,8 +15,6 @@ import com.exoticworlds.shape.option.DimensionOption;
 
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
-import net.minecraft.resources.ResourceKey;
-import net.minecraft.world.level.dimension.LevelStem;
 
 public interface DimensionShape {
     Identifier getId();
@@ -30,7 +29,7 @@ public interface DimensionShape {
 
     List<DimensionOption<?>> getParameters();
 
-    ShapeOptions defaultOptions(ResourceKey<LevelStem> dimension);
+    ShapeOptions defaultOptions(StemTerrain stem);
 
     boolean canTakePresets();
 

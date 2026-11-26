@@ -108,7 +108,7 @@ public final class WorldShapeReport {
         CarriedShape overworld = GeneratorShapes.getCarriedShape(server.overworld());
         FlatShape derived = ShapeDerivations.derive(overworld == null ? null : overworld.getShapeId().orElse(null),
                 overworldShape, new DerivedDimension(Registries.levelToLevelStem(level.dimension()),
-                        EndTerrain.isEndTerrain(level.getChunkSource().getGenerator()), overworldScale, scale));
+                        isEndTerrain(level), overworldScale, scale));
         return derived == null
                 ? "coordinate scale " + scale + " derives no whole-chunk width in range or whole-chunk skew from the"
                         + " overworld's " + widths(overworldShape.bounds()) + skew(overworldShape)
@@ -239,7 +239,12 @@ public final class WorldShapeReport {
     }
 
     private static Note endWidth(ServerLevel level, WorldLoopBounds bounds) {
-        return endWidth(EndTerrain.isEndTerrain(level.getChunkSource().getGenerator()), bounds);
+        return endWidth(isEndTerrain(level), bounds);
+    }
+
+    private static boolean isEndTerrain(ServerLevel level) {
+        return EndTerrain.isEndTerrain(Registries.levelToLevelStem(level.dimension()),
+                level.getChunkSource().getGenerator());
     }
 
     static Note endWidth(boolean isEndTerrain, WorldLoopBounds bounds) {

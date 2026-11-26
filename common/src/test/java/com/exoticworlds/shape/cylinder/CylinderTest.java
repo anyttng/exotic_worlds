@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.Test;
 
+import com.exoticworlds.core.world.StemTerrain;
 import com.exoticworlds.core.option.ShapeOptions;
 import com.exoticworlds.core.world.FlatShape;
 import com.exoticworlds.core.world.ShapeFixtures;
@@ -57,7 +58,7 @@ class CylinderTest {
     @Test
     void theEndStartsFromItsOwnDefaultWidth() {
         assertEquals(new CylinderSize(Direction.Axis.X, WorldLoopSizes.END_DEFAULT_WIDTH_CHUNKS),
-                Cylinder.SHAPE.defaultOptions(LevelStem.END).get(CylinderParameters.SIZE));
+                Cylinder.SHAPE.defaultOptions(StemTerrain.ofKey(LevelStem.END)).get(CylinderParameters.SIZE));
     }
 
     private static DimensionContext context(ShapeOptions options) {

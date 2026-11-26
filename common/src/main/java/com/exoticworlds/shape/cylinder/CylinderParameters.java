@@ -2,6 +2,7 @@ package com.exoticworlds.shape.cylinder;
 
 import java.util.List;
 
+import com.exoticworlds.core.world.StemTerrain;
 import com.exoticworlds.core.option.ShapeOption;
 import com.exoticworlds.core.option.ShapeOptions;
 import com.exoticworlds.core.world.WorldLoopSizes;
@@ -11,8 +12,6 @@ import com.exoticworlds.shape.option.DimensionOption;
 import com.exoticworlds.shape.option.OptionPart;
 
 import net.minecraft.core.Direction;
-import net.minecraft.resources.ResourceKey;
-import net.minecraft.world.level.dimension.LevelStem;
 
 public final class CylinderParameters extends LoopParameters {
     private static final String SIZE_KEY = "cylinder_size";
@@ -42,8 +41,8 @@ public final class CylinderParameters extends LoopParameters {
     }
 
     @Override
-    public ShapeOptions defaultOptions(ResourceKey<LevelStem> dimension) {
+    public ShapeOptions defaultOptions(StemTerrain stem) {
         return ShapeOptions.DEFAULT.with(SIZE,
-                new CylinderSize(Direction.Axis.X, WorldLoopSizes.getDefaultWidthChunks(dimension)));
+                new CylinderSize(Direction.Axis.X, WorldLoopSizes.getDefaultWidthChunks(stem)));
     }
 }

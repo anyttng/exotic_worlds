@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.Test;
 
+import com.exoticworlds.core.world.StemTerrain;
 import com.exoticworlds.core.option.ShapeOptions;
 import com.exoticworlds.core.world.FlatShape;
 import com.exoticworlds.core.world.ShapeFixtures;
@@ -17,9 +18,17 @@ import com.exoticworlds.shape.option.NumberRange;
 import com.exoticworlds.shape.option.OptionPart;
 
 import net.minecraft.core.Direction;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.level.dimension.LevelStem;
 
 class TorusTest {
+    private static final ResourceKey<LevelStem> ISLANDS =
+            ResourceKey.create(Registries.LEVEL_STEM, Identifier.fromNamespaceAndPath("example_mod", "islands"));
+
+    private static final boolean IS_END_TERRAIN = true;
+
 
     @Test
     void theSizeStatesTheSpans() {
@@ -67,7 +76,7 @@ class TorusTest {
         int endWidthChunks = WorldLoopSizes.END_DEFAULT_WIDTH_CHUNKS;
 
         assertEquals(new TorusSize(endWidthChunks, endWidthChunks, FlatShape.NO_SKEW),
-                Torus.SHAPE.defaultOptions(LevelStem.END).get(TorusParameters.SIZE));
+                Torus.SHAPE.defaultOptions(StemTerrain.ofKey(LevelStem.END)).get(TorusParameters.SIZE));
     }
 
     @Test
@@ -75,15 +84,30 @@ class TorusTest {
         OptionPart.WholeNumber<TorusSize> xWidth = number(row(sizeParameter().getParts().get(0)).parts().get(0));
         TorusSize size = new TorusSize(48, 64, 0);
 
-        assertEquals(WorldLoopSizes.MIN_WIDTH_CHUNKS, xWidth.range().apply(LevelStem.OVERWORLD, size).min());
-        assertEquals(WorldLoopSizes.END_MIN_WIDTH_CHUNKS, xWidth.range().apply(LevelStem.END, size).min());
+        assertEquals(WorldLoopSizes.MIN_WIDTH_CHUNKS,
+                xWidth.range().apply(StemTerrain.ofKey(LevelStem.OVERWORLD), size).min());
+        assertEquals(WorldLoopSizes.END_MIN_WIDTH_CHUNKS,
+                xWidth.range().apply(StemTerrain.ofKey(LevelStem.END), size).min());
+    }
+
+    @Test
+    void aModStemWithEndTerrainTakesTheEndFloorAndTheEndDefault() {
+        OptionPart.WholeNumber<TorusSize> xWidth = number(row(sizeParameter().getParts().get(0)).parts().get(0));
+        StemTerrain islands = new StemTerrain(ISLANDS, IS_END_TERRAIN);
+
+        assertEquals(WorldLoopSizes.END_MIN_WIDTH_CHUNKS, xWidth.range().apply(islands, new TorusSize(48, 64, 0)).min());
+        assertEquals(TorusSize.square(WorldLoopSizes.END_DEFAULT_WIDTH_CHUNKS),
+                Torus.SHAPE.defaultOptions(islands).get(TorusParameters.SIZE));
+        assertEquals(WorldLoopSizes.MIN_WIDTH_CHUNKS,
+                xWidth.range().apply(new StemTerrain(ISLANDS, !IS_END_TERRAIN), new TorusSize(48, 64, 0)).min());
     }
 
     @Test
     void theShiftRunsBelowTheXWidth() {
         OptionPart.WholeNumber<TorusSize> shift = number(sizeParameter().getParts().get(1));
 
-        assertEquals(new NumberRange(0, 47), shift.range().apply(LevelStem.OVERWORLD, new TorusSize(48, 64, 0)));
+        assertEquals(new NumberRange(0, 47),
+                shift.range().apply(StemTerrain.ofKey(LevelStem.OVERWORLD), new TorusSize(48, 64, 0)));
     }
 
     @SuppressWarnings("unchecked")
