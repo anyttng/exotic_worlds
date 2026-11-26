@@ -5,12 +5,13 @@ import java.util.concurrent.CompletableFuture;
 
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Pseudo;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
+import com.eminus.ingest.saved.SavedChunk;
+import com.eminus.ingest.saved.ServerSave;
 import com.exoticworlds.compat.eminus.SavedChunkOwner;
 import com.exoticworlds.compat.eminus.SavedLevelSource;
 import com.exoticworlds.core.fold.WorldLoopAttachments;
@@ -22,8 +23,7 @@ import net.minecraft.server.level.ChunkMap;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.ChunkPos;
 
-@Pseudo
-@Mixin(targets = "com.eminus.ingest.saved.ServerSave", remap = false)
+@Mixin(ServerSave.class)
 public class ServerSaveMixin implements SavedLevelSource {
     @Shadow
     @Final
@@ -44,7 +44,7 @@ public class ServerSaveMixin implements SavedLevelSource {
     }
 
     @Inject(method = "parse", at = @At("RETURN"))
-    private void exotic_worlds$ownedByTheSavedLevel(CompoundTag chunkTag, CallbackInfoReturnable<Object> cir) {
+    private void exotic_worlds$ownedByTheSavedLevel(CompoundTag chunkTag, CallbackInfoReturnable<SavedChunk> cir) {
         SavedChunkOwner.stamp(cir.getReturnValue(), level);
     }
 }

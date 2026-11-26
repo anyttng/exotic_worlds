@@ -25,11 +25,6 @@ class ModPresenceTest {
 
     private static final String SHIPPED_CLASS = "com/exoticworlds/compat/gate/ModPresence.class";
     private static final String ABSENT_CLASS = "com/exoticworlds/compat/NoSuchModEntryPoint.class";
-    private static final String SHIPPED_OWNER = "com/exoticworlds/compat/gate/ModPresence";
-    private static final String ABSENT_OWNER = "com/exoticworlds/compat/NoSuchModEntryPoint";
-    private static final String HAS_RESOURCE_METHOD = "hasResource";
-    private static final String PROBE_DESCRIPTOR = "(Ljava/lang/String;)Z";
-    private static final String OTHER_DESCRIPTOR = "(I)Z";
     private static final String CONFIG = "fixture.mixins.json";
     private static final String SIDED_CONFIG = "fixture.sided.mixins.json";
     private static final String ABSENT_CONFIG = "no_such.mixins.json";
@@ -174,16 +169,6 @@ class ModPresenceTest {
     void theBareProbeAnswersTheSameAsAGate() {
         assertTrue(ModPresence.hasResource(SHIPPED_CLASS), "the bare probe resolves the shipped class through the same loader");
         assertFalse(ModPresence.hasResource(ABSENT_CLASS), "the bare probe reads an absent class as absent");
-    }
-
-    @Test
-    void theMethodProbeMatchesNameAndDescriptorTogether() {
-        assertTrue(ModPresence.hasMethod(SHIPPED_OWNER, HAS_RESOURCE_METHOD, PROBE_DESCRIPTOR),
-                "the shipped class declares the method under that descriptor");
-        assertFalse(ModPresence.hasMethod(SHIPPED_OWNER, HAS_RESOURCE_METHOD, OTHER_DESCRIPTOR),
-                "the same name under another descriptor is another method");
-        assertFalse(ModPresence.hasMethod(ABSENT_OWNER, HAS_RESOURCE_METHOD, PROBE_DESCRIPTOR),
-                "an absent class declares nothing");
     }
 
     @Test

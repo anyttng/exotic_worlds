@@ -3,7 +3,6 @@ package com.exoticworlds.compat.eminus.mixin;
 import org.jspecify.annotations.Nullable;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Pseudo;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
@@ -22,8 +21,7 @@ import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.llamalad7.mixinextras.sugar.Local;
 
-@Pseudo
-@Mixin(targets = "com.eminus.render.tree.TreeChanges", remap = false)
+@Mixin(targets = "com.eminus.render.tree.TreeChanges")
 public class TreeChangesMixin {
     @Shadow
     @Final
