@@ -17,7 +17,7 @@ public final class SeamBridge {
         }
 
         WorldFold fold = WorldLoopAttachments.getWrappedFold(player.level());
-        if (fold == null || !fold.getBounds().isLooped(axis)) {
+        if (fold == null || fold.getCuboidAtlas() != null || !fold.getBounds().isLooped(axis)) {
             return OptionalDouble.empty();
         }
 
