@@ -9,7 +9,6 @@ import com.exoticworlds.core.option.ShapeOptions;
 import com.exoticworlds.core.fold.WorldFolds;
 import com.exoticworlds.core.gen.DensityNoises;
 import com.exoticworlds.shape.feature.compactbiomes.ClimateCompression;
-import com.exoticworlds.core.gen.DensityNoises;
 
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.worldselection.CreateWorldScreen;
