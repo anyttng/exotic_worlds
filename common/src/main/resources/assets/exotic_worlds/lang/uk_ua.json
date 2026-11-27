@@ -76,7 +76,6 @@
   "gui.exotic_worlds.world_shape_settings.shape.hint.cylinder": "одна горизонтальна вісь зациклена, інша триває нескінченно, як у звичайному світі.",
   "gui.exotic_worlds.world_shape_settings.shape.hint.cuboid": "поверхня прямокутної коробки з ребрами A, B і C. Пройди достатньо в будь-який бік і повернешся туди, звідки вийшов.",
   "gui.exotic_worlds.world_shape_settings.shape.hint.from_overworld": "бере форму Верхнього світу у власному розмірі цього виміру.",
-  "gui.exotic_worlds.world_shape_settings.shape.hint.declared": "форма з іншого мода; її опис показано під цією кнопкою.",
   "gui.exotic_worlds.world_shape_settings.shape.size_error": "Ця форма виходить завширшки %s чанків; цей вимір приймає від %s до %s.",
   "gui.exotic_worlds.world_shape_settings.nether_scale": "Масштаб Незеру",
   "gui.exotic_worlds.world_shape_settings.size": "Розмір світу в чанках (%s-%s)",
@@ -116,8 +115,6 @@
   "gui.exotic_worlds.world_shape_settings.guaranteed_nether_complexes.hint.intro": "Незер матиме щонайменше одну незерську фортецю й одні залишки бастіону, кожну споруду в біомі, де вона може стояти. Без цього в малому Незері часто немає жодної з них.",
   "gui.exotic_worlds.world_shape_settings.guaranteed_nether_complexes.hint.on": "Незер, у якому не було б жодної, отримує одну незерську фортецю й одні залишки бастіону.",
   "gui.exotic_worlds.world_shape_settings.guaranteed_nether_complexes.hint.off": "малий Незер може не мати жодної з них.",
-  "gui.exotic_worlds.world_shape.normal": "Звичайна",
-  "gui.exotic_worlds.world_shape.normal.hint": "Звичайний світ: нескінченна площина в усі боки.",
   "gui.exotic_worlds.world_shape.seam_warning": "Цей тип світу має власний генератор світу: Форма світу все одно обмежить і зациклить світ, але рельєф на краю світу не зійдеться.",
 
   "gui.exotic_worlds.settings.title": "Налаштування Exotic Worlds",

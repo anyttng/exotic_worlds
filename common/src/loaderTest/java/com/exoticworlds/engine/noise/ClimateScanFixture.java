@@ -2,16 +2,18 @@ package com.exoticworlds.engine.noise;
 
 import java.util.List;
 
-import com.exoticworlds.api.v1.option.GenerationOptions;
-import com.exoticworlds.core.ShapeFixtures;
-import com.exoticworlds.core.WorldFold;
-import com.exoticworlds.core.WorldFolds;
-import com.exoticworlds.core.WorldLoopBounds;
+import com.exoticworlds.core.world.ShapeFixtures;
+import com.exoticworlds.core.option.ShapeOptions;
+import com.exoticworlds.core.feature.GenerationFeature;
+import com.exoticworlds.core.fold.WorldFold;
+import com.exoticworlds.core.fold.WorldFolds;
+import com.exoticworlds.core.world.WorldLoopBounds;
 import com.exoticworlds.shape.StartupRegistrations;
-import com.exoticworlds.shape.climate.ClimateScale;
-import com.exoticworlds.shape.climate.CompactBiomes;
-import com.exoticworlds.shape.torus.GuaranteedLand;
+import com.exoticworlds.shape.feature.compactbiomes.ClimateScale;
+import com.exoticworlds.shape.feature.compactbiomes.CompactBiomes;
+import com.exoticworlds.shape.feature.guaranteedland.GuaranteedLand;
 
+import net.minecraft.world.level.dimension.LevelStem;
 import net.minecraft.SharedConstants;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
@@ -60,7 +62,6 @@ public final class ClimateScanFixture {
         SharedConstants.tryDetectVersion();
         Bootstrap.bootStrap();
         StartupRegistrations.options();
-        StartupRegistrations.generationHooks();
         holders = VanillaRegistries.createWorldLookup();
         noises = holders.lookupOrThrow(Registries.NOISE);
     }
@@ -78,17 +79,17 @@ public final class ClimateScanFixture {
 
     public static WorldFold strongTorusOfWidth(int widthBlocks) {
         return WorldFolds.of(ShapeFixtures.torus(WorldLoopBounds.ofWidth(widthBlocks / 16)),
-                GenerationOptions.DEFAULT.with(CompactBiomes.OPTION, ClimateScale.STRONG));
+                ShapeOptions.DEFAULT.with(CompactBiomes.FEATURE.getOption(), ClimateScale.STRONG));
     }
 
     public static WorldFold guaranteedTorusOfWidth(int widthBlocks) {
         return WorldFolds.of(ShapeFixtures.torus(WorldLoopBounds.ofWidth(widthBlocks / 16)),
-                GenerationOptions.DEFAULT.with(GuaranteedLand.OPTION, true));
+                ShapeOptions.DEFAULT.with(GuaranteedLand.FEATURE.getOption(), true));
     }
 
     public static WorldFold uncompressedTorusOfWidth(int widthBlocks) {
         return WorldFolds.of(ShapeFixtures.torus(WorldLoopBounds.ofWidth(widthBlocks / 16)),
-                GenerationOptions.DEFAULT.with(CompactBiomes.OPTION, ClimateScale.OFF));
+                ShapeOptions.DEFAULT.with(CompactBiomes.FEATURE.getOption(), ClimateScale.OFF));
     }
 
     public static WorldFold cylinderOfWidth(int widthBlocks) {
@@ -97,7 +98,7 @@ public final class ClimateScanFixture {
 
     public static WorldFold uncompressedCylinderOfWidth(int widthBlocks) {
         return WorldFolds.of(ShapeFixtures.cylinder(WorldLoopBounds.ofWidth(Direction.Axis.X, widthBlocks / 16)),
-                GenerationOptions.DEFAULT.with(CompactBiomes.OPTION, ClimateScale.OFF));
+                ShapeOptions.DEFAULT.with(CompactBiomes.FEATURE.getOption(), ClimateScale.OFF));
     }
 
     public static NormalNoise noiseParameters(ResourceKey<NormalNoise> key) {
@@ -125,7 +126,18 @@ public final class ClimateScanFixture {
     }
 
     public static RandomState randomState(NoiseGeneratorSettings settings, WorldFold fold, long seed) {
-        return GenerationFoldContext.withRouterBuild(fold.isWrapped() ? fold : null,
+        return randomState(settings, fold, seed,
+                List.copyOf(StartupRegistrations.noiseFeaturesFor(fold.getOptions())));
+    }
+
+    public static RandomState randomState(NoiseGeneratorSettings settings, WorldFold fold, long seed,
+            List<GenerationFeature> features) {
+        return randomState(settings, fold, seed, LevelStem.OVERWORLD, features);
+    }
+
+    public static RandomState randomState(NoiseGeneratorSettings settings, WorldFold fold, long seed,
+            ResourceKey<LevelStem> dimension, List<GenerationFeature> features) {
+        return GenerationFoldContext.withRouterBuild(fold.isWrapped() ? fold : null, dimension, features,
                 () -> RandomState.create(noises, seed, settings));
     }
 

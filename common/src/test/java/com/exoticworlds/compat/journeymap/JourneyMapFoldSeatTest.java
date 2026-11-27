@@ -5,10 +5,10 @@ import static org.junit.jupiter.api.Assertions.assertSame;
 
 import org.junit.jupiter.api.Test;
 
-import com.exoticworlds.api.v1.ToroidalShape;
-import com.exoticworlds.compat.map.ClientShapes;
+import com.exoticworlds.compat.map.ClientFolds;
 import com.exoticworlds.compat.map.MapCopies;
-import com.exoticworlds.compat.map.MapShapes;
+import com.exoticworlds.compat.map.MapFolds;
+import com.exoticworlds.core.fold.WorldFold;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -16,9 +16,9 @@ import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.phys.Vec3;
 
 class JourneyMapFoldSeatTest {
-    private static final ToroidalShape LATTICE = MapShapes.latticeTorus(-16, 16, 16);
-    private static final ToroidalShape TORUS = MapShapes.torus(-16, 16);
-    private static final ToroidalShape CYLINDER = MapShapes.cylinder(-16, 16);
+    private static final WorldFold LATTICE = MapFolds.latticeTorus(-16, 16, 16);
+    private static final WorldFold TORUS = MapFolds.torus(-16, 16);
+    private static final WorldFold CYLINDER = MapFolds.cylinder(-16, 16);
     private static final int WINDOW_PIXELS = 512;
     private static final int ZOOM = 2048;
 
@@ -53,7 +53,7 @@ class JourneyMapFoldSeatTest {
 
     @Test
     void aSingleMapCenterOfALatticeTorusFoldsWholeBeforeItIsHeldInside() {
-        Vec3 center = ClientShapes.fold(LATTICE, 0, 400);
+        Vec3 center = ClientFolds.fold(LATTICE, 0, 400);
         assertEquals(new Vec3(-256, 0, -112), center);
         assertEquals(-192.0,
                 JourneyMapFold.clampSingleCenter(LATTICE, Direction.Axis.X, center.x, ZOOM, WINDOW_PIXELS),

@@ -3,8 +3,8 @@ package com.exoticworlds.engine.seam;
 import org.jspecify.annotations.Nullable;
 
 import com.exoticworlds.accessors.MoveCheckpoints;
-import com.exoticworlds.core.WorldFold;
-import com.exoticworlds.core.WorldLoopAttachments;
+import com.exoticworlds.core.fold.WorldFold;
+import com.exoticworlds.core.fold.WorldLoopAttachments;
 
 import net.minecraft.network.protocol.game.ServerboundMovePlayerPacket;
 import net.minecraft.server.level.ServerPlayer;
@@ -62,29 +62,29 @@ public final class SeamMove {
     }
 
     private static float yawFrom(ServerPlayer player, Vec3 serverPosition, @Nullable Vec3 clientPoint, float yaw) {
-        WorldFold fold = WorldLoopAttachments.foldOf(player.level());
+        WorldFold fold = WorldLoopAttachments.getFold(player.level());
         ClientPosition mirror = ClientPosition.of(player);
-        if (fold.preservesLocalIndices() || !mirror.describes(player.level().dimension())) {
+        if (fold.isPreservingLocalIndices() || !mirror.isForDimension(player.level().dimension())) {
             return yaw;
         }
 
-        Vec3 seen = clientPoint == null ? new Vec3(mirror.x(), 0.0, mirror.z()) : clientPoint;
+        Vec3 seen = clientPoint == null ? new Vec3(mirror.getX(), 0.0, mirror.getZ()) : clientPoint;
         return serverYaw(fold, serverPosition, seen, yaw);
     }
 
     static float serverYaw(WorldFold fold, Vec3 serverPosition, Vec3 clientPoint, float yaw) {
-        return fold.nearestCopyTransformation(serverPosition, clientPoint).orientation().applyToYaw(yaw);
+        return fold.nearestCopyTransformation(serverPosition, clientPoint).getOrientation().applyToYaw(yaw);
     }
 
     public static void playerIntoBounds(ServerPlayer player, MoveCheckpoints checkpoints) {
-        if (SeamSnap.intoBounds(player)) {
+        if (SeamSnap.trySnapIntoBounds(player)) {
             checkpoints.exotic_worlds$setGood(player.position(), player.position());
         }
     }
 
     public static void vehicleIntoBounds(ServerPlayer player, MoveCheckpoints checkpoints) {
         Entity vehicle = player.getRootVehicle();
-        if (vehicle != player && SeamSnap.intoBounds(vehicle)) {
+        if (vehicle != player && SeamSnap.trySnapIntoBounds(vehicle)) {
             checkpoints.exotic_worlds$setVehicleGood(vehicle.position(), vehicle.position());
         }
     }

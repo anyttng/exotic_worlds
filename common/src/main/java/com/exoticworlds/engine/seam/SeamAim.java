@@ -1,6 +1,6 @@
 package com.exoticworlds.engine.seam;
 
-import com.exoticworlds.core.WorldLoopAttachments;
+import com.exoticworlds.core.fold.WorldLoopAttachments;
 import com.exoticworlds.engine.fold.SeamDelta;
 
 import net.minecraft.core.Direction;
@@ -13,15 +13,15 @@ public final class SeamAim {
     }
 
     public static Vec3 deltaTo(Entity viewer, Vec3 point) {
-        return WorldLoopAttachments.foldOf(viewer.level()).foldDelta(viewer.position(), point);
+        return WorldLoopAttachments.getFold(viewer.level()).foldDelta(viewer.position(), point);
     }
 
     public static Vec3 foldDelta(Entity levelSource, double deltaX, double deltaZ) {
-        return SeamDelta.fold(WorldLoopAttachments.foldOf(levelSource.level()), deltaX, deltaZ);
+        return SeamDelta.fold(WorldLoopAttachments.getFold(levelSource.level()), deltaX, deltaZ);
     }
 
     public static Vec3 foldDelta(Entity levelSource, Vec3 delta) {
-        return SeamDelta.fold(WorldLoopAttachments.foldOf(levelSource.level()), delta);
+        return SeamDelta.fold(WorldLoopAttachments.getFold(levelSource.level()), delta);
     }
 
     private SeamAim() {

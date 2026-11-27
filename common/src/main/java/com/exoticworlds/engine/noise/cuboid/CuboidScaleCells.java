@@ -1,7 +1,7 @@
 package com.exoticworlds.engine.noise.cuboid;
 
-import com.exoticworlds.core.CuboidAtlas;
-import com.exoticworlds.core.CuboidFace;
+import com.exoticworlds.core.fold.cuboid.CuboidAtlas;
+import com.exoticworlds.core.fold.cuboid.CuboidFace;
 import com.exoticworlds.engine.noise.BoxDivisors;
 
 import it.unimi.dsi.fastutil.ints.IntList;

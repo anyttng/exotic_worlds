@@ -12,7 +12,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import com.exoticworlds.accessors.FoldSource;
 import com.exoticworlds.compat.scalablelux.LightLockFolds;
-import com.exoticworlds.core.WorldFold;
+import com.exoticworlds.core.fold.WorldFold;
 import com.exoticworlds.engine.level.BoundLevelFold;
 import com.llamalad7.mixinextras.sugar.Local;
 
@@ -50,16 +50,16 @@ public class StarLightInterfaceMixin implements FoldSource {
 
     @ModifyVariable(method = "getAnyChunkNow", at = @At("HEAD"), argsOnly = true, index = 1)
     private int exotic_worlds$wrapChunkX(int chunkX, @Local(argsOnly = true, ordinal = 1) int chunkZ) {
-        return this.exotic_worlds$bound.fold().chunkLattice().foldX(chunkX, chunkZ);
+        return this.exotic_worlds$bound.getFold().getChunkLattice().foldX(chunkX, chunkZ);
     }
 
     @ModifyVariable(method = "getAnyChunkNow", at = @At("HEAD"), argsOnly = true, index = 2)
     private int exotic_worlds$wrapChunkZ(int chunkZ) {
-        return this.exotic_worlds$bound.fold().chunkLattice().foldZ(chunkZ);
+        return this.exotic_worlds$bound.getFold().getChunkLattice().foldZ(chunkZ);
     }
 
     @Override
-    public @Nullable WorldFold exotic_worlds$wrappedFold() {
-        return this.exotic_worlds$bound.wrapped();
+    public @Nullable WorldFold exotic_worlds$getWrappedFold() {
+        return this.exotic_worlds$bound.getWrapped();
     }
 }

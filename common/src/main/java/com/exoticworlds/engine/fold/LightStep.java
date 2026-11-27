@@ -1,7 +1,7 @@
 package com.exoticworlds.engine.fold;
 
-import com.exoticworlds.core.FoldOrientation;
-import com.exoticworlds.core.WorldFold;
+import com.exoticworlds.core.fold.FoldOrientation;
+import com.exoticworlds.core.fold.WorldFold;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -9,7 +9,7 @@ import net.minecraft.world.level.block.state.BlockState;
 
 public final class LightStep {
     public static FoldOrientation orientationOf(WorldFold fold, long steppedNode, long foldedNode) {
-        if (steppedNode == foldedNode || fold.preservesLocalIndices()) {
+        if (steppedNode == foldedNode || fold.isPreservingLocalIndices()) {
             return FoldOrientation.IDENTITY;
         }
 

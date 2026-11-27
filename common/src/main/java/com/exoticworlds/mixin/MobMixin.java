@@ -7,7 +7,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
 
 import com.exoticworlds.accessors.FoldSource;
-import com.exoticworlds.core.WorldFold;
+import com.exoticworlds.core.fold.WorldFold;
 import com.exoticworlds.engine.fold.FoldedBoxQuery;
 import com.exoticworlds.engine.fold.NearestCopy;
 import com.exoticworlds.engine.seam.SeamAim;
@@ -27,14 +27,14 @@ public class MobMixin {
 
     @ModifyVariable(method = "lookAt(Lnet/minecraft/world/entity/Entity;FF)V", at = @At("STORE"), ordinal = 0)
     private double exotic_worlds$lookDeltaX(double deltaX, @Local(argsOnly = true) Entity target) {
-        return ((FoldSource) this).exotic_worlds$wrappedFold() == null
+        return ((FoldSource) this).exotic_worlds$getWrappedFold() == null
                 ? deltaX
                 : SeamAim.deltaTo((Mob) (Object) this, target.position()).x;
     }
 
     @ModifyVariable(method = "lookAt(Lnet/minecraft/world/entity/Entity;FF)V", at = @At("STORE"), ordinal = 1)
     private double exotic_worlds$lookDeltaZ(double deltaZ, @Local(argsOnly = true) Entity target) {
-        return ((FoldSource) this).exotic_worlds$wrappedFold() == null
+        return ((FoldSource) this).exotic_worlds$getWrappedFold() == null
                 ? deltaZ
                 : SeamAim.deltaTo((Mob) (Object) this, target.position()).z;
     }
@@ -63,7 +63,7 @@ public class MobMixin {
 
     @Unique
     private BlockPos exotic_worlds$nearestHome(BlockPos home, BlockPos anchor) {
-        WorldFold fold = ((FoldSource) this).exotic_worlds$wrappedFold();
+        WorldFold fold = ((FoldSource) this).exotic_worlds$getWrappedFold();
         return NearestCopy.toward(fold, anchor, home);
     }
 }

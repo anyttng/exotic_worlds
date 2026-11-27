@@ -5,15 +5,15 @@ import static org.junit.jupiter.api.Assertions.assertSame;
 
 import org.junit.jupiter.api.Test;
 
-import com.exoticworlds.api.v1.ToroidalShape;
-import com.exoticworlds.compat.map.MapShapes;
+import com.exoticworlds.compat.map.MapFolds;
+import com.exoticworlds.core.fold.WorldFold;
 
 import net.minecraft.core.BlockPos;
 
 class AtlasBlockMarkerKeyTest {
     @Test
     void aKeyPastTheSeamFoldsToTheCanonicalBlock() {
-        ToroidalShape shape = MapShapes.torus(-16, 16);
+        WorldFold shape = MapFolds.torus(-16, 16);
         assertEquals("block_-212, 64, 10", AtlasBlockMarkerKey.folded(shape, "block_300, 64, 10"),
                 "the bed a lap up keys as the canonical one");
         assertEquals("block_100, 64, 212", AtlasBlockMarkerKey.folded(shape, "block_100, 64, -300"),
@@ -23,12 +23,12 @@ class AtlasBlockMarkerKeyTest {
     @Test
     void aCanonicalKeyComesBackItself() {
         String key = "block_-212, 64, 10";
-        assertSame(key, AtlasBlockMarkerKey.folded(MapShapes.torus(-16, 16), key), "nothing to fold");
+        assertSame(key, AtlasBlockMarkerKey.folded(MapFolds.torus(-16, 16), key), "nothing to fold");
     }
 
     @Test
     void aSkewedSeamMovesTheKeySideways() {
-        ToroidalShape shape = MapShapes.latticeTorus(-16, 16, 8);
+        WorldFold shape = MapFolds.latticeTorus(-16, 16, 8);
         BlockPos canonical = shape.fold(new BlockPos(0, 64, 500));
         assertEquals(-12, canonical.getZ(), "a lap in Z");
         assertEquals(128, Math.abs(canonical.getX()), "moves X by the skew");
@@ -38,13 +38,13 @@ class AtlasBlockMarkerKeyTest {
 
     @Test
     void aCylinderFoldsItsLoopedAxisAlone() {
-        assertEquals("block_-212, 64, 5000", AtlasBlockMarkerKey.folded(MapShapes.cylinder(-16, 16),
+        assertEquals("block_-212, 64, 5000", AtlasBlockMarkerKey.folded(MapFolds.cylinder(-16, 16),
                 "block_300, 64, 5000"), "X folds, the unbounded Z stays");
     }
 
     @Test
     void anythingButABlockKeyIsLeftAlone() {
-        ToroidalShape shape = MapShapes.torus(-16, 16);
+        WorldFold shape = MapFolds.torus(-16, 16);
         String pin = "pin_3_12345_0";
         String partial = "block_300, 64";
         String words = "block_a, b, c";

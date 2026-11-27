@@ -5,15 +5,17 @@ import java.util.Random;
 
 import org.jspecify.annotations.Nullable;
 
-import com.exoticworlds.accessors.CoastLiftCache;
+import com.exoticworlds.core.feature.NoiseOffsets;
 import com.exoticworlds.accessors.FoldedCompileSource;
-import com.exoticworlds.core.ShapeFixtures;
-import com.exoticworlds.core.WorldFold;
-import com.exoticworlds.core.WorldFolds;
-import com.exoticworlds.core.WrapDomain;
+import com.exoticworlds.shape.StartupRegistrations;
+import com.exoticworlds.core.world.ShapeFixtures;
+import com.exoticworlds.core.fold.WorldFold;
+import com.exoticworlds.core.fold.WorldFolds;
+import com.exoticworlds.core.fold.WrapDomain;
 
 import it.unimi.dsi.fastutil.doubles.DoubleArrayList;
 import it.unimi.dsi.fastutil.doubles.DoubleList;
+import net.minecraft.world.level.dimension.LevelStem;
 import net.minecraft.core.Holder;
 import net.minecraft.resources.Identifier;
 import net.minecraft.util.RandomSource;
@@ -28,7 +30,7 @@ import net.minecraft.world.level.levelgen.synth.NormalNoise;
 public final class DensityFunctionFixture {
     public static final long SEED = 0x0153EL;
 
-    private static final int WORLD_HEIGHT = 384;
+    private static final int WORLD_HEIGHT_BLOCKS = 384;
     private static final int LOWEST_Y = -64;
 
     private static final int FIRST_OCTAVE = -6;
@@ -72,17 +74,6 @@ public final class DensityFunctionFixture {
         }
     };
 
-    private static final CoastLiftCache NO_LIFT = new CoastLiftCache() {
-        @Override
-        public double exotic_worlds$coastLift() {
-            return 0.0;
-        }
-
-        @Override
-        public void exotic_worlds$coastLift(double lift) {
-        }
-    };
-
     public static DensitySampler compile(DensityFunction function, WorldFold fold) {
         return compileFolded(function, fold, NoiseScaleLadder.NONE);
     }
@@ -105,8 +96,10 @@ public final class DensityFunctionFixture {
 
     private static FoldedCompileContext foldedContext(WorldFold fold, NoiseScaleLadder ladder) {
         FoldedSeeded context = new FoldedSeeded();
-        FoldedCompileContext folded = new FoldedCompileContext(context, fold, NO_LIFT, ladder);
-        context.exotic_worlds$foldedCompile(folded);
+        FoldedCompileContext folded = new FoldedCompileContext(context, fold, LevelStem.OVERWORLD,
+                StartupRegistrations.noiseFeaturesFor(fold.getOptions()), new NoiseOffsets(), ladder,
+                NoiseRouterFields.NONE);
+        context.exotic_worlds$setFoldedCompile(folded);
         return folded;
     }
 
@@ -123,7 +116,7 @@ public final class DensityFunctionFixture {
     }
 
     public static int blockY(Random random) {
-        return LOWEST_Y + random.nextInt(WORLD_HEIGHT);
+        return LOWEST_Y + random.nextInt(WORLD_HEIGHT_BLOCKS);
     }
 
     private static final class FoldedSeeded implements DensityFunction.CompileContext, FoldedCompileSource {
@@ -147,12 +140,12 @@ public final class DensityFunctionFixture {
         }
 
         @Override
-        public @Nullable FoldedCompileContext exotic_worlds$foldedCompile() {
+        public @Nullable FoldedCompileContext exotic_worlds$getFoldedCompile() {
             return this.folded;
         }
 
         @Override
-        public void exotic_worlds$foldedCompile(FoldedCompileContext context) {
+        public void exotic_worlds$setFoldedCompile(FoldedCompileContext context) {
             this.folded = context;
         }
     }

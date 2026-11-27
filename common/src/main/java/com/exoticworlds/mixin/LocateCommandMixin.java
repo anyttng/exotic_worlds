@@ -5,8 +5,8 @@ import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 
 import com.exoticworlds.InjectionTargets;
-import com.exoticworlds.core.WorldFold;
-import com.exoticworlds.core.WorldLoopAttachments;
+import com.exoticworlds.core.fold.WorldFold;
+import com.exoticworlds.core.fold.WorldLoopAttachments;
 import com.exoticworlds.engine.fold.NearestCopy;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
@@ -28,7 +28,7 @@ public class LocateCommandMixin {
             at = @At(value = "INVOKE", target = InjectionTargets.BLOCK_POS_DIST_SQR))
     private static double exotic_worlds$distSqrThroughSeam(BlockPos sourcePos, Vec3i foundPos, Operation<Double> original,
             @Local(argsOnly = true) CommandSourceStack source) {
-        WorldFold fold = WorldLoopAttachments.wrappedFoldOf(source.getLevel());
+        WorldFold fold = WorldLoopAttachments.getWrappedFold(source.getLevel());
         return original.call(sourcePos, NearestCopy.toward(fold, sourcePos, foundPos));
     }
 
@@ -37,7 +37,7 @@ public class LocateCommandMixin {
             at = @At(value = "INVOKE", target = "Lnet/minecraft/server/commands/LocateCommand;dist(IIII)F"))
     private static float exotic_worlds$flatDistThroughSeam(int fromX, int fromZ, int toX, int toZ,
             Operation<Float> original, @Local(argsOnly = true) CommandSourceStack source) {
-        WorldFold fold = WorldLoopAttachments.wrappedFoldOf(source.getLevel());
+        WorldFold fold = WorldLoopAttachments.getWrappedFold(source.getLevel());
         if (fold == null) {
             return original.call(fromX, fromZ, toX, toZ);
         }

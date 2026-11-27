@@ -9,7 +9,7 @@ import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 
 import com.exoticworlds.InjectionTargets;
-import com.exoticworlds.core.WorldLoopAttachments;
+import com.exoticworlds.core.fold.WorldLoopAttachments;
 import com.llamalad7.mixinextras.injector.v2.WrapWithCondition;
 import com.llamalad7.mixinextras.sugar.Local;
 
@@ -41,7 +41,7 @@ public class ServerEntityMixin {
             return true;
         }
 
-        if (WorldLoopAttachments.wrappedFoldOf(this.level) == null) {
+        if (WorldLoopAttachments.getWrappedFold(this.level) == null) {
             return true;
         }
 

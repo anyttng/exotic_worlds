@@ -2,8 +2,8 @@ package com.exoticworlds.engine.noise.cuboid;
 
 import java.util.List;
 
-import com.exoticworlds.core.CuboidAtlas;
-import com.exoticworlds.core.CuboidFace;
+import com.exoticworlds.core.fold.cuboid.CuboidAtlas;
+import com.exoticworlds.core.fold.cuboid.CuboidFace;
 import com.exoticworlds.engine.noise.GenerationFoldContext;
 import com.exoticworlds.engine.noise.cuboid.CuboidCrossings.Crossing;
 
@@ -48,7 +48,7 @@ final class CuboidAskingFace {
     }
 
     Crossing crossingOf(int blockX, int blockZ) {
-        ChunkPos asking = GenerationFoldContext.context().askingChunk();
+        ChunkPos asking = GenerationFoldContext.getContext().getAskingChunk();
         int askingFace = asking == null ? NO_FACE : faceAt(asking.getMinBlockX(), asking.getMinBlockZ());
         if (askingFace == NO_FACE) {
             throw onNoFace(blockX, blockZ);

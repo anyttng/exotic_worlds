@@ -16,8 +16,8 @@ import java.util.Random;
 
 import org.junit.jupiter.api.Test;
 
-import com.exoticworlds.core.CuboidAtlas;
-import com.exoticworlds.core.CuboidFace;
+import com.exoticworlds.core.fold.cuboid.CuboidAtlas;
+import com.exoticworlds.core.fold.cuboid.CuboidFace;
 import com.exoticworlds.engine.noise.BlendedNoiseFixture.Octave;
 import com.exoticworlds.engine.noise.cuboid.CuboidOctaves;
 

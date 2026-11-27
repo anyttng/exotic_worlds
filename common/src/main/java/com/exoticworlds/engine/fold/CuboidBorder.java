@@ -3,7 +3,7 @@ package com.exoticworlds.engine.fold;
 import org.jspecify.annotations.Nullable;
 
 import com.exoticworlds.accessors.FoldHolder;
-import com.exoticworlds.core.WorldFold;
+import com.exoticworlds.core.fold.WorldFold;
 
 import net.minecraft.util.Mth;
 import net.minecraft.world.level.border.WorldBorder;
@@ -15,20 +15,21 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 
 public record CuboidBorder(WorldFold fold, double minX, double maxX, double minZ, double maxZ) implements SeamBorder {
     public static @Nullable CuboidBorder of(WorldBorder border) {
-        WorldFold fold = ((FoldHolder) border).exotic_worlds$fold();
-        return fold.cuboidAtlas() == null
+        WorldFold fold = ((FoldHolder) border).exotic_worlds$getFold();
+        return fold.getCuboidAtlas() == null
                 ? null
                 : new CuboidBorder(fold, border.getMinX(), border.getMaxX(), border.getMinZ(), border.getMaxZ());
     }
 
     @Override
-    public boolean inside(double x, double z, double margin) {
+    public boolean isInside(double x, double z, double marginBlocks) {
         AABB box = seatedFor(x, z);
-        return x >= box.minX - margin && x < box.maxX + margin && z >= box.minZ - margin && z < box.maxZ + margin;
+        return x >= box.minX - marginBlocks && x < box.maxX + marginBlocks
+                && z >= box.minZ - marginBlocks && z < box.maxZ + marginBlocks;
     }
 
     @Override
-    public double distanceToEdge(double x, double z) {
+    public double distanceToEdgeBlocks(double x, double z) {
         AABB box = seatedFor(x, z);
         return Math.min(Math.min(x - box.minX, box.maxX - x), Math.min(z - box.minZ, box.maxZ - z));
     }

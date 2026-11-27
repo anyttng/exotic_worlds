@@ -25,34 +25,36 @@ class ImportRulesTest {
     private static final String JAVA_SUFFIX = ".java";
     private static final String MIXIN_SEGMENT = "mixin";
     private static final String ROOT_GROUP = "";
+    private static final String API_GROUP = "api";
+    private static final String BRIDGE_GROUP = "bridge";
+    private static final Set<String> VERSIONED_ROOTS = Set.of(API_GROUP, BRIDGE_GROUP);
+    private static final Set<String> VERSIONS = Set.of("v1", "v2");
 
     private static final Set<String> ENGINE_READERS =
-            Set.of("engine", "mixin", "accessors", "compat", "platform", "client.engine");
+            Set.of("engine", "mixin", "accessors", "compat", "platform", BRIDGE_GROUP);
     private static final String MIGRATION_GROUP = "migration";
+    private static final String CLIENT_SEGMENT = "client";
+    private static final String GAME_CLIENT_IMPORT = "import net.minecraft.client.";
+    private static final Set<String> SIDE_NEUTRAL_GROUPS = Set.of("core", "engine", "shape", "settings", "platform");
     private static final Set<String> MIGRATION_READERS = Set.of(MIGRATION_GROUP, "engine", MIXIN_SEGMENT);
     private static final Set<String> LOADER_ENTRIES =
             Set.of("WorldLoop", "WorldLoopNetwork", "ExoticWorldsNeoForge", "ExoticWorldsFabric",
                     "ExoticWorldsFabricClient", "VanillaBootstrapListener");
     private static final Set<String> EXCEPTIONS = Set.of(
-            "shape.climate.ClimateCompression -> engine.noise.ClimateScaleCompression",
-            "shape.torus.CoastFieldLift -> engine.noise.GenerationFoldContext",
-            "api.v1.shape.ShapeDimensions -> engine.gen.ShapedDimensions",
-            "api.v1.net.PacketRewriters -> engine.net.PacketTranslator",
-            "api.v2.net.PacketRewriters -> engine.net.PacketTranslator",
-            "api.v1.ExoticWorldsApi -> engine.seam.circumnavigation.SeamTravel",
-            "api.v1.ExoticWorldsClientApi -> engine.level.PublishedShapes",
-            "api.v2.client.ClientGeometries -> engine.level.PublishedShapes",
-            "api.v1.gen.GenerationProbe -> engine.gen.terrain.FloatingCrumbs",
-            "api.v1.gen.GenerationProbe -> engine.noise.GenerationFoldContext",
-            "api.v1.gen.GenerationProbe -> engine.gen.terrain.TerrainCeiling",
+            "shape.feature.compactbiomes.ClimateCompression -> engine.noise.ClimateScaleCompression",
+            "shape.feature.floatingcrumbs.FloatingCrumbs -> engine.gen.terrain.TerrainCeiling",
             "shape.WorldShapes -> engine.gen.ShapedDimensions",
             "shape.layout.LayoutDimensions -> engine.gen.ShapedDimensions",
-            "shape.layout.OverworldDerivation -> engine.gen.ShapedDimensions");
+            "shape.layout.client.DimensionChoicesScreens -> engine.gen.DimensionChoices",
+            "shape.layout.client.DimensionChoicesScreens -> engine.net.DimensionChoicesPayload",
+            "shape.layout.client.DimensionChoicesScreens -> engine.net.DimensionChoicesUpdatePayload",
+            "shape.layout.client.LayoutShapeSetup -> engine.client.WorldLoopClientNetwork");
 
     @Test
     void everyImportStaysInsideItsGroup() throws IOException {
+        List<Path> sources = sourceFiles();
         List<String> violations = new ArrayList<>();
-        for (Path source : sourceFiles()) {
+        for (Path source : sources) {
             String type = typeOf(source);
             for (String imported : ownImports(source)) {
                 String edge = type + " -> " + imported;
@@ -69,12 +71,27 @@ class ImportRulesTest {
     private static String brokenRule(String reader, String imported) {
         String readerGroup = groupOf(packageOf(reader));
         String importedGroup = groupOf(packageOf(imported));
+        String readerVersion = versionOf(reader);
+        String importedVersion = versionOf(imported);
+        if (readerVersion != null && importedVersion != null && !readerVersion.equals(importedVersion)) {
+            return "versions never read each other: an api and its bridge stand alone";
+        }
+        if (readerGroup.equals(API_GROUP) && importedVersion == null) {
+            return "an api holds declarations alone: it reads itself and its bridge";
+        }
+        if (readerVersion == null && importedGroup.equals(BRIDGE_GROUP)) {
+            return "the mod never reads a bridge: only its api calls it";
+        }
+        if (readerVersion == null && importedVersion != null) {
+            return "the mod never reads an api: only its bridge does";
+        }
         if (importedGroup.equals("engine")
                 && !ENGINE_READERS.contains(readerGroup)
                 && !LOADER_ENTRIES.contains(simpleNameOf(reader))) {
-            return "engine is read by mixins, accessors, compat, platform, client/engine and the loader entries alone";
+            return "engine is read by mixins, accessors, compat, platform and the loader entries alone";
         }
-        if (readerGroup.equals("engine") && (importedGroup.equals("shape") || importedGroup.equals("client"))) {
+        if (readerGroup.equals("engine") && (importedGroup.equals("shape")
+                || (isClientSide(packageOf(imported)) && !importedGroup.equals("engine")))) {
             return "engine never reads a shape or the client";
         }
         if (readerGroup.equals("core") && !importedGroup.equals("core") && !isVocabulary(importedGroup)) {
@@ -90,17 +107,51 @@ class ImportRulesTest {
         return null;
     }
 
+    @Test
+    void theGameClientIsReadFromClientPackagesAlone() throws IOException {
+        List<String> violations = new ArrayList<>();
+        for (Path source : sourceFiles()) {
+            String type = typeOf(source);
+            String packageName = packageOf(type);
+            if (!SIDE_NEUTRAL_GROUPS.contains(groupOf(packageName)) || isClientSide(packageName)) {
+                continue;
+            }
+
+            if (Files.readAllLines(source, StandardCharsets.UTF_8).stream()
+                    .anyMatch(line -> line.strip().startsWith(GAME_CLIENT_IMPORT))) {
+                violations.add(type);
+            }
+        }
+
+        assertTrue(violations.isEmpty(),
+                "types outside a client package that import the game client: " + violations.stream().sorted().toList());
+    }
+
+    private static boolean isClientSide(String packageName) {
+        return List.of(packageName.split("\\.")).contains(CLIENT_SEGMENT);
+    }
+
     private static boolean isVocabulary(String group) {
-        return group.equals("accessors") || group.equals("api") || group.equals("platform") || group.equals(ROOT_GROUP);
+        return group.equals("accessors") || group.equals("platform") || group.equals(ROOT_GROUP);
+    }
+
+    private static String versionOf(String type) {
+        String packageName = packageOf(type);
+        for (String root : VERSIONED_ROOTS) {
+            for (String version : VERSIONS) {
+                String versioned = root + "." + version;
+                if (packageName.equals(versioned) || packageName.startsWith(versioned + ".")) {
+                    return version;
+                }
+            }
+        }
+        return null;
     }
 
     private static String groupOf(String packageName) {
         List<String> segments = List.of(packageName.split("\\."));
         if (segments.contains(MIXIN_SEGMENT)) {
             return MIXIN_SEGMENT;
-        }
-        if (packageName.startsWith("client.engine")) {
-            return "client.engine";
         }
         return segments.isEmpty() ? ROOT_GROUP : segments.get(0);
     }

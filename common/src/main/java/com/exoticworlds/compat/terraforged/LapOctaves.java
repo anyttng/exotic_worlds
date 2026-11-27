@@ -17,7 +17,7 @@ public final class LapOctaves {
 
     public static void open(LocalRef<RtfLap.@Nullable Frame> frame, LocalFloatRef blockX, LocalFloatRef blockZ,
             LocalDoubleRef frequency, float x, float z, double firstFrequency) {
-        RtfLap.Frame bound = RtfLap.boundFrame();
+        RtfLap.Frame bound = RtfLap.getBoundFrame();
         frame.set(bound);
         if (bound != null) {
             blockX.set(x);

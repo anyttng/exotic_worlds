@@ -2,7 +2,7 @@ package com.exoticworlds.mixin;
 
 import org.spongepowered.asm.mixin.Mixin;
 
-import com.exoticworlds.core.WorldLoopAttachments;
+import com.exoticworlds.core.fold.WorldLoopAttachments;
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 
@@ -16,12 +16,12 @@ import net.minecraft.world.phys.Vec3;
 public class TheEndGatewayBlockEntityMixin {
     @WrapMethod(method = "findExitPortalXZPosTentative(Lnet/minecraft/server/level/ServerLevel;Lnet/minecraft/core/BlockPos;)Lnet/minecraft/world/phys/Vec3;")
     private static Vec3 exotic_worlds$foldTentativeTarget(ServerLevel level, BlockPos endGatewayPos, Operation<Vec3> original) {
-        return WorldLoopAttachments.foldOf(level).fold(original.call(level, endGatewayPos));
+        return WorldLoopAttachments.getFold(level).fold(original.call(level, endGatewayPos));
     }
 
     @WrapMethod(method = "setExitPosition(Lnet/minecraft/core/BlockPos;Z)V")
     private void exotic_worlds$foldExitPosition(BlockPos exactPosition, boolean exact, Operation<Void> original) {
-        original.call(WorldLoopAttachments.foldIfLevel(((BlockEntity) (Object) this).getLevel())
+        original.call(WorldLoopAttachments.getFoldIfLevel(((BlockEntity) (Object) this).getLevel())
                 .fold(exactPosition), exact);
     }
 }

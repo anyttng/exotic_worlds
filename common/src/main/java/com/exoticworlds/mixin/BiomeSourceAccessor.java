@@ -10,5 +10,5 @@ import net.minecraft.world.level.biome.BiomeSource;
 @Mixin(BiomeSource.class)
 public interface BiomeSourceAccessor {
     @Invoker("codec")
-    MapCodec<? extends BiomeSource> exotic_worlds$codec();
+    MapCodec<? extends BiomeSource> exotic_worlds$getCodec();
 }

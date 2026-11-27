@@ -2,10 +2,10 @@ package com.exoticworlds.engine.noise.cuboid;
 
 import java.util.List;
 
-import com.exoticworlds.core.CoordinateConstants;
-import com.exoticworlds.core.CuboidAtlas;
-import com.exoticworlds.core.CuboidFace;
-import com.exoticworlds.core.SeamTransform;
+import com.exoticworlds.core.world.CoordinateConstants;
+import com.exoticworlds.core.fold.cuboid.CuboidAtlas;
+import com.exoticworlds.core.fold.cuboid.CuboidFace;
+import com.exoticworlds.core.fold.SeamTransform;
 import com.exoticworlds.engine.noise.PeriodicEndIslands;
 import com.exoticworlds.engine.noise.cuboid.CuboidCrossings.Crossing;
 
@@ -13,10 +13,10 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.level.levelgen.synth.SimplexNoise;
 
 public final class CuboidEndIslands {
-    private static final int REACH = PeriodicEndIslands.ISLAND_SEARCH_CHUNK_REACH;
-    private static final int SECTION_WIDTH = PeriodicEndIslands.SECTION_WIDTH;
+    private static final int REACH = PeriodicEndIslands.ISLAND_SEARCH_REACH_CHUNKS;
+    private static final int SECTION_WIDTH = PeriodicEndIslands.SUB_SECTION_WIDTH_BLOCKS;
     private static final double SECTION_CENTER = SECTION_WIDTH / 2.0;
-    private static final double CHUNK_CENTER = CoordinateConstants.CHUNK_WIDTH / 2.0;
+    private static final double CHUNK_CENTER = CoordinateConstants.CHUNK_WIDTH_BLOCKS / 2.0;
 
     private static final int NO_SIDE = -1;
     private static final int BOTH_AXES = 2;
@@ -53,14 +53,14 @@ public final class CuboidEndIslands {
         CuboidFace face = this.faces.get(atlasFace);
         double sectionX = Math.floorDiv(blockX, SECTION_WIDTH) * SECTION_WIDTH + SECTION_CENTER;
         double sectionZ = Math.floorDiv(blockZ, SECTION_WIDTH) * SECTION_WIDTH + SECTION_CENTER;
-        int chunkX = Math.floorDiv(blockX, CoordinateConstants.CHUNK_WIDTH);
-        int chunkZ = Math.floorDiv(blockZ, CoordinateConstants.CHUNK_WIDTH);
+        int chunkX = Math.floorDiv(blockX, CoordinateConstants.CHUNK_WIDTH_BLOCKS);
+        int chunkZ = Math.floorDiv(blockZ, CoordinateConstants.CHUNK_WIDTH_BLOCKS);
         float height = PeriodicEndIslands.MIN_HEIGHT_VALUE;
 
         for (int xo = -REACH; xo <= REACH; xo++) {
             for (int zo = -REACH; zo <= REACH; zo++) {
-                double cellX = (chunkX + xo) * CoordinateConstants.CHUNK_WIDTH + CHUNK_CENTER;
-                double cellZ = (chunkZ + zo) * CoordinateConstants.CHUNK_WIDTH + CHUNK_CENTER;
+                double cellX = (chunkX + xo) * CoordinateConstants.CHUNK_WIDTH_BLOCKS + CHUNK_CENTER;
+                double cellZ = (chunkZ + zo) * CoordinateConstants.CHUNK_WIDTH_BLOCKS + CHUNK_CENTER;
                 int edges = (sideX(face, cellX) == NO_SIDE ? 0 : 1) + (sideZ(face, cellZ) == NO_SIDE ? 0 : 1);
                 height = Math.max(height,
                         islandHeightValue(islandNoise, atlasFace, cellX, cellZ, sectionX, sectionZ, true, edges));
@@ -99,14 +99,14 @@ public final class CuboidEndIslands {
             return PeriodicEndIslands.MIN_HEIGHT_VALUE;
         }
 
-        int chunkX = Math.floorDiv(Mth.floor(cellX), CoordinateConstants.CHUNK_WIDTH);
-        int chunkZ = Math.floorDiv(Mth.floor(cellZ), CoordinateConstants.CHUNK_WIDTH);
-        if (!PeriodicEndIslands.hostsIsland(islandNoise, chunkX, chunkZ)) {
+        int chunkX = Math.floorDiv(Mth.floor(cellX), CoordinateConstants.CHUNK_WIDTH_BLOCKS);
+        int chunkZ = Math.floorDiv(Mth.floor(cellZ), CoordinateConstants.CHUNK_WIDTH_BLOCKS);
+        if (!PeriodicEndIslands.isHostingIsland(islandNoise, chunkX, chunkZ)) {
             return PeriodicEndIslands.MIN_HEIGHT_VALUE;
         }
 
-        double anchorX = chunkX * CoordinateConstants.CHUNK_WIDTH + SECTION_CENTER;
-        double anchorZ = chunkZ * CoordinateConstants.CHUNK_WIDTH + SECTION_CENTER;
+        double anchorX = chunkX * CoordinateConstants.CHUNK_WIDTH_BLOCKS + SECTION_CENTER;
+        double anchorZ = chunkZ * CoordinateConstants.CHUNK_WIDTH_BLOCKS + SECTION_CENTER;
         return PeriodicEndIslands.islandHeightValue(chunkX, chunkZ, (float) ((sectionX - anchorX) / SECTION_WIDTH),
                 (float) ((sectionZ - anchorZ) / SECTION_WIDTH));
     }

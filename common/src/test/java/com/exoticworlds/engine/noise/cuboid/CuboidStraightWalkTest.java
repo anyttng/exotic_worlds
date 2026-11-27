@@ -4,9 +4,9 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.junit.jupiter.api.Test;
 
-import com.exoticworlds.core.CuboidAtlas;
-import com.exoticworlds.core.CuboidFace;
-import com.exoticworlds.core.CuboidShape;
+import com.exoticworlds.core.fold.cuboid.CuboidAtlas;
+import com.exoticworlds.core.fold.cuboid.CuboidFace;
+import com.exoticworlds.core.world.CuboidShape;
 
 class CuboidStraightWalkTest {
     private static final int EDGE_CHUNKS = 16;

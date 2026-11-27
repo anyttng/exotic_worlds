@@ -11,8 +11,8 @@ import org.spongepowered.asm.mixin.injection.At;
 import com.exoticworlds.compat.worldgen.LapNoise;
 import com.exoticworlds.compat.worldgen.StandInHolder;
 import com.exoticworlds.compat.betterend.BetterEndInjectionTargets;
-import com.exoticworlds.core.WorldFold;
-import com.exoticworlds.core.WorldLoopAttachments;
+import com.exoticworlds.core.fold.WorldFold;
+import com.exoticworlds.core.fold.WorldLoopAttachments;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.llamalad7.mixinextras.sugar.Local;
@@ -31,9 +31,9 @@ public class ColorBlockPlacementMixin {
             at = @At(value = "INVOKE", target = BetterEndInjectionTargets.NOISE_EVAL_3D))
     private double exotic_worlds$lapColorNoise(OpenSimplexNoise noise, double x, double y, double z,
             Operation<Double> original, @Local(argsOnly = true) BlockPlaceContext context) {
-        WorldFold fold = WorldLoopAttachments.foldOfReader(context.getLevel());
+        WorldFold fold = WorldLoopAttachments.getFoldOfReader(context.getLevel());
         return fold.isWrapped()
-                ? LapNoise.eval(((StandInHolder) (Object) noise).exotic_worlds$standIn(), fold, x, y, z, SCALE, SCALE)
+                ? LapNoise.eval(((StandInHolder) (Object) noise).exotic_worlds$getStandIn(), fold, x, y, z, SCALE, SCALE)
                 : original.call(noise, x, y, z);
     }
 }

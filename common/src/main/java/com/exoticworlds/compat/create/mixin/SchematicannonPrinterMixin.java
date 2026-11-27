@@ -21,9 +21,9 @@ public class SchematicannonPrinterMixin {
                     target = "Lcom/zurrtum/create/content/schematics/SchematicPrinter;loadSchematic"
                             + "(Lnet/minecraft/world/item/ItemStack;Lnet/minecraft/world/level/Level;Z)V"))
     private void exotic_worlds$anchorPrinterOnCannon(SchematicPrinter printer, ItemStack blueprint, Level level,
-            boolean processNBT, Operation<Void> original) {
+            boolean shouldProcessNbt, Operation<Void> original) {
         BlockEntity cannon = (BlockEntity) (Object) this;
         original.call(printer, CreateSchematicFold.anchoredNear(level, cannon.getBlockPos(), blueprint), level,
-                processNBT);
+                shouldProcessNbt);
     }
 }

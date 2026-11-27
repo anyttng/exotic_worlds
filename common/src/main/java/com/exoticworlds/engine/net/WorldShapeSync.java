@@ -1,10 +1,10 @@
 package com.exoticworlds.engine.net;
 
-import com.exoticworlds.core.CarriedShape;
-import com.exoticworlds.core.FlatShape;
-import com.exoticworlds.core.ShapeModel;
-import com.exoticworlds.core.ShapedChunkGenerator;
-import com.exoticworlds.core.WorldLoopAttachments;
+import com.exoticworlds.core.world.CarriedShape;
+import com.exoticworlds.core.world.FlatShape;
+import com.exoticworlds.core.world.ShapeModel;
+import com.exoticworlds.core.gen.GeneratorShapes;
+import com.exoticworlds.core.fold.WorldLoopAttachments;
 import com.exoticworlds.platform.Platforms;
 
 import net.minecraft.network.protocol.game.ClientboundSetChunkCacheRadiusPacket;
@@ -26,13 +26,13 @@ public final class WorldShapeSync {
         }
     }
 
-    public static int distanceFor(ServerPlayer player, int distance) {
-        return limitIn(player.level(), distance);
+    public static int distanceFor(ServerPlayer player, int distanceChunks) {
+        return limitIn(player.level(), distanceChunks);
     }
 
-    public static boolean limitsAnyPlayer(PlayerList players, int distance) {
+    public static boolean isLimitingAnyPlayer(PlayerList players, int distanceChunks) {
         for (ServerPlayer player : players.getPlayers()) {
-            if (distanceFor(player, distance) != distance) {
+            if (distanceFor(player, distanceChunks) != distanceChunks) {
                 return true;
             }
         }
@@ -41,13 +41,13 @@ public final class WorldShapeSync {
     }
 
     public static void sendViewDistance(ServerPlayer player) {
-        int viewDistance = player.level().getServer().getPlayerList().getViewDistance();
-        player.connection.send(new ClientboundSetChunkCacheRadiusPacket(distanceFor(player, viewDistance)));
+        int viewDistanceChunks = player.level().getServer().getPlayerList().getViewDistance();
+        player.connection.send(new ClientboundSetChunkCacheRadiusPacket(distanceFor(player, viewDistanceChunks)));
     }
 
     public static void sendSimulationDistance(ServerPlayer player) {
-        int simulationDistance = player.level().getServer().getPlayerList().getSimulationDistance();
-        player.connection.send(new ClientboundSetSimulationDistancePacket(distanceFor(player, simulationDistance)));
+        int simulationDistanceChunks = player.level().getServer().getPlayerList().getSimulationDistance();
+        player.connection.send(new ClientboundSetSimulationDistancePacket(distanceFor(player, simulationDistanceChunks)));
     }
 
     public static void sendAllTo(ServerPlayer player) {
@@ -57,21 +57,21 @@ public final class WorldShapeSync {
     }
 
     public static void sendToAll(ServerLevel level) {
-        CarriedShape carried = ShapedChunkGenerator.carriedShapeOf(level);
-        ShapeModel shape = carried == null ? FlatShape.rectangle() : carried.shape();
+        CarriedShape carried = GeneratorShapes.getCarriedShape(level);
+        ShapeModel shape = carried == null ? FlatShape.rectangle() : carried.getShape();
         for (ServerPlayer player : level.getServer().getPlayerList().getPlayers()) {
             Platforms.get().sendWorldShape(player, level.dimension(), shape);
         }
     }
 
-    private static int limitIn(ServerLevel level, int distance) {
-        return WorldLoopAttachments.foldOf(level).limitViewDistance(distance);
+    private static int limitIn(ServerLevel level, int distanceChunks) {
+        return WorldLoopAttachments.getFold(level).limitViewDistance(distanceChunks);
     }
 
     private static void send(ServerPlayer player, ServerLevel level) {
-        CarriedShape carried = ShapedChunkGenerator.carriedShapeOf(level);
+        CarriedShape carried = GeneratorShapes.getCarriedShape(level);
         if (carried != null) {
-            Platforms.get().sendWorldShape(player, level.dimension(), carried.shape());
+            Platforms.get().sendWorldShape(player, level.dimension(), carried.getShape());
         }
     }
 

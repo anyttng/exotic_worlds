@@ -2,7 +2,7 @@ package com.exoticworlds.api.v1.net;
 
 import java.util.function.BiFunction;
 
-import com.exoticworlds.engine.net.PacketTranslator;
+import com.exoticworlds.bridge.v1.net.NetBridge;
 
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.network.protocol.Packet;
@@ -30,7 +30,7 @@ public final class PacketRewriters {
      */
     public static <P extends CustomPacketPayload> void registerClientboundPayload(Class<P> payloadType,
             BiFunction<P, SeamContext, CustomPacketPayload> rewriter) {
-        PacketTranslator.registerClientboundPayloadRewriter(payloadType, rewriter::apply);
+        NetBridge.registerClientboundPayload(payloadType, rewriter);
     }
 
     /**
@@ -39,7 +39,7 @@ public final class PacketRewriters {
      */
     public static <P extends CustomPacketPayload> void registerServerboundPayload(Class<P> payloadType,
             BiFunction<P, SeamContext, CustomPacketPayload> rewriter) {
-        PacketTranslator.registerServerboundPayloadRewriter(payloadType, rewriter::apply);
+        NetBridge.registerServerboundPayload(payloadType, rewriter);
     }
 
     /**
@@ -49,19 +49,19 @@ public final class PacketRewriters {
      */
     public static <P extends Packet<ClientGamePacketListener>> void registerClientboundPacket(Class<P> packetType,
             BiFunction<P, SeamContext, Packet<ClientGamePacketListener>> rewriter) {
-        PacketTranslator.registerClientboundPacketRewriter(packetType, rewriter::apply);
+        NetBridge.registerClientboundPacket(packetType, rewriter);
     }
 
     /** How a game packet of this mod's own is folded back on its way in from a client. */
     public static <P extends Packet<ServerGamePacketListener>> void registerServerboundPacket(Class<P> packetType,
             BiFunction<P, SeamContext, Packet<ServerGamePacketListener>> rewriter) {
-        PacketTranslator.registerServerboundPacketRewriter(packetType, rewriter::apply);
+        NetBridge.registerServerboundPacket(packetType, rewriter);
     }
 
     /** How a particle type of this mod's own is rewritten on its way to a client. */
     public static <P extends ParticleOptions> void registerParticle(Class<P> particleType,
             ParticleRewriter<P> rewriter) {
-        PacketTranslator.registerParticleRewriter(particleType, rewriter::rewrite);
+        NetBridge.registerParticle(particleType, rewriter);
     }
 
     private PacketRewriters() {

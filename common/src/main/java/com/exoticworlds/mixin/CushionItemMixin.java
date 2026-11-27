@@ -22,6 +22,6 @@ public class CushionItemMixin {
             at = @At(value = "INVOKE", target = InjectionTargets.PLAYER_GET_EYE_POSITION))
     private static Vec3 exotic_worlds$eyeBesideClick(Vec3 eyePosition, @Local(argsOnly = true) UseOnContext context) {
         FoldSource player = (FoldSource) Objects.requireNonNull(context.getPlayer());
-        return NearestCopy.toward(player.exotic_worlds$wrappedFold(), context.getClickLocation(), eyePosition);
+        return NearestCopy.toward(player.exotic_worlds$getWrappedFold(), context.getClickLocation(), eyePosition);
     }
 }

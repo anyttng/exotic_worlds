@@ -39,7 +39,7 @@ public abstract class ClimateGridMixin {
 
     @WrapMethod(method = "get")
     private float exotic_worlds$closeOnLap(float x, float z, Heightmap heightmap, Operation<Float> original) {
-        SiteLattice lattice = SiteLattice.bound(this.spacing);
+        SiteLattice lattice = SiteLattice.getBound(this.spacing);
         if (lattice == null) {
             return original.call(x, z, heightmap);
         }

@@ -11,7 +11,7 @@ import org.junit.jupiter.api.Test;
 class ThreadScopeTest {
     @Test
     void anUnboundScopeHasNoCurrentValue() {
-        assertNull(new ThreadScope<String>().current());
+        assertNull(new ThreadScope<String>().getCurrent());
     }
 
     @Test
@@ -19,13 +19,13 @@ class ThreadScopeTest {
         ThreadScope<String> scope = new ThreadScope<>();
 
         String seen = scope.with("outer", () -> {
-            String inner = scope.with("inner", scope::current);
+            String inner = scope.with("inner", scope::getCurrent);
 
-            return inner + "/" + scope.current();
+            return inner + "/" + scope.getCurrent();
         });
 
         assertEquals("inner/outer", seen);
-        assertNull(scope.current());
+        assertNull(scope.getCurrent());
     }
 
     @Test
@@ -33,9 +33,9 @@ class ThreadScopeTest {
         ThreadScope<String> scope = new ThreadScope<>();
 
         String seen = scope.with("outer", () -> {
-            String inner = scope.with(null, scope::current);
+            String inner = scope.with(null, scope::getCurrent);
 
-            return inner + "/" + scope.current();
+            return inner + "/" + scope.getCurrent();
         });
 
         assertEquals("null/outer", seen);
@@ -50,11 +50,11 @@ class ThreadScopeTest {
                 throw new IllegalStateException("body");
             }));
 
-            return scope.current();
+            return scope.getCurrent();
         });
 
         assertEquals("outer", seen);
-        assertNull(scope.current());
+        assertNull(scope.getCurrent());
     }
 
     @Test
@@ -65,7 +65,7 @@ class ThreadScopeTest {
             throw new IllegalStateException("body");
         }));
 
-        assertNull(scope.current());
+        assertNull(scope.getCurrent());
     }
 
     @Test
@@ -74,9 +74,9 @@ class ThreadScopeTest {
 
         String seen = scope.with("main", () -> {
             AtomicReference<String> elsewhere = new AtomicReference<>();
-            onAnotherThread(() -> elsewhere.set(scope.current()));
+            onAnotherThread(() -> elsewhere.set(scope.getCurrent()));
 
-            return elsewhere.get() + "/" + scope.current();
+            return elsewhere.get() + "/" + scope.getCurrent();
         });
 
         assertEquals("null/main", seen);

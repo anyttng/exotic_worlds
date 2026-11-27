@@ -12,21 +12,27 @@ import org.jspecify.annotations.Nullable;
 
 import com.exoticworlds.ExoticWorlds;
 import com.exoticworlds.accessors.AddedStartsHolder;
-import com.exoticworlds.api.v1.option.GenerationOptions;
-import com.exoticworlds.api.v2.gen.StructureStarts;
-import com.exoticworlds.api.v2.geometry.WorldGeometry;
-import com.exoticworlds.core.CarriedShape;
-import com.exoticworlds.core.GenerationMoments;
-import com.exoticworlds.core.WorldFold;
-import com.exoticworlds.core.WrapDomain;
+import com.exoticworlds.core.feature.ShapeFeatures;
+import com.exoticworlds.core.feature.StructureStartsFeature;
+import com.exoticworlds.core.gen.AddedStart;
+import com.exoticworlds.core.world.CarriedShape;
+import com.exoticworlds.core.option.ShapeOptions;
+import com.exoticworlds.core.gen.StructurePick;
+import com.exoticworlds.core.gen.StructureStartSet;
+import com.exoticworlds.core.fold.WorldFold;
+import com.exoticworlds.core.fold.WrapDomain;
 import com.exoticworlds.mixin.StructureCheckAccessor;
 
 import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
 import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
 
 import net.minecraft.core.Holder;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.level.ChunkPos;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.chunk.ChunkGeneratorStructureState;
+import net.minecraft.world.level.dimension.LevelStem;
 import net.minecraft.world.level.levelgen.LegacyRandomSource;
 import net.minecraft.world.level.levelgen.WorldgenRandom;
 import net.minecraft.world.level.levelgen.structure.Structure;
@@ -39,101 +45,116 @@ public final class AddedStructureStarts {
     public static final AddedStructureStarts NONE = new AddedStructureStarts(new Long2ObjectOpenHashMap<>(), Map.of());
 
     private final Long2ObjectMap<List<StructureSet.StructureSelectionEntry>> byChunk;
-    private final Map<StructurePlacement, List<StructureStarts.Added>> byPlacement;
+    private final Map<StructurePlacement, List<AddedStart>> byPlacement;
 
     private AddedStructureStarts(Long2ObjectMap<List<StructureSet.StructureSelectionEntry>> byChunk,
-            Map<StructurePlacement, List<StructureStarts.Added>> byPlacement) {
+            Map<StructurePlacement, List<AddedStart>> byPlacement) {
         this.byChunk = byChunk;
         this.byPlacement = byPlacement;
     }
 
     public static AddedStructureStarts of(ChunkGeneratorStructureState state, StructureCheck check,
-            CarriedShape carried) {
+            CarriedShape carried, ResourceKey<Level> level) {
         AddedStartsHolder holder = (AddedStartsHolder) (Object) state;
-        AddedStructureStarts known = holder.exotic_worlds$addedStarts();
+        AddedStructureStarts known = holder.exotic_worlds$getAddedStarts();
         if (known != null) {
             return known;
         }
 
         synchronized (holder) {
-            known = holder.exotic_worlds$addedStarts();
+            known = holder.exotic_worlds$getAddedStarts();
             if (known == null) {
-                known = GenerationMoments.runsAtStructureStarts(carried.fold()) ? compute(state, check, carried) : NONE;
-                holder.exotic_worlds$addedStarts(known);
+                ResourceKey<LevelStem> dimension = Registries.levelToLevelStem(level);
+                List<StructureStartsFeature> features =
+                        ShapeFeatures.activeAt(carried, dimension, StructureStartsFeature.class);
+                known = features.isEmpty() ? NONE : compute(state, check, carried, dimension, features);
+                holder.exotic_worlds$setAddedStarts(known);
             }
 
             return known;
         }
     }
 
-    public List<StructureSet.StructureSelectionEntry> at(ChunkPos chunk) {
+    private static List<AddedStart> startsIn(StructureStartSet view, List<StructureStartsFeature> features) {
+        List<AddedStart> starts = new ArrayList<>();
+        for (StructureStartsFeature feature : features) {
+            starts.addAll(feature.startsIn(view));
+        }
+        return starts;
+    }
+
+    public List<StructureSet.StructureSelectionEntry> getEntriesAt(ChunkPos chunk) {
         List<StructureSet.StructureSelectionEntry> placed = this.byChunk.get(chunk.pack());
         return placed != null ? placed : List.of();
     }
 
-    public List<StructureStarts.Added> of(StructurePlacement placement) {
+    public List<AddedStart> of(StructurePlacement placement) {
         return this.byPlacement.getOrDefault(placement, List.of());
     }
 
     private static AddedStructureStarts compute(ChunkGeneratorStructureState state, StructureCheck check,
-            CarriedShape carried) {
-        WorldFold fold = carried.fold();
-        WorldGeometry geometry = fold.geometryView();
+            CarriedShape carried, ResourceKey<LevelStem> dimension, List<StructureStartsFeature> features) {
+        WorldFold fold = carried.getFold();
         Long2ObjectMap<List<StructureSet.StructureSelectionEntry>> byChunk = new Long2ObjectOpenHashMap<>();
-        Map<StructurePlacement, List<StructureStarts.Added>> byPlacement = new HashMap<>();
+        Map<StructurePlacement, List<AddedStart>> byPlacement = new HashMap<>();
         for (Holder<StructureSet> set : state.possibleStructureSets()) {
-            SetView view = new SetView(state, check, fold, geometry, carried.generationOptions(), set);
-            List<StructureStarts.Added> accepted = view.accepted(GenerationMoments.runAtStructureStarts(view, fold));
+            SetView view = new SetView(state, check, fold, carried.getOptions(), dimension, set);
+            List<AddedStart> accepted = view.accepted(startsIn(view, features));
             if (accepted.isEmpty()) {
                 continue;
             }
 
             byPlacement.computeIfAbsent(set.value().placement(), placement -> new ArrayList<>()).addAll(accepted);
-            for (StructureStarts.Added added : accepted) {
+            for (AddedStart added : accepted) {
                 byChunk.computeIfAbsent(added.chunk().pack(), key -> new ArrayList<>())
-                        .add(view.entryOf(added.structure()).orElseThrow());
+                        .add(view.getEntry(added.structure()).orElseThrow());
             }
         }
 
         return new AddedStructureStarts(byChunk, byPlacement);
     }
 
-    private static final class SetView implements StructureStarts {
+    private static final class SetView implements StructureStartSet {
         private final ChunkGeneratorStructureState state;
         private final StructureCheck check;
         private final WorldFold fold;
-        private final WorldGeometry geometry;
-        private final GenerationOptions options;
+        private final ShapeOptions options;
+        private final ResourceKey<LevelStem> dimension;
         private final Holder<StructureSet> set;
-        private @Nullable List<Pick> picks;
+        private @Nullable List<StructurePick> picks;
 
         private SetView(ChunkGeneratorStructureState state, StructureCheck check, WorldFold fold,
-                WorldGeometry geometry, GenerationOptions options, Holder<StructureSet> set) {
+                ShapeOptions options, ResourceKey<LevelStem> dimension, Holder<StructureSet> set) {
+            this.dimension = dimension;
             this.state = state;
             this.check = check;
             this.fold = fold;
-            this.geometry = geometry;
             this.options = options;
             this.set = set;
         }
 
         @Override
-        public WorldGeometry geometry() {
-            return this.geometry;
+        public WorldFold getFold() {
+            return this.fold;
         }
 
         @Override
-        public GenerationOptions options() {
+        public ShapeOptions getOptions() {
             return this.options;
         }
 
         @Override
-        public Holder<StructureSet> structureSet() {
+        public ResourceKey<LevelStem> getDimension() {
+            return this.dimension;
+        }
+
+        @Override
+        public Holder<StructureSet> getStructureSet() {
             return this.set;
         }
 
         @Override
-        public List<Pick> picks() {
+        public List<StructurePick> getPicks() {
             if (this.picks == null) {
                 this.picks = enumeratePicks();
             }
@@ -146,10 +167,10 @@ public final class AddedStructureStarts {
             return ((StructureCheckAccessor) this.check).exotic_worlds$canCreateStructure(chunk, structure.value());
         }
 
-        private List<Pick> enumeratePicks() {
-            WrapDomain xDomain = this.fold.chunkLattice().x();
-            WrapDomain zDomain = this.fold.chunkLattice().z();
-            if (!xDomain.loops() || !zDomain.loops()) {
+        private List<StructurePick> enumeratePicks() {
+            WrapDomain xDomain = this.fold.getChunkLattice().getX();
+            WrapDomain zDomain = this.fold.getChunkLattice().getZ();
+            if (!xDomain.isLooped() || !zDomain.isLooped()) {
                 throw new IllegalStateException("Picks are enumerated only where both horizontal axes loop");
             }
 
@@ -157,19 +178,19 @@ public final class AddedStructureStarts {
                 return List.of();
             }
 
-            int spacing = spread.spacing();
+            int spacingChunks = spread.spacing();
             long seed = this.state.getLevelSeed();
-            List<Pick> found = new ArrayList<>();
-            for (int cellX = Math.floorDiv(xDomain.lowerBound, spacing);
-                    cellX <= Math.floorDiv(xDomain.upperBound - 1, spacing); cellX++) {
-                for (int cellZ = Math.floorDiv(zDomain.lowerBound, spacing);
-                        cellZ <= Math.floorDiv(zDomain.upperBound - 1, spacing); cellZ++) {
-                    ChunkPos chunk = spread.getPotentialStructureChunk(seed, cellX * spacing, cellZ * spacing);
+            List<StructurePick> found = new ArrayList<>();
+            for (int cellX = Math.floorDiv(xDomain.lowerBound, spacingChunks);
+                    cellX <= Math.floorDiv(xDomain.upperBound - 1, spacingChunks); cellX++) {
+                for (int cellZ = Math.floorDiv(zDomain.lowerBound, spacingChunks);
+                        cellZ <= Math.floorDiv(zDomain.upperBound - 1, spacingChunks); cellZ++) {
+                    ChunkPos chunk = spread.getPotentialStructureChunk(seed, cellX * spacingChunks, cellZ * spacingChunks);
                     if (this.fold.isOver(chunk) || !spread.isStructureChunk(this.state, chunk.x(), chunk.z())) {
                         continue;
                     }
 
-                    found.add(new Pick(chunk, selected(seed, chunk)));
+                    found.add(new StructurePick(chunk, selected(seed, chunk)));
                 }
             }
 
@@ -209,25 +230,25 @@ public final class AddedStructureStarts {
             return Optional.empty();
         }
 
-        private Optional<StructureSet.StructureSelectionEntry> entryOf(Holder<Structure> structure) {
+        private Optional<StructureSet.StructureSelectionEntry> getEntry(Holder<Structure> structure) {
             return this.set.value().structures().stream()
                     .filter(entry -> entry.structure().equals(structure))
                     .findFirst();
         }
 
-        private List<StructureStarts.Added> accepted(List<StructureStarts.Added> proposed) {
+        private List<AddedStart> accepted(List<AddedStart> proposed) {
             if (proposed.isEmpty()) {
                 return List.of();
             }
 
             Set<ChunkPos> picked = new HashSet<>();
-            for (Pick pick : picks()) {
+            for (StructurePick pick : getPicks()) {
                 picked.add(pick.chunk());
             }
 
-            Set<StructureStarts.Added> seen = new HashSet<>();
-            List<StructureStarts.Added> accepted = new ArrayList<>();
-            for (StructureStarts.Added added : proposed) {
+            Set<AddedStart> seen = new HashSet<>();
+            List<AddedStart> accepted = new ArrayList<>();
+            for (AddedStart added : proposed) {
                 String refusal = refusalOf(added, picked);
                 if (refusal != null) {
                     ExoticWorlds.LOGGER.warn("[ew/structure-starts] dropped structure={} chunk={} reason={}",
@@ -240,7 +261,7 @@ public final class AddedStructureStarts {
             return List.copyOf(accepted);
         }
 
-        private @Nullable String refusalOf(StructureStarts.Added added, Set<ChunkPos> picked) {
+        private @Nullable String refusalOf(AddedStart added, Set<ChunkPos> picked) {
             if (this.fold.isOver(added.chunk())) {
                 return "outside_bounds";
             }
@@ -249,7 +270,7 @@ public final class AddedStructureStarts {
                 return "picked_chunk";
             }
 
-            return entryOf(added.structure()).isPresent() ? null : "not_in_set";
+            return getEntry(added.structure()).isPresent() ? null : "not_in_set";
         }
     }
 }

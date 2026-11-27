@@ -8,13 +8,13 @@ import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
-import com.exoticworlds.api.v1.option.GenerationOptions;
-import com.exoticworlds.core.DeckGroupFold;
-import com.exoticworlds.core.FlatShape;
-import com.exoticworlds.core.ShapeFixtures;
-import com.exoticworlds.core.WorldFold;
-import com.exoticworlds.core.WorldFolds;
-import com.exoticworlds.core.WorldLoopBounds;
+import com.exoticworlds.core.fold.deck.DeckGroupFold;
+import com.exoticworlds.core.world.FlatShape;
+import com.exoticworlds.core.world.ShapeFixtures;
+import com.exoticworlds.core.option.ShapeOptions;
+import com.exoticworlds.core.fold.WorldFold;
+import com.exoticworlds.core.fold.WorldFolds;
+import com.exoticworlds.core.world.WorldLoopBounds;
 
 class ClimateScaleCompressionTest {
     private static final WorldLoopBounds BOUNDS = ShapeFixtures.loopedBounds(-16, 16, -12, 12);
@@ -24,14 +24,14 @@ class ClimateScaleCompressionTest {
     private static final double HORIZONTAL_SHARE = 0.0;
 
     private static final WorldFold SKEWED = new DeckGroupFold(FlatShape.latticeTorus(BOUNDS, 7),
-            GenerationOptions.DEFAULT);
+            ShapeOptions.DEFAULT);
 
     @Test
     void aSkewedLatticeLapsOnItsShorterAxisLikeItsTorus() {
         assertEquals(SHORTER_AXIS_BLOCKS, ClimateScaleCompression.lapBlocks(SKEWED));
         assertEquals(ClimateScaleCompression.lapBlocks(WorldFolds.of(ShapeFixtures.torus(BOUNDS))),
                 ClimateScaleCompression.lapBlocks(SKEWED));
-        assertTrue(ClimateScaleCompression.compressible(SKEWED, HORIZONTAL_SHARE));
+        assertTrue(ClimateScaleCompression.isCompressible(SKEWED, HORIZONTAL_SHARE));
     }
 
     @Test

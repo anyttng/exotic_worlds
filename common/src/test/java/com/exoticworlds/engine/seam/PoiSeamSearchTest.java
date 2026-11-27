@@ -12,14 +12,14 @@ import java.util.stream.Collectors;
 import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Test;
 
-import com.exoticworlds.core.CoordinateConstants;
-import com.exoticworlds.core.CuboidAtlas;
-import com.exoticworlds.core.CuboidFace;
-import com.exoticworlds.core.CuboidFixtures;
-import com.exoticworlds.core.ShapeFixtures;
-import com.exoticworlds.core.WorldFold;
-import com.exoticworlds.core.WorldFolds;
-import com.exoticworlds.core.WorldLoopBounds;
+import com.exoticworlds.core.world.ShapeFixtures;
+import com.exoticworlds.core.fold.WorldFold;
+import com.exoticworlds.core.fold.WorldFolds;
+import com.exoticworlds.core.world.WorldLoopBounds;
+import com.exoticworlds.core.world.CoordinateConstants;
+import com.exoticworlds.core.fold.cuboid.CuboidAtlas;
+import com.exoticworlds.core.fold.cuboid.CuboidFace;
+import com.exoticworlds.core.fold.cuboid.CuboidFixtures;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.ChunkPos;
@@ -54,8 +54,8 @@ class PoiSeamSearchTest {
         BlockPos center = new BlockPos(500, 64, 0);
         BlockPos pastTheSeam = new BlockPos(-500, 64, 0);
 
-        assertTrue(PoiSeamSearch.withinSquare(TORUS, center, 30, pastTheSeam));
-        assertFalse(PoiSeamSearch.withinSquare(TORUS, center, 20, pastTheSeam));
+        assertTrue(PoiSeamSearch.isWithinSquare(TORUS, center, 30, pastTheSeam));
+        assertFalse(PoiSeamSearch.isWithinSquare(TORUS, center, 20, pastTheSeam));
     }
 
     @Test
@@ -98,8 +98,8 @@ class PoiSeamSearchTest {
         CuboidAtlas[] atlases = CuboidFixtures.atlases();
         CuboidAtlas atlas = atlases[atlases.length - 1];
         CuboidFace top = CuboidFixtures.face(atlas, CuboidFace.Side.TOP);
-        ChunkPos center = new ChunkPos(top.minBlockX() / CoordinateConstants.CHUNK_WIDTH,
-                top.minBlockZ() / CoordinateConstants.CHUNK_WIDTH + ROW_FROM_CORNER);
+        ChunkPos center = new ChunkPos(top.minBlockX() / CoordinateConstants.CHUNK_WIDTH_BLOCKS,
+                top.minBlockZ() / CoordinateConstants.CHUNK_WIDTH_BLOCKS + ROW_FROM_CORNER);
 
         List<ChunkPos> chunks = PoiSeamSearch.chunksAround(CuboidFixtures.cuboidFold(atlas), center, 1).toList();
 
@@ -121,8 +121,8 @@ class PoiSeamSearchTest {
 
     private static List<ChunkPos> chunksOf(CuboidFace face) {
         List<ChunkPos> chunks = new ArrayList<>();
-        for (int x = 0; x < face.widthBlocks(); x += CoordinateConstants.CHUNK_WIDTH) {
-            for (int z = 0; z < face.depthBlocks(); z += CoordinateConstants.CHUNK_WIDTH) {
+        for (int x = 0; x < face.widthBlocks(); x += CoordinateConstants.CHUNK_WIDTH_BLOCKS) {
+            for (int z = 0; z < face.depthBlocks(); z += CoordinateConstants.CHUNK_WIDTH_BLOCKS) {
                 chunks.add(ChunkPos.containing(new BlockPos(face.blockX(x), 0, face.blockZ(z))));
             }
         }

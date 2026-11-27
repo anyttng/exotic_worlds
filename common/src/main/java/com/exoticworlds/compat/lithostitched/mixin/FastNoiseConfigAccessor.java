@@ -9,5 +9,5 @@ import dev.worldgen.lithostitched.api.worldgen.densityfunction.fastnoise.FastNoi
 @Mixin(FastNoiseConfig.class)
 public interface FastNoiseConfigAccessor {
     @Accessor("fnl")
-    FNL exotic_worlds$fastNoiseLite();
+    FNL exotic_worlds$getFastNoiseLite();
 }

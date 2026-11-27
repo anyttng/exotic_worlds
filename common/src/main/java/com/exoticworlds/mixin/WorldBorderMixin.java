@@ -8,8 +8,8 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.jspecify.annotations.Nullable;
 
 import com.exoticworlds.accessors.FoldHolder;
-import com.exoticworlds.core.WorldFold;
-import com.exoticworlds.core.WorldFolds;
+import com.exoticworlds.core.fold.WorldFold;
+import com.exoticworlds.core.fold.WorldFolds;
 import com.exoticworlds.engine.fold.CuboidBorder;
 import com.exoticworlds.engine.fold.LatticeBorder;
 import com.exoticworlds.engine.fold.SeamBorder;
@@ -55,7 +55,7 @@ public class WorldBorderMixin implements FoldHolder {
     }
 
     @Override
-    public WorldFold exotic_worlds$fold() {
+    public WorldFold exotic_worlds$getFold() {
         return this.exotic_worlds$fold;
     }
 
@@ -65,15 +65,15 @@ public class WorldBorderMixin implements FoldHolder {
     }
 
     @ModifyReturnValue(method = "isWithinBounds(DDD)Z", at = @At("RETURN"))
-    private boolean exotic_worlds$boundsThroughSeam(boolean original, double x, double z, double margin) {
+    private boolean exotic_worlds$boundsThroughSeam(boolean original, double x, double z, double marginBlocks) {
         WorldFold fold = this.exotic_worlds$fold;
-        return fold.isWrapped() ? exotic_worlds$border(fold).inside(x, z, margin) : original;
+        return fold.isWrapped() ? exotic_worlds$border(fold).isInside(x, z, marginBlocks) : original;
     }
 
     @ModifyReturnValue(method = "getDistanceToBorder(DD)D", at = @At("RETURN"))
     private double exotic_worlds$distanceThroughSeam(double original, double x, double z) {
         WorldFold fold = this.exotic_worlds$fold;
-        return fold.isWrapped() ? exotic_worlds$border(fold).distanceToEdge(x, z) : original;
+        return fold.isWrapped() ? exotic_worlds$border(fold).distanceToEdgeBlocks(x, z) : original;
     }
 
     @ModifyReturnValue(method = "clampVec3ToBound(DDD)Lnet/minecraft/world/phys/Vec3;", at = @At("RETURN"))
@@ -93,7 +93,7 @@ public class WorldBorderMixin implements FoldHolder {
         double maxX = getMaxX();
         double minZ = getMinZ();
         double maxZ = getMaxZ();
-        if (fold.cuboidAtlas() != null) {
+        if (fold.getCuboidAtlas() != null) {
             return new CuboidBorder(fold, minX, maxX, minZ, maxZ).wallAround((minX + maxX) / 2.0, (minZ + maxZ) / 2.0);
         }
 
@@ -101,7 +101,7 @@ public class WorldBorderMixin implements FoldHolder {
         VoxelShape wall = this.exotic_worlds$wall;
         if (wall == null || bounds == null
                 || bounds[0] != minX || bounds[1] != maxX || bounds[2] != minZ || bounds[3] != maxZ) {
-            wall = exotic_worlds$buildWall(new LatticeBorder(fold.blockLattice(), minX, maxX, minZ, maxZ));
+            wall = exotic_worlds$buildWall(new LatticeBorder(fold.getBlockLattice(), minX, maxX, minZ, maxZ));
             this.exotic_worlds$wall = wall;
             this.exotic_worlds$wallBounds = new double[] {minX, maxX, minZ, maxZ};
         }
@@ -117,7 +117,7 @@ public class WorldBorderMixin implements FoldHolder {
     @Unique
     private static VoxelShape exotic_worlds$buildWall(LatticeBorder border) {
         VoxelShape wall = Shapes.INFINITY;
-        for (Vec3 shift : border.wallShifts()) {
+        for (Vec3 shift : border.getWallShifts()) {
             wall = Shapes.join(wall, Shapes.box(
                     Math.floor(border.minX() + shift.x), Double.NEGATIVE_INFINITY, Math.floor(border.minZ() + shift.z),
                     Math.ceil(border.maxX() + shift.x), Double.POSITIVE_INFINITY, Math.ceil(border.maxZ() + shift.z)),

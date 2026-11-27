@@ -10,10 +10,10 @@ import java.util.Set;
 
 import org.junit.jupiter.api.Test;
 
-import com.exoticworlds.core.ShapeFixtures;
-import com.exoticworlds.core.WorldFold;
-import com.exoticworlds.core.WorldFolds;
-import com.exoticworlds.core.WorldLoopBounds;
+import com.exoticworlds.core.world.ShapeFixtures;
+import com.exoticworlds.core.fold.WorldFold;
+import com.exoticworlds.core.fold.WorldFolds;
+import com.exoticworlds.core.world.WorldLoopBounds;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.GlobalPos;
@@ -29,13 +29,13 @@ import net.minecraft.world.phys.Vec3;
 
 class ComponentPositionsTest {
     private static final int WIDTH_IN_CHUNKS = 32;
-    private static final int WIDTH = WIDTH_IN_CHUNKS * 16;
+    private static final int WIDTH_BLOCKS = WIDTH_IN_CHUNKS * 16;
 
     private static final WorldFold TORUS = WorldFolds.of(ShapeFixtures.torus(WorldLoopBounds.ofWidth(WIDTH_IN_CHUNKS)));
 
     private static final Vec3 ANCHOR = new Vec3(-250.0, 64.0, 0.0);
     private static final BlockPos STORED = new BlockPos(240, 64, 10);
-    private static final BlockPos SEATED = STORED.offset(-WIDTH, 0, 0);
+    private static final BlockPos SEATED = STORED.offset(-WIDTH_BLOCKS, 0, 0);
     private static final BlockPos DETACHED = new BlockPos(200, 64, 0);
 
     private static final Identifier LODESTONE_ID = Identifier.withDefaultNamespace("lodestone_tracker");

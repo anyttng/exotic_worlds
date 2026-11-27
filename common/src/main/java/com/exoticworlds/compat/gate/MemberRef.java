@@ -33,7 +33,7 @@ record MemberRef(@Nullable String owner, String name, @Nullable String descripto
         return new MemberRef(owner, withoutQuantifier(rest), null);
     }
 
-    boolean matches(String owner, String name, String descriptor) {
+    boolean isMatching(String owner, String name, String descriptor) {
         return this.name.equals(name)
                 && (this.owner == null || this.owner.equals(owner))
                 && (this.descriptor == null || this.descriptor.equals(descriptor));

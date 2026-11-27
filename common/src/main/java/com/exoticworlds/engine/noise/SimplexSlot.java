@@ -2,7 +2,7 @@ package com.exoticworlds.engine.noise;
 
 import org.jspecify.annotations.Nullable;
 
-import com.exoticworlds.core.WorldFold;
+import com.exoticworlds.core.fold.WorldFold;
 
 import net.minecraft.world.level.levelgen.synth.NoiseStack;
 import net.minecraft.world.level.levelgen.synth.SimplexNoise;
@@ -13,7 +13,7 @@ public final class SimplexSlot {
 
     private volatile @Nullable Held held;
 
-    public SimplexField field(WorldFold fold, double scale, SimplexNoise noise) {
+    public SimplexField getField(WorldFold fold, double scale, SimplexNoise noise) {
         Held current = this.held;
         if (current != null && current.noise() == noise && current.field().fold() == fold
                 && Double.compare(current.field().scale(), scale) == 0) {
@@ -26,7 +26,7 @@ public final class SimplexSlot {
     }
 
     public float sample(SimplexNoise noise, WorldFold fold, double scale, double x, double z) {
-        return (float) field(fold, scale, noise).sample(noise, x, z);
+        return (float) getField(fold, scale, noise).sample(noise, x, z);
     }
 
     public static final class Stack {
@@ -40,7 +40,7 @@ public final class SimplexSlot {
         private volatile @Nullable Layers held;
 
         public float sample(WorldFold fold, double scale, NoiseStack stack, double x, double z) {
-            Layers layers = layers(fold, scale, stack);
+            Layers layers = getLayers(fold, scale, stack);
             float value = 0.0F;
             for (int i = 0; i < layers.fields().length; i++) {
                 float layer = (float) layers.fields()[i].sample(layers.leaves()[i], x, z);
@@ -50,7 +50,7 @@ public final class SimplexSlot {
             return value;
         }
 
-        private Layers layers(WorldFold fold, double scale, NoiseStack stack) {
+        private Layers getLayers(WorldFold fold, double scale, NoiseStack stack) {
             Layers current = this.held;
             if (current != null && current.fold() == fold && Double.compare(current.scale(), scale) == 0
                     && current.stack() == stack) {

@@ -10,13 +10,13 @@ sealed interface SectorCells permits LatticeSectorCells, SplitSectorCells {
             return new Read(cellX, cellZ, Integer.MIN_VALUE, Integer.MIN_VALUE, Integer.MAX_VALUE, Integer.MAX_VALUE);
         }
 
-        boolean holds(ChunkPos chunk) {
+        boolean isHolding(ChunkPos chunk) {
             return chunk.x() >= this.minChunkX && chunk.x() <= this.maxChunkX
                     && chunk.z() >= this.minChunkZ && chunk.z() <= this.maxChunkZ;
         }
     }
 
-    int offsetCap();
+    int getOffsetCap();
 
     List<Read> reads(int x, int z);
 }

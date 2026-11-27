@@ -9,7 +9,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.ModifyArg;
 
 import com.exoticworlds.accessors.FoldSource;
-import com.exoticworlds.core.WorldFold;
+import com.exoticworlds.core.fold.WorldFold;
 import com.llamalad7.mixinextras.sugar.Local;
 
 import net.minecraft.core.BlockPos;
@@ -28,7 +28,7 @@ public class BeeLocateHiveGoalMixin {
             index = 0)
     private ToDoubleFunction<BlockPos> exotic_worlds$rankHivesThroughSeam(ToDoubleFunction<BlockPos> byRawDistance,
             @Local BlockPos beePos) {
-        WorldFold fold = ((FoldSource) this.bee).exotic_worlds$wrappedFold();
+        WorldFold fold = ((FoldSource) this.bee).exotic_worlds$getWrappedFold();
         if (fold == null) {
             return byRawDistance;
         }

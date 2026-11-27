@@ -3,10 +3,10 @@ package com.exoticworlds.engine.seam;
 import org.jspecify.annotations.Nullable;
 
 import com.exoticworlds.accessors.NavigationShifter;
-import com.exoticworlds.core.DeckTransformation;
-import com.exoticworlds.core.FoldOrientation;
-import com.exoticworlds.core.SeamTransform;
-import com.exoticworlds.core.WorldLoopAttachments;
+import com.exoticworlds.core.fold.DeckTransformation;
+import com.exoticworlds.core.fold.FoldOrientation;
+import com.exoticworlds.core.fold.SeamTransform;
+import com.exoticworlds.core.fold.WorldLoopAttachments;
 import com.exoticworlds.mixin.EntityAccessor;
 
 import net.minecraft.server.level.ServerPlayer;
@@ -17,8 +17,8 @@ import net.minecraft.world.entity.decoration.BlockAttachedEntity;
 import net.minecraft.world.phys.Vec3;
 
 public final class SeamSnap {
-    public static boolean intoBounds(Entity entity) {
-        DeckTransformation lap = WorldLoopAttachments.foldOf(entity.level()).foldTransformation(entity.position());
+    public static boolean trySnapIntoBounds(Entity entity) {
+        DeckTransformation lap = WorldLoopAttachments.getFold(entity.level()).foldTransformation(entity.position());
         if (lap.isIdentity()) {
             return false;
         }
@@ -31,7 +31,7 @@ public final class SeamSnap {
     public static void withPassengers(Entity entity, DeckTransformation lap) {
         moveBody(entity, lap, lap.apply(entity.position()));
         moveHistory(entity, lap);
-        turnHeading(entity, lap.orientation());
+        turnHeading(entity, lap.getOrientation());
         if (entity instanceof Mob mob) {
             carryNavigation(mob, lap);
         }
@@ -64,7 +64,7 @@ public final class SeamSnap {
         entity.xOld = applied.applyX(oldX, oldZ);
         entity.zOld = applied.applyZ(oldX, oldZ);
         EntityAccessor stored = (EntityAccessor) entity;
-        @Nullable Vec3 known = stored.exotic_worlds$lastKnownPosition();
+        @Nullable Vec3 known = stored.exotic_worlds$getLastKnownPosition();
         if (known != null) {
             stored.exotic_worlds$setLastKnownPosition(lap.apply(known));
         }

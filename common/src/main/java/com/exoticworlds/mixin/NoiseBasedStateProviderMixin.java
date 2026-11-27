@@ -4,7 +4,7 @@ import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 
-import com.exoticworlds.core.WorldFold;
+import com.exoticworlds.core.fold.WorldFold;
 import com.exoticworlds.engine.noise.ContextScaledNoise;
 import com.exoticworlds.engine.noise.GenerationFoldContext;
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
@@ -22,7 +22,7 @@ public class NoiseBasedStateProviderMixin {
 
     @WrapMethod(method = "getNoiseValue(Lnet/minecraft/core/BlockPos;D)F")
     private float exotic_worlds$rawCoordinateNoise(BlockPos pos, double scale, Operation<Float> original) {
-        WorldFold fold = GenerationFoldContext.context().wrappedFold();
+        WorldFold fold = GenerationFoldContext.getContext().getWrappedFold();
         if (fold == null) {
             return original.call(pos, scale);
         }

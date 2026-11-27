@@ -1,6 +1,6 @@
 package com.exoticworlds.engine.noise;
 
-import com.exoticworlds.core.WorldFold;
+import com.exoticworlds.core.fold.WorldFold;
 
 import net.minecraft.world.level.levelgen.synth.SimplexNoise;
 
@@ -9,7 +9,7 @@ public interface SimplexField {
 
     double scale();
 
-    boolean carries();
+    boolean canCarry();
 
     double sample(SimplexNoise noise, double x, double z);
 }

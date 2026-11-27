@@ -6,7 +6,7 @@ import java.util.function.Predicate;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.Coerce;
 
-import com.exoticworlds.core.WorldLoopAttachments;
+import com.exoticworlds.core.fold.WorldLoopAttachments;
 import com.exoticworlds.engine.fold.SeamEntitySearch;
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
@@ -22,14 +22,14 @@ public class WorldHelperMixin {
     private static List<Entity> exotic_worlds$groupThroughSeam(Level level, EntitySectionStorage<Entity> cache,
             Entity excludedEntity, @Coerce Object entityClassGroup, AABB box, Predicate<? super Entity> entityFilter,
             Operation<List<Entity>> original) {
-        return SeamEntitySearch.collect(WorldLoopAttachments.foldOf(level), box,
+        return SeamEntitySearch.collect(WorldLoopAttachments.getFold(level), box,
                 piece -> original.call(level, cache, excludedEntity, entityClassGroup, piece, entityFilter));
     }
 
     @WrapMethod(method = "getPushableEntities")
     private static List<Entity> exotic_worlds$pushableThroughSeam(Level level, EntitySectionStorage<Entity> cache,
             Entity except, AABB box, @Coerce Object pushablePredicate, Operation<List<Entity>> original) {
-        return SeamEntitySearch.collect(WorldLoopAttachments.foldOf(level), box,
+        return SeamEntitySearch.collect(WorldLoopAttachments.getFold(level), box,
                 piece -> original.call(level, cache, except, piece, pushablePredicate));
     }
 }

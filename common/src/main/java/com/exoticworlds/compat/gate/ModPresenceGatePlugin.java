@@ -13,21 +13,21 @@ public abstract class ModPresenceGatePlugin extends MixinGatePlugin {
         this.gates = List.of(gates);
     }
 
-    public List<ModPresence> gates() {
+    public List<ModPresence> getGates() {
         return this.gates;
     }
 
     @Override
     public void onLoad(String mixinPackage) {
         ModPresence.runningSide(MixinEnvironment.getCurrentEnvironment().getSide());
-        this.gates.forEach(ModPresence::admitted);
+        this.gates.forEach(ModPresence::isAdmitted);
     }
 
     @Override
     public boolean shouldApplyMixin(String targetClassName, String mixinClassName) {
         for (ModPresence gate : this.gates) {
-            if (gate.covers(mixinClassName)) {
-                return gate.admits(mixinClassName);
+            if (gate.isCovering(mixinClassName)) {
+                return gate.isAdmitting(mixinClassName);
             }
         }
 

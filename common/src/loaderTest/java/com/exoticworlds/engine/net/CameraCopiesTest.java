@@ -5,7 +5,7 @@ import static com.exoticworlds.engine.net.PacketTranslatorFixture.MIRROR_X;
 import static com.exoticworlds.engine.net.PacketTranslatorFixture.MIRROR_Z;
 import static com.exoticworlds.engine.net.PacketTranslatorFixture.REGISTRIES;
 import static com.exoticworlds.engine.net.PacketTranslatorFixture.FOLD;
-import static com.exoticworlds.engine.net.PacketTranslatorFixture.VIEW_DISTANCE;
+import static com.exoticworlds.engine.net.PacketTranslatorFixture.VIEW_DISTANCE_CHUNKS;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
@@ -52,7 +52,7 @@ class CameraCopiesTest {
         mirror.setHeldCacheCenter(HELD_CENTER);
         mirror.followCamera(camera, Level.OVERWORLD);
         return new TranslationContext(FOLD, mirror, BUFFERS, Level.OVERWORLD,
-                VIEW_DISTANCE, VIEW_DISTANCE, entityId -> null, entityId -> null, () -> {});
+                VIEW_DISTANCE_CHUNKS, VIEW_DISTANCE_CHUNKS, entityId -> null, entityId -> null, () -> {});
     }
 
     private static ClientboundLevelChunkWithLightPacket levelChunk(ChunkPos pos) {

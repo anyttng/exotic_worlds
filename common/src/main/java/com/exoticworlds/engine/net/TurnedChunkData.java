@@ -7,8 +7,8 @@ import java.util.Map;
 import java.util.function.Supplier;
 import java.util.function.UnaryOperator;
 
-import com.exoticworlds.core.CoordinateConstants;
-import com.exoticworlds.core.FoldOrientation;
+import com.exoticworlds.core.world.CoordinateConstants;
+import com.exoticworlds.core.fold.FoldOrientation;
 
 import io.netty.buffer.Unpooled;
 import it.unimi.dsi.fastutil.objects.Reference2ReferenceOpenHashMap;
@@ -31,11 +31,11 @@ import net.minecraft.world.level.chunk.PalettedContainerRO;
 import net.minecraft.world.level.levelgen.Heightmap;
 
 final class TurnedChunkData {
-    private static final int BLOCK_WIDTH = CoordinateConstants.CHUNK_WIDTH;
+    private static final int SECTION_WIDTH_BLOCKS = CoordinateConstants.CHUNK_WIDTH_BLOCKS;
 
-    private static final int BIOME_WIDTH = 4;
+    private static final int SECTION_WIDTH_QUARTS = 4;
 
-    private static final int LOCAL_MASK = BLOCK_WIDTH - 1;
+    private static final int LOCAL_MASK = SECTION_WIDTH_BLOCKS - 1;
 
     private static final int PACKED_X_SHIFT = 4;
 
@@ -95,16 +95,16 @@ final class TurnedChunkData {
 
     static List<LevelChunkSection> turnedSections(List<LevelChunkSection> sections, FoldOrientation orientation,
             PalettedContainerFactory containers) {
-        int[] blockSeats = orientation.localIndexTable(BLOCK_WIDTH);
-        int[] biomeSeats = orientation.localIndexTable(BIOME_WIDTH);
+        int[] blockSeats = orientation.localIndexTable(SECTION_WIDTH_BLOCKS);
+        int[] biomeSeats = orientation.localIndexTable(SECTION_WIDTH_QUARTS);
         Map<BlockState, BlockState> turnedStates = new Reference2ReferenceOpenHashMap<>();
         UnaryOperator<BlockState> turn = state -> turnedStates.computeIfAbsent(state, orientation::applyToState);
 
         List<LevelChunkSection> turned = new ArrayList<>(sections.size());
         for (LevelChunkSection section : sections) {
             turned.add(new LevelChunkSection(
-                    seated(section.getStates(), containers.createForBlockStates(), blockSeats, BLOCK_WIDTH, turn),
-                    seated(section.getBiomes(), containers.createForBiomes(), biomeSeats, BIOME_WIDTH,
+                    seated(section.getStates(), containers.createForBlockStates(), blockSeats, SECTION_WIDTH_BLOCKS, turn),
+                    seated(section.getBiomes(), containers.createForBiomes(), biomeSeats, SECTION_WIDTH_QUARTS,
                             UnaryOperator.identity())));
         }
 
@@ -125,8 +125,8 @@ final class TurnedChunkData {
     }
 
     static long[] heightmap(long[] cells, FoldOrientation orientation, int sectionCount) {
-        int bits = Mth.ceillog2(sectionCount * BLOCK_WIDTH + 1);
-        int[] seats = orientation.localIndexTable(BLOCK_WIDTH);
+        int bits = Mth.ceillog2(sectionCount * SECTION_WIDTH_BLOCKS + 1);
+        int[] seats = orientation.localIndexTable(SECTION_WIDTH_BLOCKS);
         SimpleBitStorage source = new SimpleBitStorage(bits, seats.length, cells);
         SimpleBitStorage target = new SimpleBitStorage(bits, seats.length);
         for (int cell = 0; cell < seats.length; cell++) {
@@ -139,8 +139,8 @@ final class TurnedChunkData {
     static byte packedXZ(byte packedXZ, FoldOrientation orientation) {
         int localX = packedXZ >> PACKED_X_SHIFT & LOCAL_MASK;
         int localZ = packedXZ & LOCAL_MASK;
-        return (byte) (orientation.applyToLocalX(localX, localZ, BLOCK_WIDTH) << PACKED_X_SHIFT
-                | orientation.applyToLocalZ(localX, localZ, BLOCK_WIDTH));
+        return (byte) (orientation.applyToLocalX(localX, localZ, SECTION_WIDTH_BLOCKS) << PACKED_X_SHIFT
+                | orientation.applyToLocalZ(localX, localZ, SECTION_WIDTH_BLOCKS));
     }
 
     static ClientboundLightUpdatePacketData turned(ClientboundLightUpdatePacketData data,
@@ -149,7 +149,7 @@ final class TurnedChunkData {
             return data;
         }
 
-        int[] seats = orientation.localIndexTable(BLOCK_WIDTH);
+        int[] seats = orientation.localIndexTable(SECTION_WIDTH_BLOCKS);
         return new ClientboundLightUpdatePacketData(
                 data.skyYMask(), data.blockYMask(), data.emptySkyYMask(), data.emptyBlockYMask(),
                 lightLayers(data.skyUpdates(), seats), lightLayers(data.blockUpdates(), seats));
@@ -167,11 +167,11 @@ final class TurnedChunkData {
     static byte[] lightLayer(byte[] layer, int[] seats) {
         DataLayer source = new DataLayer(layer);
         DataLayer target = new DataLayer();
-        for (int y = 0; y < BLOCK_WIDTH; y++) {
+        for (int y = 0; y < SECTION_WIDTH_BLOCKS; y++) {
             for (int cell = 0; cell < seats.length; cell++) {
                 int seat = seats[cell];
-                target.set(seat % BLOCK_WIDTH, y, seat / BLOCK_WIDTH,
-                        source.get(cell % BLOCK_WIDTH, y, cell / BLOCK_WIDTH));
+                target.set(seat % SECTION_WIDTH_BLOCKS, y, seat / SECTION_WIDTH_BLOCKS,
+                        source.get(cell % SECTION_WIDTH_BLOCKS, y, cell / SECTION_WIDTH_BLOCKS));
             }
         }
 
@@ -184,7 +184,7 @@ final class TurnedChunkData {
         }
 
         PalettedContainerFactory containers = PalettedContainerFactory.create(registries.get());
-        int[] seats = orientation.localIndexTable(BIOME_WIDTH);
+        int[] seats = orientation.localIndexTable(SECTION_WIDTH_QUARTS);
         FriendlyByteBuf input = new FriendlyByteBuf(Unpooled.wrappedBuffer(buffer));
         List<PalettedContainer<Holder<Biome>>> turned = new ArrayList<>();
         int size = 0;
@@ -192,7 +192,7 @@ final class TurnedChunkData {
             PalettedContainer<Holder<Biome>> sent = containers.createForBiomes();
             sent.read(input);
             PalettedContainer<Holder<Biome>> seated =
-                    seated(sent, containers.createForBiomes(), seats, BIOME_WIDTH, UnaryOperator.identity());
+                    seated(sent, containers.createForBiomes(), seats, SECTION_WIDTH_QUARTS, UnaryOperator.identity());
             size += seated.getSerializedSize();
             turned.add(seated);
         }
@@ -215,8 +215,8 @@ final class TurnedChunkData {
             short packed = positions[change];
             int localX = SectionPos.sectionRelativeX(packed);
             int localZ = SectionPos.sectionRelativeZ(packed);
-            positions[change] = (short) (orientation.applyToLocalX(localX, localZ, BLOCK_WIDTH) << SECTION_X_SHIFT
-                    | orientation.applyToLocalZ(localX, localZ, BLOCK_WIDTH) << SECTION_Z_SHIFT
+            positions[change] = (short) (orientation.applyToLocalX(localX, localZ, SECTION_WIDTH_BLOCKS) << SECTION_X_SHIFT
+                    | orientation.applyToLocalZ(localX, localZ, SECTION_WIDTH_BLOCKS) << SECTION_Z_SHIFT
                     | SectionPos.sectionRelativeY(packed));
             states[change] = orientation.applyToState(states[change]);
         }

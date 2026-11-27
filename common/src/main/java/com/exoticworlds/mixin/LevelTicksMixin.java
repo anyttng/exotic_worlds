@@ -8,8 +8,8 @@ import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import com.exoticworlds.accessors.LevelBindable;
-import com.exoticworlds.core.WorldFold;
-import com.exoticworlds.core.WorldFold.Folded;
+import com.exoticworlds.core.fold.WorldFold;
+import com.exoticworlds.core.fold.WorldFold.Folded;
 import com.exoticworlds.engine.level.BoundLevelFold;
 
 import net.minecraft.core.BlockPos;
@@ -30,7 +30,7 @@ public class LevelTicksMixin<T> implements LevelBindable {
 
     @ModifyVariable(method = "schedule", at = @At("HEAD"), argsOnly = true)
     private ScheduledTick<T> exotic_worlds$fileTickAtPhysicalPos(ScheduledTick<T> tick) {
-        WorldFold fold = this.exotic_worlds$bound.wrapped();
+        WorldFold fold = this.exotic_worlds$bound.getWrapped();
         if (fold == null) {
             return tick;
         }
@@ -56,13 +56,13 @@ public class LevelTicksMixin<T> implements LevelBindable {
 
     @Unique
     private BlockPos exotic_worlds$foldQueried(BlockPos pos) {
-        return this.exotic_worlds$bound.fold().fold(pos);
+        return this.exotic_worlds$bound.getFold().fold(pos);
     }
 
     @Inject(method = "clearArea", at = @At("HEAD"), cancellable = true)
     private void exotic_worlds$clearEachCopyOfTheArea(BoundingBox area, CallbackInfo ci) {
-        WorldFold fold = this.exotic_worlds$bound.wrapped();
-        if (fold == null || !fold.crossesBounds(area)) {
+        WorldFold fold = this.exotic_worlds$bound.getWrapped();
+        if (fold == null || !fold.isCrossingBounds(area)) {
             return;
         }
 

@@ -96,7 +96,7 @@ public abstract class IslandLayerMixin implements LapIslands {
         this.exotic_worlds$lastZ = cellZ;
         this.exotic_worlds$lastHeight = maxHeight;
         LapIslandPlacement.place(this.exotic_worlds$islands, grid, cellX, cellZ, maxHeight, this.options, this::getSeed,
-                this.density, exotic_worlds$center());
+                this.density, exotic_worlds$getCenter());
     }
 
     @Override
@@ -118,7 +118,7 @@ public abstract class IslandLayerMixin implements LapIslands {
     }
 
     @Unique
-    private static LapIslandPlacement.Center exotic_worlds$center() {
+    private static LapIslandPlacement.Center exotic_worlds$getCenter() {
         WoverEndConfig config = TerrainGenerator.config;
         return config == null
                 ? new LapIslandPlacement.Center(false, 0, 0L)

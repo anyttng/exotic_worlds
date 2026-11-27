@@ -4,5 +4,5 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.level.Level;
 
 public interface BrowsedDimension {
-    ResourceKey<Level> exotic_worlds$browsedDimension();
+    ResourceKey<Level> exotic_worlds$getBrowsedDimension();
 }

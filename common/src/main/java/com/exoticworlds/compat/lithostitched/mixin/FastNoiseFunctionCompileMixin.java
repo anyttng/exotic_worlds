@@ -28,14 +28,14 @@ public class FastNoiseFunctionCompileMixin {
         FastNoiseFunction function = (FastNoiseFunction) (Object) this;
         FoldedCompileContext folded = FoldedCompileContext.of(context);
         if (folded == null || !(config instanceof FastNoiseConfig fastNoise)
-                || !LapFastNoise.samplesXz(function.xzScale())) {
+                || !LapFastNoise.isSamplingXz(function.xzScale())) {
             return config;
         }
 
         LapFastNoise.Refusal refusal = LapFastNoise.refusal(fastNoise);
         if (refusal != null) {
             exotic_worlds$LOGGER.warn("[ew/lithostitched-compat] fast_noise_left_open config={} reason={} value={}",
-                    function.config().getRegisteredName(), refusal.reason().id(), refusal.value());
+                    function.config().getRegisteredName(), refusal.reason().getId(), refusal.value());
             return config;
         }
 

@@ -4,10 +4,10 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Pseudo;
 import org.spongepowered.asm.mixin.injection.At;
 
-import com.exoticworlds.api.v1.ExoticWorldsApi;
-import com.exoticworlds.api.v1.ToroidalShape;
-import com.exoticworlds.compat.map.ClientShapes;
+import com.exoticworlds.compat.map.ClientFolds;
 import com.exoticworlds.compat.mapfrontiers.ExoticWorldsGeometry;
+import com.exoticworlds.core.fold.WorldFold;
+import com.exoticworlds.core.fold.WorldLoopAttachments;
 import com.llamalad7.mixinextras.injector.ModifyReturnValue;
 import com.llamalad7.mixinextras.sugar.Local;
 
@@ -23,13 +23,14 @@ import net.minecraft.world.level.Level;
 public class PlatformHelperMixin {
     @ModifyReturnValue(method = "getWorldGeometry", at = @At("RETURN"))
     private WorldGeometry exotic_worlds$serverGeometry(WorldGeometry original, @Local(argsOnly = true) Level level) {
-        return ExoticWorldsApi.shapeOf(level).<WorldGeometry>map(ExoticWorldsGeometry::new).orElse(original);
+        WorldFold fold = WorldLoopAttachments.getWrappedFold(level);
+        return fold == null ? original : new ExoticWorldsGeometry(fold);
     }
 
     @ModifyReturnValue(method = "getClientWorldGeometry", at = @At("RETURN"))
     private WorldGeometry exotic_worlds$clientGeometry(WorldGeometry original,
             @Local(argsOnly = true) ResourceKey<Level> dimension) {
-        ToroidalShape shape = ClientShapes.of(dimension);
-        return shape == null ? original : new ExoticWorldsGeometry(shape);
+        WorldFold fold = ClientFolds.of(dimension);
+        return fold == null ? original : new ExoticWorldsGeometry(fold);
     }
 }

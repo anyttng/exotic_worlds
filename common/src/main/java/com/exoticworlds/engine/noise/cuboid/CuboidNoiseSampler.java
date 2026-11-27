@@ -1,6 +1,6 @@
 package com.exoticworlds.engine.noise.cuboid;
 
-import com.exoticworlds.core.CuboidFace.BoxVector;
+import com.exoticworlds.core.fold.cuboid.CuboidFace.BoxVector;
 import com.exoticworlds.engine.noise.PerlinMath;
 
 import net.minecraft.util.Mth;
@@ -50,11 +50,11 @@ final class CuboidNoiseSampler {
         int hash = hash(permutations, face, xNode, yNode, zNode);
         return switch (part) {
             case VALUE -> value(face, hash, xNode, zNode, xOffset, yOffset, zOffset);
-            case SECOND_VALUE -> value(face, PerlinMath.p(permutations, hash), xNode, zNode, xOffset, yOffset,
+            case SECOND_VALUE -> value(face, PerlinMath.getPermutation(permutations, hash), xNode, zNode, xOffset, yOffset,
                     zOffset);
-            case WARP_X -> CuboidVectorNoise.alongX(face, hash, PerlinMath.p(permutations, hash), xNode, zNode,
+            case WARP_X -> CuboidVectorNoise.alongX(face, hash, PerlinMath.getPermutation(permutations, hash), xNode, zNode,
                     xOffset, yOffset, zOffset);
-            case WARP_Z -> CuboidVectorNoise.alongZ(face, hash, PerlinMath.p(permutations, hash), xNode, zNode,
+            case WARP_Z -> CuboidVectorNoise.alongZ(face, hash, PerlinMath.getPermutation(permutations, hash), xNode, zNode,
                     xOffset, yOffset, zOffset);
         };
     }
@@ -78,7 +78,7 @@ final class CuboidNoiseSampler {
 
     static float row(CuboidLattice.Face face, int hash, int xNode, int zNode, float xOffset, float yOffset,
             float zOffset) {
-        int[] gradient = PerlinMath.gradient(hash);
+        int[] gradient = PerlinMath.getGradient(hash);
         if (onXEdge(face, xNode)) {
             double across = xNode == 0 ? -face.xAcross() : face.xAcross();
             return (float) (gradient[0] * zOffset * face.zSign() + gradient[1] * yOffset
@@ -101,8 +101,8 @@ final class CuboidNoiseSampler {
         int a = origin.a() + xNode * alongX.a() + zNode * alongZ.a();
         int b = origin.b() + xNode * alongX.b() + zNode * alongZ.b();
         int c = origin.c() + xNode * alongX.c() + zNode * alongZ.c();
-        return PerlinMath.p(permutations, PerlinMath.p(permutations,
-                PerlinMath.p(permutations, PerlinMath.p(permutations, a) + b) + c) + yNode);
+        return PerlinMath.getPermutation(permutations, PerlinMath.getPermutation(permutations,
+                PerlinMath.getPermutation(permutations, PerlinMath.getPermutation(permutations, a) + b) + c) + yNode);
     }
 
     private CuboidNoiseSampler() {

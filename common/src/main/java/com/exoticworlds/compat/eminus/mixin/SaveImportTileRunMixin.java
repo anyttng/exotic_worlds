@@ -1,7 +1,6 @@
 package com.exoticworlds.compat.eminus.mixin;
 
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Pseudo;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 
@@ -11,14 +10,13 @@ import com.exoticworlds.compat.eminus.CellFoldHolder;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 
-@Pseudo
-@Mixin(targets = "com.eminus.ingest.saved.SaveImport$TileRun", remap = false)
+@Mixin(targets = "com.eminus.ingest.saved.SaveImport$TileRun")
 public class SaveImportTileRunMixin implements CellFoldHolder {
     @Unique
     private volatile CellFold exotic_worlds$fold = CellFold.NONE;
 
     @Override
-    public CellFold exotic_worlds$fold() {
+    public CellFold exotic_worlds$getFold() {
         return exotic_worlds$fold;
     }
 

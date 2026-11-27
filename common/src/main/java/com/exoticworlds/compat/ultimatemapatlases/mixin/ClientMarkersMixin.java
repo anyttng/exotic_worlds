@@ -7,9 +7,9 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.ModifyArg;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
 
-import com.exoticworlds.api.v1.ToroidalShape;
-import com.exoticworlds.compat.map.ClientShapes;
+import com.exoticworlds.compat.map.ClientFolds;
 import com.exoticworlds.compat.ultimatemapatlases.AtlasBlockMarkerKey;
+import com.exoticworlds.core.fold.WorldFold;
 import com.exoticworlds.engine.fold.NearestCopy;
 import com.exoticworlds.engine.seam.MapSeamFold;
 import com.llamalad7.mixinextras.sugar.Local;
@@ -26,17 +26,17 @@ import net.nanaky.ultimate_map_atlases.integration.moonlight.ClientMarkers;
 public class ClientMarkersMixin {
     @ModifyVariable(method = "addBlockMarker", at = @At("HEAD"), argsOnly = true, ordinal = 1)
     private static String exotic_worlds$foldedAddedKey(String key, @Local(argsOnly = true) int mapId) {
-        return AtlasBlockMarkerKey.folded(exotic_worlds$shapeOfMap(mapId), key);
+        return AtlasBlockMarkerKey.folded(exotic_worlds$foldOfMap(mapId), key);
     }
 
     @ModifyVariable(method = "addBlockMarker", at = @At("HEAD"), argsOnly = true)
     private static BlockPos exotic_worlds$foldedHead(BlockPos head, @Local(argsOnly = true) int mapId) {
-        return ClientShapes.fold(exotic_worlds$shapeOfMap(mapId), head);
+        return ClientFolds.fold(exotic_worlds$foldOfMap(mapId), head);
     }
 
     @ModifyVariable(method = {"hasBlockMarker", "removeBlockMarker"}, at = @At("HEAD"), argsOnly = true)
     private static String exotic_worlds$foldedKey(String key, @Local(argsOnly = true) int mapId) {
-        return AtlasBlockMarkerKey.folded(exotic_worlds$shapeOfMap(mapId), key);
+        return AtlasBlockMarkerKey.folded(exotic_worlds$foldOfMap(mapId), key);
     }
 
     @ModifyArg(
@@ -56,17 +56,17 @@ public class ClientMarkersMixin {
     }
 
     @Unique
-    private static @Nullable ToroidalShape exotic_worlds$shapeOfMap(int mapId) {
+    private static @Nullable WorldFold exotic_worlds$foldOfMap(int mapId) {
         ClientLevel level = Minecraft.getInstance().level;
         MapItemSavedData data = level == null ? null : level.getMapData(new MapId(mapId));
-        return data == null ? null : ClientShapes.of(data.dimension);
+        return data == null ? null : ClientFolds.of(data.dimension);
     }
 
     @Unique
     private static BlockPos exotic_worlds$nearPlayer(BlockPos marker) {
         LocalPlayer player = Minecraft.getInstance().player;
         return player == null ? marker
-                : NearestCopy.toward(MapSeamFold.foldFor(null, player.level().dimension()),
+                : NearestCopy.toward(MapSeamFold.getWrappedFold(null, player.level().dimension()),
                         player.blockPosition(), marker);
     }
 }

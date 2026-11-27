@@ -6,7 +6,7 @@ import org.spongepowered.asm.mixin.injection.At;
 
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import com.zurrtum.create.client.content.equipment.symmetryWand.SymmetryHandlerClient;
-import com.exoticworlds.client.engine.ClientFrame;
+import com.exoticworlds.engine.client.ClientFrame;
 
 import net.minecraft.world.phys.Vec3;
 

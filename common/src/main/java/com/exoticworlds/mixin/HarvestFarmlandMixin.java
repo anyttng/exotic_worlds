@@ -21,8 +21,8 @@ public class HarvestFarmlandMixin {
                     + "Lnet/minecraft/world/entity/npc/villager/Villager;J)V",
             at = @At(value = "INVOKE",
                     target = InjectionTargets.BLOCK_POS_CLOSER_TO_CENTER_THAN))
-    private boolean exotic_worlds$farmlandReachThroughSeam(BlockPos farmlandPos, Position bodyPosition, double distance,
+    private boolean exotic_worlds$farmlandReachThroughSeam(BlockPos farmlandPos, Position bodyPosition, double distanceBlocks,
             Operation<Boolean> original, @Local(argsOnly = true) Villager body) {
-        return original.call(farmlandPos, SeamRange.towardCenterOf(body, farmlandPos, bodyPosition), distance);
+        return original.call(farmlandPos, SeamRange.towardCenterOf(body, farmlandPos, bodyPosition), distanceBlocks);
     }
 }

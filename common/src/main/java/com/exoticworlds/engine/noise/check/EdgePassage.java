@@ -4,10 +4,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Supplier;
 
-import com.exoticworlds.core.CuboidAtlas;
-import com.exoticworlds.core.CuboidEdge;
-import com.exoticworlds.core.CuboidFace;
-import com.exoticworlds.core.WorldFold;
+import com.exoticworlds.core.fold.cuboid.CuboidAtlas;
+import com.exoticworlds.core.fold.cuboid.CuboidEdge;
+import com.exoticworlds.core.fold.cuboid.CuboidFace;
+import com.exoticworlds.core.fold.WorldFold;
 import com.exoticworlds.engine.noise.GenerationFoldContext;
 
 import net.minecraft.core.BlockPos;
@@ -83,7 +83,7 @@ record EdgePassage(WorldFold fold, CuboidAtlas atlas, CuboidEdge edge, CuboidFac
     @Override
     public <T> T reading(SeamCauseSearch.Point at, Supplier<T> read) {
         try (GenerationFoldContext.Context.FoldScope _ =
-                GenerationFoldContext.context().withFold(this.fold, askingChunk(at))) {
+                GenerationFoldContext.getContext().withFold(this.fold, askingChunk(at))) {
             return read.get();
         }
     }

@@ -1,7 +1,7 @@
 package com.exoticworlds.compat.wover;
 
 import com.exoticworlds.compat.worldgen.OpenSimplexStandIn;
-import com.exoticworlds.core.WorldFold;
+import com.exoticworlds.core.fold.WorldFold;
 
 import net.minecraft.core.Direction;
 import net.minecraft.util.Mth;
@@ -60,8 +60,8 @@ public final class HexLapMap<T> extends LapMap<T> {
         double cellScale = scale / factor;
         this.seed = seed;
         this.picker = picker;
-        this.x = LapAxis.of(blocks(Direction.Axis.X), cellScale / RAD_INNER, false, CHUNK_SIDE);
-        this.z = LapAxis.of(blocks(Direction.Axis.Z), cellScale, true, CHUNK_SIDE);
+        this.x = LapAxis.of(getBlocks(Direction.Axis.X), cellScale / RAD_INNER, false, CHUNK_SIDE);
+        this.z = LapAxis.of(getBlocks(Direction.Axis.Z), cellScale, true, CHUNK_SIDE);
         this.warps = new OpenSimplexStandIn[] {
                 new OpenSimplexStandIn((long) seed << 1), new OpenSimplexStandIn(((long) seed << 1) | 1L)};
         this.warpOctaves = (int) Math.min(Math.ceil(Math.log(cellScale) / Math.log(2.0)), MAX_WARP_OCTAVES);
@@ -77,31 +77,31 @@ public final class HexLapMap<T> extends LapMap<T> {
         pz += dz;
 
         int cellZ = Mth.floor(pz);
-        boolean offset = (cellZ & 1) == 1;
-        if (offset) {
+        boolean isOffset = (cellZ & 1) == 1;
+        if (isOffset) {
             px += ROW_OFFSET;
         }
 
         int cellX = Mth.floor(px);
         float pointX = (float) (px - cellX - CELL_CENTER);
         float pointZ = (float) (pz - cellZ - CELL_CENTER);
-        if (Math.abs(pointZ) < ROW_CORE || insideHexagon(pointZ * RAD_INNER, pointX)) {
-            return cellBiome(cellX, cellZ);
+        if (Math.abs(pointZ) < ROW_CORE || isInsideHexagon(pointZ * RAD_INNER, pointX)) {
+            return getCellBiome(cellX, cellZ);
         }
 
-        cellX = pointX < 0.0F ? (offset ? cellX - 1 : cellX) : (offset ? cellX : cellX + 1);
+        cellX = pointX < 0.0F ? (isOffset ? cellX - 1 : cellX) : (isOffset ? cellX : cellX + 1);
         cellZ = pointZ < 0.0F ? cellZ - 1 : cellZ + 1;
-        return cellBiome(cellX, cellZ);
+        return getCellBiome(cellX, cellZ);
     }
 
     @Override
-    LapAxis axis(Direction.Axis axis) {
+    LapAxis getAxis(Direction.Axis axis) {
         return axis == Direction.Axis.X ? this.x : this.z;
     }
 
     @Override
     LapChunk<T> buildChunk(int kx, int kz) {
-        return new HexLapChunk<>(this.x.sideOf(kx), this.z.sideOf(kz), this.x.wraps(), this.z.wraps(),
+        return new HexLapChunk<>(this.x.sideOf(kx), this.z.sideOf(kz), this.x.isWrapping(), this.z.isWrapping(),
                 this.z.startOf(kz), new WorldgenRandom(RandomSource.create(chunkSeed(this.seed, kx, kz))),
                 this.picker);
     }
@@ -116,7 +116,7 @@ public final class HexLapMap<T> extends LapMap<T> {
         return result;
     }
 
-    private T cellBiome(int cellX, int cellZ) {
+    private T getCellBiome(int cellX, int cellZ) {
         int gx = this.x.wrapCell(cellX);
         int gz = this.z.wrapCell(cellZ);
         int kx = this.x.chunkOf(gx);
@@ -131,7 +131,7 @@ public final class HexLapMap<T> extends LapMap<T> {
             lz = 0;
         }
 
-        return chunk(kx, kz).get(lx, lz);
+        return getChunk(kx, kz).get(lx, lz);
     }
 
     private static int chunkSeed(int seed, int kx, int kz) {
@@ -140,7 +140,7 @@ public final class HexLapMap<T> extends LapMap<T> {
         return hash ^ hash >> SEED_FINAL_SHIFT;
     }
 
-    private static boolean insideHexagon(float x, float z) {
+    private static boolean isInsideHexagon(float x, float z) {
         double dx = Math.abs(x) / HEXAGON_STRETCH;
         double dz = Math.abs(z) / HEXAGON_STRETCH;
         return dz <= COEF && COEF * dx + HEXAGON_EDGE_WEIGHT * dz <= COEF_HALF;

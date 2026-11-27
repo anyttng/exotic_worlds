@@ -51,9 +51,9 @@ public abstract class SupportXaeroWorldmapMixin {
                     value = "INVOKE",
                     target = XaeroInjectionTargets.MAP_PROCESSOR_GET_LEAF_MAP_REGION))
     private @Nullable MapRegion exotic_worlds$fetchLeafRegion(MapProcessor processor, int caveLayer, int regX, int regZ,
-            boolean create, Operation<@Nullable MapRegion> original) {
+            boolean shouldCreate, Operation<@Nullable MapRegion> original) {
         return this.exotic_worlds$tiles.leafRegion(caveLayer, regX, regZ,
-                (x, z) -> original.call(processor, caveLayer, x, z, create));
+                (x, z) -> original.call(processor, caveLayer, x, z, shouldCreate));
     }
 
     @WrapOperation(
@@ -76,9 +76,9 @@ public abstract class SupportXaeroWorldmapMixin {
                             + "Lxaero/common/graphics/renderer/multitexture/MultiTextureRenderTypeRenderer;"
                             + "Lxaero/common/minimap/render/MinimapRendererHelper;)V"))
     private void exotic_worlds$drawTilePieces(SupportXaeroWorldmap support, Matrix4f matrix, float x, float y, int textureX,
-            int textureY, float width, float height, MapTileChunk chunk, MultiTextureRenderTypeRenderer noLightRenderer,
+            int textureY, float widthPixels, float heightPixels, MapTileChunk chunk, MultiTextureRenderTypeRenderer noLightRenderer,
             MultiTextureRenderTypeRenderer withLightRenderer, MinimapRendererHelper helper, Operation<Void> original) {
-        this.exotic_worlds$tiles.drawPieces(support, matrix, new XaeroPieceRect(x, y, textureX, textureY, width, height), chunk,
+        this.exotic_worlds$tiles.drawPieces(support, matrix, new XaeroPieceRect(x, y, textureX, textureY, widthPixels, heightPixels), chunk,
                 noLightRenderer, withLightRenderer, (rect, piece) -> original.call(support, matrix, rect.x(), rect.y(),
                         rect.textureX(), rect.textureY(), rect.width(), rect.height(), piece, noLightRenderer,
                         withLightRenderer, helper));
@@ -88,14 +88,14 @@ public abstract class SupportXaeroWorldmapMixin {
             method = "renderChunks",
             at = @At(value = "INVOKE", target = "Lxaero/map/region/MapTileChunk;getX()I"))
     private int exotic_worlds$placeAtMirrorX(MapTileChunk chunk, Operation<Integer> original) {
-        return this.exotic_worlds$tiles.placedTileX(original.call(chunk));
+        return this.exotic_worlds$tiles.getPlacedTileX(original.call(chunk));
     }
 
     @WrapOperation(
             method = "renderChunks",
             at = @At(value = "INVOKE", target = "Lxaero/map/region/MapTileChunk;getZ()I"))
     private int exotic_worlds$placeAtMirrorZ(MapTileChunk chunk, Operation<Integer> original) {
-        return this.exotic_worlds$tiles.placedTileZ(original.call(chunk));
+        return this.exotic_worlds$tiles.getPlacedTileZ(original.call(chunk));
     }
 
     @WrapOperation(

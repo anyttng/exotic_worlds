@@ -4,8 +4,8 @@ import java.util.List;
 
 import org.jspecify.annotations.Nullable;
 
-import com.exoticworlds.core.CuboidAtlas;
-import com.exoticworlds.core.CuboidFace;
+import com.exoticworlds.core.fold.cuboid.CuboidAtlas;
+import com.exoticworlds.core.fold.cuboid.CuboidFace;
 import com.exoticworlds.engine.noise.BoxDivisors;
 import com.exoticworlds.engine.noise.CompiledOctaves;
 import com.exoticworlds.engine.noise.PerlinMath;
@@ -123,7 +123,7 @@ public final class CuboidOctaves implements CompiledOctaves {
     }
 
     @Override
-    public boolean indexable() {
+    public boolean isIndexable() {
         return true;
     }
 }

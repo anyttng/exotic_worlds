@@ -1,7 +1,7 @@
 package com.exoticworlds.engine.fold;
 
 import com.exoticworlds.accessors.RelocatableBlockEntity;
-import com.exoticworlds.core.WorldFold;
+import com.exoticworlds.core.fold.WorldFold;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.block.entity.BlockEntity;

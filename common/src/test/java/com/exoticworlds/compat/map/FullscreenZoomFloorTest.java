@@ -4,13 +4,12 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.junit.jupiter.api.Test;
 
-import com.exoticworlds.api.v1.TestShapes;
-import com.exoticworlds.api.v1.ToroidalShape;
-import com.exoticworlds.core.CoordinateConstants;
-import com.exoticworlds.core.ShapeFixtures;
-import com.exoticworlds.core.WorldFolds;
-import com.exoticworlds.core.WorldLoopBounds;
-import com.exoticworlds.core.WorldLoopBounds.AxisBounds;
+import com.exoticworlds.core.world.CoordinateConstants;
+import com.exoticworlds.core.world.ShapeFixtures;
+import com.exoticworlds.core.fold.WorldFold;
+import com.exoticworlds.core.fold.WorldFolds;
+import com.exoticworlds.core.world.WorldLoopBounds.AxisBounds;
+import com.exoticworlds.core.world.WorldLoopBounds;
 
 class FullscreenZoomFloorTest {
     @Test
@@ -118,19 +117,19 @@ class FullscreenZoomFloorTest {
                 "a cylinder reads its Z width against the view height alone: 1024 * 256 / (128 * 128)");
     }
 
-    private static ToroidalShape torus(int widthBlocksX, int widthBlocksZ) {
+    private static WorldFold torus(int widthBlocksX, int widthBlocksZ) {
         return shape(looped(widthBlocksX), looped(widthBlocksZ));
     }
 
-    private static ToroidalShape cylinder(int widthBlocksZ) {
+    private static WorldFold cylinder(int widthBlocksZ) {
         return shape(AxisBounds.Unbounded.INSTANCE, looped(widthBlocksZ));
     }
 
-    private static ToroidalShape shape(AxisBounds x, AxisBounds z) {
-        return TestShapes.of(WorldFolds.of(ShapeFixtures.torus(new WorldLoopBounds(x, z))));
+    private static WorldFold shape(AxisBounds x, AxisBounds z) {
+        return WorldFolds.of(ShapeFixtures.torus(new WorldLoopBounds(x, z)));
     }
 
     private static AxisBounds looped(int widthBlocks) {
-        return new AxisBounds.Looped(0, widthBlocks / CoordinateConstants.CHUNK_WIDTH);
+        return new AxisBounds.Looped(0, widthBlocks / CoordinateConstants.CHUNK_WIDTH_BLOCKS);
     }
 }

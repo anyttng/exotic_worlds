@@ -9,7 +9,7 @@ import java.util.function.UnaryOperator;
 import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 
-import com.exoticworlds.core.StartupRegistry;
+import com.exoticworlds.core.registry.StartupRegistry;
 import com.mojang.logging.LogUtils;
 
 import net.minecraft.core.component.DataComponentType;
@@ -47,7 +47,7 @@ public final class ComponentPositions {
         named = resolve(javaRows(), componentIds, BuiltInRegistries.DATA_COMPONENT_TYPE::getValue);
     }
 
-    public static @Nullable Mover moverOf(DataComponentType<?> type) {
+    public static @Nullable Mover getMover(DataComponentType<?> type) {
         return named.get(type);
     }
 
@@ -59,7 +59,7 @@ public final class ComponentPositions {
     static Map<Identifier, Mover> javaRows() {
         Map<Identifier, Mover> rows = new LinkedHashMap<>();
         rows.put(LODESTONE_TRACKER_ID, WALK);
-        rows.putAll(REGISTERED.entries());
+        rows.putAll(REGISTERED.getEntries());
         return rows;
     }
 

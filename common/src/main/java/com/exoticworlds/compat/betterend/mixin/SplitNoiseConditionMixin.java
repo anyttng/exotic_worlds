@@ -10,7 +10,7 @@ import com.exoticworlds.compat.worldgen.LapNoise;
 import com.exoticworlds.compat.worldgen.StandInHolder;
 import com.exoticworlds.compat.betterend.BetterEndInjectionTargets;
 import com.exoticworlds.compat.wover.WoverInjectionTargets;
-import com.exoticworlds.core.WorldFold;
+import com.exoticworlds.core.fold.WorldFold;
 import com.exoticworlds.engine.noise.GenerationFoldContext;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
@@ -24,9 +24,9 @@ public class SplitNoiseConditionMixin {
             method = {WoverInjectionTargets.GET_NUMBER, "getNoise(III)D"},
             at = @At(value = "INVOKE", target = BetterEndInjectionTargets.NOISE_EVAL_2D))
     private double exotic_worlds$lapNoise(OpenSimplexNoise noise, double x, double z, Operation<Double> original) {
-        WorldFold fold = GenerationFoldContext.context().wrappedFold();
+        WorldFold fold = GenerationFoldContext.getContext().getWrappedFold();
         return fold == null
                 ? original.call(noise, x, z)
-                : LapNoise.eval(((StandInHolder) (Object) noise).exotic_worlds$standIn(), fold, x, z, SCALE, SCALE);
+                : LapNoise.eval(((StandInHolder) (Object) noise).exotic_worlds$getStandIn(), fold, x, z, SCALE, SCALE);
     }
 }

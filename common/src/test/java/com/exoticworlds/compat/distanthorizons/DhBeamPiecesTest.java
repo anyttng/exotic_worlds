@@ -7,10 +7,10 @@ import java.util.List;
 import org.junit.jupiter.api.Test;
 
 import com.exoticworlds.compat.map.WorldCopies;
-import com.exoticworlds.core.ShapeFixtures;
-import com.exoticworlds.core.WorldFolds;
-import com.exoticworlds.core.WorldLoopBounds;
-import com.exoticworlds.core.WorldLoopBounds.AxisBounds;
+import com.exoticworlds.core.world.ShapeFixtures;
+import com.exoticworlds.core.fold.WorldFolds;
+import com.exoticworlds.core.world.WorldLoopBounds;
+import com.exoticworlds.core.world.WorldLoopBounds.AxisBounds;
 
 class DhBeamPiecesTest {
     private static final int HALF_WIDTH_CHUNKS = 32;

@@ -4,7 +4,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 
-import com.exoticworlds.core.WorldLoopAttachments;
+import com.exoticworlds.core.fold.WorldLoopAttachments;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.llamalad7.mixinextras.sugar.Local;
@@ -39,7 +39,7 @@ public class SculkSpreaderMixin {
     @Unique
     private static void exotic_worlds$seat(LevelAccessor level, SculkSpreader.ChargeCursor cursor, BlockPos originPos) {
         BlockPos raw = cursor.getPos();
-        BlockPos seated = WorldLoopAttachments.foldOfReader(level).nearestCopy(originPos, raw);
+        BlockPos seated = WorldLoopAttachments.getFoldOfReader(level).nearestCopy(originPos, raw);
         if (seated != raw) {
             ((ChargeCursorAccessor) cursor).exotic_worlds$setPos(seated);
         }

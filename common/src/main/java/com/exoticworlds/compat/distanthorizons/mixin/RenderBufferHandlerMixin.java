@@ -31,7 +31,7 @@ public class RenderBufferHandlerMixin {
             return false;
         }
 
-        DhLattice lattice = DhClientShapes.current();
+        DhLattice lattice = DhClientShapes.getCurrent();
         if (lattice == null) {
             return true;
         }

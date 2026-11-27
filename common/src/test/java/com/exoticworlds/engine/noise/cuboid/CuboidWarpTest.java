@@ -1,12 +1,12 @@
 package com.exoticworlds.engine.noise.cuboid;
 
-import static com.exoticworlds.core.CuboidFixtures.MIN_CHUNK_X;
-import static com.exoticworlds.core.CuboidFixtures.MIN_CHUNK_Z;
-import static com.exoticworlds.core.CuboidFixtures.atlases;
-import static com.exoticworlds.core.CuboidFixtures.carried;
-import static com.exoticworlds.core.CuboidFixtures.edgeBlocks;
-import static com.exoticworlds.core.CuboidFixtures.pointBy;
-import static com.exoticworlds.core.CuboidFixtures.turned;
+import static com.exoticworlds.core.fold.cuboid.CuboidFixtures.MIN_CHUNK_X;
+import static com.exoticworlds.core.fold.cuboid.CuboidFixtures.MIN_CHUNK_Z;
+import static com.exoticworlds.core.fold.cuboid.CuboidFixtures.atlases;
+import static com.exoticworlds.core.fold.cuboid.CuboidFixtures.carried;
+import static com.exoticworlds.core.fold.cuboid.CuboidFixtures.edgeBlocks;
+import static com.exoticworlds.core.fold.cuboid.CuboidFixtures.pointBy;
+import static com.exoticworlds.core.fold.cuboid.CuboidFixtures.turned;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -16,12 +16,12 @@ import java.util.Random;
 
 import org.junit.jupiter.api.Test;
 
-import com.exoticworlds.core.CuboidAtlas;
-import com.exoticworlds.core.CuboidEdge;
-import com.exoticworlds.core.CuboidFace;
-import com.exoticworlds.core.CuboidFace.BoxVector;
-import com.exoticworlds.core.CuboidFixtures;
-import com.exoticworlds.core.CuboidVertex;
+import com.exoticworlds.core.fold.cuboid.CuboidAtlas;
+import com.exoticworlds.core.fold.cuboid.CuboidEdge;
+import com.exoticworlds.core.fold.cuboid.CuboidFace;
+import com.exoticworlds.core.fold.cuboid.CuboidFace.BoxVector;
+import com.exoticworlds.core.fold.cuboid.CuboidFixtures;
+import com.exoticworlds.core.fold.cuboid.CuboidVertex;
 import com.exoticworlds.engine.noise.BoxDivisors;
 import com.exoticworlds.engine.noise.NoiseConstants;
 import com.exoticworlds.engine.noise.PerlinMath;
@@ -100,7 +100,7 @@ class CuboidWarpTest {
             double largestBlocks) {
         static Warped of(CuboidAtlas atlas, double scale) {
             NoiseStack shiftStack = stack(SHIFT_SEED);
-            double shiftBlocks = NoiseConstants.SHIFT_AMPLITUDE / scale;
+            double shiftBlocks = NoiseConstants.SHIFT_AMPLITUDE_BLOCKS / scale;
             CuboidOctaves shift = CuboidOctaves.compile(atlas, NoiseConstants.SHIFT_SCALE, BoxDivisors.UNDIVIDED,
                     null, shiftStack);
             double largestBlocks = shiftBlocks * shiftStack.range().max() * WARP_DIAGONAL;

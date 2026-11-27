@@ -76,7 +76,6 @@
   "gui.exotic_worlds.world_shape_settings.shape.hint.cylinder": "un axe horizontal se referme sur lui-même, l'autre continue à l'infini comme dans le monde classique.",
   "gui.exotic_worlds.world_shape_settings.shape.hint.cuboid": "la surface d'une boîte d'arêtes A, B et C : marchez assez loin dans n'importe quelle direction et vous revenez à votre point de départ.",
   "gui.exotic_worlds.world_shape_settings.shape.hint.from_overworld": "prend la forme de la Surface à la taille propre à cette dimension.",
-  "gui.exotic_worlds.world_shape_settings.shape.hint.declared": "une forme ajoutée par un autre mod ; sa description s'affiche sous ce bouton.",
   "gui.exotic_worlds.world_shape_settings.shape.size_error": "Cette forme fait %s chunks de large ; cette dimension accepte de %s à %s.",
   "gui.exotic_worlds.world_shape_settings.nether_scale": "Échelle du Nether",
   "gui.exotic_worlds.world_shape_settings.size": "Taille du monde en chunks (%s-%s)",
@@ -116,8 +115,6 @@
   "gui.exotic_worlds.world_shape_settings.guaranteed_nether_complexes.hint.intro": "Le Nether contient au moins une forteresse du Nether et des vestiges de bastion, chacun dans un biome où il peut se trouver. Sans cette option, un petit Nether n'en a souvent aucun.",
   "gui.exotic_worlds.world_shape_settings.guaranteed_nether_complexes.hint.on": "un Nether qui n'en aurait aucun reçoit une forteresse du Nether et des vestiges de bastion.",
   "gui.exotic_worlds.world_shape_settings.guaranteed_nether_complexes.hint.off": "un petit Nether peut n'en avoir aucun.",
-  "gui.exotic_worlds.world_shape.normal": "Normale",
-  "gui.exotic_worlds.world_shape.normal.hint": "Le monde classique : un plan infini dans toutes les directions.",
   "gui.exotic_worlds.world_shape.seam_warning": "Ce type de monde apporte son propre générateur de monde : une Forme du monde limite toujours le monde et le referme en boucle, mais le terrain ne se raccordera pas au bord du monde.",
 
   "gui.exotic_worlds.settings.title": "Réglages d'Exotic Worlds",

@@ -5,7 +5,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 
-import com.exoticworlds.core.WorldLoopAttachments;
+import com.exoticworlds.core.fold.WorldLoopAttachments;
 import com.exoticworlds.engine.seam.SeamSteering;
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
@@ -36,6 +36,6 @@ public class LongDistancePatrolGoalMixin {
                             + "setPatrolTarget(Lnet/minecraft/core/BlockPos;)V"))
     private void exotic_worlds$companionTargetInBounds(PatrollingMonster companion, BlockPos legEnd,
             Operation<Void> original) {
-        original.call(companion, WorldLoopAttachments.foldOf(this.mob.level()).fold(legEnd));
+        original.call(companion, WorldLoopAttachments.getFold(this.mob.level()).fold(legEnd));
     }
 }

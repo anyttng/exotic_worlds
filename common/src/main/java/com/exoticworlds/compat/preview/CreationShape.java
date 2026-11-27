@@ -1,11 +1,15 @@
 package com.exoticworlds.compat.preview;
 
+import java.util.List;
+
 import org.jspecify.annotations.Nullable;
 
-import com.exoticworlds.core.CarriedShape;
-import com.exoticworlds.core.ShapedChunkGenerator;
-import com.exoticworlds.core.WorldFold;
-import com.exoticworlds.core.WorldFolds;
+import com.exoticworlds.core.feature.GenerationFeature;
+import com.exoticworlds.core.feature.ShapeFeatures;
+import com.exoticworlds.core.world.CarriedShape;
+import com.exoticworlds.core.gen.GeneratorShapes;
+import com.exoticworlds.core.fold.WorldFold;
+import com.exoticworlds.core.fold.WorldFolds;
 import com.exoticworlds.engine.noise.GenerationFoldContext;
 import com.exoticworlds.shape.WorldShapes;
 
@@ -16,23 +20,24 @@ public final class CreationShape {
     public static @Nullable CarriedShape carried(WorldCreationContext settings) {
         return WorldShapes.applyAtCreation(settings.worldgenLoadContext(), settings.selectedDimensions())
                 .get(LevelStem.OVERWORLD)
-                .map(stem -> ShapedChunkGenerator.carriedShapeOf(stem.generator()))
+                .map(stem -> GeneratorShapes.getCarriedShape(stem.generator()))
                 .orElse(null);
     }
 
-    public static Runnable underRouterBuild(@Nullable WorldFold fold, Runnable task) {
-        if (fold == null || !fold.isWrapped()) {
+    public static Runnable underRouterBuild(@Nullable CarriedShape shown, Runnable task) {
+        if (shown == null || !shown.getFold().isWrapped()) {
             return task;
         }
 
-        return () ->GenerationFoldContext.withRouterBuild(fold, () -> {
+        List<GenerationFeature> features = ShapeFeatures.activeFeatures(shown, LevelStem.OVERWORLD);
+        return () -> GenerationFoldContext.withRouterBuild(shown.getFold(), LevelStem.OVERWORLD, features, () -> {
             task.run();
             return null;
         });
     }
 
-    public static WorldFold routerBuildFold() {
-        WorldFold fold = GenerationFoldContext.context().routerBuildFold();
+    public static WorldFold getRouterBuildFold() {
+        WorldFold fold = GenerationFoldContext.getContext().getRouterBuildFold();
         return fold != null ? fold : WorldFolds.NOOP;
     }
 

@@ -5,19 +5,19 @@ import java.util.function.Supplier;
 
 import org.jspecify.annotations.Nullable;
 
-import com.exoticworlds.core.CuboidAtlas;
-import com.exoticworlds.core.CuboidEdge;
-import com.exoticworlds.core.WorldFold;
+import com.exoticworlds.core.fold.cuboid.CuboidAtlas;
+import com.exoticworlds.core.fold.cuboid.CuboidEdge;
+import com.exoticworlds.core.fold.WorldFold;
 
 import net.minecraft.world.level.levelgen.densityfunction.DensitySampler;
 import net.minecraft.world.level.levelgen.densityfunction.SamplerContext;
 
 sealed interface SeamPassage permits SeamCauseSearch.Lap, EdgePassage {
     static List<SeamPassage> of(WorldFold fold) {
-        CuboidAtlas atlas = fold.cuboidAtlas();
+        CuboidAtlas atlas = fold.getCuboidAtlas();
         return atlas != null
                 ? List.copyOf(EdgePassage.of(fold, atlas))
-                : List.copyOf(SeamCauseSearch.Lap.of(fold.blockLattice()));
+                : List.copyOf(SeamCauseSearch.Lap.of(fold.getBlockLattice()));
     }
 
     List<SeamCauseSearch.Point> samples();
@@ -28,7 +28,7 @@ sealed interface SeamPassage permits SeamCauseSearch.Lap, EdgePassage {
 
     @Nullable CuboidEdge edge();
 
-    default boolean differsAt(DensitySampler sampler, SeamCauseSearch.Point point) {
+    default boolean isDifferentAt(DensitySampler sampler, SeamCauseSearch.Point point) {
         SeamCauseSearch.Point away = away(point);
         float here = reading(point,
                 () -> sampler.sampleValue(SamplerContext.EMPTY_UNCACHED, point.x(), point.y(), point.z()));

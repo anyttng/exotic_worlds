@@ -35,7 +35,7 @@ public abstract class SampleGridMixin {
 
     @WrapMethod(method = "get")
     private float exotic_worlds$closeOnLap(float x, float z, SampleGrid.Sampler sampler, Operation<Float> original) {
-        SiteLattice lattice = SiteLattice.bound(this.spacing);
+        SiteLattice lattice = SiteLattice.getBound(this.spacing);
         if (lattice == null) {
             return original.call(x, z, sampler);
         }

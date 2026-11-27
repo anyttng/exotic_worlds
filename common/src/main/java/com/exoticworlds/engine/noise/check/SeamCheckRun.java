@@ -18,14 +18,14 @@ public final class SeamCheckRun {
     private final AtomicBoolean running = new AtomicBoolean();
 
     static SeamCheckRun of(MinecraftServer server) {
-        return ((SeamCheckRunHolder) server).exotic_worlds$seamCheckRun();
+        return ((SeamCheckRunHolder) server).exotic_worlds$getSeamCheckRun();
     }
 
-    boolean running() {
+    boolean isRunning() {
         return this.running.get();
     }
 
-    boolean start(CommandSourceStack source, List<ServerLevel> levels) {
+    boolean tryStart(CommandSourceStack source, List<ServerLevel> levels) {
         if (!this.running.compareAndSet(false, true)) {
             return false;
         }
@@ -61,9 +61,9 @@ public final class SeamCheckRun {
         }
     }
 
-    private void end(CommandSourceStack source, Component line, boolean failed) {
+    private void end(CommandSourceStack source, Component line, boolean hasFailed) {
         this.running.set(false);
-        if (failed) {
+        if (hasFailed) {
             source.sendFailure(line);
         } else {
             source.sendSuccess(() -> line, false);

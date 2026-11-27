@@ -22,7 +22,7 @@ public class LocateHidingPlaceMixin {
                     target = InjectionTargets.BLOCK_POS_CLOSER_TO_CENTER_THAN),
             expect = 2)
     private static boolean exotic_worlds$hidingPlaceReachThroughSeam(BlockPos hidingPos, Position bodyPosition,
-            double distance, Operation<Boolean> original, @Local(argsOnly = true) LivingEntity body) {
-        return original.call(hidingPos, SeamRange.towardCenterOf(body, hidingPos, bodyPosition), distance);
+            double distanceBlocks, Operation<Boolean> original, @Local(argsOnly = true) LivingEntity body) {
+        return original.call(hidingPos, SeamRange.towardCenterOf(body, hidingPos, bodyPosition), distanceBlocks);
     }
 }

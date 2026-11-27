@@ -12,12 +12,12 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.JsonOps;
-import com.exoticworlds.core.FlatShape;
-import com.exoticworlds.core.FlatShape.Identification;
-import com.exoticworlds.core.FlatShape.Mirror;
-import com.exoticworlds.core.ShapeFixtures;
-import com.exoticworlds.core.WorldLoopBounds;
-import com.exoticworlds.core.WorldLoopBounds.AxisBounds;
+import com.exoticworlds.core.world.FlatShape;
+import com.exoticworlds.core.world.FlatShape.Identification;
+import com.exoticworlds.core.world.FlatShape.Mirror;
+import com.exoticworlds.core.world.ShapeFixtures;
+import com.exoticworlds.core.world.WorldLoopBounds;
+import com.exoticworlds.core.world.WorldLoopBounds.AxisBounds;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
@@ -46,7 +46,7 @@ class FlatShapeCodecTest {
         assertEquals(
                 List.of(Identification.RECTANGLE, Identification.CYLINDER, Identification.TORUS,
                         Identification.LATTICE_TORUS, Identification.MOBIUS, Identification.KLEIN),
-                everyIdentification().stream().map(FlatShape::identification).toList());
+                everyIdentification().stream().map(FlatShape::getIdentification).toList());
     }
 
     @Test
@@ -85,7 +85,7 @@ class FlatShapeCodecTest {
                         + "\"z\":{\"min_chunk\":-16,\"max_chunk\":16}}")).getOrThrow();
 
         assertEquals(new FlatShape(SQUARE, 0, null), read);
-        assertTrue(read.decomposesPerAxis());
+        assertTrue(read.isDecomposedPerAxis());
     }
 
     @Test

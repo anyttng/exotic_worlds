@@ -7,14 +7,14 @@ import java.util.Random;
 
 import org.junit.jupiter.api.Test;
 
-import com.exoticworlds.api.v1.option.GenerationOptions;
-import com.exoticworlds.core.DeckGroupFold;
-import com.exoticworlds.core.FlatShape;
-import com.exoticworlds.core.ShapeFixtures;
-import com.exoticworlds.core.WorldFold;
-import com.exoticworlds.core.WorldFolds;
-import com.exoticworlds.core.WorldLoopBounds.AxisBounds;
-import com.exoticworlds.core.WorldLoopBounds;
+import com.exoticworlds.core.fold.deck.DeckGroupFold;
+import com.exoticworlds.core.world.FlatShape;
+import com.exoticworlds.core.world.ShapeFixtures;
+import com.exoticworlds.core.option.ShapeOptions;
+import com.exoticworlds.core.fold.WorldFold;
+import com.exoticworlds.core.fold.WorldFolds;
+import com.exoticworlds.core.world.WorldLoopBounds;
+import com.exoticworlds.core.world.WorldLoopBounds.AxisBounds;
 import com.exoticworlds.engine.noise.periodic.LapFloor;
 import com.exoticworlds.engine.noise.periodic.PeriodicLattice;
 import com.exoticworlds.engine.noise.periodic.PeriodicNoiseSampler;
@@ -37,9 +37,9 @@ class SamplerGoldenValuesTest {
     private static final WorldFold CYLINDER = WorldFolds.of(ShapeFixtures.cylinder(
             new WorldLoopBounds(new AxisBounds.Looped(-16, 16), AxisBounds.Unbounded.INSTANCE)));
     private static final WorldFold SKEWED = new DeckGroupFold(FlatShape.latticeTorus(SQUARE, 5),
-            GenerationOptions.DEFAULT);
+            ShapeOptions.DEFAULT);
     private static final WorldFold SKEWED_BACK = new DeckGroupFold(
-            FlatShape.latticeTorus(ShapeFixtures.loopedBounds(-32, 32, 0, 16), -13), GenerationOptions.DEFAULT);
+            FlatShape.latticeTorus(ShapeFixtures.loopedBounds(-32, 32, 0, 16), -13), ShapeOptions.DEFAULT);
 
     private static final List<WorldFold> PERLIN_FOLDS = List.of(TORUS, UNEVEN, CYLINDER, SKEWED, SKEWED_BACK);
     private static final List<WorldFold> SIMPLEX_FOLDS = List.of(TORUS, SMALL, UNEVEN, CYLINDER, WorldFolds.NOOP,

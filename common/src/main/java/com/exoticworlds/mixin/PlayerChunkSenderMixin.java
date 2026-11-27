@@ -9,8 +9,8 @@ import org.spongepowered.asm.mixin.injection.ModifyArg;
 
 import com.exoticworlds.InjectionTargets;
 import com.exoticworlds.accessors.LevelHolder;
-import com.exoticworlds.core.WorldFold;
-import com.exoticworlds.core.WorldLoopAttachments;
+import com.exoticworlds.core.fold.WorldFold;
+import com.exoticworlds.core.fold.WorldLoopAttachments;
 import com.llamalad7.mixinextras.sugar.Local;
 
 import net.minecraft.server.level.ChunkMap;
@@ -28,12 +28,12 @@ public class PlayerChunkSenderMixin {
             index = 1)
     private Comparator<Long> exotic_worlds$nearestPendingThroughSeam(Comparator<Long> original,
             @Local(argsOnly = true) ChunkMap chunkMap, @Local(argsOnly = true) ChunkPos playerPos) {
-        WorldFold fold = exotic_worlds$fold(chunkMap);
+        WorldFold fold = exotic_worlds$getFold(chunkMap);
         if (!fold.isWrapped()) {
             return original;
         }
 
-        return Comparator.comparingInt(pending -> fold.sqrChunkDistance(playerPos, ChunkPos.unpack(pending)));
+        return Comparator.comparingInt(pending -> fold.sqrDistanceChunks(playerPos, ChunkPos.unpack(pending)));
     }
 
     @ModifyArg(
@@ -44,16 +44,16 @@ public class PlayerChunkSenderMixin {
             index = 0)
     private Comparator<LevelChunk> exotic_worlds$nearestLoadedThroughSeam(Comparator<LevelChunk> original,
             @Local(argsOnly = true) ChunkMap chunkMap, @Local(argsOnly = true) ChunkPos playerPos) {
-        WorldFold fold = exotic_worlds$fold(chunkMap);
+        WorldFold fold = exotic_worlds$getFold(chunkMap);
         if (!fold.isWrapped()) {
             return original;
         }
 
-        return Comparator.comparingInt(chunk -> fold.sqrChunkDistance(chunk.getPos(), playerPos));
+        return Comparator.comparingInt(chunk -> fold.sqrDistanceChunks(chunk.getPos(), playerPos));
     }
 
     @Unique
-    private static WorldFold exotic_worlds$fold(ChunkMap chunkMap) {
-        return WorldLoopAttachments.foldOf(((LevelHolder) chunkMap).exotic_worlds$level());
+    private static WorldFold exotic_worlds$getFold(ChunkMap chunkMap) {
+        return WorldLoopAttachments.getFold(((LevelHolder) chunkMap).exotic_worlds$getLevel());
     }
 }

@@ -1,7 +1,7 @@
 package com.exoticworlds.engine.noise;
 
-import com.exoticworlds.core.TranslationLattice;
-import com.exoticworlds.core.WorldFold;
+import com.exoticworlds.core.fold.TranslationLattice;
+import com.exoticworlds.core.fold.WorldFold;
 
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.levelgen.synth.SimplexNoise;
@@ -23,12 +23,12 @@ public final class FoldedPlacementCounts {
     @SuppressWarnings("removal")
     private static double biomeInfo(SimplexSlot slot, WorldFold fold, double divisor, int x, int z) {
         SimplexNoise noise = (SimplexNoise) Biome.BIOME_INFO_NOISE;
-        SimplexField field = slot.field(fold, 1.0 / divisor, noise);
-        if (field.carries()) {
+        SimplexField field = slot.getField(fold, 1.0 / divisor, noise);
+        if (field.canCarry()) {
             return (float) field.sample(noise, x, z);
         }
 
-        TranslationLattice translations = fold.blockLattice();
+        TranslationLattice translations = fold.getBlockLattice();
         return noise.get(translations.foldX(x, z) / divisor, translations.foldZ(z) / divisor);
     }
 

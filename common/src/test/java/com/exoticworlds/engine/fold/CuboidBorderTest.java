@@ -6,12 +6,12 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.Test;
 
-import com.exoticworlds.core.CuboidAtlas;
-import com.exoticworlds.core.CuboidEdge;
-import com.exoticworlds.core.CuboidFace;
-import com.exoticworlds.core.CuboidFixtures;
-import com.exoticworlds.core.SeamTransform;
-import com.exoticworlds.core.WorldFold;
+import com.exoticworlds.core.fold.cuboid.CuboidAtlas;
+import com.exoticworlds.core.fold.cuboid.CuboidEdge;
+import com.exoticworlds.core.fold.cuboid.CuboidFace;
+import com.exoticworlds.core.fold.cuboid.CuboidFixtures;
+import com.exoticworlds.core.fold.SeamTransform;
+import com.exoticworlds.core.fold.WorldFold;
 
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.border.WorldBorder;
@@ -69,7 +69,7 @@ class CuboidBorderTest {
                 Vec3 twin = unfolded(outward, along);
                 boolean expected = Math.abs(twin.x - CENTER_X) < HALF && Math.abs(twin.z - CENTER_Z) < HALF;
                 Vec3 west = onWest(outward, along);
-                assertEquals(expected, BORDER.inside(west.x, west.z, 0.0), "west point " + west + " twin " + twin);
+                assertEquals(expected, BORDER.isInside(west.x, west.z, 0.0), "west point " + west + " twin " + twin);
             }
         }
     }
@@ -81,7 +81,7 @@ class CuboidBorderTest {
                 Vec3 twin = unfolded(outward, along);
                 double expected = HALF - Math.max(Math.abs(twin.x - CENTER_X), Math.abs(twin.z - CENTER_Z));
                 Vec3 west = onWest(outward, along);
-                assertEquals(expected, BORDER.distanceToEdge(west.x, west.z), TOLERANCE, "west point " + west);
+                assertEquals(expected, BORDER.distanceToEdgeBlocks(west.x, west.z), TOLERANCE, "west point " + west);
             }
         }
     }
@@ -127,7 +127,7 @@ class CuboidBorderTest {
         for (CuboidFace face : ATLAS.faces()) {
             double x = face.minBlockX() + face.widthBlocks() / 2.0;
             double z = face.minBlockZ() + face.depthBlocks() / 2.0;
-            assertTrue(whole.inside(x, z, 0.0), face.side() + " face");
+            assertTrue(whole.isInside(x, z, 0.0), face.side() + " face");
         }
     }
 

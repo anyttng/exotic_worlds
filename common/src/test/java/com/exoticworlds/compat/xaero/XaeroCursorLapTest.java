@@ -4,21 +4,21 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.junit.jupiter.api.Test;
 
-import com.exoticworlds.api.v1.ToroidalShape;
-import com.exoticworlds.compat.map.MapShapes;
+import com.exoticworlds.compat.map.MapFolds;
+import com.exoticworlds.core.fold.WorldFold;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.ChunkPos;
 
 class XaeroCursorLapTest {
-    private static final ToroidalShape SMALL = MapShapes.torus(-16, 16);
-    private static final int LAP = 512;
+    private static final WorldFold SMALL = MapFolds.torus(-16, 16);
+    private static final int LAP_BLOCKS = 512;
 
     @Test
     void aCursorPastTheSeamFoldsAndKeepsItsLap() {
         XaeroCursorLap cursor = new XaeroCursorLap();
         assertEquals(new BlockPos(-212, 0, 40), cursor.foldCursor(SMALL, 300, 40), "300 folds onto 300 - 512");
-        assertEquals(LAP, cursor.seatX(0), "the highlight is drawn back on the cursor's lap");
+        assertEquals(LAP_BLOCKS, cursor.seatX(0), "the highlight is drawn back on the cursor's lap");
         assertEquals(7, cursor.seatZ(7));
     }
 

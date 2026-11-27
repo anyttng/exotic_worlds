@@ -22,9 +22,9 @@ class XaeroFrameBudgetTest {
         Verdict verdict = XaeroFrameBudget.measure(LOADER, guiMap, XaeroFrameBudget.RENDER_STATE_METHOD,
                 XaeroFrameBudget.BUDGET, false);
 
-        assertTrue(verdict.limitPresent(), "the test runtime's ASM has no frame budget");
-        assertFalse(verdict.stripped());
-        assertTrue(verdict.exceeded());
+        assertTrue(verdict.isLimitPresent(), "the test runtime's ASM has no frame budget");
+        assertFalse(verdict.isStripped());
+        assertTrue(verdict.isExceeded());
     }
 
     @Test
@@ -35,8 +35,8 @@ class XaeroFrameBudgetTest {
         Verdict verdict = XaeroFrameBudget.measure(LOADER, guiMap, XaeroFrameBudget.RENDER_STATE_METHOD,
                 XaeroFrameBudget.BUDGET, true);
 
-        assertTrue(verdict.stripped(), "the frames jar is not on the test runtime");
-        assertFalse(verdict.exceeded());
+        assertTrue(verdict.isStripped(), "the frames jar is not on the test runtime");
+        assertFalse(verdict.isExceeded());
     }
 
     @Test
@@ -46,8 +46,8 @@ class XaeroFrameBudgetTest {
 
         Verdict verdict = XaeroFrameBudget.measure(LOADER, small, SMALL_METHOD, XaeroFrameBudget.BUDGET, false);
 
-        assertTrue(verdict.limitPresent());
-        assertFalse(verdict.exceeded());
+        assertTrue(verdict.isLimitPresent());
+        assertFalse(verdict.isExceeded());
     }
 
     @Test

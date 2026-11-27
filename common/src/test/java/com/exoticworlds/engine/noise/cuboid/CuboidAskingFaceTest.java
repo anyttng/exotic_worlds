@@ -1,11 +1,11 @@
 package com.exoticworlds.engine.noise.cuboid;
 
-import static com.exoticworlds.core.CuboidFixtures.atlases;
-import static com.exoticworlds.core.CuboidFixtures.carried;
-import static com.exoticworlds.core.CuboidFixtures.cuboidFold;
-import static com.exoticworlds.core.CuboidFixtures.edgeBlocks;
-import static com.exoticworlds.core.CuboidFixtures.face;
-import static com.exoticworlds.core.CuboidFixtures.pointBy;
+import static com.exoticworlds.core.fold.cuboid.CuboidFixtures.atlases;
+import static com.exoticworlds.core.fold.cuboid.CuboidFixtures.carried;
+import static com.exoticworlds.core.fold.cuboid.CuboidFixtures.cuboidFold;
+import static com.exoticworlds.core.fold.cuboid.CuboidFixtures.edgeBlocks;
+import static com.exoticworlds.core.fold.cuboid.CuboidFixtures.face;
+import static com.exoticworlds.core.fold.cuboid.CuboidFixtures.pointBy;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
@@ -14,10 +14,10 @@ import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
-import com.exoticworlds.core.CuboidAtlas;
-import com.exoticworlds.core.CuboidEdge;
-import com.exoticworlds.core.CuboidFace;
-import com.exoticworlds.core.SeamTransform;
+import com.exoticworlds.core.fold.cuboid.CuboidAtlas;
+import com.exoticworlds.core.fold.cuboid.CuboidEdge;
+import com.exoticworlds.core.fold.cuboid.CuboidFace;
+import com.exoticworlds.core.fold.SeamTransform;
 import com.exoticworlds.engine.noise.BoxDivisors;
 import com.exoticworlds.engine.noise.GenerationFoldContext;
 import com.exoticworlds.engine.noise.NoiseConstants;
@@ -97,7 +97,7 @@ class CuboidAskingFaceTest {
 
         float sampleFrom(ChunkPos asking, CuboidOctaves octaves, double[] point) {
             try (GenerationFoldContext.Context.FoldScope _ =
-                    GenerationFoldContext.context().withFold(cuboidFold(this.atlas), asking)) {
+                    GenerationFoldContext.getContext().withFold(cuboidFold(this.atlas), asking)) {
                 return octaves.sample(point[0], Y, point[1]);
             }
         }
@@ -133,14 +133,14 @@ class CuboidAskingFaceTest {
     @Test
     void aCellPastTheAskingFaceIsTheCellAtTheCarriedBlock() {
         for (Corner corner : Corner.all()) {
-            CuboidCellGrid grid = CuboidCellGrid.of(corner.atlas(), NoiseConstants.AQUIFER_FLUID_LEVEL_CELL_WIDTH);
+            CuboidCellGrid grid = CuboidCellGrid.of(corner.atlas(), NoiseConstants.AQUIFER_FLUID_LEVEL_CELL_WIDTH_BLOCKS);
             double[] past = corner.outside(corner.along(), ONE_BLOCK);
             int blockX = Mth.floor(past[0]);
             int blockZ = Mth.floor(past[1]);
             int carriedX = corner.across().applyCellX(blockX, blockZ);
             int carriedZ = corner.across().applyCellZ(blockX, blockZ);
             try (GenerationFoldContext.Context.FoldScope _ =
-                    GenerationFoldContext.context().withFold(cuboidFold(corner.atlas()), corner.chunk())) {
+                    GenerationFoldContext.getContext().withFold(cuboidFold(corner.atlas()), corner.chunk())) {
                 assertEquals(grid.cellOriginX(carriedX, carriedZ), grid.cellOriginX(blockX, blockZ),
                         corner.toString());
                 assertEquals(grid.cellOriginZ(carriedX, carriedZ), grid.cellOriginZ(blockX, blockZ),

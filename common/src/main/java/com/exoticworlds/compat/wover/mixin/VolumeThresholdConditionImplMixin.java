@@ -12,7 +12,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import com.exoticworlds.compat.worldgen.LapNoise;
 import com.exoticworlds.compat.worldgen.OpenSimplexStandIn;
 import com.exoticworlds.compat.worldgen.StandInHolder;
-import com.exoticworlds.core.WorldFold;
+import com.exoticworlds.core.fold.WorldFold;
 import com.exoticworlds.engine.noise.GenerationFoldContext;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
@@ -45,14 +45,14 @@ public class VolumeThresholdConditionImplMixin implements StandInHolder {
                             + "eval(DDD)D"))
     private double exotic_worlds$lapNoise(VolumeThresholdConditionImpl.Context noise, double x, double y, double z,
             Operation<Double> original) {
-        WorldFold fold = GenerationFoldContext.context().wrappedFold();
+        WorldFold fold = GenerationFoldContext.getContext().getWrappedFold();
         return fold == null
                 ? original.call(noise, x, y, z)
                 : LapNoise.eval(this.exotic_worlds$standIn, fold, x, y, z, this.scaleX, this.scaleZ);
     }
 
     @Override
-    public OpenSimplexStandIn exotic_worlds$standIn() {
+    public OpenSimplexStandIn exotic_worlds$getStandIn() {
         return this.exotic_worlds$standIn;
     }
 }

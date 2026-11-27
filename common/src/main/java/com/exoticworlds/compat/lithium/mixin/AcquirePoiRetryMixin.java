@@ -8,8 +8,8 @@ import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.llamalad7.mixinextras.sugar.Local;
 import com.exoticworlds.compat.lithium.LithiumInjectionTargets;
-import com.exoticworlds.core.WorldFold;
-import com.exoticworlds.core.WorldLoopAttachments;
+import com.exoticworlds.core.fold.WorldFold;
+import com.exoticworlds.core.fold.WorldLoopAttachments;
 import com.exoticworlds.mixin.SectionStorageAccessor;
 
 import net.minecraft.core.BlockPos;
@@ -26,7 +26,7 @@ public class AcquirePoiRetryMixin {
             name = LithiumInjectionTargets.RETRY_MARKER_LAMBDA)
     private static long exotic_worlds$retryDistanceThroughSeam(BlockPos poiPos, BlockPos center, Operation<Long> original,
             @Local(argsOnly = true) PoiManager poiManager) {
-        WorldFold fold = WorldLoopAttachments.foldIfLevel(
+        WorldFold fold = WorldLoopAttachments.getFoldIfLevel(
                 ((SectionStorageAccessor) poiManager).exotic_worlds$getLevelHeightAccessor());
         return original.call(fold.nearestCopy(center, poiPos), center);
     }

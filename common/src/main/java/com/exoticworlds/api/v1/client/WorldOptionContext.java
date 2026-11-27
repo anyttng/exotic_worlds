@@ -1,5 +1,6 @@
 package com.exoticworlds.api.v1.client;
 
+import com.exoticworlds.api.v1.Broken;
 import org.jspecify.annotations.Nullable;
 
 import com.exoticworlds.api.v1.option.GenerationOptions;
@@ -13,10 +14,12 @@ import net.minecraft.core.Direction;
  * itself. A shape's own settings screen implements this and hands it to {@link WorldOptionControls#createAll}.
  *
  * @deprecated no screen builds these controls any more, so a control registered for an option is never shown.
- *     Declare how the option is offered and drawn with a {@link com.exoticworlds.api.v2.option.DimensionOption};
+ *     Declare how the option is offered and drawn with a {@link com.exoticworlds.api.v2.feature.OptionFeatureV2};
  *     the World Shape Settings screen draws it.
  */
 @Deprecated
+@Broken("No screen builds these controls, so a control registered for an option is never shown."
+        + " Declare the option as an api.v2.feature.OptionFeatureV2.")
 public interface WorldOptionContext {
 
     /** The screen the control lives on — what a sub-screen it opens returns to. */

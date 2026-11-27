@@ -7,11 +7,11 @@ import java.util.Random;
 
 import org.junit.jupiter.api.Test;
 
-import com.exoticworlds.core.ShapeFixtures;
-import com.exoticworlds.core.TranslationLattice;
-import com.exoticworlds.core.WorldFold;
-import com.exoticworlds.core.WorldFolds;
-import com.exoticworlds.core.WrapDomain;
+import com.exoticworlds.core.world.ShapeFixtures;
+import com.exoticworlds.core.fold.TranslationLattice;
+import com.exoticworlds.core.fold.WorldFold;
+import com.exoticworlds.core.fold.WorldFolds;
+import com.exoticworlds.core.fold.WrapDomain;
 
 import net.minecraft.core.Direction;
 import net.minecraft.util.Interval;
@@ -20,12 +20,12 @@ class BlendedNoiseOverflowTest {
     private static final long SEED = 0x0153EL;
     private static final int SAMPLES = 64;
     private static final int LOWEST_Y = -64;
-    private static final int WORLD_HEIGHT = 384;
+    private static final int WORLD_HEIGHT_BLOCKS = 384;
 
-    private static final int HALF_CHUNK_SPAN = 1 << 20;
+    private static final int HALF_SPAN_CHUNKS = 1 << 20;
 
     private static final WorldFold WIDE = WorldFolds.of(ShapeFixtures.torus(
-            ShapeFixtures.loopedBounds(-HALF_CHUNK_SPAN, HALF_CHUNK_SPAN, -HALF_CHUNK_SPAN, HALF_CHUNK_SPAN)));
+            ShapeFixtures.loopedBounds(-HALF_SPAN_CHUNKS, HALF_SPAN_CHUNKS, -HALF_SPAN_CHUNKS, HALF_SPAN_CHUNKS)));
 
     private static final BlendedNoiseFixture.Params EXTREME_XZ_SCALE =
             new BlendedNoiseFixture.Params(1000.0, 0.125, 80.0, 160.0, 8.0);
@@ -35,12 +35,12 @@ class BlendedNoiseOverflowTest {
         BlendedNoiseFixture.Params params = BlendedNoiseFixture.Params.OVERWORLD;
         Interval range = params.noise().range();
         BlendedNoiseFixture.Replica replica = BlendedNoiseFixture.Replica.of(SEED);
-        WrapDomain xDomain = WIDE.blockDomain(Direction.Axis.X);
-        WrapDomain zDomain = WIDE.blockDomain(Direction.Axis.Z);
+        WrapDomain xDomain = WIDE.getBlockDomain(Direction.Axis.X);
+        WrapDomain zDomain = WIDE.getBlockDomain(Direction.Axis.Z);
         Random random = new Random(SEED);
         for (int i = 0; i < SAMPLES; i++) {
             int x = blockIn(random, xDomain);
-            int y = LOWEST_Y + random.nextInt(WORLD_HEIGHT);
+            int y = LOWEST_Y + random.nextInt(WORLD_HEIGHT_BLOCKS);
             int z = blockIn(random, zDomain);
             double here = BlendedNoiseFixture.folded(replica, params, WIDE, x, y, z);
             String at = " at (" + x + ", " + y + ", " + z + ")";
@@ -55,13 +55,13 @@ class BlendedNoiseOverflowTest {
     @Test
     void anExtremeHorizontalScaleSamplesVanillaAtTheFoldedBlock() {
         BlendedNoiseFixture.Replica replica = BlendedNoiseFixture.Replica.of(SEED);
-        TranslationLattice lattice = WIDE.blockLattice();
-        WrapDomain xDomain = WIDE.blockDomain(Direction.Axis.X);
-        WrapDomain zDomain = WIDE.blockDomain(Direction.Axis.Z);
+        TranslationLattice lattice = WIDE.getBlockLattice();
+        WrapDomain xDomain = WIDE.getBlockDomain(Direction.Axis.X);
+        WrapDomain zDomain = WIDE.getBlockDomain(Direction.Axis.Z);
         Random random = new Random(SEED);
         for (int i = 0; i < SAMPLES; i++) {
             int x = blockIn(random, xDomain);
-            int y = LOWEST_Y + random.nextInt(WORLD_HEIGHT);
+            int y = LOWEST_Y + random.nextInt(WORLD_HEIGHT_BLOCKS);
             int z = blockIn(random, zDomain);
             for (int[] block : new int[][] {{x, z}, {x + xDomain.domainLength, z}, {x, z + zDomain.domainLength}}) {
                 double expected = BlendedNoiseFixture.vanilla(replica, EXTREME_XZ_SCALE,

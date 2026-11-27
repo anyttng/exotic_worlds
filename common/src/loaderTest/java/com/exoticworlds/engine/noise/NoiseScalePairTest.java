@@ -11,9 +11,9 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 
-import com.exoticworlds.core.ShapeFixtures;
-import com.exoticworlds.core.WorldFold;
-import com.exoticworlds.core.WorldFolds;
+import com.exoticworlds.core.world.ShapeFixtures;
+import com.exoticworlds.core.fold.WorldFold;
+import com.exoticworlds.core.fold.WorldFolds;
 
 import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
@@ -61,19 +61,19 @@ class NoiseScalePairTest {
                         DensityFunctions.constant(-1.0F)));
         DensitySampler sampler = compileSeparated(gap, fold);
 
-        int lower = fold.blockDomain(Direction.Axis.X).lowerBound;
-        int width = fold.blockDomain(Direction.Axis.X).domainLength;
-        int step = width / GRID_STEPS;
+        int lower = fold.getBlockDomain(Direction.Axis.X).lowerBound;
+        int widthBlocks = fold.getBlockDomain(Direction.Axis.X).domainLength;
+        int stepBlocks = widthBlocks / GRID_STEPS;
         double widest = 0.0;
         for (int i = 0; i < GRID_STEPS; i++) {
             for (int j = 0; j < GRID_STEPS; j++) {
-                float value = DensityFunctionFixture.sample(sampler, lower + i * step, SAMPLE_Y, lower + j * step);
+                float value = DensityFunctionFixture.sample(sampler, lower + i * stepBlocks, SAMPLE_Y, lower + j * stepBlocks);
                 widest = Math.max(widest, Math.abs(value));
             }
         }
 
         assertTrue(widest > OCEAN_GAP, "widest gap between scales " + NEAR_SCALE + " and " + FAR_SCALE
-                + " on a " + width + "-block lap: " + widest);
+                + " on a " + widthBlocks + "-block lap: " + widest);
     }
 
     @Test
@@ -83,8 +83,8 @@ class NoiseScalePairTest {
                 DensityFunctions.noise(NOISE_DATA, NARROW_SCALE, FLAT));
         NoiseScaleLadder ladder = ladderOf(pair, fold);
 
-        assertEquals(WIDE_SCALE, ladder.separated(NOISE_DATA, WIDE_SCALE));
-        assertEquals(NARROW_SCALE, ladder.separated(NOISE_DATA, NARROW_SCALE));
+        assertEquals(WIDE_SCALE, ladder.getSeparated(NOISE_DATA, WIDE_SCALE));
+        assertEquals(NARROW_SCALE, ladder.getSeparated(NOISE_DATA, NARROW_SCALE));
     }
 
     private static WorldFold torus(int halfChunks) {

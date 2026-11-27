@@ -9,8 +9,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import com.exoticworlds.InjectionTargets;
 import com.exoticworlds.accessors.FoldSource;
-import com.exoticworlds.core.WorldFold;
-import com.exoticworlds.core.WorldLoopAttachments;
+import com.exoticworlds.core.fold.WorldFold;
+import com.exoticworlds.core.fold.WorldLoopAttachments;
 import com.exoticworlds.engine.fold.NearestCopy;
 import com.exoticworlds.engine.gen.DimensionChoicesCommand;
 import com.exoticworlds.engine.net.MeasuredReach;
@@ -56,8 +56,8 @@ public class PlayerListMixin {
             method = "broadcast",
             at = @At(value = "INVOKE", target = InjectionTargets.SERVER_GAME_PACKET_LISTENER_SEND))
     private void exotic_worlds$measureBroadcastReach(ServerGamePacketListenerImpl connection, Packet<?> packet,
-            Operation<Void> original, @Local(argsOnly = true, name = "range") double range) {
-        try (MeasuredReach _ = MeasuredReach.measuring(range)) {
+            Operation<Void> original, @Local(argsOnly = true, name = "range") double rangeBlocks) {
+        try (MeasuredReach _ = MeasuredReach.measuring(rangeBlocks)) {
             original.call(connection, packet);
         }
     }
@@ -65,7 +65,7 @@ public class PlayerListMixin {
     @Unique
     private static double exotic_worlds$listenerCoord(ServerPlayer player, Direction.Axis axis, Vec3 event,
             Operation<Double> original) {
-        WorldFold fold = ((FoldSource) player).exotic_worlds$wrappedFold();
+        WorldFold fold = ((FoldSource) player).exotic_worlds$getWrappedFold();
         return fold == null
                 ? original.call(player)
                 : NearestCopy.toward(fold, axis, event, player.position());
@@ -103,7 +103,7 @@ public class PlayerListMixin {
 
     @WrapOperation(method = "setViewDistance", at = @At(value = "INVOKE", target = BROADCAST_ALL))
     private void exotic_worlds$sendViewDistancePerLevel(PlayerList playerList, Packet<?> packet, Operation<Void> original) {
-        if (WorldShapeSync.limitsAnyPlayer(playerList, playerList.getViewDistance())) {
+        if (WorldShapeSync.isLimitingAnyPlayer(playerList, playerList.getViewDistance())) {
             playerList.getPlayers().forEach(WorldShapeSync::sendViewDistance);
         } else {
             original.call(playerList, packet);
@@ -113,7 +113,7 @@ public class PlayerListMixin {
     @WrapOperation(method = "setSimulationDistance", at = @At(value = "INVOKE", target = BROADCAST_ALL))
     private void exotic_worlds$sendSimulationDistancePerLevel(PlayerList playerList, Packet<?> packet,
             Operation<Void> original) {
-        if (WorldShapeSync.limitsAnyPlayer(playerList, playerList.getSimulationDistance())) {
+        if (WorldShapeSync.isLimitingAnyPlayer(playerList, playerList.getSimulationDistance())) {
             playerList.getPlayers().forEach(WorldShapeSync::sendSimulationDistance);
         } else {
             original.call(playerList, packet);
@@ -123,16 +123,16 @@ public class PlayerListMixin {
     @WrapOperation(
             method = "setViewDistance",
             at = @At(value = "INVOKE", target = "Lnet/minecraft/server/level/ServerChunkCache;setViewDistance(I)V"))
-    private void exotic_worlds$limitViewDistance(ServerChunkCache chunkSource, int viewDistance, Operation<Void> original,
+    private void exotic_worlds$limitViewDistance(ServerChunkCache chunkSource, int viewDistanceChunks, Operation<Void> original,
             @Local ServerLevel level) {
-        original.call(chunkSource, WorldLoopAttachments.foldOf(level).limitViewDistance(viewDistance));
+        original.call(chunkSource, WorldLoopAttachments.getFold(level).limitViewDistance(viewDistanceChunks));
     }
 
     @WrapOperation(
             method = "setSimulationDistance",
             at = @At(value = "INVOKE", target = "Lnet/minecraft/server/level/ServerChunkCache;setSimulationDistance(I)V"))
-    private void exotic_worlds$limitSimulationDistance(ServerChunkCache chunkSource, int simulationDistance, Operation<Void> original,
+    private void exotic_worlds$limitSimulationDistance(ServerChunkCache chunkSource, int simulationDistanceChunks, Operation<Void> original,
             @Local ServerLevel level) {
-        original.call(chunkSource, WorldLoopAttachments.foldOf(level).limitViewDistance(simulationDistance));
+        original.call(chunkSource, WorldLoopAttachments.getFold(level).limitViewDistance(simulationDistanceChunks));
     }
 }

@@ -24,7 +24,7 @@ public final class CarverRecording {
     }
 
     public static @Nullable CarverOutput outputFor(WorldCarver carver, CarverOutput output) {
-        CarverRecording recording = SCOPE.current();
+        CarverRecording recording = SCOPE.getCurrent();
         if (recording == null) {
             return null;
         }
@@ -49,7 +49,7 @@ public final class CarverRecording {
         };
     }
 
-    IdentityHashMap<WorldCarver, BitSet> carved() {
+    IdentityHashMap<WorldCarver, BitSet> getCarved() {
         return this.carved;
     }
 }

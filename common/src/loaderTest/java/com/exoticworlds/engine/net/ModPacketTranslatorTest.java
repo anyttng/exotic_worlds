@@ -15,6 +15,7 @@ import org.junit.jupiter.api.Test;
 
 import com.exoticworlds.ExoticWorlds;
 import com.exoticworlds.api.v1.net.PacketRewriters;
+import com.exoticworlds.engine.net.RecordPayloadFold.ComponentRole;
 import com.exoticworlds.engine.net.RecordPayloadFold.Role;
 
 import net.minecraft.core.BlockPos;
@@ -31,7 +32,8 @@ import net.minecraft.network.protocol.game.ServerGamePacketListener;
 import net.minecraft.resources.Identifier;
 
 class ModPacketTranslatorTest {
-    private static final Map<String, Role> UNTOUCHED_OFFSET_ROW = Map.of("offset", Role.UNTOUCHED);
+    private static final Map<String, ComponentRole> UNTOUCHED_OFFSET_ROW =
+            Map.of("offset", new ComponentRole.Direct(Role.UNTOUCHED));
     private static final double PARTICLE_Y = 64.0;
 
     record ClientboundProbePacket(BlockPos pos, BlockPos offset) implements Packet<ClientGamePacketListener> {
@@ -136,14 +138,15 @@ class ModPacketTranslatorTest {
     static void registerTheRewrittenProbeThroughThePublicSeamAlone() {
         PacketRewriters.registerClientboundPacket(RewrittenProbePacket.class,
                 (packet, context) -> new RewrittenProbePacket(BlockPos.ZERO));
-        com.exoticworlds.api.v2.net.PacketRewriters.registerClientboundPacket(GeometryProbePacket.class,
-                (packet, context) -> new GeometryProbePacket(context.geometry().fold(context.toClient(packet.pos()))));
+        com.exoticworlds.api.v2.net.PacketRewritersV2.registerClientboundPacket(GeometryProbePacket.class,
+                (packet, context) -> new GeometryProbePacket(
+                        context.getGeometry().fold(context.toClient(packet.pos()))));
         PacketRewriters.registerClientboundPacket(TwiceRegisteredProbePacket.class, (packet, context) -> packet);
         PacketRewriters.registerParticle(ProbeParticle.class,
                 (particle, context, clientOrigin) -> new ProbeParticle(context.toClient(particle.target())));
-        com.exoticworlds.api.v2.net.PacketRewriters.registerParticle(GeometryProbeParticle.class,
+        com.exoticworlds.api.v2.net.PacketRewritersV2.registerParticle(GeometryProbeParticle.class,
                 (particle, context, clientOrigin) -> new GeometryProbeParticle(
-                        context.geometry().fold(particle.target())));
+                        context.getGeometry().fold(particle.target())));
     }
 
     @AfterEach
@@ -216,7 +219,7 @@ class ModPacketTranslatorTest {
     @Test
     void aPacketRegisteredThroughV1AndV2IsRefused() {
         assertThrows(IllegalStateException.class, () ->
-                com.exoticworlds.api.v2.net.PacketRewriters.registerClientboundPacket(
+                com.exoticworlds.api.v2.net.PacketRewritersV2.registerClientboundPacket(
                         TwiceRegisteredProbePacket.class, (packet, context) -> packet));
     }
 
@@ -233,7 +236,7 @@ class ModPacketTranslatorTest {
     @Test
     void aParticleRegisteredThroughV1AndV2IsRefused() {
         assertThrows(IllegalStateException.class, () ->
-                com.exoticworlds.api.v2.net.PacketRewriters.registerParticle(
+                com.exoticworlds.api.v2.net.PacketRewritersV2.registerParticle(
                         ProbeParticle.class, (particle, context, clientOrigin) -> particle));
     }
 

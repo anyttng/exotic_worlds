@@ -10,13 +10,13 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
 
-import com.exoticworlds.api.v1.option.GenerationOptions;
-import com.exoticworlds.api.v1.shape.LoopSpans;
-import com.exoticworlds.core.NetherScales;
+import com.exoticworlds.core.world.NetherScales;
+import com.exoticworlds.core.world.ShapeFixtures;
+import com.exoticworlds.core.option.ShapeOptions;
 import com.exoticworlds.engine.gen.ShapedDimensions;
 import com.exoticworlds.shape.StartupRegistrations;
-import com.exoticworlds.shape.climate.ClimateScale;
-import com.exoticworlds.shape.climate.CompactBiomes;
+import com.exoticworlds.shape.feature.compactbiomes.ClimateScale;
+import com.exoticworlds.shape.feature.compactbiomes.CompactBiomes;
 
 import net.minecraft.SharedConstants;
 import net.minecraft.core.Direction;
@@ -42,11 +42,11 @@ class LayoutModRowsTest {
     private static final ResourceKey<LevelStem> SKY = stemKey("sky");
     private static final ResourceKey<LevelStem> MINE = stemKey("mine");
 
-    private static final GenerationOptions PLAIN = DimensionLayout.DEFAULT_OPTIONS;
+    private static final ShapeOptions PLAIN = LayoutFixtures.PLAIN;
     private static final DimensionLayout NORMAL = DimensionLayout.normal(PLAIN);
 
     private static HolderLookup.Provider worldgen;
-    private static GenerationOptions compact6;
+    private static ShapeOptions compact6;
 
     @BeforeAll
     static void bootstrapVanilla() {
@@ -54,26 +54,26 @@ class LayoutModRowsTest {
         Bootstrap.bootStrap();
         StartupRegistrations.options();
         worldgen = VanillaRegistries.createWorldLookup();
-        compact6 = PLAIN.with(CompactBiomes.OPTION, ClimateScale.custom(6));
+        compact6 = PLAIN.with(CompactBiomes.FEATURE.getOption(), ClimateScale.custom(6));
     }
 
     @Test
     void modRowsBesideANormalWorldRoundTrip() {
         WorldLayout chosen = new WorldLayout(NORMAL, NORMAL, NORMAL, Map.of(
-                SKY, DimensionLayout.looped(LoopSpans.ofWidths(48, 32), compact6),
+                SKY, LayoutFixtures.looped(ShapeFixtures.torus(48, 32), compact6),
                 MINE, NORMAL), NetherScales.DEFAULT);
 
         WorldDimensions created = LayoutDimensions.apply(vanillaDimensions(), chosen);
 
-        assertNull(ShapedDimensions.shapeOf(created, LevelStem.OVERWORLD));
-        assertEquals(2, ShapedDimensions.dimensionTableOf(created).entries().size());
+        assertNull(ShapedDimensions.getShape(created, LevelStem.OVERWORLD));
+        assertEquals(2, ShapedDimensions.getDimensionTable(created).getEntries().size());
         assertEquals(chosen, LayoutDimensions.read(created));
     }
 
     @Test
     void modRowsBesideAWrappedOverworldRoundTrip() {
-        WorldLayout chosen = new WorldLayout(DimensionLayout.looped(LoopSpans.ofWidth(64), PLAIN), NORMAL, NORMAL,
-                Map.of(SKY, DimensionLayout.looped(LoopSpans.ofWidth(Direction.Axis.Z, 40), compact6)),
+        WorldLayout chosen = new WorldLayout(LayoutFixtures.looped(ShapeFixtures.torus(64), PLAIN), NORMAL, NORMAL,
+                Map.of(SKY, LayoutFixtures.looped(ShapeFixtures.cylinder(Direction.Axis.Z, 40), compact6)),
                 NetherScales.DEFAULT);
 
         assertEquals(chosen, LayoutDimensions.read(LayoutDimensions.apply(vanillaDimensions(), chosen)));

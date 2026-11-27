@@ -105,7 +105,7 @@ public abstract class MapRendererMixin implements JourneyMapSeamPass {
     private static final int SEAM_ARGB = 0x59FFFFFF;
 
     @Unique
-    private static boolean exotic_worlds$anchorPass;
+    private static boolean exotic_worlds$isAnchorPass;
 
     @Unique
     private String exotic_worlds$lastLevelDimension;
@@ -122,8 +122,8 @@ public abstract class MapRendererMixin implements JourneyMapSeamPass {
         }
 
         String dimension = level.dimension().identifier().toString();
-        if (JourneyMapFold.dropsGrid(exotic_worlds$lastLevelDimension, dimension, exotic_worlds$lastWorldDir, worldDir,
-                this.regions.size())) {
+        if (JourneyMapFold.shouldDropGrid(exotic_worlds$lastLevelDimension, dimension, exotic_worlds$lastWorldDir,
+                worldDir, this.regions.size())) {
             this.clear();
         }
 
@@ -164,22 +164,22 @@ public abstract class MapRendererMixin implements JourneyMapSeamPass {
 
     @Inject(method = BLOCK_PIXEL_IN_GRID, at = @At("HEAD"))
     private void exotic_worlds$beginAnchorPass(CallbackInfoReturnable<Point2D.Double> cir) {
-        exotic_worlds$anchorPass = true;
+        exotic_worlds$isAnchorPass = true;
     }
 
     @Inject(method = BLOCK_PIXEL_IN_GRID, at = @At("RETURN"))
     private void exotic_worlds$endAnchorPass(CallbackInfoReturnable<Point2D.Double> cir) {
-        exotic_worlds$anchorPass = false;
+        exotic_worlds$isAnchorPass = false;
     }
 
     @WrapMethod(method = BLOCK_COORD_PIXEL_IN_GRID)
     private Point2D.Double exotic_worlds$seatPixel(double blockX, double blockZ, Operation<Point2D.Double> original) {
-        if (exotic_worlds$anchorPass) {
+        if (exotic_worlds$isAnchorPass) {
             return original.call(blockX, blockZ);
         }
 
         Vec3 seated = JourneyMapFold.seatPixel(this.centerBlockX, this.centerBlockZ, blockX, blockZ,
-                JourneyMapFold.copiesOf(this.getUIState().ui));
+                JourneyMapFold.getCopies(this.getUIState().ui));
         return original.call(seated.x, seated.z);
     }
 

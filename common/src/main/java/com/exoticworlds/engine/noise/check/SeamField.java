@@ -20,22 +20,22 @@ enum SeamField {
     FEATURES("features", false);
 
     private final String id;
-    private final boolean climate;
+    private final boolean isClimate;
 
-    SeamField(String id, boolean climate) {
+    SeamField(String id, boolean isClimate) {
         this.id = id;
-        this.climate = climate;
+        this.isClimate = isClimate;
     }
 
-    String id() {
+    String getId() {
         return this.id;
     }
 
-    boolean climate() {
-        return this.climate;
+    boolean isClimate() {
+        return this.isClimate;
     }
 
-    long climateOf(Climate.TargetPoint point) {
+    long getClimate(Climate.TargetPoint point) {
         return switch (this) {
             case TEMPERATURE -> point.temperature();
             case HUMIDITY -> point.humidity();
@@ -47,7 +47,7 @@ enum SeamField {
         };
     }
 
-    @Nullable DensityFunction densityOf(NoiseRouter router) {
+    @Nullable DensityFunction getDensity(NoiseRouter router) {
         return switch (this) {
             case TEMPERATURE -> router.temperature();
             case HUMIDITY -> router.vegetation();

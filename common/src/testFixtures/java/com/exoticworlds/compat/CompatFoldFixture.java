@@ -1,13 +1,13 @@
 package com.exoticworlds.compat;
 
-import com.exoticworlds.api.v1.option.GenerationOptions;
-import com.exoticworlds.core.DeckGroupFold;
-import com.exoticworlds.core.FlatShape;
-import com.exoticworlds.core.ShapeFixtures;
-import com.exoticworlds.core.WorldFold;
-import com.exoticworlds.core.WorldFolds;
-import com.exoticworlds.core.WorldLoopBounds;
-import com.exoticworlds.core.WorldLoopBounds.AxisBounds;
+import com.exoticworlds.core.fold.deck.DeckGroupFold;
+import com.exoticworlds.core.world.FlatShape;
+import com.exoticworlds.core.world.ShapeFixtures;
+import com.exoticworlds.core.option.ShapeOptions;
+import com.exoticworlds.core.fold.WorldFold;
+import com.exoticworlds.core.fold.WorldFolds;
+import com.exoticworlds.core.world.WorldLoopBounds;
+import com.exoticworlds.core.world.WorldLoopBounds.AxisBounds;
 
 import net.minecraft.core.Direction;
 
@@ -23,11 +23,11 @@ public final class CompatFoldFixture {
             new WorldLoopBounds(new AxisBounds.Looped(-WORLD_CHUNKS, WORLD_CHUNKS), AxisBounds.Unbounded.INSTANCE);
 
     public static final WorldFold PER_AXIS = WorldFolds.of(ShapeFixtures.torus(BOUNDS));
-    public static final WorldFold DECK_TORUS = new DeckGroupFold(ShapeFixtures.torus(BOUNDS), GenerationOptions.DEFAULT);
+    public static final WorldFold DECK_TORUS = new DeckGroupFold(ShapeFixtures.torus(BOUNDS), ShapeOptions.DEFAULT);
     public static final WorldFold SKEWED =
-            new DeckGroupFold(FlatShape.latticeTorus(BOUNDS, SKEW_CHUNKS), GenerationOptions.DEFAULT);
+            new DeckGroupFold(FlatShape.latticeTorus(BOUNDS, SKEW_CHUNKS), ShapeOptions.DEFAULT);
     public static final WorldFold MIRRORED =
-            new DeckGroupFold(ShapeFixtures.mirrored(BOUNDS, Direction.Axis.Z, MIRROR_LINE_CHUNK), GenerationOptions.DEFAULT);
+            new DeckGroupFold(ShapeFixtures.mirrored(BOUNDS, Direction.Axis.Z, MIRROR_LINE_CHUNK), ShapeOptions.DEFAULT);
     public static final WorldFold CYLINDER = WorldFolds.of(ShapeFixtures.cylinder(X_ONLY));
 
     private CompatFoldFixture() {

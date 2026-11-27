@@ -6,7 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
-import com.exoticworlds.core.WrapDomain;
+import com.exoticworlds.core.fold.WrapDomain;
 
 class ReachSlackTest {
     private static final double SECTION_BLOCKS = 16.0;
@@ -36,10 +36,10 @@ class ReachSlackTest {
     private static final WrapDomain UNBOUNDED_AXIS = new WrapDomain.Noop();
 
     private static void assertBound(PacketReach reach, double boundBlocks) {
-        assertTrue(TranslationContext.withinReach(boundBlocks, ANCHOR, reach));
-        assertTrue(TranslationContext.withinReach(-boundBlocks, ANCHOR, reach));
-        assertFalse(TranslationContext.withinReach(boundBlocks + PAST_THE_BOUND_BLOCKS, ANCHOR, reach));
-        assertFalse(TranslationContext.withinReach(-boundBlocks - PAST_THE_BOUND_BLOCKS, ANCHOR, reach));
+        assertTrue(TranslationContext.isWithinReach(boundBlocks, ANCHOR, reach));
+        assertTrue(TranslationContext.isWithinReach(-boundBlocks, ANCHOR, reach));
+        assertFalse(TranslationContext.isWithinReach(boundBlocks + PAST_THE_BOUND_BLOCKS, ANCHOR, reach));
+        assertFalse(TranslationContext.isWithinReach(-boundBlocks - PAST_THE_BOUND_BLOCKS, ANCHOR, reach));
     }
 
     @Nested
@@ -52,7 +52,7 @@ class ReachSlackTest {
         @Test
         void carriesOneSectionMoreThanTheFamiliesGatedAtTheSend() {
             assertBound(PacketReach.tracked(2), 32.0 + MIRROR_GAP_BLOCKS + ENTITY_DRIFT_BLOCKS);
-            assertFalse(TranslationContext.withinReach(
+            assertFalse(TranslationContext.isWithinReach(
                     32.0 + MIRROR_GAP_BLOCKS + ENTITY_DRIFT_BLOCKS,
                     ANCHOR,
                     PARTICLE));
@@ -83,32 +83,32 @@ class ReachSlackTest {
     class TheAxisCarriesTheGuard {
         @Test
         void theWorldFromTheLogCarriesNeitherViewDistanceItWasSeenWith() {
-            assertFalse(TranslationContext.carriesReach(BLOCKS_OF_A_512_WIDE_WORLD, PacketReach.tracked(13)));
-            assertFalse(TranslationContext.carriesReach(BLOCKS_OF_A_512_WIDE_WORLD, PacketReach.tracked(12)));
+            assertFalse(TranslationContext.hasReach(BLOCKS_OF_A_512_WIDE_WORLD, PacketReach.tracked(13)));
+            assertFalse(TranslationContext.hasReach(BLOCKS_OF_A_512_WIDE_WORLD, PacketReach.tracked(12)));
         }
 
         @Test
         void aCoordinateOutOfReachInThatWorldIsStillOutOfReach() {
-            assertFalse(TranslationContext.withinReach(-312.5, -65.15, PacketReach.tracked(13)));
+            assertFalse(TranslationContext.isWithinReach(-312.5, -65.15, PacketReach.tracked(13)));
         }
 
         @Test
         void twiceTheBudgetPlusTheMarginIsWhereTheAxisStartsCarrying() {
-            assertTrue(TranslationContext.carriesReach(BLOCKS_OF_A_576_WIDE_WORLD, PacketReach.tracked(13)));
-            assertTrue(TranslationContext.carriesReach(BLOCKS_OF_A_4096_WIDE_WORLD, PacketReach.tracked(13)));
+            assertTrue(TranslationContext.hasReach(BLOCKS_OF_A_576_WIDE_WORLD, PacketReach.tracked(13)));
+            assertTrue(TranslationContext.hasReach(BLOCKS_OF_A_4096_WIDE_WORLD, PacketReach.tracked(13)));
         }
 
         @Test
         void anUnboundedAxisCarriesEveryReach() {
-            assertTrue(TranslationContext.carriesReach(UNBOUNDED_AXIS, PacketReach.tracked(13)));
-            assertTrue(TranslationContext.carriesReach(UNBOUNDED_AXIS, FORCED_PARTICLE));
+            assertTrue(TranslationContext.hasReach(UNBOUNDED_AXIS, PacketReach.tracked(13)));
+            assertTrue(TranslationContext.hasReach(UNBOUNDED_AXIS, FORCED_PARTICLE));
         }
 
         @Test
         void theChunkViewGoesSilentInsideTheBandTheWorldReserved() {
-            assertFalse(TranslationContext.carriesView(CHUNKS_OF_A_512_WIDE_WORLD, 14));
-            assertTrue(TranslationContext.carriesView(CHUNKS_OF_A_512_WIDE_WORLD, 10));
-            assertTrue(TranslationContext.carriesView(UNBOUNDED_AXIS, 14));
+            assertFalse(TranslationContext.hasView(CHUNKS_OF_A_512_WIDE_WORLD, 14));
+            assertTrue(TranslationContext.hasView(CHUNKS_OF_A_512_WIDE_WORLD, 10));
+            assertTrue(TranslationContext.hasView(UNBOUNDED_AXIS, 14));
         }
     }
 }

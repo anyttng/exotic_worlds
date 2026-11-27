@@ -26,7 +26,7 @@ public class TerrainGeneratorMixin {
     @Inject(method = "fillTerrainDensity", at = @At("HEAD"), cancellable = true)
     private static void exotic_worlds$fillOnLap(double[] buffer, int posX, int posZ, int scaleXZ, int scaleY,
             int maxHeight, CallbackInfo ci) {
-        if (LapTerrain.fill(buffer, posX, posZ, scaleXZ, scaleY, maxHeight)) {
+        if (LapTerrain.tryFill(buffer, posX, posZ, scaleXZ, scaleY, maxHeight)) {
             ci.cancel();
         }
     }

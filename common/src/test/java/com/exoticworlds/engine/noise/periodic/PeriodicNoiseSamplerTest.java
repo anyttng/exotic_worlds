@@ -1,23 +1,23 @@
 package com.exoticworlds.engine.noise.periodic;
 
-import com.exoticworlds.api.v1.option.GenerationOptions;
-import com.exoticworlds.core.DeckGroupFold;
-import com.exoticworlds.core.FlatShape;
-import com.exoticworlds.core.ShapeFixtures;
-import com.exoticworlds.core.TranslationLattice;
-import com.exoticworlds.core.WorldFold;
-import com.exoticworlds.core.WorldFolds;
-import com.exoticworlds.core.WorldLoopBounds;
-import com.exoticworlds.core.WrapDomain;
+import com.exoticworlds.core.fold.deck.DeckGroupFold;
+import com.exoticworlds.core.world.FlatShape;
+import com.exoticworlds.core.world.ShapeFixtures;
+import com.exoticworlds.core.option.ShapeOptions;
+import com.exoticworlds.core.fold.TranslationLattice;
+import com.exoticworlds.core.fold.WorldFold;
+import com.exoticworlds.core.fold.WorldFolds;
+import com.exoticworlds.core.world.WorldLoopBounds;
+import com.exoticworlds.core.fold.WrapDomain;
 import com.exoticworlds.engine.noise.DensityFunctionSlotAxes;
 import com.exoticworlds.engine.noise.GenerationFoldContext;
 import com.exoticworlds.engine.noise.NoiseConstants;
 import com.exoticworlds.engine.noise.NoiseFrame;
 import com.exoticworlds.engine.noise.SlotAxes;
-import static com.exoticworlds.core.WorldFoldFixture.ODD_BOUNDS;
-import static com.exoticworlds.core.WorldFoldFixture.SQUARE;
-import static com.exoticworlds.core.WorldFoldFixture.UNEVEN_BOUNDS;
-import static com.exoticworlds.core.WorldFoldFixture.X_ONLY_BOUNDS;
+import static com.exoticworlds.core.fold.WorldFoldFixture.ODD_BOUNDS;
+import static com.exoticworlds.core.fold.WorldFoldFixture.SQUARE;
+import static com.exoticworlds.core.fold.WorldFoldFixture.UNEVEN_BOUNDS;
+import static com.exoticworlds.core.fold.WorldFoldFixture.X_ONLY_BOUNDS;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -115,26 +115,26 @@ class PeriodicNoiseSamplerTest {
     class PeriodDerivation {
         @Test
         void roundsClampsAndPassesUnboundedThrough() {
-            WrapDomain evenX = EVEN.blockDomain(Direction.Axis.X);
+            WrapDomain evenX = EVEN.getBlockDomain(Direction.Axis.X);
             LapFloor torus = LapFloor.of(EVEN);
             assertEquals(LapFloor.TWO_CELLS, torus);
             assertEquals(256, PeriodicNoiseSampler.period(evenX, 0.25, torus));
             assertEquals(1024, PeriodicNoiseSampler.period(evenX, 1.0, torus));
             assertEquals(102400, PeriodicNoiseSampler.period(evenX, 100.0, torus));
-            assertEquals(94, PeriodicNoiseSampler.period(ODD.blockDomain(Direction.Axis.X), 1.17, LapFloor.of(ODD)));
+            assertEquals(94, PeriodicNoiseSampler.period(ODD.getBlockDomain(Direction.Axis.X), 1.17, LapFloor.of(ODD)));
             assertEquals(2, PeriodicNoiseSampler.period(evenX, 2.0 / 1024.0, torus));
             assertEquals(2, PeriodicNoiseSampler.period(evenX, 1.0 / 2048.0, torus));
-            assertEquals(0, PeriodicNoiseSampler.period(X_ONLY.blockDomain(Direction.Axis.Z), 1.0, LapFloor.of(X_ONLY)));
+            assertEquals(0, PeriodicNoiseSampler.period(X_ONLY.getBlockDomain(Direction.Axis.Z), 1.0, LapFloor.of(X_ONLY)));
         }
 
         @Test
         void holdsAStarvedOctaveOnACylinderAndFloorsItOnATorus() {
             LapFloor cylinder = LapFloor.of(X_ONLY);
-            WrapDomain ring = X_ONLY.blockDomain(Direction.Axis.X);
+            WrapDomain ring = X_ONLY.getBlockDomain(Direction.Axis.X);
             assertEquals(LapFloor.HELD, cylinder);
             assertEquals(PeriodicNoiseSampler.HELD_PERIOD, PeriodicNoiseSampler.period(ring, 1.0 / 2048.0, cylinder));
             assertEquals(2, PeriodicNoiseSampler.period(ring, 2.0 / 1024.0, cylinder));
-            assertEquals(2, PeriodicNoiseSampler.period(EVEN.blockDomain(Direction.Axis.X), 1.0 / 2048.0,
+            assertEquals(2, PeriodicNoiseSampler.period(EVEN.getBlockDomain(Direction.Axis.X), 1.0 / 2048.0,
                     LapFloor.of(EVEN)));
         }
     }
@@ -145,18 +145,18 @@ class PeriodicNoiseSamplerTest {
         void agreesOneWorldWidthApartAlongTheWholeSeamLine() {
             Random random = new Random(SEED);
             for (WorldFold fold : WRAPPED_X) {
-                double period = fold.blockDomain(Direction.Axis.X).domainLength;
+                double periodBlocks = fold.getBlockDomain(Direction.Axis.X).domainLength;
                 for (long worldSeed : WORLD_SEEDS) {
                     NoiseInstance noise = NoiseInstance.of(worldSeed);
                     for (double scale : SCALES) {
                         for (double fudge : FUDGE_SCALES) {
                             for (int i = 0; i < LINE_SAMPLES; i++) {
-                                double x = blockInDomain(random, fold.blockDomain(Direction.Axis.X));
+                                double x = blockInDomain(random, fold.getBlockDomain(Direction.Axis.X));
                                 double y = sampleY(random);
-                                double z = lineCoord(random, fold.blockDomain(Direction.Axis.Z), i);
+                                double z = lineCoord(random, fold.getBlockDomain(Direction.Axis.Z), i);
 
                                 double base = noise.sample(fold, scale, x, y, z, fudge);
-                                double lap = noise.sample(fold, scale, x + period, y, z, fudge);
+                                double lap = noise.sample(fold, scale, x + periodBlocks, y, z, fudge);
                                 assertEquals(base, lap,
                                         () -> "sample(" + x + ", " + y + ", " + z + ") vs one X lap "
                                                 + at(fold, worldSeed, scale));
@@ -174,18 +174,18 @@ class PeriodicNoiseSamplerTest {
         void agreesOneWorldWidthApartAlongTheWholeSeamLine() {
             Random random = new Random(SEED);
             for (WorldFold fold : BOTH_AXES) {
-                double period = fold.blockDomain(Direction.Axis.Z).domainLength;
+                double periodBlocks = fold.getBlockDomain(Direction.Axis.Z).domainLength;
                 for (long worldSeed : WORLD_SEEDS) {
                     NoiseInstance noise = NoiseInstance.of(worldSeed);
                     for (double scale : SCALES) {
                         for (double fudge : FUDGE_SCALES) {
                             for (int i = 0; i < LINE_SAMPLES; i++) {
-                                double x = lineCoord(random, fold.blockDomain(Direction.Axis.X), i);
+                                double x = lineCoord(random, fold.getBlockDomain(Direction.Axis.X), i);
                                 double y = sampleY(random);
-                                double z = blockInDomain(random, fold.blockDomain(Direction.Axis.Z));
+                                double z = blockInDomain(random, fold.getBlockDomain(Direction.Axis.Z));
 
                                 double base = noise.sample(fold, scale, x, y, z, fudge);
-                                double lap = noise.sample(fold, scale, x, y, z + period, fudge);
+                                double lap = noise.sample(fold, scale, x, y, z + periodBlocks, fudge);
                                 assertEquals(base, lap,
                                         () -> "sample(" + x + ", " + y + ", " + z + ") vs one Z lap "
                                                 + at(fold, worldSeed, scale));
@@ -203,20 +203,20 @@ class PeriodicNoiseSamplerTest {
         void agreesWhenBothAxesWrapAtOnce() {
             Random random = new Random(SEED);
             for (WorldFold fold : BOTH_AXES) {
-                double xPeriod = fold.blockDomain(Direction.Axis.X).domainLength;
-                double zPeriod = fold.blockDomain(Direction.Axis.Z).domainLength;
+                double xPeriodBlocks = fold.getBlockDomain(Direction.Axis.X).domainLength;
+                double zPeriodBlocks = fold.getBlockDomain(Direction.Axis.Z).domainLength;
                 for (long worldSeed : WORLD_SEEDS) {
                     NoiseInstance noise = NoiseInstance.of(worldSeed);
                     for (double scale : SCALES) {
                         for (double fudge : FUDGE_SCALES) {
                             for (int i = 0; i < LINE_SAMPLES; i++) {
-                                double x = blockInDomain(random, fold.blockDomain(Direction.Axis.X));
+                                double x = blockInDomain(random, fold.getBlockDomain(Direction.Axis.X));
                                 double y = sampleY(random);
-                                double z = blockInDomain(random, fold.blockDomain(Direction.Axis.Z));
+                                double z = blockInDomain(random, fold.getBlockDomain(Direction.Axis.Z));
 
                                 double base = noise.sample(fold, scale, x, y, z, fudge);
                                 double corner = noise.sample(fold, scale,
-                                        x + xPeriod, y, z + zPeriod, fudge);
+                                        x + xPeriodBlocks, y, z + zPeriodBlocks, fudge);
                                 assertEquals(base, corner,
                                         () -> "sample(" + x + ", " + y + ", " + z + ") vs the corner lap "
                                                 + at(fold, worldSeed, scale));
@@ -239,9 +239,9 @@ class PeriodicNoiseSamplerTest {
                     for (double scale : PARITY_SCALES) {
                         for (double fudge : FUDGE_SCALES) {
                             for (int i = 0; i < LINE_SAMPLES; i++) {
-                                double x = blockInDomain(random, fold.blockDomain(Direction.Axis.X));
+                                double x = blockInDomain(random, fold.getBlockDomain(Direction.Axis.X));
                                 double y = sampleY(random);
-                                double z = lineCoord(random, fold.blockDomain(Direction.Axis.Z), i);
+                                double z = lineCoord(random, fold.getBlockDomain(Direction.Axis.Z), i);
 
                                 double periodic = noise.sample(fold, scale, x, y, z, fudge);
                                 double vanilla = noise.vanilla(scale, x, y, z, fudge);
@@ -263,16 +263,16 @@ class PeriodicNoiseSamplerTest {
         @Test
         void closesTheLapAtPeriodOne() {
             Random random = new Random(SEED);
-            double period = EVEN.blockDomain(Direction.Axis.X).domainLength;
+            double periodBlocks = EVEN.getBlockDomain(Direction.Axis.X).domainLength;
             for (long worldSeed : WORLD_SEEDS) {
                 NoiseInstance noise = NoiseInstance.of(worldSeed);
                 for (int i = 0; i < LINE_SAMPLES; i++) {
-                    double x = blockInDomain(random, EVEN.blockDomain(Direction.Axis.X));
+                    double x = blockInDomain(random, EVEN.getBlockDomain(Direction.Axis.X));
                     double y = sampleY(random);
-                    double z = blockInDomain(random, EVEN.blockDomain(Direction.Axis.Z));
+                    double z = blockInDomain(random, EVEN.getBlockDomain(Direction.Axis.Z));
 
                     double base = noise.sample(EVEN, TINY_SCALE, x, y, z, NO_FUDGE);
-                    double lap = noise.sample(EVEN, TINY_SCALE, x + period, y, z, NO_FUDGE);
+                    double lap = noise.sample(EVEN, TINY_SCALE, x + periodBlocks, y, z, NO_FUDGE);
                     assertTrue(Double.isFinite(base),
                             () -> "sample(" + x + ", " + y + ", " + z + ") is not finite at period 1");
                     assertEquals(base, lap,
@@ -289,8 +289,8 @@ class PeriodicNoiseSamplerTest {
         @Test
         void aCylinderHoldsAStarvedOctaveAroundTheRingAndVariesAlongTheOpenAxis() {
             Random random = new Random(SEED);
-            WrapDomain ring = X_ONLY.blockDomain(Direction.Axis.X);
-            WrapDomain open = X_ONLY.blockDomain(Direction.Axis.Z);
+            WrapDomain ring = X_ONLY.getBlockDomain(Direction.Axis.X);
+            WrapDomain open = X_ONLY.getBlockDomain(Direction.Axis.Z);
             for (long worldSeed : WORLD_SEEDS) {
                 NoiseInstance noise = NoiseInstance.of(worldSeed);
                 double min = Double.MAX_VALUE;
@@ -320,9 +320,9 @@ class PeriodicNoiseSamplerTest {
     @Nested
     class SkewedLattice {
         private static final List<DeckGroupFold> SKEWED = List.of(
-                new DeckGroupFold(FlatShape.latticeTorus(SQUARE, 5), GenerationOptions.DEFAULT),
-                new DeckGroupFold(FlatShape.latticeTorus(ODD_BOUNDS, 2), GenerationOptions.DEFAULT),
-                new DeckGroupFold(FlatShape.latticeTorus(UNEVEN_BOUNDS, -11), GenerationOptions.DEFAULT));
+                new DeckGroupFold(FlatShape.latticeTorus(SQUARE, 5), ShapeOptions.DEFAULT),
+                new DeckGroupFold(FlatShape.latticeTorus(ODD_BOUNDS, 2), ShapeOptions.DEFAULT),
+                new DeckGroupFold(FlatShape.latticeTorus(UNEVEN_BOUNDS, -11), ShapeOptions.DEFAULT));
 
         private static final double[] SKEWED_SCALES = {0.25, 1.0, 100.0, 1.17, 1.0 / 2048.0};
 
@@ -345,19 +345,19 @@ class PeriodicNoiseSamplerTest {
         void agreesAtEveryCopyUnderBothDeckGenerators() {
             Random random = new Random(SEED);
             for (DeckGroupFold fold : SKEWED) {
-                TranslationLattice lattice = fold.blockLattice();
-                double width = lattice.x().domainLength;
-                double height = lattice.z().domainLength;
-                double skew = lattice.skew();
-                double[][] copies = {{width, 0.0}, {skew, height}, {skew - width, height}, {-2.0 * skew, -2.0 * height}};
+                TranslationLattice lattice = fold.getBlockLattice();
+                double widthBlocks = lattice.getX().domainLength;
+                double heightBlocks = lattice.getZ().domainLength;
+                double skewBlocks = lattice.getSkew();
+                double[][] copies = {{widthBlocks, 0.0}, {skewBlocks, heightBlocks}, {skewBlocks - widthBlocks, heightBlocks}, {-2.0 * skewBlocks, -2.0 * heightBlocks}};
                 for (long worldSeed : WORLD_SEEDS) {
                     NoiseInstance noise = NoiseInstance.of(worldSeed);
                     for (double scale : SKEWED_SCALES) {
                         for (double fudge : FUDGE_SCALES) {
                             for (int i = 0; i < LINE_SAMPLES; i++) {
-                                double x = blockInDomain(random, lattice.x());
+                                double x = blockInDomain(random, lattice.getX());
                                 double y = sampleY(random);
-                                double z = blockInDomain(random, lattice.z());
+                                double z = blockInDomain(random, lattice.getZ());
                                 double base = noise.sample(fold, scale, x, y, z, fudge);
                                 for (double[] copy : copies) {
                                     double moved = noise.sample(fold, scale, x + copy[0], y, z + copy[1],
@@ -377,22 +377,22 @@ class PeriodicNoiseSamplerTest {
         void slotFramesAgreeAtEveryCopy() {
             Random random = new Random(SEED);
             for (DeckGroupFold fold : SKEWED) {
-                TranslationLattice lattice = fold.blockLattice();
-                double skew = lattice.skew();
-                double height = lattice.z().domainLength;
-                double width = lattice.x().domainLength;
+                TranslationLattice lattice = fold.getBlockLattice();
+                double skewBlocks = lattice.getSkew();
+                double heightBlocks = lattice.getZ().domainLength;
+                double widthBlocks = lattice.getX().domainLength;
                 for (long worldSeed : WORLD_SEEDS) {
                     NoiseInstance noise = NoiseInstance.of(worldSeed);
                     for (double scale : SKEWED_SCALES) {
                         for (int i = 0; i < LINE_SAMPLES; i++) {
-                            double x = blockInDomain(random, lattice.x());
-                            double z = blockInDomain(random, lattice.z());
+                            double x = blockInDomain(random, lattice.getX());
+                            double z = blockInDomain(random, lattice.getZ());
                             double y = sampleY(random);
                             assertEquals(shiftB(noise, fold, scale, x, z),
-                                    shiftB(noise, fold, scale, x + skew, z + height),
+                                    shiftB(noise, fold, scale, x + skewBlocks, z + heightBlocks),
                                     () -> "shift_b frame at " + x + ", " + z + " " + at(fold, worldSeed, scale));
                             assertEquals(divided(noise, fold, scale, x, y, z),
-                                    divided(noise, fold, scale, x + skew - width, y, z + height),
+                                    divided(noise, fold, scale, x + skewBlocks - widthBlocks, y, z + heightBlocks),
                                     () -> "divided frame at " + x + ", " + z + " " + at(fold, worldSeed, scale));
                         }
                     }
@@ -404,24 +404,24 @@ class PeriodicNoiseSamplerTest {
         void neverJumpsAcrossTheFoldBoundary() {
             Random random = new Random(SEED);
             for (DeckGroupFold fold : SKEWED) {
-                TranslationLattice lattice = fold.blockLattice();
+                TranslationLattice lattice = fold.getBlockLattice();
                 for (long worldSeed : WORLD_SEEDS) {
                     NoiseInstance noise = NoiseInstance.of(worldSeed);
                     for (double scale : SEAM_SCALES) {
                         double flooredScale = (double) LapFloor.TWO_CELLS.period
-                                / Math.min(lattice.x().domainLength, lattice.z().domainLength);
+                                / Math.min(lattice.getX().domainLength, lattice.getZ().domainLength);
                         double bound = GRADIENT_BOUND * Math.max(scale, flooredScale) * 2.0 * SEAM_STEP + FLOAT_SLACK;
                         for (int i = 0; i < LINE_SAMPLES; i++) {
                             double y = sampleY(random);
-                            double x = lineCoord(random, lattice.x(), i);
-                            double seamZ = lattice.z().upperBound;
+                            double x = lineCoord(random, lattice.getX(), i);
+                            double seamZ = lattice.getZ().upperBound;
                             double acrossZ = Math.abs(noise.sample(fold, scale, x, y, seamZ - SEAM_STEP, NO_FUDGE)
                                     - noise.sample(fold, scale, x, y, seamZ + SEAM_STEP, NO_FUDGE));
                             assertTrue(acrossZ <= bound, () -> "jump " + acrossZ + " across the Z seam at x=" + x
                                     + " " + at(fold, worldSeed, scale));
 
-                            double z = lineCoord(random, lattice.z(), i);
-                            double seamX = lattice.x().upperBound;
+                            double z = lineCoord(random, lattice.getZ(), i);
+                            double seamX = lattice.getX().upperBound;
                             double acrossX = Math.abs(noise.sample(fold, scale, seamX - SEAM_STEP, y, z, NO_FUDGE)
                                     - noise.sample(fold, scale, seamX + SEAM_STEP, y, z, NO_FUDGE));
                             assertTrue(acrossX <= bound, () -> "jump " + acrossX + " across the X seam at z=" + z
@@ -436,7 +436,7 @@ class PeriodicNoiseSamplerTest {
         void outputVariesAroundTheWorld() {
             Random random = new Random(SEED);
             for (DeckGroupFold fold : SKEWED) {
-                TranslationLattice lattice = fold.blockLattice();
+                TranslationLattice lattice = fold.getBlockLattice();
                 for (long worldSeed : WORLD_SEEDS) {
                     NoiseInstance noise = NoiseInstance.of(worldSeed);
                     for (double scale : SCALES) {
@@ -444,8 +444,8 @@ class PeriodicNoiseSamplerTest {
                         double max = -Double.MAX_VALUE;
                         double y = sampleY(random);
                         for (int i = 0; i < LINE_SAMPLES; i++) {
-                            double value = noise.sample(fold, scale, lineCoord(random, lattice.x(), i), y,
-                                    lineCoord(random, lattice.z(), i), NO_FUDGE);
+                            double value = noise.sample(fold, scale, lineCoord(random, lattice.getX(), i), y,
+                                    lineCoord(random, lattice.getZ(), i), NO_FUDGE);
                             min = Math.min(min, value);
                             max = Math.max(max, value);
                         }
@@ -461,10 +461,10 @@ class PeriodicNoiseSamplerTest {
         @Test
         void aSkewRoundingToNoWholeCellStillTiltsTheField() {
             WorldFold torus = torus(SQUARE);
-            WorldFold skewed = new DeckGroupFold(FlatShape.latticeTorus(SQUARE, 5), GenerationOptions.DEFAULT);
+            WorldFold skewed = new DeckGroupFold(FlatShape.latticeTorus(SQUARE, 5), ShapeOptions.DEFAULT);
             double starved = 1.0 / 2048.0;
             NoiseInstance noise = NoiseInstance.of(SEED);
-            double z = skewed.blockLattice().z().upperBound - 1.0;
+            double z = skewed.getBlockLattice().getZ().upperBound - 1.0;
             assertTrue(noise.sample(torus, starved, 0.0, 0.0, z, NO_FUDGE)
                     != noise.sample(skewed, starved, 0.0, 0.0, z, NO_FUDGE));
         }
@@ -512,9 +512,9 @@ class PeriodicNoiseSamplerTest {
             double max = -Double.MAX_VALUE;
             double y = sampleY(random);
             for (int i = 0; i < LINE_SAMPLES; i++) {
-                WrapDomain xDomain = fold.blockDomain(Direction.Axis.X);
+                WrapDomain xDomain = fold.getBlockDomain(Direction.Axis.X);
                 double x = alongSeam ? xDomain.lowerBound : lineCoord(random, xDomain, i);
-                double z = alongSeam ? lineCoord(random, fold.blockDomain(Direction.Axis.Z), i) : 5.0;
+                double z = alongSeam ? lineCoord(random, fold.getBlockDomain(Direction.Axis.Z), i) : 5.0;
                 double value = noise.sample(fold, scale, x, y, z, NO_FUDGE);
                 min = Math.min(min, value);
                 max = Math.max(max, value);

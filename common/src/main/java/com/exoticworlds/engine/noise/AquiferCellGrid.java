@@ -1,15 +1,15 @@
 package com.exoticworlds.engine.noise;
 
-import com.exoticworlds.core.CuboidAtlas;
-import com.exoticworlds.core.WorldFold;
+import com.exoticworlds.core.fold.cuboid.CuboidAtlas;
+import com.exoticworlds.core.fold.WorldFold;
 import com.exoticworlds.engine.noise.cuboid.CuboidCellGrid;
 
 public interface AquiferCellGrid {
-    static AquiferCellGrid of(WorldFold fold, int vanillaCellWidth) {
-        CuboidAtlas atlas = fold.cuboidAtlas();
+    static AquiferCellGrid of(WorldFold fold, int vanillaCellWidthBlocks) {
+        CuboidAtlas atlas = fold.getCuboidAtlas();
         return atlas != null
-                ? CuboidCellGrid.of(atlas, vanillaCellWidth)
-                : TilingCellGrid.of(fold, vanillaCellWidth);
+                ? CuboidCellGrid.of(atlas, vanillaCellWidthBlocks)
+                : TilingCellGrid.of(fold, vanillaCellWidthBlocks);
     }
 
     int cellOriginX(int blockX, int blockZ);

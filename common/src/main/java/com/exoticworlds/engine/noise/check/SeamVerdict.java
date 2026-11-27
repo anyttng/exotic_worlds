@@ -5,7 +5,7 @@ import java.util.stream.Collectors;
 
 import org.jspecify.annotations.Nullable;
 
-import com.exoticworlds.core.CuboidEdge;
+import com.exoticworlds.core.fold.cuboid.CuboidEdge;
 
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.level.Level;
@@ -22,21 +22,21 @@ public record SeamVerdict(ResourceKey<Level> dimension, List<Break> breaks,
         }
     }
 
-    public boolean broken() {
+    public boolean isBroken() {
         return !this.breaks.isEmpty();
     }
 
-    public String fields() {
+    public String getFields() {
         return this.breaks.stream().map(Break::field).collect(Collectors.joining(LIST_SEPARATOR));
     }
 
-    public String causes() {
+    public String getCauses() {
         return this.breaks.stream()
-                .map(broken -> broken.field() + CAUSE_SEPARATOR + broken.cause().key())
+                .map(broken -> broken.field() + CAUSE_SEPARATOR + broken.cause().getKey())
                 .collect(Collectors.joining(LIST_SEPARATOR));
     }
 
-    public String fingerprint() {
-        return this.dimension.identifier() + FINGERPRINT_SEPARATOR + this.causes();
+    public String getFingerprint() {
+        return this.dimension.identifier() + FINGERPRINT_SEPARATOR + this.getCauses();
     }
 }

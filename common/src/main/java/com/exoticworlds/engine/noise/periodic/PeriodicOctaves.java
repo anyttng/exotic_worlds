@@ -31,9 +31,9 @@ public final class PeriodicOctaves implements CompiledOctaves {
     }
 
     @Override
-    public boolean indexable() {
+    public boolean isIndexable() {
         for (PeriodicLattice lattice : this.lattices) {
-            if (!lattice.indexable()) {
+            if (!lattice.isIndexable()) {
                 return false;
             }
         }

@@ -1,16 +1,16 @@
 package com.exoticworlds.engine.noise.check;
 
-import static com.exoticworlds.core.CuboidFixtures.atlases;
-import static com.exoticworlds.core.CuboidFixtures.cuboidFold;
+import static com.exoticworlds.core.fold.cuboid.CuboidFixtures.atlases;
+import static com.exoticworlds.core.fold.cuboid.CuboidFixtures.cuboidFold;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
 import org.junit.jupiter.api.Test;
 
-import com.exoticworlds.core.CuboidAtlas;
-import com.exoticworlds.core.CuboidFace;
-import com.exoticworlds.core.WorldFold;
+import com.exoticworlds.core.fold.cuboid.CuboidAtlas;
+import com.exoticworlds.core.fold.cuboid.CuboidFace;
+import com.exoticworlds.core.fold.WorldFold;
 import com.exoticworlds.engine.noise.GenerationFoldContext;
 
 import net.minecraft.world.level.ChunkPos;
@@ -56,7 +56,7 @@ class EdgePassageTest {
     }
 
     private static CuboidFace.Side askingSide(CuboidAtlas atlas, EdgePassage passage, SeamCauseSearch.Point at) {
-        ChunkPos asking = passage.reading(at, () -> GenerationFoldContext.context().askingChunk());
+        ChunkPos asking = passage.reading(at, () -> GenerationFoldContext.getContext().getAskingChunk());
         assertNotNull(asking);
         CuboidFace face = atlas.faceAt(asking.getMinBlockX(), asking.getMinBlockZ());
         assertNotNull(face, asking + " asks for " + at);

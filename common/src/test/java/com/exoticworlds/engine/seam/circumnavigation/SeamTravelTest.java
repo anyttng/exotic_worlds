@@ -7,11 +7,11 @@ import java.util.Set;
 import org.junit.jupiter.api.Test;
 
 import com.mojang.serialization.Codec;
-import com.exoticworlds.core.FlatShape;
-import com.exoticworlds.core.ShapeFixtures;
-import com.exoticworlds.core.WorldFold;
-import com.exoticworlds.core.WorldFolds;
-import com.exoticworlds.core.WorldLoopBounds;
+import com.exoticworlds.core.world.FlatShape;
+import com.exoticworlds.core.world.ShapeFixtures;
+import com.exoticworlds.core.fold.WorldFold;
+import com.exoticworlds.core.fold.WorldFolds;
+import com.exoticworlds.core.world.WorldLoopBounds;
 
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.NbtOps;
@@ -40,7 +40,7 @@ class SeamTravelTest {
             assertEquals(Set.of(), stepTo(travel, TORUS, Level.OVERWORLD, 0.0, 0.0).closed());
         }
 
-        assertEquals(0.0, travel.in(Level.OVERWORLD).x(), TOLERANCE);
+        assertEquals(0.0, travel.getProgressIn(Level.OVERWORLD).x(), TOLERANCE);
     }
 
     @Test
@@ -52,7 +52,7 @@ class SeamTravelTest {
         SeamTravel.Step closing = stepTo(travel, TORUS, Level.OVERWORLD, 30.0, 0.0);
 
         assertEquals(Set.of(Direction.Axis.X), closing.closed());
-        assertEquals(30.0, travel.in(Level.OVERWORLD).x(), TOLERANCE);
+        assertEquals(30.0, travel.getProgressIn(Level.OVERWORLD).x(), TOLERANCE);
     }
 
     @Test
@@ -64,7 +64,7 @@ class SeamTravelTest {
         SeamTravel.Step closing = stepTo(travel, TORUS, Level.OVERWORLD, 0.0, -30.0);
 
         assertEquals(Set.of(Direction.Axis.Z), closing.closed());
-        assertEquals(-30.0, travel.in(Level.OVERWORLD).z(), TOLERANCE);
+        assertEquals(-30.0, travel.getProgressIn(Level.OVERWORLD).z(), TOLERANCE);
     }
 
     @Test
@@ -77,8 +77,8 @@ class SeamTravelTest {
         SeamTravel.Step closing = stepTo(travel, skewed, Level.OVERWORLD, 22.0, 88.0);
 
         assertEquals(Set.of(Direction.Axis.Z), closing.closed());
-        assertEquals(0.0, travel.in(Level.OVERWORLD).x(), TOLERANCE);
-        assertEquals(88.0, travel.in(Level.OVERWORLD).z(), TOLERANCE);
+        assertEquals(0.0, travel.getProgressIn(Level.OVERWORLD).x(), TOLERANCE);
+        assertEquals(88.0, travel.getProgressIn(Level.OVERWORLD).z(), TOLERANCE);
     }
 
     @Test
@@ -88,7 +88,7 @@ class SeamTravelTest {
         SeamTravel.Step crossing = stepTo(travel, TORUS, Level.OVERWORLD, MIN_BLOCK, 0.0);
 
         assertEquals(1.0, crossing.folded().x, TOLERANCE);
-        assertEquals(1.0, travel.in(Level.OVERWORLD).x(), TOLERANCE);
+        assertEquals(1.0, travel.getProgressIn(Level.OVERWORLD).x(), TOLERANCE);
     }
 
     @Test
@@ -98,7 +98,7 @@ class SeamTravelTest {
         SeamTravel.Step step = stepTo(travel, CYLINDER_X, Level.OVERWORLD, 0.0, 4.0 * WIDTH_BLOCKS);
 
         assertEquals(Set.of(), step.closed());
-        assertEquals(0.0, travel.in(Level.OVERWORLD).z(), TOLERANCE);
+        assertEquals(0.0, travel.getProgressIn(Level.OVERWORLD).z(), TOLERANCE);
     }
 
     @Test
@@ -109,8 +109,8 @@ class SeamTravelTest {
         SeamTravel.Step arrival = stepTo(travel, TORUS, Level.NETHER, -200.0, 0.0);
 
         assertEquals(0.0, arrival.folded().lengthSqr(), TOLERANCE);
-        assertEquals(0.0, travel.in(Level.NETHER).x(), TOLERANCE);
-        assertEquals(200.0, travel.in(Level.OVERWORLD).x(), TOLERANCE);
+        assertEquals(0.0, travel.getProgressIn(Level.NETHER).x(), TOLERANCE);
+        assertEquals(200.0, travel.getProgressIn(Level.OVERWORLD).x(), TOLERANCE);
     }
 
     @Test
@@ -124,8 +124,8 @@ class SeamTravelTest {
         stepTo(travel, TORUS, Level.OVERWORLD, 200.0, 0.0);
         stepTo(travel, TORUS, Level.OVERWORLD, 240.0, 0.0);
 
-        assertEquals(240.0, travel.in(Level.OVERWORLD).x(), TOLERANCE);
-        assertEquals(50.0, travel.in(Level.NETHER).x(), TOLERANCE);
+        assertEquals(240.0, travel.getProgressIn(Level.OVERWORLD).x(), TOLERANCE);
+        assertEquals(50.0, travel.getProgressIn(Level.NETHER).x(), TOLERANCE);
     }
 
     @Test
@@ -139,9 +139,9 @@ class SeamTravelTest {
         Tag encoded = codec.encodeStart(NbtOps.INSTANCE, travel).getOrThrow();
         SeamTravel decoded = codec.parse(NbtOps.INSTANCE, encoded).getOrThrow();
 
-        assertEquals(120.0, decoded.in(Level.OVERWORLD).x(), TOLERANCE);
-        assertEquals(-30.0, decoded.in(Level.OVERWORLD).z(), TOLERANCE);
-        assertEquals(40.0, decoded.in(Level.NETHER).x(), TOLERANCE);
+        assertEquals(120.0, decoded.getProgressIn(Level.OVERWORLD).x(), TOLERANCE);
+        assertEquals(-30.0, decoded.getProgressIn(Level.OVERWORLD).z(), TOLERANCE);
+        assertEquals(40.0, decoded.getProgressIn(Level.NETHER).x(), TOLERANCE);
     }
 
     @Test
@@ -153,7 +153,7 @@ class SeamTravelTest {
         stepTo(target, TORUS, Level.OVERWORLD, -5.0, 0.0);
         target.copyFrom(source);
 
-        assertEquals(77.0, target.in(Level.OVERWORLD).x(), TOLERANCE);
+        assertEquals(77.0, target.getProgressIn(Level.OVERWORLD).x(), TOLERANCE);
     }
 
     private static SeamTravel seeded(WorldFold fold, ResourceKey<Level> space, double x, double z) {

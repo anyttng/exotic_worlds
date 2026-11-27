@@ -8,10 +8,10 @@ import com.google.common.collect.MapMaker;
 import com.exoticworlds.compat.worldgen.FoldCompression;
 import com.exoticworlds.compat.worldgen.LapCells;
 import com.exoticworlds.compat.worldgen.LapFrame;
-import com.exoticworlds.core.TranslationLattice;
-import com.exoticworlds.core.WorldFold;
-import com.exoticworlds.core.WorldLoopAttachments;
-import com.exoticworlds.core.WrapDomain;
+import com.exoticworlds.core.fold.TranslationLattice;
+import com.exoticworlds.core.fold.WorldFold;
+import com.exoticworlds.core.fold.WorldLoopAttachments;
+import com.exoticworlds.core.fold.WrapDomain;
 import com.exoticworlds.engine.level.CurrentServer;
 import com.exoticworlds.engine.noise.GenerationFoldContext;
 import com.exoticworlds.engine.noise.periodic.PeriodicNoiseSampler;
@@ -73,17 +73,17 @@ public final class ClimateLap {
         this.compression = compression;
     }
 
-    public static @Nullable ClimateLap bound() {
-        return of(GenerationFoldContext.context().wrappedFold());
+    public static @Nullable ClimateLap getBound() {
+        return of(GenerationFoldContext.getContext().getWrappedFold());
     }
 
     public static @Nullable ClimateLap ofTheOverworld() {
-        return of(WorldLoopAttachments.wrappedFoldOf(CurrentServer.get(), Level.OVERWORLD));
+        return of(WorldLoopAttachments.getWrappedFold(CurrentServer.get(), Level.OVERWORLD));
     }
 
     private static @Nullable ClimateLap of(@Nullable WorldFold fold) {
         return fold == null ? null
-                : BY_FOLD.computeIfAbsent(fold, key -> new ClimateLap(key.blockLattice(), FoldCompression.of(key)));
+                : BY_FOLD.computeIfAbsent(fold, key -> new ClimateLap(key.getBlockLattice(), FoldCompression.of(key)));
     }
 
     public int x(int blockX, int blockZ) {
@@ -91,13 +91,13 @@ public final class ClimateLap {
         return x(blockX, blockZ, mode(config), config.equatorial_distance, config.looping_world);
     }
 
-    public int x(int blockX, int blockZ, int mode, double equatorialDistance, boolean loopingWorld) {
-        WrapDomain x = this.lattice.x();
-        if (!x.loops() || !radial(mode)) {
-            return signedX(blockX, blockZ, mode, equatorialDistance, loopingWorld);
+    public int x(int blockX, int blockZ, int mode, double equatorialDistanceBlocks, boolean isLoopingWorld) {
+        WrapDomain x = this.lattice.getX();
+        if (!x.isLooped() || !isRadial(mode)) {
+            return signedX(blockX, blockZ, mode, equatorialDistanceBlocks, isLoopingWorld);
         }
 
-        double scale = xScale(mode, equatorialDistance, loopingWorld);
+        double scale = xScale(mode, equatorialDistanceBlocks, isLoopingWorld);
         return (int) Math.round(mirrored(frameX(blockX, blockZ), x) * scale);
     }
 
@@ -106,29 +106,29 @@ public final class ClimateLap {
         return signedX(blockX, blockZ, mode(config), config.equatorial_distance, config.looping_world);
     }
 
-    int signedX(int blockX, int blockZ, int mode, double equatorialDistance, boolean loopingWorld) {
-        double scale = xScale(mode, equatorialDistance, loopingWorld);
-        WrapDomain x = this.lattice.x();
-        return (int) Math.round((x.loops() ? centered(frameX(blockX, blockZ), x) : blockX) * scale);
+    int signedX(int blockX, int blockZ, int mode, double equatorialDistanceBlocks, boolean isLoopingWorld) {
+        double scale = xScale(mode, equatorialDistanceBlocks, isLoopingWorld);
+        WrapDomain x = this.lattice.getX();
+        return (int) Math.round((x.isLooped() ? centered(frameX(blockX, blockZ), x) : blockX) * scale);
     }
 
     private double frameX(int blockX, int blockZ) {
-        WrapDomain z = this.lattice.z();
-        return this.frame.frameX(blockX, z.loops() ? blockZ - center(z) : blockZ);
+        WrapDomain z = this.lattice.getZ();
+        return this.frame.frameX(blockX, z.isLooped() ? blockZ - center(z) : blockZ);
     }
 
     public double carriedSide(int blockX, int blockZ, int handedX, double wave) {
         return wave + signedX(blockX, blockZ) - handedX;
     }
 
-    double xScale(int mode, double equatorialDistance, boolean loopingWorld) {
-        WrapDomain z = this.lattice.z();
-        if (!z.loops() || radial(mode) || equatorialDistance <= 0.0 || !loopingWorld) {
+    double xScale(int mode, double equatorialDistanceBlocks, boolean isLoopingWorld) {
+        WrapDomain z = this.lattice.getZ();
+        if (!z.isLooped() || isRadial(mode) || equatorialDistanceBlocks <= 0.0 || !isLoopingWorld) {
             return this.compression;
         }
 
-        double halfTurn = z.domainLength / (2.0 * bands(equatorialDistance));
-        return POLE_TO_EQUATOR_SPANS * equatorialDistance / halfTurn;
+        double halfTurn = z.domainLength / (2.0 * bands(equatorialDistanceBlocks));
+        return POLE_TO_EQUATOR_SPANS * equatorialDistanceBlocks / halfTurn;
     }
 
     public int z(int blockZ) {
@@ -137,25 +137,25 @@ public final class ClimateLap {
                 config.looping_world);
     }
 
-    public int z(int blockZ, int mode, double equatorialDistance, double equatorOffset, boolean loopingWorld) {
-        WrapDomain z = this.lattice.z();
-        if (!z.loops()) {
+    public int z(int blockZ, int mode, double equatorialDistanceBlocks, double equatorOffsetBlocks, boolean isLoopingWorld) {
+        WrapDomain z = this.lattice.getZ();
+        if (!z.isLooped()) {
             return compressed(blockZ);
         }
 
-        if (radial(mode)) {
+        if (isRadial(mode)) {
             return (int) Math.round(mirrored(blockZ, z) * this.compression);
         }
 
-        if (equatorialDistance <= 0.0) {
+        if (equatorialDistanceBlocks <= 0.0) {
             return blockZ;
         }
 
-        if (!loopingWorld) {
+        if (!isLoopingWorld) {
             return (int) -Math.round(mirrored(blockZ, z) * this.compression);
         }
 
-        return (int) Math.round(tent(blockZ, equatorialDistance, equatorOffset));
+        return (int) Math.round(tent(blockZ, equatorialDistanceBlocks, equatorOffsetBlocks));
     }
 
     public double carriedWave(int blockZ, int handedZ, double wave, double distortion) {
@@ -164,48 +164,48 @@ public final class ClimateLap {
                 config.equator_offset, config.looping_world);
     }
 
-    double carriedWave(int blockZ, int handedZ, double wave, double distortion, int mode, double equatorialDistance,
-            double equatorOffset, boolean loopingWorld) {
-        if (!this.lattice.z().loops() || radial(mode) || equatorialDistance <= 0.0) {
+    double carriedWave(int blockZ, int handedZ, double wave, double distortion, int mode, double equatorialDistanceBlocks,
+            double equatorOffsetBlocks, boolean isLoopingWorld) {
+        if (!this.lattice.getZ().isLooped() || isRadial(mode) || equatorialDistanceBlocks <= 0.0) {
             return wave;
         }
 
-        double displaced = blockZ + (distortion + wave) / xScale(mode, equatorialDistance, loopingWorld);
-        return latitude(displaced, equatorialDistance, equatorOffset, loopingWorld) - handedZ - distortion;
+        double displaced = blockZ + (distortion + wave) / xScale(mode, equatorialDistanceBlocks, isLoopingWorld);
+        return latitude(displaced, equatorialDistanceBlocks, equatorOffsetBlocks, isLoopingWorld) - handedZ - distortion;
     }
 
-    double latitude(double blockZ, double equatorialDistance, double equatorOffset, boolean loopingWorld) {
-        return loopingWorld
-                ? tent(blockZ, equatorialDistance, equatorOffset)
-                : -mirrored(blockZ, this.lattice.z()) * this.compression;
+    double latitude(double blockZ, double equatorialDistanceBlocks, double equatorOffsetBlocks, boolean isLoopingWorld) {
+        return isLoopingWorld
+                ? tent(blockZ, equatorialDistanceBlocks, equatorOffsetBlocks)
+                : -mirrored(blockZ, this.lattice.getZ()) * this.compression;
     }
 
-    private double tent(double blockZ, double equatorialDistance, double equatorOffset) {
-        WrapDomain z = this.lattice.z();
-        double turns = (blockZ - z.lowerBound) / z.domainLength * bands(equatorialDistance);
+    private double tent(double blockZ, double equatorialDistanceBlocks, double equatorOffsetBlocks) {
+        WrapDomain z = this.lattice.getZ();
+        double turns = (blockZ - z.lowerBound) / z.domainLength * bands(equatorialDistanceBlocks);
         double towardEquator = 1.0 - Math.abs(2.0 * (turns - Math.floor(turns)) - 1.0);
-        return equatorialDistance * (2.0 * towardEquator - 1.0) - equatorOffset;
+        return equatorialDistanceBlocks * (2.0 * towardEquator - 1.0) - equatorOffsetBlocks;
     }
 
-    public boolean closesXWave() {
-        return this.lattice.x().loops();
+    public boolean isXWaveClosed() {
+        return this.lattice.getX().isLooped();
     }
 
-    public boolean closesZWave() {
-        return this.lattice.z().loops();
+    public boolean isZWaveClosed() {
+        return this.lattice.getZ().isLooped();
     }
 
     public double xWave(WaveCells cells, long seed, double handedX, double amplitude, double baseRate) {
         ModConfig config = NaturalTemperature.CONFIG;
         double scale = xScale(mode(config), config.equatorial_distance, config.looping_world);
-        return wave(cells, seed, handedX, this.lattice.x().domainLength * scale, amplitude,
+        return wave(cells, seed, handedX, this.lattice.getX().domainLength * scale, amplitude,
                 config.wave_frequency * baseRate);
     }
 
     public double zWave(WaveCells cells, long seed, int blockZ, double amplitude, double baseRate) {
         ModConfig config = NaturalTemperature.CONFIG;
         double scale = xScale(mode(config), config.equatorial_distance, config.looping_world);
-        WrapDomain z = this.lattice.z();
+        WrapDomain z = this.lattice.getZ();
         return wave(cells, seed, centered(blockZ, z) * scale, z.domainLength * scale, amplitude,
                 config.wave_frequency * baseRate);
     }
@@ -234,18 +234,18 @@ public final class ClimateLap {
         return cell + cells.pointShare(seed, Math.floorMod(cell, perLap));
     }
 
-    public double lapBandWidth(double width) {
+    public double lapBandWidthBlocks(double widthBlocks) {
         ModConfig config = NaturalTemperature.CONFIG;
-        return lapBandWidth(width, mode(config), config.equatorial_distance, config.looping_world);
+        return lapBandWidthBlocks(widthBlocks, mode(config), config.equatorial_distance, config.looping_world);
     }
 
-    double lapBandWidth(double width, int mode, double equatorialDistance, boolean loopingWorld) {
-        if (!this.lattice.x().loops() || width <= 0.0) {
-            return width;
+    double lapBandWidthBlocks(double widthBlocks, int mode, double equatorialDistanceBlocks, boolean isLoopingWorld) {
+        if (!this.lattice.getX().isLooped() || widthBlocks <= 0.0) {
+            return widthBlocks;
         }
 
-        double lap = this.lattice.x().domainLength * xScale(mode, equatorialDistance, loopingWorld);
-        return lap / (HUMIDITY_BAND_SPANS * LapCells.whole(lap / (HUMIDITY_BAND_SPANS * width), ONE_TURN));
+        double lap = this.lattice.getX().domainLength * xScale(mode, equatorialDistanceBlocks, isLoopingWorld);
+        return lap / (HUMIDITY_BAND_SPANS * LapCells.whole(lap / (HUMIDITY_BAND_SPANS * widthBlocks), ONE_TURN));
     }
 
     public double noise(NoiseStack stack, double cellsPerBlock, double handedX, double handedZ, int blockZ) {
@@ -268,20 +268,20 @@ public final class ClimateLap {
     }
 
     double shrink(double cellsPerBlock, double scale) {
-        WrapDomain x = this.lattice.x();
-        WrapDomain z = this.lattice.z();
-        double xCells = x.loops() ? x.domainLength * scale * cellsPerBlock : OPEN;
-        double zCells = z.loops() ? z.domainLength * scale * cellsPerBlock : OPEN;
+        WrapDomain x = this.lattice.getX();
+        WrapDomain z = this.lattice.getZ();
+        double xCells = x.isLooped() ? x.domainLength * scale * cellsPerBlock : OPEN;
+        double zCells = z.isLooped() ? z.domainLength * scale * cellsPerBlock : OPEN;
         return Math.max(shrinkOf(xCells), shrinkOf(zCells));
     }
 
     double noise(byte[] permutations, double offsetX, double offsetY, double offsetZ, double cellsPerBlock,
             double handedX, double handedZ, int blockZ, double scale, double shrink) {
-        WrapDomain x = this.lattice.x();
-        WrapDomain z = this.lattice.z();
-        double xCells = x.loops() ? x.domainLength * scale * cellsPerBlock : OPEN;
-        double zCells = z.loops() ? z.domainLength * scale * cellsPerBlock : OPEN;
-        double alongZ = z.loops() ? centered(blockZ, z) * scale : handedZ;
+        WrapDomain x = this.lattice.getX();
+        WrapDomain z = this.lattice.getZ();
+        double xCells = x.isLooped() ? x.domainLength * scale * cellsPerBlock : OPEN;
+        double zCells = z.isLooped() ? z.domainLength * scale * cellsPerBlock : OPEN;
+        double alongZ = z.isLooped() ? centered(blockZ, z) * scale : handedZ;
         double latticeX = handedX * cellsPerBlock * shrinkOn(xCells, shrink) + offsetX;
         double latticeZ = alongZ * cellsPerBlock * shrinkOn(zCells, shrink) + offsetZ;
         return PeriodicNoiseSampler.sampleLattice(permutations, latticeX, offsetY, latticeZ, periodOf(xCells, shrink),
@@ -300,9 +300,9 @@ public final class ClimateLap {
         return cells == OPEN ? PeriodicNoiseSampler.UNBOUNDED_PERIOD : LapCells.whole(cells * shrink, ONE_TURN);
     }
 
-    public int bands(double equatorialDistance) {
-        double halfBand = POLE_TO_EQUATOR_SPANS * equatorialDistance / this.compression;
-        int bands = Math.max(1, (int) Math.ceil(this.lattice.z().domainLength / (2.0 * halfBand)));
+    public int bands(double equatorialDistanceBlocks) {
+        double halfBand = POLE_TO_EQUATOR_SPANS * equatorialDistanceBlocks / this.compression;
+        int bands = Math.max(1, (int) Math.ceil(this.lattice.getZ().domainLength / (2.0 * halfBand)));
         return bands % 2 == 0 ? bands + 1 : bands;
     }
 
@@ -312,10 +312,10 @@ public final class ClimateLap {
 
     static int mode(ModConfig config) {
         int mode = config.generation_mode;
-        return mode < CUSTOM_ONE ? mode : mode(mode, customBody(config));
+        return mode < CUSTOM_ONE ? mode : mode(mode, getCustomBody(config));
     }
 
-    private static @Nullable String customBody(ModConfig config) {
+    private static @Nullable String getCustomBody(ModConfig config) {
         return switch (config.generation_mode) {
             case CUSTOM_ONE -> config.custom_mode_id_1;
             case CUSTOM_TWO -> config.custom_mode_id_2;
@@ -339,7 +339,7 @@ public final class ClimateLap {
         };
     }
 
-    static boolean radial(int mode) {
+    static boolean isRadial(int mode) {
         return mode == CIRCULAR || mode == FIXED_CIRCULAR || mode == CIRCULAR_SIX || mode == FIXED_CIRCULAR_SIX
                 || mode == SQUARE || mode == FIXED_SQUARE;
     }

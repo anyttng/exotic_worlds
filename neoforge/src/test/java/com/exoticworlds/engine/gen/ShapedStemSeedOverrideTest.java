@@ -1,9 +1,9 @@
 package com.exoticworlds.engine.gen;
 
-import com.exoticworlds.api.v1.option.GenerationOptions;
-import com.exoticworlds.core.FlatShape;
-import com.exoticworlds.core.CarriedShape;
-import com.exoticworlds.core.ShapedChunkGenerator;
+import com.exoticworlds.core.world.CarriedShape;
+import com.exoticworlds.core.world.FlatShape;
+import com.exoticworlds.core.option.ShapeOptions;
+import com.exoticworlds.core.gen.GeneratorShapes;
 import com.exoticworlds.shape.StartupRegistrations;
 import static com.exoticworlds.engine.gen.BakeStampFixture.datapackRegistry;
 import static com.exoticworlds.engine.gen.BakeStampFixture.dimensionType;
@@ -34,15 +34,14 @@ import net.minecraft.data.registries.VanillaRegistries;
 import net.minecraft.server.Bootstrap;
 import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.dimension.LevelStem;
-import net.minecraft.world.level.levelgen.NoiseBasedChunkGenerator;
 import net.minecraft.world.level.levelgen.WorldDimensions;
 
 @Timeout(60)
 class ShapedStemSeedOverrideTest {
     private static final double SAME_SCALE = 1.0;
     private static final long DECLARED_SEED = 0x5EED_0BE7L;
-    private static final int CHUNK_WIDTH = 64;
-    private static final FlatShape SHAPE = squareTorus(CHUNK_WIDTH);
+    private static final int WIDTH_CHUNKS = 64;
+    private static final FlatShape SHAPE = squareTorus(WIDTH_CHUNKS);
 
     private static HolderLookup.Provider worldgen;
 
@@ -59,18 +58,15 @@ class ShapedStemSeedOverrideTest {
         LevelStem declared = declaredStem(noiseGenerator(worldgen));
 
         WorldDimensions shaped = ShapedDimensions.withShape(
-                selected(Map.of(LevelStem.OVERWORLD, declared)), LevelStem.OVERWORLD, new CarriedShape(SHAPE,
-                        GenerationOptions.DEFAULT));
+                selected(Map.of(LevelStem.OVERWORLD, declared)), LevelStem.OVERWORLD, new CarriedShape(null, SHAPE,
+                        ShapeOptions.DEFAULT));
 
         assertReshapedAlone(declared, shaped.get(LevelStem.OVERWORLD).orElseThrow());
     }
 
     @Test
     void stripShapesKeepsTheSeedOverride() {
-        NoiseBasedChunkGenerator noise = (NoiseBasedChunkGenerator) noiseGenerator(worldgen);
-        LevelStem declared = declaredStem(
-                new LoopedChunkGenerator(noise.getBiomeSource(), noise.generatorSettings(),
-                        new CarriedShape(SHAPE, GenerationOptions.DEFAULT)));
+        LevelStem declared = declaredStem(noiseGenerator(worldgen));
 
         WorldDimensions stripped = ShapedDimensions.stripShapes(selected(Map.of(LevelStem.OVERWORLD, declared)));
 
@@ -93,7 +89,7 @@ class ShapedStemSeedOverrideTest {
         Registry<LevelStem> restored = restore(declared);
 
         LevelStem restoredStem = restored.getOptional(LevelStem.OVERWORLD).orElseThrow();
-        assertNotNull(ShapedChunkGenerator.carriedShapeOf(restoredStem.generator()), "the stem took no shape");
+        assertNotNull(GeneratorShapes.getCarriedShape(restoredStem.generator()), "the stem took no shape");
         assertSame(declared.type(), restoredStem.type());
         assertEquals(OptionalLong.of(DECLARED_SEED), restoredStem.seedOverride());
     }

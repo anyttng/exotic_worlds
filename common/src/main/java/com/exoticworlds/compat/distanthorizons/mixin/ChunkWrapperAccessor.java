@@ -9,8 +9,8 @@ import com.seibel.distanthorizons.core.wrapperInterfaces.chunk.ChunkLightStorage
 @Mixin(ChunkWrapper.class)
 public interface ChunkWrapperAccessor {
     @Accessor("blockLightStorage")
-    ChunkLightStorage exotic_worlds$blockLightStorage();
+    ChunkLightStorage exotic_worlds$getBlockLightStorage();
 
     @Accessor("skyLightStorage")
-    ChunkLightStorage exotic_worlds$skyLightStorage();
+    ChunkLightStorage exotic_worlds$getSkyLightStorage();
 }

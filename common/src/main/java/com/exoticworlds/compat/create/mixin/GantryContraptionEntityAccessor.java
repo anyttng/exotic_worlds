@@ -10,5 +10,5 @@ import net.minecraft.core.Direction;
 @Mixin(GantryContraptionEntity.class)
 public interface GantryContraptionEntityAccessor {
     @Accessor("movementAxis")
-    Direction exotic_worlds$movementAxis();
+    Direction exotic_worlds$getMovementAxis();
 }

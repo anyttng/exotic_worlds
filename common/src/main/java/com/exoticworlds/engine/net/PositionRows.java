@@ -13,7 +13,7 @@ import java.util.function.Predicate;
 import org.slf4j.Logger;
 
 import com.exoticworlds.ExoticWorlds;
-import com.exoticworlds.engine.net.RecordPayloadFold.Role;
+import com.exoticworlds.engine.net.RecordPayloadFold.ComponentRole;
 import com.exoticworlds.engine.net.TagPositions.Nesting;
 import com.exoticworlds.engine.net.TagPositions.PositionShape;
 import com.exoticworlds.engine.net.TagPositions.TagPosition;
@@ -26,7 +26,7 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.resources.Identifier;
 
 public record PositionRows(Map<Identifier, List<TagPosition>> blockEntities, Map<Identifier, List<TagPosition>> entities,
-        Set<Identifier> components, Set<Identifier> deny, Map<Identifier, Map<String, Role>> payloads) {
+        Set<Identifier> components, Set<Identifier> deny, Map<Identifier, Map<String, ComponentRole>> payloads) {
     public static final String DIRECTORY = ExoticWorlds.MODID;
     public static final String FILE_NAME = "positions";
 
@@ -64,8 +64,8 @@ public record PositionRows(Map<Identifier, List<TagPosition>> blockEntities, Map
     static final Codec<Set<Identifier>> IDS_CODEC =
             Identifier.CODEC.listOf().xmap(Set::copyOf, List::copyOf);
 
-    private static final Codec<Map<Identifier, Map<String, Role>>> PAYLOADS_CODEC =
-            Codec.unboundedMap(Identifier.CODEC, Codec.unboundedMap(Codec.STRING, Role.CODEC));
+    private static final Codec<Map<Identifier, Map<String, ComponentRole>>> PAYLOADS_CODEC =
+            Codec.unboundedMap(Identifier.CODEC, Codec.unboundedMap(Codec.STRING, ComponentRole.CODEC));
 
     public static final Codec<PositionRows> CODEC = RecordCodecBuilder.create(instance -> instance.group(
                     SUBJECTS_CODEC.optionalFieldOf(BLOCK_ENTITIES_KEY, Map.of()).forGetter(PositionRows::blockEntities),
@@ -81,7 +81,7 @@ public record PositionRows(Map<Identifier, List<TagPosition>> blockEntities, Map
         Map<Identifier, List<TagPosition>> entities = new LinkedHashMap<>();
         Set<Identifier> components = new HashSet<>();
         Set<Identifier> deny = new HashSet<>();
-        Map<Identifier, Map<String, Role>> payloads = new HashMap<>();
+        Map<Identifier, Map<String, ComponentRole>> payloads = new HashMap<>();
         Map<Identifier, Set<String>> conflicts = new HashMap<>();
         files.forEach((file, rows) -> {
             mergeInto(blockEntities, file, BLOCK_ENTITIES_KEY, rows.blockEntities(), blockEntityTypeKnown);
@@ -97,31 +97,44 @@ public record PositionRows(Map<Identifier, List<TagPosition>> blockEntities, Map
             mergePayloads(payloads, conflicts, file, rows.payloads());
         });
 
-        Map<Identifier, Map<String, Role>> joinedPayloads = new HashMap<>();
+        Map<Identifier, Map<String, ComponentRole>> joinedPayloads = new HashMap<>();
         payloads.forEach((id, roles) -> joinedPayloads.put(id, Map.copyOf(roles)));
         return new PositionRows(Map.copyOf(blockEntities), Map.copyOf(entities), Set.copyOf(components),
                 Set.copyOf(deny), Map.copyOf(joinedPayloads));
     }
 
-    private static void mergePayloads(Map<Identifier, Map<String, Role>> merged,
-            Map<Identifier, Set<String>> conflicts, Identifier file, Map<Identifier, Map<String, Role>> rows) {
-        rows.forEach((id, roles) -> {
-            Map<String, Role> joined = merged.computeIfAbsent(id, payload -> new HashMap<>());
-            Set<String> conflicted = conflicts.computeIfAbsent(id, payload -> new HashSet<>());
-            roles.forEach((component, role) -> {
-                if (conflicted.contains(component)) {
-                    return;
-                }
+    private static void mergePayloads(Map<Identifier, Map<String, ComponentRole>> merged,
+            Map<Identifier, Set<String>> conflicts, Identifier file, Map<Identifier, Map<String, ComponentRole>> rows) {
+        rows.forEach((id, roles) -> mergeRoles(merged.computeIfAbsent(id, payload -> new HashMap<>()),
+                conflicts.computeIfAbsent(id, payload -> new HashSet<>()), "", roles, file, id));
+    }
 
-                Role held = joined.putIfAbsent(component, role);
-                if (held != null && held != role) {
-                    joined.remove(component);
-                    conflicted.add(component);
-                    LOGGER.warn("The {} file of namespace {} names component {} of payload {} {}, which another"
-                            + " namespace names {}; the component folds by its type", FILE_NAME, file.getNamespace(),
-                            component, id, role.getSerializedName(), held.getSerializedName());
-                }
-            });
+    private static void mergeRoles(Map<String, ComponentRole> joined, Set<String> conflicted, String path,
+            Map<String, ComponentRole> roles, Identifier file, Identifier payloadId) {
+        roles.forEach((component, role) -> {
+            String address = path + component;
+            if (conflicted.contains(address)) {
+                return;
+            }
+
+            ComponentRole held = joined.putIfAbsent(component, role);
+            if (held == null || held.equals(role)) {
+                return;
+            }
+
+            if (held instanceof ComponentRole.Nested heldNested && role instanceof ComponentRole.Nested nested) {
+                Map<String, ComponentRole> inner = new HashMap<>(heldNested.components());
+                mergeRoles(inner, conflicted, address + RecordPayloadFold.PATH_SEPARATOR, nested.components(), file,
+                        payloadId);
+                joined.put(component, new ComponentRole.Nested(inner));
+                return;
+            }
+
+            joined.remove(component);
+            conflicted.add(address);
+            LOGGER.warn("The {} file of namespace {} gives component {} of payload {} a role another namespace gives"
+                    + " differently; the component folds by its type", FILE_NAME, file.getNamespace(), address,
+                    payloadId);
         });
     }
 

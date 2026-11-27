@@ -2,9 +2,7 @@ package com.exoticworlds.api.v1;
 
 import java.util.Optional;
 
-import com.exoticworlds.core.WorldFold;
-import com.exoticworlds.core.WorldLoopAttachments;
-import com.exoticworlds.engine.level.PublishedShapes;
+import com.exoticworlds.bridge.v1.client.ClientGeometryBridge;
 
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.resources.ResourceKey;
@@ -26,8 +24,7 @@ public final class ExoticWorldsClientApi {
      * bounds have not arrived yet — they are synced on login and dimension change, before the first chunk).
      */
     public static Optional<ToroidalShape> shapeOf(ClientLevel level) {
-        WorldFold fold = WorldLoopAttachments.wrappedClientBoundsFoldOf(level);
-        return fold == null ? Optional.empty() : Optional.of(fold.shapeView());
+        return ClientGeometryBridge.of(level);
     }
 
     /**
@@ -36,8 +33,7 @@ public final class ExoticWorldsClientApi {
      * the server never published it: every looping level arrives on login, before the first chunk.
      */
     public static Optional<ToroidalShape> shapeOf(ResourceKey<Level> dimension) {
-        WorldFold fold = PublishedShapes.wrappedFoldOf(dimension);
-        return fold == null ? Optional.empty() : Optional.of(fold.shapeView());
+        return ClientGeometryBridge.of(dimension);
     }
 
     private ExoticWorldsClientApi() {

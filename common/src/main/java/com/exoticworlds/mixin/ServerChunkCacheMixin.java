@@ -43,7 +43,7 @@ public class ServerChunkCacheMixin {
 
     @Unique
     private long exotic_worlds$physicalKey(int chunkX, int chunkZ) {
-        return this.exotic_worlds$bound.fold().foldChunkKey(ChunkPos.pack(chunkX, chunkZ));
+        return this.exotic_worlds$bound.getFold().foldChunkKey(ChunkPos.pack(chunkX, chunkZ));
     }
 
     @WrapMethod(method = "getChunkFutureMainThread")
@@ -59,7 +59,7 @@ public class ServerChunkCacheMixin {
             at = @At("HEAD"),
             argsOnly = true)
     private ChunkPos exotic_worlds$foldTicketCenter(ChunkPos pos) {
-        return this.exotic_worlds$bound.fold().fold(pos);
+        return this.exotic_worlds$bound.getFold().fold(pos);
     }
 
     @WrapMethod(method = "getChunkNow")
@@ -84,11 +84,11 @@ public class ServerChunkCacheMixin {
 
     @ModifyVariable(method = "onLightUpdate", at = @At("HEAD"), argsOnly = true)
     private SectionPos exotic_worlds$foldLightUpdateSection(SectionPos pos) {
-        return this.exotic_worlds$bound.fold().fold(pos);
+        return this.exotic_worlds$bound.getFold().fold(pos);
     }
 
     @ModifyVariable(method = "blockChanged", at = @At("HEAD"), argsOnly = true)
     private BlockPos exotic_worlds$wrapChangedBlock(BlockPos pos) {
-        return this.exotic_worlds$bound.fold().fold(pos);
+        return this.exotic_worlds$bound.getFold().fold(pos);
     }
 }

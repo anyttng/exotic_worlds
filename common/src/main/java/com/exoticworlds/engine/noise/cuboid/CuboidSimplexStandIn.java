@@ -2,9 +2,9 @@ package com.exoticworlds.engine.noise.cuboid;
 
 import java.util.List;
 
-import com.exoticworlds.core.CuboidAtlas;
-import com.exoticworlds.core.CuboidFace;
-import com.exoticworlds.core.WorldFold;
+import com.exoticworlds.core.fold.cuboid.CuboidAtlas;
+import com.exoticworlds.core.fold.cuboid.CuboidFace;
+import com.exoticworlds.core.fold.WorldFold;
 import com.exoticworlds.engine.noise.PerlinMath;
 import com.exoticworlds.engine.noise.SimplexField;
 import com.exoticworlds.engine.noise.cuboid.CuboidCrossings.Crossing;
@@ -56,7 +56,7 @@ public final class CuboidSimplexStandIn implements SimplexField {
     }
 
     @Override
-    public boolean carries() {
+    public boolean canCarry() {
         return true;
     }
 

@@ -22,7 +22,7 @@ public class AquiferFluidTypeSeamMixin {
             Operation<Float> original,
             @Local(argsOnly = true, ordinal = 0) int blockX,
             @Local(argsOnly = true, ordinal = 2) int blockZ) {
-        AquiferCells cells = ((AquiferCellsHolder) this).exotic_worlds$aquiferCells();
+        AquiferCells cells = ((AquiferCellsHolder) this).exotic_worlds$getAquiferCells();
         return cells == null ? original.call(noise, cellX, cellY, cellZ) : cells.type(blockX, cellY, blockZ);
     }
 }

@@ -1,32 +1,32 @@
 package com.exoticworlds.compat.lithostitched;
 
-import com.exoticworlds.core.Divisors;
-import com.exoticworlds.core.TranslationLattice;
-import com.exoticworlds.core.WorldFold;
-import com.exoticworlds.core.WrapDomain;
+import com.exoticworlds.core.world.Divisors;
+import com.exoticworlds.core.fold.TranslationLattice;
+import com.exoticworlds.core.fold.WorldFold;
+import com.exoticworlds.core.fold.WrapDomain;
 import com.google.common.math.IntMath;
 
-public record CellLap(TranslationLattice lattice, int width) {
+public record CellLap(TranslationLattice lattice, int widthBlocks) {
     private static final int NO_LAP = 0;
 
-    public static CellLap of(WorldFold fold, int modWidth) {
-        TranslationLattice lattice = fold.blockLattice();
-        return new CellLap(lattice, width(lattice, modWidth));
+    public static CellLap of(WorldFold fold, int modWidthBlocks) {
+        TranslationLattice lattice = fold.getBlockLattice();
+        return new CellLap(lattice, widthBlocks(lattice, modWidthBlocks));
     }
 
-    static int width(TranslationLattice lattice, int modWidth) {
-        int common = IntMath.gcd(lapOf(lattice.x()), lapOf(lattice.z()));
+    static int widthBlocks(TranslationLattice lattice, int modWidthBlocks) {
+        int common = IntMath.gcd(lapOf(lattice.getX()), lapOf(lattice.getZ()));
         if (lattice.isSkewed()) {
-            common = IntMath.gcd(common, Math.abs(lattice.skew()));
+            common = IntMath.gcd(common, Math.abs(lattice.getSkew()));
         }
 
         if (common == NO_LAP) {
-            return modWidth;
+            return modWidthBlocks;
         }
 
         int widest = 1;
         for (int divisor : Divisors.of(common)) {
-            if (divisor <= modWidth) {
+            if (divisor <= modWidthBlocks) {
                 widest = divisor;
             }
         }
@@ -35,14 +35,14 @@ public record CellLap(TranslationLattice lattice, int width) {
     }
 
     public int foldX(int cellX, int cellZ) {
-        return Math.floorDiv(this.lattice.foldX(cellX * this.width, cellZ * this.width), this.width);
+        return Math.floorDiv(this.lattice.foldX(cellX * this.widthBlocks, cellZ * this.widthBlocks), this.widthBlocks);
     }
 
     public int foldZ(int cellZ) {
-        return Math.floorDiv(this.lattice.foldZ(cellZ * this.width), this.width);
+        return Math.floorDiv(this.lattice.foldZ(cellZ * this.widthBlocks), this.widthBlocks);
     }
 
     private static int lapOf(WrapDomain domain) {
-        return domain.loops() ? domain.domainLength : NO_LAP;
+        return domain.isLooped() ? domain.domainLength : NO_LAP;
     }
 }

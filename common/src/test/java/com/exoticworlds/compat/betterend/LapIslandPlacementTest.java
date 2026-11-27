@@ -13,42 +13,42 @@ import org.betterx.betterend.world.generator.LayerOptions;
 import org.junit.jupiter.api.Test;
 
 import com.exoticworlds.compat.worldgen.LapFrame;
-import com.exoticworlds.core.FlatShape;
-import com.exoticworlds.core.ShapeFixtures;
-import com.exoticworlds.core.TranslationLattice;
-import com.exoticworlds.core.WorldFolds;
-import com.exoticworlds.core.WrapDomain;
+import com.exoticworlds.core.world.FlatShape;
+import com.exoticworlds.core.world.ShapeFixtures;
+import com.exoticworlds.core.fold.TranslationLattice;
+import com.exoticworlds.core.fold.WorldFolds;
+import com.exoticworlds.core.fold.WrapDomain;
 
 import net.minecraft.core.BlockPos;
 
 class LapIslandPlacementTest {
     private static final int SEED = 926;
 
-    private static final int LAP = 4096;
+    private static final int LAP_BLOCKS = 4096;
 
     private static final int MAX_HEIGHT = 128;
 
     private static final LayerOptions MEDIUM = new LayerOptions(150.0F, 100.0F, 0.546875F, 0.15625F, true);
 
-    private static final WrapDomain LAP_DOMAIN = new WrapDomain(-LAP / 2, LAP / 2);
+    private static final WrapDomain LAP_DOMAIN = new WrapDomain(-LAP_BLOCKS / 2, LAP_BLOCKS / 2);
 
     private static final LapIslandPlacement.Grid GRID = new LapIslandPlacement.Grid(
             IslandLapAxis.of(LAP_DOMAIN, MEDIUM.distance), IslandLapAxis.of(LAP_DOMAIN, MEDIUM.distance),
             new LapFrame(TranslationLattice.unskewed(LAP_DOMAIN, LAP_DOMAIN)));
 
-    private static final int LAP_CHUNKS = LAP / 16;
+    private static final int LAP_CHUNKS = LAP_BLOCKS / 16;
 
     private static final int SKEW_CHUNKS = 96;
 
     private static final TranslationLattice SKEWED_LATTICE = WorldFolds.of(FlatShape.latticeTorus(
             ShapeFixtures.loopedBounds(-LAP_CHUNKS / 2, LAP_CHUNKS / 2, -LAP_CHUNKS / 2, LAP_CHUNKS / 2), SKEW_CHUNKS))
-            .blockLattice();
+            .getBlockLattice();
 
     private static final LapIslandPlacement.Grid SKEWED = new LapIslandPlacement.Grid(
-            IslandLapAxis.of(SKEWED_LATTICE.x(), MEDIUM.distance), IslandLapAxis.of(SKEWED_LATTICE.z(), MEDIUM.distance),
+            IslandLapAxis.of(SKEWED_LATTICE.getX(), MEDIUM.distance), IslandLapAxis.of(SKEWED_LATTICE.getZ(), MEDIUM.distance),
             new LapFrame(SKEWED_LATTICE));
 
-    private static final int COPY_REACH = 3;
+    private static final int COPY_REACH_LAPS = 3;
 
     private static final int WINDOW_SAMPLES = 4;
 
@@ -81,7 +81,7 @@ class LapIslandPlacementTest {
                     assertEquals(here.size(), away.size(), name);
                     for (int i = 0; i < here.size(); i++) {
                         assertEquals(here.get(i).canonical(), away.get(i).canonical(), name);
-                        assertEquals(here.get(i).seated().offset(LAP, 0, -LAP), away.get(i).seated(), name);
+                        assertEquals(here.get(i).seated().offset(LAP_BLOCKS, 0, -LAP_BLOCKS), away.get(i).seated(), name);
                     }
 
                     placed += here.size();
@@ -100,7 +100,7 @@ class LapIslandPlacementTest {
             for (LapIslandPlacement.Island island : place(last, cellZ, NO_CENTER)) {
                 BlockPos canonical = island.canonical();
                 int canonicalCell = GRID.x().cell(canonical.getX());
-                int expected = canonicalCell == 0 ? canonical.getX() + LAP : canonical.getX();
+                int expected = canonicalCell == 0 ? canonical.getX() + LAP_BLOCKS : canonical.getX();
                 assertEquals(expected, island.seated().getX(), "island " + canonical + " in cell " + canonicalCell);
                 seatedPastTheSeam += canonicalCell == 0 ? 1 : 0;
             }
@@ -131,9 +131,9 @@ class LapIslandPlacementTest {
                     List<LapIslandPlacement.Island> here = place(SKEWED, cellX, cellZ, center);
                     String name = "cell " + cellX + ", " + cellZ + " with " + center;
                     assertShifted(here, place(SKEWED, cellX + cellsX, cellZ, center),
-                            SKEWED_LATTICE.x().domainLength, 0, name + " one X lap on");
-                    assertShifted(here, place(SKEWED, cellX, cellZ + cellsZ, center), SKEWED_LATTICE.skew(),
-                            SKEWED_LATTICE.z().domainLength, name + " one Z lap on");
+                            SKEWED_LATTICE.getX().domainLength, 0, name + " one X lap on");
+                    assertShifted(here, place(SKEWED, cellX, cellZ + cellsZ, center), SKEWED_LATTICE.getSkew(),
+                            SKEWED_LATTICE.getZ().domainLength, name + " one Z lap on");
                     placed += here.size();
                 }
             }
@@ -185,13 +185,13 @@ class LapIslandPlacementTest {
         int cellsX = SKEWED.x().cells();
         int cellsZ = SKEWED.z().cells();
         Set<BlockPos> region = new HashSet<>();
-        for (int cellX = -COPY_REACH; cellX < cellsX + COPY_REACH; cellX++) {
-            for (int cellZ = -COPY_REACH; cellZ < cellsZ + COPY_REACH; cellZ++) {
+        for (int cellX = -COPY_REACH_LAPS; cellX < cellsX + COPY_REACH_LAPS; cellX++) {
+            for (int cellZ = -COPY_REACH_LAPS; cellZ < cellsZ + COPY_REACH_LAPS; cellZ++) {
                 place(SKEWED, cellX, cellZ, NO_CENTER).forEach(island -> region.add(island.seated()));
             }
         }
 
-        double reach = Math.min(SKEWED.x().cellBlocks(), SKEWED.z().cellBlocks());
+        double reachBlocks = Math.min(SKEWED.x().cellBlocks(), SKEWED.z().cellBlocks());
         int seen = 0;
         for (int cellX = 0; cellX < cellsX; cellX += 3) {
             for (int cellZ = 0; cellZ < cellsZ; cellZ += 3) {
@@ -203,7 +203,7 @@ class LapIslandPlacementTest {
                         double pointX = SKEWED.frame().blockX(
                                 (cellX + (i + 0.5) / WINDOW_SAMPLES) * SKEWED.x().cellBlocks(), pointZ);
                         for (BlockPos island : region) {
-                            if (Math.hypot(island.getX() - pointX, island.getZ() - pointZ) <= reach) {
+                            if (Math.hypot(island.getX() - pointX, island.getZ() - pointZ) <= reachBlocks) {
                                 assertTrue(window.contains(island), "cell " + cellX + ", " + cellZ + " misses "
                                         + island + " near " + pointX + ", " + pointZ);
                                 seen++;
@@ -229,10 +229,10 @@ class LapIslandPlacementTest {
     private static BlockPos nearestOriginCopy(double x, double z) {
         BlockPos nearest = BlockPos.ZERO;
         double best = Double.MAX_VALUE;
-        for (int lapsX = -COPY_REACH; lapsX <= COPY_REACH; lapsX++) {
-            for (int lapsZ = -COPY_REACH; lapsZ <= COPY_REACH; lapsZ++) {
-                int copyX = lapsX * SKEWED_LATTICE.x().domainLength + lapsZ * SKEWED_LATTICE.skew();
-                int copyZ = lapsZ * SKEWED_LATTICE.z().domainLength;
+        for (int lapsX = -COPY_REACH_LAPS; lapsX <= COPY_REACH_LAPS; lapsX++) {
+            for (int lapsZ = -COPY_REACH_LAPS; lapsZ <= COPY_REACH_LAPS; lapsZ++) {
+                int copyX = lapsX * SKEWED_LATTICE.getX().domainLength + lapsZ * SKEWED_LATTICE.getSkew();
+                int copyZ = lapsZ * SKEWED_LATTICE.getZ().domainLength;
                 double squared = (x - copyX) * (x - copyX) + (z - copyZ) * (z - copyZ);
                 if (squared < best) {
                     best = squared;

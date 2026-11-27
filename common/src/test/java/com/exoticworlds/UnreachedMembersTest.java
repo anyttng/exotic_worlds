@@ -60,24 +60,24 @@ class UnreachedMembersTest {
     private static final Pattern MEMBER_NAME = Pattern.compile("(\\w+)\\s*\\(");
 
     private static final Set<String> READ_BY_TESTS = Set.of(
-            "compat.distanthorizons.DhProbes.foldedKeyLines",
-            "compat.distanthorizons.DhProbes.unchangedKeys",
+            "compat.distanthorizons.DhProbes.getFoldedKeyLines",
+            "compat.distanthorizons.DhProbes.getUnchangedKeys",
             "compat.distanthorizons.DhProbes.resetKeyGates",
-            "engine.fold.ChunkViewSweep.positions",
             "compat.wover.LapAxis.latticeBlocks",
-            "shape.WorldLoopPresets.blockWidth",
+            "shape.WorldLoopPresets.getWidthBlocks",
             "engine.net.PacketTranslator.toClient",
             "engine.net.PacketTranslator.toServer",
-            "accessors.FoldedClimateSampler.exotic_worlds$fold",
-            "compat.gate.ModPresence.ownedClasses",
-            "compat.gate.ModPresence.scannedClasses",
+            "accessors.FoldedClimateSampler.exotic_worlds$getFold",
+            "compat.gate.ModPresence.scanOwnedClasses",
+            "compat.gate.ModPresence.scanClasses",
             "compat.gate.ModPresence.optional",
-            "core.CuboidFace.boxPoint",
-            "core.FoldOrientation.stateMirror",
-            "core.FoldOrientation.stateRotation");
+            "core.fold.FoldOrientation.getStateMirror",
+            "core.fold.FoldOrientation.getStateRotation",
+            "core.fold.cuboid.CuboidFace.boxPoint");
     private static final Set<String> READ_BY_HARNESS = Set.of(
             "compat.distanthorizons.DhFold.periodSections",
-            "compat.gate.ModPresenceGatePlugin.gates");
+            "compat.gate.ModPresenceGatePlugin.getGates",
+            "shape.feature.floatingcrumbs.FloatingCrumbs.crumbPositions");
 
     @Test
     void noMainMemberIsCalledByTestsAlone() throws IOException {

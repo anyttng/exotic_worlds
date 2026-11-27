@@ -17,8 +17,8 @@ public class AbstractNautilusMixin {
     @WrapOperation(
             method = "checkRestriction",
             at = @At(value = "INVOKE", target = InjectionTargets.BLOCK_POS_CLOSER_THAN))
-    private boolean exotic_worlds$homeRestrictionThroughSeam(BlockPos home, Vec3i pos, double distance,
+    private boolean exotic_worlds$homeRestrictionThroughSeam(BlockPos home, Vec3i pos, double distanceBlocks,
             Operation<Boolean> original) {
-        return original.call(home, SeamRange.toward((AbstractNautilus) (Object) this, home, pos), distance);
+        return original.call(home, SeamRange.toward((AbstractNautilus) (Object) this, home, pos), distanceBlocks);
     }
 }

@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.Optional;
 
 import com.exoticworlds.ExoticWorlds;
-import com.exoticworlds.core.DimensionTable;
+import com.exoticworlds.core.world.DimensionTable;
 import com.exoticworlds.engine.gen.DimensionChoices;
 
 import io.netty.buffer.ByteBuf;
@@ -40,7 +40,7 @@ public record DimensionChoicesPayload(List<Row> rows) implements CustomPacketPay
     }
 
     public record Row(ResourceKey<LevelStem> stem, Optional<DimensionChoices.Refusal> lock,
-            DimensionTable.Entry entry, double coordinateScale) {
+            DimensionTable.Entry entry, double coordinateScale, boolean isEndTerrain) {
         private static final StreamCodec<ByteBuf, DimensionChoices.Refusal> REFUSAL_STREAM_CODEC =
                 ByteBufCodecs.STRING_UTF8.map(DimensionChoices.Refusal::valueOf, DimensionChoices.Refusal::name);
 
@@ -49,6 +49,7 @@ public record DimensionChoicesPayload(List<Row> rows) implements CustomPacketPay
                 ByteBufCodecs.optional(REFUSAL_STREAM_CODEC), Row::lock,
                 ENTRY_STREAM_CODEC, Row::entry,
                 ByteBufCodecs.DOUBLE, Row::coordinateScale,
+                ByteBufCodecs.BOOL, Row::isEndTerrain,
                 Row::new);
     }
 }

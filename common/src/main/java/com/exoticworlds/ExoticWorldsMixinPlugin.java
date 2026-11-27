@@ -8,7 +8,7 @@ public class ExoticWorldsMixinPlugin extends MixinGatePlugin {
     @Override
     public boolean shouldApplyMixin(String targetClassName, String mixinClassName) {
         if (AQUIFER_SEAM_MIXIN.equals(mixinClassName)) {
-            return !C2meAquifer.optimizesAquifer();
+            return !C2meAquifer.isAquiferOptimized();
         }
 
         return true;

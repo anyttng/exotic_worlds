@@ -82,6 +82,17 @@ class LapClipTest {
     }
 
     @Test
+    void onlyTheRewrittenFarShadersTakeTheLapDefines() {
+        assertTrue(LapClip.isRewritten("eminus", "core/far_quads"));
+        assertTrue(LapClip.isRewritten("eminus", "core/far_pack"));
+        assertFalse(LapClip.isRewritten("eminus", "core/far_boxes"));
+        assertFalse(LapClip.isRewritten("eminus", "core/far_beams"));
+        assertFalse(LapClip.isRewritten("eminus", "core/far_pack_beams"));
+        assertFalse(LapClip.isRewritten("minecraft", "core/far_quads"));
+        assertFalse(LapClip.isRewritten("eminus", null));
+    }
+
+    @Test
     void onlyAFragmentFileNamesAShader() {
         assertEquals("core/far_quads", LapClip.fragmentShader("shaders/core/far_quads.fsh"));
         assertNull(LapClip.fragmentShader("shaders/core/far_quads.vsh"));

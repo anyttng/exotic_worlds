@@ -9,25 +9,25 @@ import java.util.function.Function;
 import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Test;
 
-import com.exoticworlds.api.v1.ToroidalShape;
-import com.exoticworlds.compat.map.MapShapes;
+import com.exoticworlds.compat.map.MapFolds;
 import com.exoticworlds.compat.map.WorldCopies;
+import com.exoticworlds.core.fold.WorldFold;
 
 import net.minecraft.world.level.ChunkPos;
 
 class XaeroWorldMapFoldSeamTest {
     @Test
     void aRegionInsideAnAlignedWorldFansOutNothing() {
-        assertArrayEquals(new long[0], fannedRegions(MapShapes.torus(-32, 32), -1, 0, 0),
+        assertArrayEquals(new long[0], fannedRegions(MapFolds.torus(-32, 32), -1, 0, 0),
                 "region -1 covers -512..-1, the world's first half");
-        assertArrayEquals(new long[0], fannedRegions(MapShapes.torus(-32, 32), 0, -1, 0),
+        assertArrayEquals(new long[0], fannedRegions(MapFolds.torus(-32, 32), 0, -1, 0),
                 "region 0 covers 0..511, the world's second half");
     }
 
     @Test
     void aRegionPastAnAlignedSeamFansOutItsCanonicalRegion() {
         assertArrayEquals(new long[] {ChunkPos.pack(-1, 0)},
-                fannedRegions(MapShapes.torus(-32, 32), 1, 0, 0),
+                fannedRegions(MapFolds.torus(-32, 32), 1, 0, 0),
                 "region 1 covers 512..1023, one lap past the seam at 512");
     }
 
@@ -35,7 +35,7 @@ class XaeroWorldMapFoldSeamTest {
     void aRegionOfAHalfShiftedWorldFansOutEveryRegionItsFoldedSpanTouches() {
         assertArrayEquals(
                 sorted(ChunkPos.pack(-1, -1), ChunkPos.pack(-1, 0), ChunkPos.pack(0, -1), ChunkPos.pack(0, 0)),
-                sorted(fannedRegions(MapShapes.torus(-16, 16), 0, 0, 0)),
+                sorted(fannedRegions(MapFolds.torus(-16, 16), 0, 0, 0)),
                 "region 0 spans 0..511 against a world of -256..255 on both axes");
     }
 
@@ -43,7 +43,7 @@ class XaeroWorldMapFoldSeamTest {
     void aBranchRegionFansOutItsLeavesRegionByRegion() {
         assertArrayEquals(
                 new long[] {ChunkPos.pack(-2, 0), ChunkPos.pack(-2, 1), ChunkPos.pack(-1, 0), ChunkPos.pack(-1, 1)},
-                fannedLeaves(MapShapes.torus(-64, 64), 1, 0, 1),
+                fannedLeaves(MapFolds.torus(-64, 64), 1, 0, 1),
                 "level-1 region 1 covers 1024..2047, one lap past the seam, so it fans out level-1 region -1");
     }
 
@@ -52,19 +52,19 @@ class XaeroWorldMapFoldSeamTest {
         assertArrayEquals(new long[0], fannedRegions(null, 7, 0, 0), "an unshaped world has no seam");
     }
 
-    private static long[] fannedRegions(@Nullable ToroidalShape shape, int leveledRegX, int leveledRegZ, int level) {
+    private static long[] fannedRegions(@Nullable WorldFold shape, int leveledRegX, int leveledRegZ, int level) {
         return sameThroughEveryWindow(shape, window -> XaeroWorldMapFold.fannedRegions(window, leveledRegX, leveledRegZ,
                 level));
     }
 
-    private static long[] fannedLeaves(@Nullable ToroidalShape shape, int leveledRegX, int leveledRegZ, int level) {
+    private static long[] fannedLeaves(@Nullable WorldFold shape, int leveledRegX, int leveledRegZ, int level) {
         return sameThroughEveryWindow(shape, window -> XaeroWorldMapFold.fannedLeaves(window, leveledRegX, leveledRegZ,
                 level));
     }
 
-    private static long[] sameThroughEveryWindow(@Nullable ToroidalShape shape,
+    private static long[] sameThroughEveryWindow(@Nullable WorldFold shape,
             Function<WorldCopies.Window, long[]> fanned) {
-        List<long[]> answers = MapShapes.windows(shape).stream().map(fanned).toList();
+        List<long[]> answers = MapFolds.windows(shape).stream().map(fanned).toList();
         for (long[] answer : answers) {
             assertArrayEquals(sorted(answers.getFirst()), sorted(answer),
                     "the window's copies and the shape's own fanned out different regions");

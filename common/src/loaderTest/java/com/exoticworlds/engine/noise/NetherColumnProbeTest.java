@@ -14,12 +14,13 @@ import java.util.Random;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-import com.exoticworlds.core.ShapeFixtures;
-import com.exoticworlds.core.WorldFold;
-import com.exoticworlds.core.WorldFolds;
-import com.exoticworlds.core.WorldLoopBounds;
+import com.exoticworlds.core.world.ShapeFixtures;
+import com.exoticworlds.core.fold.WorldFold;
+import com.exoticworlds.core.fold.WorldFolds;
+import com.exoticworlds.core.world.WorldLoopBounds;
 import com.exoticworlds.shape.StartupRegistrations;
 
+import net.minecraft.world.level.dimension.LevelStem;
 import net.minecraft.SharedConstants;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
@@ -67,7 +68,6 @@ class NetherColumnProbeTest {
         SharedConstants.tryDetectVersion();
         Bootstrap.bootStrap();
         StartupRegistrations.options();
-        StartupRegistrations.generationHooks();
         holders = VanillaRegistries.createWorldLookup();
         Holder<NoiseGeneratorSettings> settingsHolder =
                 holders.lookupOrThrow(Registries.NOISE_SETTINGS).getOrThrow(NoiseGeneratorSettings.NETHER);
@@ -143,7 +143,8 @@ class NetherColumnProbeTest {
                 long seed = SEED_BASE + s * SEED_STEP;
                 RandomState controlState = RandomState.create(holders.lookupOrThrow(Registries.NOISE), seed,
                         netherSettings);
-                RandomState foldedState = GenerationFoldContext.withRouterBuild(fold,
+                RandomState foldedState = GenerationFoldContext.withRouterBuild(fold, LevelStem.NETHER,
+                        List.copyOf(StartupRegistrations.noiseFeaturesFor(fold.getOptions())),
                         () -> RandomState.create(holders.lookupOrThrow(Registries.NOISE), seed, netherSettings));
                 int windowX = (int) (windows.nextDouble() * VANILLA_WINDOW_SPAN);
                 int windowZ = (int) (windows.nextDouble() * VANILLA_WINDOW_SPAN);
@@ -220,7 +221,7 @@ class NetherColumnProbeTest {
     private Columns sampleColumns(RandomState randomState, WorldFold fold, int originX, int originZ,
             double stepX, double stepZ, ColumnSampler sampler) {
         int minY = heightAccessor.getMinY();
-        int height = heightAccessor.getHeight();
+        int heightBlocks = heightAccessor.getHeight();
         int[][] floors = new int[GRID][GRID];
         int[][] ceilings = new int[GRID][GRID];
         long solidBlocks = 0;
@@ -233,12 +234,12 @@ class NetherColumnProbeTest {
                         () -> sampler.sample(randomState, blockX, blockZ));
 
                 int floor = minY - 1;
-                for (int y = 0; y < height && solid[y]; y++) {
+                for (int y = 0; y < heightBlocks && solid[y]; y++) {
                     floor = minY + y;
                 }
 
-                int ceiling = minY + height;
-                for (int y = height - 1; y >= 0 && solid[y]; y--) {
+                int ceiling = minY + heightBlocks;
+                for (int y = heightBlocks - 1; y >= 0 && solid[y]; y--) {
                     ceiling = minY + y;
                 }
 
@@ -278,13 +279,13 @@ class NetherColumnProbeTest {
 
     private Relief relief(Columns columns, double meanNeighborDelta) {
         int minY = heightAccessor.getMinY();
-        int height = heightAccessor.getHeight();
-        Histogram floorHistogram = Histogram.of(columns.floors(), minY, height);
-        Histogram ceilingHistogram = Histogram.of(columns.ceilings(), minY, height);
+        int heightBlocks = heightAccessor.getHeight();
+        Histogram floorHistogram = Histogram.of(columns.floors(), minY, heightBlocks);
+        Histogram ceilingHistogram = Histogram.of(columns.ceilings(), minY, heightBlocks);
         return new Relief(floorHistogram.topShare(1), floorHistogram.topShare(TOP_LEVELS),
                 floorHistogram.distinct(), meanNeighborDelta,
                 ceilingHistogram.topShare(1), ceilingHistogram.distinct(),
-                columns.solidBlocks() / (double) (GRID * GRID * height));
+                columns.solidBlocks() / (double) (GRID * GRID * heightBlocks));
     }
 
     private boolean[] chainColumn(RandomState randomState, int blockX, int blockZ) {
@@ -311,8 +312,8 @@ class NetherColumnProbeTest {
 
     @SuppressWarnings("ArrayRecordComponent")
     private record Histogram(int[] counts, int total) {
-        static Histogram of(int[][] levels, int minY, int height) {
-            int[] counts = new int[height + 2];
+        static Histogram of(int[][] levels, int minY, int heightBlocks) {
+            int[] counts = new int[heightBlocks + 2];
             int total = 0;
             for (int[] row : levels) {
                 for (int level : row) {

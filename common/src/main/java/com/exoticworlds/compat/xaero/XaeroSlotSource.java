@@ -2,12 +2,12 @@ package com.exoticworlds.compat.xaero;
 
 import org.jspecify.annotations.Nullable;
 
-import com.exoticworlds.api.v1.ToroidalShape;
 import com.exoticworlds.compat.map.MapCopies;
+import com.exoticworlds.core.fold.WorldFold;
 
 import net.minecraft.core.BlockPos;
 
-record XaeroSlotSource(Kind kind, boolean folded, int blockX, int blockZ) {
+record XaeroSlotSource(Kind kind, boolean isFolded, int blockX, int blockZ) {
     static final XaeroSlotSource RAW = new XaeroSlotSource(Kind.RAW, false, 0, 0);
     static final XaeroSlotSource HIDDEN = new XaeroSlotSource(Kind.HIDDEN, false, 0, 0);
     static final XaeroSlotSource FOLDED_HIDDEN = new XaeroSlotSource(Kind.HIDDEN, true, 0, 0);
@@ -20,17 +20,17 @@ record XaeroSlotSource(Kind kind, boolean folded, int blockX, int blockZ) {
         CANONICAL
     }
 
-    static XaeroSlotSource of(@Nullable ToroidalShape shape, MapCopies mapCopies, boolean isCandidate,
-            boolean glueable, boolean insideWorld, int viewBlockX, int viewBlockZ) {
-        if (shape == null) {
+    static XaeroSlotSource of(@Nullable WorldFold fold, MapCopies mapCopies, boolean isCandidate,
+            boolean isGlueable, boolean isInsideWorld, int viewBlockX, int viewBlockZ) {
+        if (fold == null) {
             return isCandidate ? HIDDEN : RAW;
         }
 
-        if (!glueable) {
-            return !isCandidate && insideWorld ? RAW : ANY_CANONICAL;
+        if (!isGlueable) {
+            return !isCandidate && isInsideWorld ? RAW : ANY_CANONICAL;
         }
 
-        BlockPos folded = XaeroWorldMapFold.foldBlock(shape, viewBlockX, viewBlockZ);
+        BlockPos folded = XaeroWorldMapFold.foldBlock(fold, viewBlockX, viewBlockZ);
         if (folded.getX() == viewBlockX && folded.getZ() == viewBlockZ) {
             return isCandidate ? HIDDEN : RAW;
         }

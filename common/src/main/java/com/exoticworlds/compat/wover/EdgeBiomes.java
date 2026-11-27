@@ -53,8 +53,8 @@ public final class EdgeBiomes {
 
         PickableBiome search = parent != null ? parent : biome;
         double radius = radius(map, search.edgeSize);
-        double step = SQUARE_NEIGHBOR_BLOCKS / map.factor();
-        boolean edge = !search.isSame(map.biomeAt(x + radius, z))
+        double step = SQUARE_NEIGHBOR_BLOCKS / map.getFactor();
+        boolean isEdge = !search.isSame(map.biomeAt(x + radius, z))
                 || !search.isSame(map.biomeAt(x - radius, z))
                 || !search.isSame(map.biomeAt(x, z + radius))
                 || !search.isSame(map.biomeAt(x, z - radius))
@@ -62,11 +62,11 @@ public final class EdgeBiomes {
                 || !search.isSame(map.biomeAt(x - step, z + step))
                 || !search.isSame(map.biomeAt(x + step, z - step))
                 || !search.isSame(map.biomeAt(x + step, z + step));
-        return edge ? search.getEdge() : biome;
+        return isEdge ? search.getEdge() : biome;
     }
 
     private static double radius(LapMap<?> map, int edgeSize) {
-        return edgeSize / map.factor();
+        return edgeSize / map.getFactor();
     }
 
     private EdgeBiomes() {

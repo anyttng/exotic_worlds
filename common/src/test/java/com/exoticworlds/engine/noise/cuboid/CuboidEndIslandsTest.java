@@ -1,9 +1,9 @@
 package com.exoticworlds.engine.noise.cuboid;
 
-import static com.exoticworlds.core.CuboidFixtures.carried;
-import static com.exoticworlds.core.CuboidFixtures.cuboidFold;
-import static com.exoticworlds.core.CuboidFixtures.edgeBlocks;
-import static com.exoticworlds.core.CuboidFixtures.pointBy;
+import static com.exoticworlds.core.fold.cuboid.CuboidFixtures.carried;
+import static com.exoticworlds.core.fold.cuboid.CuboidFixtures.cuboidFold;
+import static com.exoticworlds.core.fold.cuboid.CuboidFixtures.edgeBlocks;
+import static com.exoticworlds.core.fold.cuboid.CuboidFixtures.pointBy;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -12,16 +12,17 @@ import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
-import com.exoticworlds.accessors.CoastLiftCache;
-import com.exoticworlds.core.CuboidAtlas;
-import com.exoticworlds.core.CuboidEdge;
-import com.exoticworlds.core.CuboidFace;
-import com.exoticworlds.core.CuboidFace.BoxVector;
-import com.exoticworlds.core.CuboidFixtures;
-import com.exoticworlds.core.CuboidVertex;
-import com.exoticworlds.core.WorldFolds;
+import com.exoticworlds.core.feature.NoiseOffsets;
+import com.exoticworlds.core.fold.cuboid.CuboidAtlas;
+import com.exoticworlds.core.fold.cuboid.CuboidEdge;
+import com.exoticworlds.core.fold.cuboid.CuboidFace;
+import com.exoticworlds.core.fold.cuboid.CuboidFace.BoxVector;
+import com.exoticworlds.core.fold.cuboid.CuboidFixtures;
+import com.exoticworlds.core.fold.cuboid.CuboidVertex;
+import com.exoticworlds.core.fold.WorldFolds;
 import com.exoticworlds.engine.noise.FoldedCompileContext;
 import com.exoticworlds.engine.noise.FoldedSamplers;
+import com.exoticworlds.engine.noise.NoiseRouterFields;
 import com.exoticworlds.engine.noise.NoiseScaleLadder;
 import com.exoticworlds.engine.noise.PeriodicEndIslands;
 
@@ -29,6 +30,7 @@ import net.minecraft.core.Holder;
 import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
+import net.minecraft.world.level.dimension.LevelStem;
 import net.minecraft.world.level.levelgen.LegacyRandomSource;
 import net.minecraft.world.level.levelgen.densityfunction.DensityFunction;
 import net.minecraft.world.level.levelgen.densityfunction.DensitySampler;
@@ -77,20 +79,10 @@ class CuboidEndIslandsTest {
         }
     };
 
-    private static final CoastLiftCache NO_LIFT = new CoastLiftCache() {
-        @Override
-        public double exotic_worlds$coastLift() {
-            return 0.0;
-        }
-
-        @Override
-        public void exotic_worlds$coastLift(double lift) {
-        }
-    };
-
     private static DensitySampler islands(CuboidAtlas atlas) {
         return FoldedSamplers.endIslands(
-                new FoldedCompileContext(SEEDED, cuboidFold(atlas), NO_LIFT, NoiseScaleLadder.NONE));
+                new FoldedCompileContext(SEEDED, cuboidFold(atlas), LevelStem.END, List.of(), new NoiseOffsets(),
+                        NoiseScaleLadder.NONE, NoiseRouterFields.NONE));
     }
 
     private static float density(DensitySampler islands, double[] flat) {

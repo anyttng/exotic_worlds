@@ -15,8 +15,8 @@ import java.util.Random;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-import com.exoticworlds.core.WorldFold;
-import com.exoticworlds.core.WorldFolds;
+import com.exoticworlds.core.fold.WorldFold;
+import com.exoticworlds.core.fold.WorldFolds;
 
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.level.levelgen.NoiseGeneratorSettings;
@@ -33,8 +33,8 @@ class UnfoldedRandomStateTest {
     private static final int POINTS = 48;
     private static final int VOLUMES = 4;
 
-    private static final int CELL_WIDTH = 4;
-    private static final int CELL_HEIGHT = 8;
+    private static final int CELL_WIDTH_BLOCKS = 4;
+    private static final int CELL_HEIGHT_BLOCKS = 8;
     private static final int VOLUME_CELLS_XZ = 5;
     private static final int VOLUME_CELLS_Y = 6;
 
@@ -87,10 +87,10 @@ class UnfoldedRandomStateTest {
                 int mismatches = 0;
                 for (int i = 0; i < VOLUMES; i++) {
                     DensityVolume volume = volumeAt(
-                            cellAligned(random, WIDTH_BLOCKS * 4, CELL_WIDTH) - WIDTH_BLOCKS * 2,
+                            cellAligned(random, WIDTH_BLOCKS * 4, CELL_WIDTH_BLOCKS) - WIDTH_BLOCKS * 2,
                             settings.noiseSettings().minY() + cellAligned(random,
-                                    settings.noiseSettings().height() - VOLUME_CELLS_Y * CELL_HEIGHT, CELL_HEIGHT),
-                            cellAligned(random, WIDTH_BLOCKS * 4, CELL_WIDTH) - WIDTH_BLOCKS * 2);
+                                    settings.noiseSettings().height() - VOLUME_CELLS_Y * CELL_HEIGHT_BLOCKS, CELL_HEIGHT_BLOCKS),
+                            cellAligned(random, WIDTH_BLOCKS * 4, CELL_WIDTH_BLOCKS) - WIDTH_BLOCKS * 2);
                     float[] vanilla = volume(sampler, volume);
                     float[] bound = GenerationFoldContext.withFold(BOUND, () -> volume(sampler, volume));
                     mismatches += mismatchesBetween(vanilla, bound);
@@ -122,7 +122,7 @@ class UnfoldedRandomStateTest {
 
     private static DensityVolume volumeAt(int minX, int minY, int minZ) {
         return new DensityVolume(VOLUME_CELLS_XZ, VOLUME_CELLS_Y, VOLUME_CELLS_XZ, minX, minY, minZ,
-                CELL_WIDTH, CELL_HEIGHT, CELL_WIDTH);
+                CELL_WIDTH_BLOCKS, CELL_HEIGHT_BLOCKS, CELL_WIDTH_BLOCKS);
     }
 
     private static float[] volume(DensitySampler sampler, DensityVolume volume) {

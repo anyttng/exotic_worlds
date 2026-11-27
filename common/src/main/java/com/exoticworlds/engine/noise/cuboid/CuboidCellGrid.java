@@ -1,8 +1,8 @@
 package com.exoticworlds.engine.noise.cuboid;
 
-import com.exoticworlds.core.CuboidAtlas;
-import com.exoticworlds.core.CuboidFace;
-import com.exoticworlds.core.CuboidFace.BoxVector;
+import com.exoticworlds.core.fold.cuboid.CuboidAtlas;
+import com.exoticworlds.core.fold.cuboid.CuboidFace;
+import com.exoticworlds.core.fold.cuboid.CuboidFace.BoxVector;
 import com.exoticworlds.engine.noise.AquiferCellGrid;
 import com.exoticworlds.engine.noise.BoxDivisors;
 import com.exoticworlds.engine.noise.GenerationFoldContext;
@@ -15,9 +15,9 @@ public record CuboidCellGrid(CuboidAtlas atlas, int aCellWidth, int bCellWidth, 
         int[] widths = new int[CuboidLattice.AXES];
         for (CuboidFace face : atlas.faces()) {
             widths[CuboidLattice.axisOf(face.alongX())] =
-                    TilingCellGrid.tilingWidth(face.widthBlocks(), vanillaCellWidth);
+                    TilingCellGrid.tilingWidthBlocks(face.widthBlocks(), vanillaCellWidth);
             widths[CuboidLattice.axisOf(face.alongZ())] =
-                    TilingCellGrid.tilingWidth(face.depthBlocks(), vanillaCellWidth);
+                    TilingCellGrid.tilingWidthBlocks(face.depthBlocks(), vanillaCellWidth);
         }
 
         return new CuboidCellGrid(atlas, widths[CuboidLattice.A_AXIS], widths[CuboidLattice.B_AXIS],

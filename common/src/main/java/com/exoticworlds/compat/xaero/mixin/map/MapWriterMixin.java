@@ -104,7 +104,7 @@ public abstract class MapWriterMixin {
             at = @At(value = "FIELD", target = INSIDE_X, opcode = Opcodes.GETFIELD),
             slice = @Slice(to = @At(value = "INVOKE", target = SET_TILE)))
     private int exotic_worlds$tileInsideX(int raw) {
-        return this.exotic_worlds$fold.insideX(raw);
+        return this.exotic_worlds$fold.getInsideX(raw);
     }
 
     @ModifyExpressionValue(
@@ -112,7 +112,7 @@ public abstract class MapWriterMixin {
             at = @At(value = "FIELD", target = INSIDE_Z, opcode = Opcodes.GETFIELD),
             slice = @Slice(to = @At(value = "INVOKE", target = SET_TILE)))
     private int exotic_worlds$tileInsideZ(int raw) {
-        return this.exotic_worlds$fold.insideZ(raw);
+        return this.exotic_worlds$fold.getInsideZ(raw);
     }
 
     @ModifyExpressionValue(
@@ -122,7 +122,7 @@ public abstract class MapWriterMixin {
                     from = @At(value = "INVOKE", target = SET_TILE),
                     to = @At(value = "FIELD", target = INSIDE_X, opcode = Opcodes.PUTFIELD, ordinal = 0)))
     private int exotic_worlds$bufferTriggerX(int raw) {
-        return this.exotic_worlds$fold.lastInsideX(raw);
+        return this.exotic_worlds$fold.getLastInsideX(raw);
     }
 
     @ModifyExpressionValue(
@@ -132,21 +132,21 @@ public abstract class MapWriterMixin {
                     from = @At(value = "INVOKE", target = SET_TILE),
                     to = @At(value = "FIELD", target = INSIDE_X, opcode = Opcodes.PUTFIELD, ordinal = 0)))
     private int exotic_worlds$bufferTriggerZ(int raw) {
-        return this.exotic_worlds$fold.lastInsideZ(raw);
+        return this.exotic_worlds$fold.getLastInsideZ(raw);
     }
 
     @ModifyExpressionValue(
             method = "updateBottomRightTile",
             at = @At(value = "FIELD", target = INSIDE_X, opcode = Opcodes.GETFIELD))
     private int exotic_worlds$slopeInsideX(int raw) {
-        return this.exotic_worlds$fold.insideX(raw);
+        return this.exotic_worlds$fold.getInsideX(raw);
     }
 
     @ModifyExpressionValue(
             method = "updateBottomRightTile",
             at = @At(value = "FIELD", target = INSIDE_Z, opcode = Opcodes.GETFIELD))
     private int exotic_worlds$slopeInsideZ(int raw) {
-        return this.exotic_worlds$fold.insideZ(raw);
+        return this.exotic_worlds$fold.getInsideZ(raw);
     }
 
     @WrapOperation(
@@ -187,9 +187,9 @@ public abstract class MapWriterMixin {
                     value = "INVOKE",
                     target = XaeroInjectionTargets.MAP_PROCESSOR_GET_LEAF_MAP_REGION))
     private MapRegion exotic_worlds$visitCanonicalRegion(MapProcessor processor, int caveLayer, int regionX, int regionZ,
-            boolean create, Operation<MapRegion> original) {
+            boolean shouldCreate, Operation<MapRegion> original) {
         ChunkPos region = this.exotic_worlds$fold.visitedRegion(regionX, regionZ);
-        return original.call(processor, caveLayer, region.x(), region.z(), create);
+        return original.call(processor, caveLayer, region.x(), region.z(), shouldCreate);
     }
 
     @WrapOperation(

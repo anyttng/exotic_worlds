@@ -1,14 +1,12 @@
 package com.exoticworlds.shape;
 
-import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 
 import com.exoticworlds.ExoticWorlds;
-import com.exoticworlds.core.SpawnPoint;
-import com.exoticworlds.core.StartupRegistry;
+import com.exoticworlds.core.world.SpawnPoint;
+import com.exoticworlds.core.registry.StartupRegistry;
 import com.exoticworlds.engine.gen.ShapedDimensions;
 
 import net.minecraft.core.RegistryAccess;
@@ -20,11 +18,7 @@ public final class WorldShapes {
 
     private static final Identifier NORMAL_ID = Identifier.fromNamespaceAndPath(ExoticWorlds.MODID, NORMAL_PATH);
 
-    public static final WorldShape NORMAL = WorldShape.of(
-            NORMAL_ID,
-            WorldShape.label(NORMAL_ID),
-            WorldShape.hint(NORMAL_ID),
-            (registries, dimensions) -> dimensions);
+    public static final WorldShape NORMAL = WorldShape.of(NORMAL_ID, (registries, dimensions) -> dimensions);
 
     private static final StartupRegistry<Identifier, WorldShape> SHAPES = new StartupRegistry<>("World shapes");
 
@@ -37,26 +31,17 @@ public final class WorldShapes {
         SHAPES.register(shape.id(), shape);
     }
 
-    public static void takesSpawn(Identifier shapeId, Predicate<SpawnPoint> move) {
+    public static void registerSpawnMove(Identifier shapeId, Predicate<SpawnPoint> move) {
         SPAWN_MOVES.register(shapeId, move);
     }
 
-    public static boolean moveSpawn(SpawnPoint spawn) {
-        Predicate<SpawnPoint> move = SPAWN_MOVES.entries().get(selected.id());
+    public static boolean tryMoveSpawn(SpawnPoint spawn) {
+        Predicate<SpawnPoint> move = SPAWN_MOVES.getEntries().get(selected.id());
         return move != null && move.test(spawn);
     }
 
-    public static List<WorldShape> shapes() {
-        List<WorldShape> own = new ArrayList<>();
-        List<WorldShape> foreign = new ArrayList<>();
-        for (WorldShape shape : SHAPES.entries().values()) {
-            (ExoticWorlds.MODID.equals(shape.id().getNamespace()) ? own : foreign).add(shape);
-        }
-        foreign.sort(Comparator.comparing(shape -> shape.id().toString()));
-
-        return Stream.of(Stream.of(NORMAL), own.stream(), foreign.stream())
-                .flatMap(shapes -> shapes)
-                .toList();
+    public static List<WorldShape> getShapes() {
+        return Stream.concat(Stream.of(NORMAL), SHAPES.getEntries().values().stream()).toList();
     }
 
     public static void select(WorldShape shape) {
@@ -64,7 +49,7 @@ public final class WorldShapes {
     }
 
     public static void select(Identifier id) {
-        WorldShape shape = SHAPES.entries().get(id);
+        WorldShape shape = SHAPES.getEntries().get(id);
         if (shape == null) {
             throw new IllegalArgumentException("No world shape is registered under " + id);
         }
@@ -74,12 +59,12 @@ public final class WorldShapes {
 
     public static void resetToDefault() {
         selected = NORMAL;
-        shapes().forEach(shape -> shape.resetSettings().run());
+        getShapes().forEach(shape -> shape.resetSettings().run());
     }
 
     public static void restoreFromExisting(RegistryAccess.Frozen registries, WorldDimensions dimensions) {
-        for (WorldShape shape : shapes()) {
-            if (shape.fromExisting() != null && shape.fromExisting().adopt(registries, dimensions)) {
+        for (WorldShape shape : getShapes()) {
+            if (shape.fromExisting() != null && shape.fromExisting().tryAdopt(registries, dimensions)) {
                 selected = shape;
                 return;
             }

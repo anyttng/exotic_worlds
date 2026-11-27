@@ -1,7 +1,7 @@
 package com.exoticworlds.engine.net;
 
 import com.exoticworlds.ExoticWorlds;
-import com.exoticworlds.core.ShapeModel;
+import com.exoticworlds.core.world.ShapeModel;
 
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.RegistryFriendlyByteBuf;

@@ -97,7 +97,7 @@ public final class PeriodicSimplexSampler {
             reducedV = v - laps * zLapV;
         }
 
-        return p(permutations, reducedU + p(permutations, reducedV)) % GRADIENT_COUNT;
+        return getPermutation(permutations, reducedU + getPermutation(permutations, reducedV)) % GRADIENT_COUNT;
     }
 
     private static double cornerNoise(int gradientIndex, double x, double z) {
@@ -107,11 +107,11 @@ public final class PeriodicSimplexSampler {
         }
 
         falloff *= falloff;
-        int[] gradient = PerlinMath.gradient(gradientIndex);
+        int[] gradient = PerlinMath.getGradient(gradientIndex);
         return falloff * falloff * (gradient[0] * x + gradient[1] * z);
     }
 
-    private static int p(byte[] permutations, long index) {
+    private static int getPermutation(byte[] permutations, long index) {
         return permutations[(int) (index & PERMUTATION_MASK)] & PERMUTATION_MASK;
     }
 

@@ -5,7 +5,7 @@ import java.util.Optional;
 import java.util.function.IntFunction;
 
 import com.exoticworlds.ExoticWorlds;
-import com.exoticworlds.core.ShapeModel;
+import com.exoticworlds.core.world.ShapeModel;
 import com.exoticworlds.engine.net.DimensionChoicesPayload;
 import com.exoticworlds.engine.net.DimensionChoicesUpdatePayload;
 import com.exoticworlds.engine.net.PositionRowsPayload;

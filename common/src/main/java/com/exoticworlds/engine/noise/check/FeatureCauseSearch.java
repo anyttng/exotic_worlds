@@ -1,12 +1,15 @@
 package com.exoticworlds.engine.noise.check;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.jspecify.annotations.Nullable;
 
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.Identifier;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.feature.Feature;
 import net.minecraft.world.level.levelgen.placement.FeaturePlacer;
 import net.minecraft.world.level.levelgen.placement.FixedPlacement;
@@ -21,30 +24,46 @@ final class FeatureCauseSearch {
     }
 
     static @Nullable SeamCause causeOf(FeatureRecording here, FeatureRecording there, Lookups lookups) {
-        List<FeatureRecording.Entry> hereEntries = here.entries();
-        List<FeatureRecording.Entry> thereEntries = there.entries();
+        List<FeatureRecording.Entry> hereEntries = here.getEntries();
+        List<FeatureRecording.Entry> thereEntries = there.getEntries();
         int shared = Math.min(hereEntries.size(), thereEntries.size());
         for (int index = 0; index < shared; index++) {
             FeatureRecording.Entry hereEntry = hereEntries.get(index);
             FeatureRecording.Entry thereEntry = thereEntries.get(index);
-            if (hereEntry.placed() != thereEntry.placed()) {
+            if (hereEntry.getPlaced() != thereEntry.getPlaced()) {
                 return new SeamCause.NotFound();
             }
 
-            if (hereEntry.pastTheReach() || thereEntry.pastTheReach()
-                    || hereEntry.steps().equals(thereEntry.steps())) {
+            if (hereEntry.getSteps().equals(thereEntry.getSteps())) {
                 continue;
             }
 
-            return causeIn(hereEntry, thereEntry.steps(), lookups);
+            if (!hereEntry.isPastTheReach() && !thereEntry.isPastTheReach()) {
+                return causeIn(hereEntry, thereEntry.getSteps(), lookups);
+            }
+
+            if (!writtenBy(hereEntry).equals(writtenBy(thereEntry))) {
+                return null;
+            }
         }
 
         return hereEntries.size() == thereEntries.size() ? null : new SeamCause.NotFound();
     }
 
+    private static Map<Long, BlockState> writtenBy(FeatureRecording.Entry entry) {
+        Map<Long, BlockState> written = new HashMap<>();
+        for (FeatureRecording.Step step : entry.getSteps()) {
+            if (step instanceof FeatureRecording.Place place) {
+                written.putAll(place.written());
+            }
+        }
+
+        return written;
+    }
+
     private static @Nullable SeamCause causeIn(FeatureRecording.Entry here, List<FeatureRecording.Step> there,
             Lookups lookups) {
-        List<FeatureRecording.Step> steps = here.steps();
+        List<FeatureRecording.Step> steps = here.getSteps();
         int shared = Math.min(steps.size(), there.size());
         for (int index = 0; index < shared; index++) {
             FeatureRecording.Step hereStep = steps.get(index);
@@ -61,21 +80,21 @@ final class FeatureCauseSearch {
                 }
 
                 Identifier type = BuiltInRegistries.PLACEMENT_MODIFIER_TYPE.getKey(modifier.codec());
-                Identifier holder = lookups.placed().getKey(here.placed());
+                Identifier holder = lookups.placed().getKey(here.getPlaced());
                 return nodeOf(type, holder, modifier.getClass().getName(), PLACER_CLASS);
             }
 
-            if (hereStep instanceof FeatureRecording.Place(var feature, long pos, boolean answer, var _)
+            if (hereStep instanceof FeatureRecording.Place(var feature, long pos, boolean isPlaced, var _)
                     && thereStep instanceof FeatureRecording.Place(var thereFeature, long therePos,
-                            boolean thereAnswer, var _)
+                            boolean isPlacedThere, var _)
                     && feature == thereFeature && pos == therePos) {
-                if (answer == thereAnswer) {
+                if (isPlaced == isPlacedThere) {
                     return null;
                 }
 
                 Identifier type = BuiltInRegistries.FEATURE_TYPE.getKey(feature.codec());
                 Identifier holder = lookups.features().getKey(feature);
-                return nodeOf(type, holder != null ? holder : lookups.placed().getKey(here.placed()),
+                return nodeOf(type, holder != null ? holder : lookups.placed().getKey(here.getPlaced()),
                         feature.getClass().getName(), FEATURE_CLASS);
             }
 
@@ -88,14 +107,14 @@ final class FeatureCauseSearch {
     private static SeamCause.Node nodeOf(@Nullable Identifier type, @Nullable Identifier holderKey, String className,
             String mixedClass) {
         String holder = holderKey != null ? holderKey.toString() : null;
-        boolean vanilla = type != null
+        boolean isVanilla = type != null
                 ? type.getNamespace().equals(Identifier.DEFAULT_NAMESPACE)
                 : className.startsWith(VANILLA_PACKAGE);
-        List<String> candidates = vanilla
+        List<String> candidates = isVanilla
                 ? AppliedMixins.foreignOn(List.of(className, mixedClass))
                 : List.of();
         return new SeamCause.Node(type != null ? type.toString() : className, holder,
-                type != null ? type.getNamespace() : null, vanilla, candidates);
+                type != null ? type.getNamespace() : null, isVanilla, candidates);
     }
 
     private FeatureCauseSearch() {

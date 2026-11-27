@@ -11,12 +11,11 @@ import java.util.List;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
-import com.exoticworlds.api.v1.TestShapes;
-import com.exoticworlds.core.FlatShape;
-import com.exoticworlds.core.ShapeFixtures;
-import com.exoticworlds.core.WorldFolds;
-import com.exoticworlds.core.WorldLoopBounds;
-import com.exoticworlds.core.WorldLoopBounds.AxisBounds;
+import com.exoticworlds.core.world.FlatShape;
+import com.exoticworlds.core.world.ShapeFixtures;
+import com.exoticworlds.core.fold.WorldFolds;
+import com.exoticworlds.core.world.WorldLoopBounds.AxisBounds;
+import com.exoticworlds.core.world.WorldLoopBounds;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.ChunkPos;
@@ -24,9 +23,9 @@ import net.minecraft.world.level.ChunkPos;
 class ExoticWorldsGeometryTest {
     private static final int MIN_CHUNK = -8;
     private static final int MAX_CHUNK = 8;
-    private static final int WIDTH = (MAX_CHUNK - MIN_CHUNK) * 16;
+    private static final int WIDTH_BLOCKS = (MAX_CHUNK - MIN_CHUNK) * 16;
     private static final int SKEW_CHUNKS = 3;
-    private static final int SKEW = SKEW_CHUNKS * 16;
+    private static final int SKEW_BLOCKS = SKEW_CHUNKS * 16;
     private static final int Y = 64;
 
     private static final AxisBounds.Looped LOOPED = new AxisBounds.Looped(MIN_CHUNK, MAX_CHUNK);
@@ -46,13 +45,13 @@ class ExoticWorldsGeometryTest {
     }
 
     private static ExoticWorldsGeometry geometry(FlatShape shape) {
-        return new ExoticWorldsGeometry(TestShapes.of(WorldFolds.of(shape)));
+        return new ExoticWorldsGeometry(WorldFolds.of(shape));
     }
 
     private static List<BlockPos> copiesInBounds(ExoticWorldsGeometry geometry, BlockPos point, double minX,
             double maxX, double minZ, double maxZ) {
         List<BlockPos> copies = new ArrayList<>();
-        assertFalse(geometry.anyCopyInBounds(point, minX, maxX, minZ, maxZ, copy -> !copies.add(copy)),
+        assertFalse(geometry.isAnyCopyInBounds(point, minX, maxX, minZ, maxZ, copy -> !copies.add(copy)),
                 "a test that never accepts was answered true");
         return copies;
     }
@@ -62,8 +61,8 @@ class ExoticWorldsGeometryTest {
         @Test
         void theTorusStepsOneWorldOnBothAxes() {
             ExoticWorldsGeometry geometry = torus();
-            assertEquals(WIDTH, geometry.periodX(), "x period");
-            assertEquals(WIDTH, geometry.periodZ(), "z period");
+            assertEquals(WIDTH_BLOCKS, geometry.periodX(), "x period");
+            assertEquals(WIDTH_BLOCKS, geometry.periodZ(), "z period");
             assertTrue(geometry.hasWrappedAxes(), "the torus reads as flat");
         }
 
@@ -78,7 +77,7 @@ class ExoticWorldsGeometryTest {
         @Test
         void theCylinderStepsOnItsLoopedAxisAlone() {
             ExoticWorldsGeometry geometry = cylinder();
-            assertEquals(WIDTH, geometry.periodX(), "x period");
+            assertEquals(WIDTH_BLOCKS, geometry.periodX(), "x period");
             assertEquals(0, geometry.periodZ(), "the open z axis got a period");
             assertTrue(geometry.hasWrappedAxes(), "the cylinder reads as flat");
         }
@@ -88,22 +87,22 @@ class ExoticWorldsGeometryTest {
     class NearestCopies {
         @Test
         void aVertexPastTheXSeamIsSeatedBesideTheCursor() {
-            assertEquals(new BlockPos(WIDTH / 2 + 8, Y, 0),
-                    torus().nearestCopy(new BlockPos(WIDTH / 2 - 8, Y, 0), new BlockPos(-WIDTH / 2 + 8, Y, 0)),
+            assertEquals(new BlockPos(WIDTH_BLOCKS / 2 + 8, Y, 0),
+                    torus().nearestCopy(new BlockPos(WIDTH_BLOCKS / 2 - 8, Y, 0), new BlockPos(-WIDTH_BLOCKS / 2 + 8, Y, 0)),
                     "the vertex one block past the seam was not taken one world east");
         }
 
         @Test
         void aVertexPastTheLatticeZSeamMovesSideways() {
-            assertEquals(new BlockPos(SKEW, Y, WIDTH / 2 + 8),
-                    latticeTorus().nearestCopy(new BlockPos(SKEW, Y, WIDTH / 2 - 8), new BlockPos(0, Y, -WIDTH / 2 + 8)),
+            assertEquals(new BlockPos(SKEW_BLOCKS, Y, WIDTH_BLOCKS / 2 + 8),
+                    latticeTorus().nearestCopy(new BlockPos(SKEW_BLOCKS, Y, WIDTH_BLOCKS / 2 - 8), new BlockPos(0, Y, -WIDTH_BLOCKS / 2 + 8)),
                     "the copy one z lap over is moved by the skew on x");
         }
 
         @Test
         void theShortestDeltaCrossesTheSeam() {
             assertEquals(new BlockPos(16, 0, 0),
-                    torus().shortestDelta(new BlockPos(WIDTH / 2 - 8, Y, 0), new BlockPos(-WIDTH / 2 + 8, Y, 0)),
+                    torus().shortestDelta(new BlockPos(WIDTH_BLOCKS / 2 - 8, Y, 0), new BlockPos(-WIDTH_BLOCKS / 2 + 8, Y, 0)),
                     "the delta went the long way round");
         }
 
@@ -123,41 +122,41 @@ class ExoticWorldsGeometryTest {
 
     @Nested
     class CopiesInBounds {
-        private static final BlockPos BELOW_THE_Z_SEAM = new BlockPos(0, Y, -WIDTH / 2 + 8);
+        private static final BlockPos BELOW_THE_Z_SEAM = new BlockPos(0, Y, -WIDTH_BLOCKS / 2 + 8);
 
         @Test
         void theLatticeCopyPastTheZSeamIsTheSkewedOne() {
-            assertEquals(List.of(new BlockPos(SKEW, Y, WIDTH / 2 + 8)),
-                    copiesInBounds(latticeTorus(), BELOW_THE_Z_SEAM, SKEW - 8, SKEW + 8, WIDTH / 2, WIDTH / 2 + 16),
+            assertEquals(List.of(new BlockPos(SKEW_BLOCKS, Y, WIDTH_BLOCKS / 2 + 8)),
+                    copiesInBounds(latticeTorus(), BELOW_THE_Z_SEAM, SKEW_BLOCKS - 8, SKEW_BLOCKS + 8, WIDTH_BLOCKS / 2, WIDTH_BLOCKS / 2 + 16),
                     "the rectangle past the z seam met another copy");
         }
 
         @Test
         void bothMaxEdgesAreInside() {
-            assertEquals(List.of(new BlockPos(SKEW, Y, WIDTH / 2 + 8)),
-                    copiesInBounds(latticeTorus(), BELOW_THE_Z_SEAM, SKEW - 8, SKEW, WIDTH / 2, WIDTH / 2 + 8),
+            assertEquals(List.of(new BlockPos(SKEW_BLOCKS, Y, WIDTH_BLOCKS / 2 + 8)),
+                    copiesInBounds(latticeTorus(), BELOW_THE_Z_SEAM, SKEW_BLOCKS - 8, SKEW_BLOCKS, WIDTH_BLOCKS / 2, WIDTH_BLOCKS / 2 + 8),
                     "a copy on the max edges was left out");
         }
 
         @Test
         void theUnskewedSpotPastTheSeamHoldsNoCopy() {
             assertEquals(List.of(),
-                    copiesInBounds(latticeTorus(), BELOW_THE_Z_SEAM, -8, 8, WIDTH / 2, WIDTH / 2 + 16),
+                    copiesInBounds(latticeTorus(), BELOW_THE_Z_SEAM, -8, 8, WIDTH_BLOCKS / 2, WIDTH_BLOCKS / 2 + 16),
                     "a copy was found where a per-axis step would put it");
         }
 
         @Test
         void aRectangleWiderThanTheWorldMeetsEveryLap() {
-            assertEquals(List.of(new BlockPos(-WIDTH, Y, 0), new BlockPos(0, Y, 0), new BlockPos(WIDTH, Y, 0)),
-                    copiesInBounds(cylinder(), new BlockPos(0, Y, 0), -WIDTH, WIDTH, -8, 8).stream()
+            assertEquals(List.of(new BlockPos(-WIDTH_BLOCKS, Y, 0), new BlockPos(0, Y, 0), new BlockPos(WIDTH_BLOCKS, Y, 0)),
+                    copiesInBounds(cylinder(), new BlockPos(0, Y, 0), -WIDTH_BLOCKS, WIDTH_BLOCKS, -8, 8).stream()
                             .sorted(Comparator.comparingInt(BlockPos::getX)).toList(),
                     "the laps inside a three-world rectangle");
         }
 
         @Test
         void anAcceptedCopyAnswersTrue() {
-            assertTrue(torus().anyCopyInBounds(new BlockPos(-WIDTH / 2 + 8, Y, 0), WIDTH / 2, WIDTH / 2 + 16, -8, 8,
-                    copy -> copy.getX() == WIDTH / 2 + 8), "the copy past the x seam was not offered");
+            assertTrue(torus().isAnyCopyInBounds(new BlockPos(-WIDTH_BLOCKS / 2 + 8, Y, 0), WIDTH_BLOCKS / 2, WIDTH_BLOCKS / 2 + 16, -8, 8,
+                    copy -> copy.getX() == WIDTH_BLOCKS / 2 + 8), "the copy past the x seam was not offered");
         }
     }
 }

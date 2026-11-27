@@ -1,14 +1,13 @@
 package com.exoticworlds.scan;
 
-import com.exoticworlds.core.WorldFold;
-import com.exoticworlds.core.WorldFolds;
-import com.exoticworlds.core.WrapDomain;
+import com.exoticworlds.core.fold.WorldFold;
+import com.exoticworlds.core.fold.WorldFolds;
+import com.exoticworlds.core.fold.WrapDomain;
 import com.exoticworlds.engine.noise.ClimateScanFixture;
 import com.exoticworlds.engine.noise.ClimateScanFixture.WorldType;
 import com.exoticworlds.engine.noise.GenerationFoldContext;
 import com.exoticworlds.engine.noise.periodic.OctaveVarianceCorrection;
-import com.exoticworlds.shape.climate.ClimateCompression;
-import com.exoticworlds.shape.climate.ClimateFields;
+import com.exoticworlds.shape.feature.compactbiomes.ClimateCompression;
 import static com.exoticworlds.engine.noise.ClimateScanFixture.TYPES;
 import static com.exoticworlds.engine.noise.ClimateScanFixture.noiseParameters;
 import static com.exoticworlds.engine.noise.ClimateScanFixture.randomState;
@@ -21,6 +20,7 @@ import java.util.Locale;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Set;
 
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -44,9 +44,9 @@ class TerrainWallScan {
 
     private static final int WIDTH_BLOCKS = 512;
 
-    static final int CELL_WIDTH = 4;
+    static final int CELL_WIDTH_BLOCKS = 4;
 
-    private static final int CELL_HEIGHT = 8;
+    private static final int CELL_HEIGHT_BLOCKS = 8;
 
     private static final int LEVELS_BELOW_SEA = 1;
 
@@ -56,7 +56,7 @@ class TerrainWallScan {
 
     private static final int RIDGE_CORNERS = 3;
 
-    private static final double WIDE = CELL_WIDTH * 2.0;
+    private static final double WIDE = CELL_WIDTH_BLOCKS * 2.0;
 
     private static final int WORST_SITES = 12;
 
@@ -75,7 +75,9 @@ class TerrainWallScan {
     private static final List<ResourceKey<NormalNoise>> TERRAIN_FIELDS = List.of(
             Noises.CONTINENTALNESS, Noises.EROSION, Noises.RIDGE, Noises.TEMPERATURE, Noises.VEGETATION);
 
-    private record Site(int blockX, int blockY, int blockZ, double thickness, double density,
+    private static final Set<ResourceKey<NormalNoise>> CLIMATE_FIELDS = Set.of(Noises.TEMPERATURE, Noises.VEGETATION);
+
+    private record Site(int blockX, int blockY, int blockZ, double thicknessBlocks, double density,
             double continents, double erosion, double ridges, double depth) {
     }
 
@@ -117,8 +119,8 @@ class TerrainWallScan {
                 .append(WALL_SEEDS).append(" seeds from ").append(WALL_SEED).append(", world type ")
                 .append(type.name()).append(".")
                 .append(System.lineSeparator())
-                .append("The generator interpolates final density over ").append(CELL_WIDTH).append("x")
-                .append(CELL_HEIGHT).append("x").append(CELL_WIDTH)
+                .append("The generator interpolates final density over ").append(CELL_WIDTH_BLOCKS).append("x")
+                .append(CELL_HEIGHT_BLOCKS).append("x").append(CELL_WIDTH_BLOCKS)
                 .append("-block cells, so a corner grid of that step carries the whole shape of the terrain.")
                 .append(System.lineSeparator())
                 .append("thickness = width in blocks of the solid band around a corner, from the linear crossing")
@@ -129,7 +131,7 @@ class TerrainWallScan {
                 .append("Levels: ").append(LEVELS_BELOW_SEA).append(" below and ").append(LEVELS_ABOVE_SEA)
                 .append(" above sea level, one per cell height.").append(System.lineSeparator())
                 .append("Every field row is read at sea level over the whole lap; grad = absolute change between")
-                .append(" corners ").append(CELL_WIDTH).append(" blocks apart.").append(System.lineSeparator())
+                .append(" corners ").append(CELL_WIDTH_BLOCKS).append(" blocks apart.").append(System.lineSeparator())
                 .append("per level = blades found at each level, lowest first.").append(System.lineSeparator())
                 .append("The control binds WorldFolds.NOOP, so it reads the same window of an unbounded vanilla")
                 .append(" world - the same seed, the same coordinates, no fold.").append(System.lineSeparator())
@@ -183,8 +185,8 @@ class TerrainWallScan {
     @Test
     void readsWhatTheFoldAppliesToEachOctaveOfEveryClimateField() {
         WorldFold fold = torusOfWidth(WIDTH_BLOCKS);
-        WrapDomain xDomain = fold.blockDomain(Direction.Axis.X);
-        WrapDomain zDomain = fold.blockDomain(Direction.Axis.Z);
+        WrapDomain xDomain = fold.getBlockDomain(Direction.Axis.X);
+        WrapDomain zDomain = fold.getBlockDomain(Direction.Axis.Z);
 
         StringBuilder report = new StringBuilder();
         report.append("Octave table - what the fold applies to every octave of the router's climate fields on a ")
@@ -218,7 +220,7 @@ class TerrainWallScan {
         NormalNoise.Parameters parameters = noiseParameters(key).parameters;
         DoubleList amplitudes = ClimateCompression.octaveAmplitudes(parameters);
         double lowestFreqInputFactor = Math.pow(2.0, parameters.baseOctave());
-        double compression = ClimateCompression.factor(fold, ClimateFields.isClimate(key), amplitudes,
+        double compression = ClimateCompression.factor(fold, CLIMATE_FIELDS.contains(key), amplitudes,
                 lowestFreqInputFactor, CLIMATE_XZ_SCALE, HORIZONTAL_SHARE);
 
         report.append("  ").append(key.identifier().getPath())
@@ -258,12 +260,12 @@ class TerrainWallScan {
                     "thinnest blades", "thick", "density", "continents", "erosion", "ridges", "depth"));
 
             for (Site site : pass.blades().stream()
-                    .sorted(Comparator.comparingDouble(Site::thickness))
+                    .sorted(Comparator.comparingDouble(Site::thicknessBlocks))
                     .limit(WORST_SITES)
                     .toList()) {
                 report.append(String.format(Locale.ROOT, "    %-22s %9.2f %9.4f %10.4f %9.4f %9.4f %9.4f%n",
                         site.blockX() + " " + site.blockY() + " " + site.blockZ(),
-                        site.thickness(), site.density(), site.continents(), site.erosion(), site.ridges(),
+                        site.thicknessBlocks(), site.density(), site.continents(), site.erosion(), site.ridges(),
                         site.depth()));
             }
         }
@@ -275,7 +277,7 @@ class TerrainWallScan {
         RandomState randomState = randomState(type, fold, seed);
         NoiseRouter router = randomState.router;
         int seaLevel = settingsOf(type).seaLevel();
-        int corners = WIDTH_BLOCKS / CELL_WIDTH;
+        int corners = WIDTH_BLOCKS / CELL_WIDTH_BLOCKS;
         List<Site> blades = new ArrayList<>();
         List<Field> fields = new ArrayList<>();
         double[] land = new double[1];
@@ -291,7 +293,7 @@ class TerrainWallScan {
             land[0] = solidShare(sea);
 
             for (int level = -LEVELS_BELOW_SEA; level <= LEVELS_ABOVE_SEA; level++) {
-                int blockY = seaLevel + level * CELL_HEIGHT;
+                int blockY = seaLevel + level * CELL_HEIGHT_BLOCKS;
                 double[] density = level == 0 ? sea : grid(randomState, router.finalDensity(), corners, blockY);
                 int before = blades.size();
                 collectBlades(blades, randomState, density, corners, blockY);
@@ -320,16 +322,16 @@ class TerrainWallScan {
                     continue;
                 }
 
-                double acrossX = thickness(density, corners, ix, iz, true);
-                double acrossZ = thickness(density, corners, ix, iz, false);
+                double acrossX = thicknessBlocks(density, corners, ix, iz, true);
+                double acrossZ = thicknessBlocks(density, corners, ix, iz, false);
                 boolean wall = (acrossX < BLADE_BLOCKS && solidRun(density, corners, ix, iz, false) >= RIDGE_CORNERS)
                         || (acrossZ < BLADE_BLOCKS && solidRun(density, corners, ix, iz, true) >= RIDGE_CORNERS);
                 if (!wall) {
                     continue;
                 }
 
-                int blockX = ix * CELL_WIDTH;
-                int blockZ = iz * CELL_WIDTH;
+                int blockX = ix * CELL_WIDTH_BLOCKS;
+                int blockZ = iz * CELL_WIDTH_BLOCKS;
                 NoiseRouter router = state.router;
                 blades.add(new Site(blockX, blockY, blockZ, Math.min(acrossX, acrossZ),
                         at(density, corners, ix, iz),
@@ -341,7 +343,7 @@ class TerrainWallScan {
         }
     }
 
-    private static double thickness(double[] density, int corners, int ix, int iz, boolean alongX) {
+    private static double thicknessBlocks(double[] density, int corners, int ix, int iz, boolean alongX) {
         double here = at(density, corners, ix, iz);
         double before = alongX ? at(density, corners, ix - 1, iz) : at(density, corners, ix, iz - 1);
         double after = alongX ? at(density, corners, ix + 1, iz) : at(density, corners, ix, iz + 1);
@@ -349,7 +351,7 @@ class TerrainWallScan {
             return WIDE;
         }
 
-        return CELL_WIDTH * (here / (here - before)) + CELL_WIDTH * (here / (here - after));
+        return CELL_WIDTH_BLOCKS * (here / (here - before)) + CELL_WIDTH_BLOCKS * (here / (here - after));
     }
 
     private static int solidRun(double[] density, int corners, int ix, int iz, boolean alongX) {
@@ -382,8 +384,8 @@ class TerrainWallScan {
 
         for (int ix = 0; ix < corners; ix++) {
             for (int iz = 0; iz < corners; iz++) {
-                values[ix * corners + iz] = sampler.sampleValue(SamplerContext.EMPTY_UNCACHED, ix * CELL_WIDTH, blockY,
-                        iz * CELL_WIDTH);
+                values[ix * corners + iz] = sampler.sampleValue(SamplerContext.EMPTY_UNCACHED, ix * CELL_WIDTH_BLOCKS, blockY,
+                        iz * CELL_WIDTH_BLOCKS);
             }
         }
 

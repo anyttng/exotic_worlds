@@ -18,7 +18,7 @@ public final class ThreadScope<T> {
         }
     }
 
-    public @Nullable T current() {
+    public @Nullable T getCurrent() {
         return bound.get();
     }
 

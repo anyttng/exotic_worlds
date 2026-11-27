@@ -1,29 +1,25 @@
 package com.exoticworlds.engine.noise.cuboid;
 
-import static com.exoticworlds.core.CuboidFixtures.MIN_CHUNK_X;
-import static com.exoticworlds.core.CuboidFixtures.MIN_CHUNK_Z;
-import static com.exoticworlds.core.CuboidFixtures.cuboidFold;
+import static com.exoticworlds.core.fold.cuboid.CuboidFixtures.MIN_CHUNK_X;
+import static com.exoticworlds.core.fold.cuboid.CuboidFixtures.MIN_CHUNK_Z;
+import static com.exoticworlds.core.fold.cuboid.CuboidFixtures.cuboidFold;
 import static com.exoticworlds.engine.noise.ClimateScanFixture.SEED_BASE;
 import static com.exoticworlds.engine.noise.ClimateScanFixture.randomState;
 import static com.exoticworlds.engine.noise.ClimateScanFixture.settingsOf;
-import static com.exoticworlds.engine.noise.ClimateScanFixture.torusOfWidth;
 import static com.exoticworlds.engine.noise.DensityFunctionFixture.compileSeparated;
 import static com.exoticworlds.engine.noise.DensityFunctionFixture.sample;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.List;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import com.exoticworlds.accessors.FoldSource;
-import com.exoticworlds.api.v1.gen.GenerationHooks;
-import com.exoticworlds.core.CuboidAtlas;
-import com.exoticworlds.core.CuboidFace;
-import com.exoticworlds.core.WorldFold;
+import com.exoticworlds.core.fold.cuboid.CuboidAtlas;
+import com.exoticworlds.core.fold.cuboid.CuboidFace;
+import com.exoticworlds.core.fold.WorldFold;
 import com.exoticworlds.engine.noise.ClimateScanFixture;
 
 import net.minecraft.core.Holder;
@@ -36,11 +32,7 @@ import net.minecraft.world.level.levelgen.densityfunction.DensitySampler;
 import net.minecraft.world.level.levelgen.synth.NormalNoise;
 
 class CuboidRandomStateTest {
-    private static final String HOOK_KEY = "cuboid_random_state_test";
-
     private static final int EDGE_CHUNKS = 16;
-
-    private static final int TORUS_WIDTH_BLOCKS = 512;
 
     private static final int FIRST_OCTAVE = -10;
 
@@ -62,15 +54,12 @@ class CuboidRandomStateTest {
     private static final List<ResourceKey<NoiseGeneratorSettings>> SETTINGS = List.of(
             NoiseGeneratorSettings.OVERWORLD, NoiseGeneratorSettings.NETHER, NoiseGeneratorSettings.END);
 
-    private static final AtomicInteger HOOK_RUNS = new AtomicInteger();
-
     private static final CuboidAtlas ATLAS =
             CuboidAtlas.of(EDGE_CHUNKS, EDGE_CHUNKS, EDGE_CHUNKS, MIN_CHUNK_X, MIN_CHUNK_Z);
 
     @BeforeAll
     static void bootstrapVanilla() {
         ClimateScanFixture.bootstrapVanilla();
-        GenerationHooks.atRandomState(HOOK_KEY, (randomState, shape, options, seaLevel) -> HOOK_RUNS.incrementAndGet());
     }
 
     @Test
@@ -79,7 +68,7 @@ class CuboidRandomStateTest {
         for (ResourceKey<NoiseGeneratorSettings> key : SETTINGS) {
             RandomState state = randomState(settingsOf(key), fold, SEED_BASE);
 
-            assertSame(fold, ((FoldSource) (Object) state).exotic_worlds$wrappedFold(), key.identifier().getPath());
+            assertSame(fold, ((FoldSource) (Object) state).exotic_worlds$getWrappedFold(), key.identifier().getPath());
         }
     }
 
@@ -112,17 +101,5 @@ class CuboidRandomStateTest {
         }
 
         return widest;
-    }
-
-    @Test
-    void aCuboidRunsNoRandomStateHook() {
-        NoiseGeneratorSettings settings = settingsOf(NoiseGeneratorSettings.OVERWORLD);
-        int before = HOOK_RUNS.get();
-        randomState(settings, torusOfWidth(TORUS_WIDTH_BLOCKS), SEED_BASE);
-        int afterTorus = HOOK_RUNS.get();
-        randomState(settings, cuboidFold(ATLAS), SEED_BASE);
-
-        assertEquals(before + 1, afterTorus);
-        assertEquals(afterTorus, HOOK_RUNS.get());
     }
 }

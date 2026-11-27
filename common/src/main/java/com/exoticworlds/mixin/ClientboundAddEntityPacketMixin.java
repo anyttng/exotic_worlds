@@ -5,7 +5,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 
-import com.exoticworlds.client.engine.SpawnPacketSeat;
+import com.exoticworlds.engine.client.SpawnPacketSeat;
 import com.llamalad7.mixinextras.injector.ModifyReturnValue;
 
 import net.minecraft.network.protocol.game.ClientboundAddEntityPacket;

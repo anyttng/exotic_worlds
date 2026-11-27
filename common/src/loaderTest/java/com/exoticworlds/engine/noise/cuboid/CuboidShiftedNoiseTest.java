@@ -1,11 +1,11 @@
 package com.exoticworlds.engine.noise.cuboid;
 
-import static com.exoticworlds.core.CuboidFixtures.MIN_CHUNK_X;
-import static com.exoticworlds.core.CuboidFixtures.MIN_CHUNK_Z;
-import static com.exoticworlds.core.CuboidFixtures.carried;
-import static com.exoticworlds.core.CuboidFixtures.cuboidFold;
-import static com.exoticworlds.core.CuboidFixtures.edgeBlocks;
-import static com.exoticworlds.core.CuboidFixtures.pointBy;
+import static com.exoticworlds.core.fold.cuboid.CuboidFixtures.MIN_CHUNK_X;
+import static com.exoticworlds.core.fold.cuboid.CuboidFixtures.MIN_CHUNK_Z;
+import static com.exoticworlds.core.fold.cuboid.CuboidFixtures.carried;
+import static com.exoticworlds.core.fold.cuboid.CuboidFixtures.cuboidFold;
+import static com.exoticworlds.core.fold.cuboid.CuboidFixtures.edgeBlocks;
+import static com.exoticworlds.core.fold.cuboid.CuboidFixtures.pointBy;
 import static com.exoticworlds.engine.noise.DensityFunctionFixture.CLIMATE_XZ_SCALE;
 import static com.exoticworlds.engine.noise.DensityFunctionFixture.NOISE_DATA;
 import static com.exoticworlds.engine.noise.DensityFunctionFixture.SEED;
@@ -19,10 +19,10 @@ import java.util.Random;
 
 import org.junit.jupiter.api.Test;
 
-import com.exoticworlds.core.CuboidAtlas;
-import com.exoticworlds.core.CuboidEdge;
-import com.exoticworlds.core.CuboidFace;
-import com.exoticworlds.core.CuboidFixtures;
+import com.exoticworlds.core.fold.cuboid.CuboidAtlas;
+import com.exoticworlds.core.fold.cuboid.CuboidEdge;
+import com.exoticworlds.core.fold.cuboid.CuboidFace;
+import com.exoticworlds.core.fold.cuboid.CuboidFixtures;
 
 import net.minecraft.core.Holder;
 import net.minecraft.util.Mth;

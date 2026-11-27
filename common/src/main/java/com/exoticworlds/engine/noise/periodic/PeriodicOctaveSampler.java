@@ -2,7 +2,7 @@ package com.exoticworlds.engine.noise.periodic;
 
 import org.jspecify.annotations.Nullable;
 
-import com.exoticworlds.core.WorldFold;
+import com.exoticworlds.core.fold.WorldFold;
 import com.exoticworlds.engine.noise.CompiledOctaves;
 import com.exoticworlds.engine.noise.NoiseFrame;
 import com.exoticworlds.engine.noise.PerlinMath;
@@ -61,7 +61,7 @@ public final class PeriodicOctaveSampler {
     }
 
     private static double slotInput(SlotAxis axis, double coord, double frequency) {
-        return axis.carriesWorldAxis() ? coord : GradientNoise.wrap(coord * frequency);
+        return axis.hasWorldAxis() ? coord : GradientNoise.wrap(coord * frequency);
     }
 
     private PeriodicOctaveSampler() {

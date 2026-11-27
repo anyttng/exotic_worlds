@@ -8,10 +8,10 @@ import java.util.stream.IntStream;
 
 import org.junit.jupiter.api.Test;
 
-import com.exoticworlds.core.ShapeFixtures;
-import com.exoticworlds.core.WorldFold;
-import com.exoticworlds.core.WorldFolds;
-import com.exoticworlds.core.WorldLoopBounds;
+import com.exoticworlds.core.world.ShapeFixtures;
+import com.exoticworlds.core.fold.WorldFold;
+import com.exoticworlds.core.fold.WorldFolds;
+import com.exoticworlds.core.world.WorldLoopBounds;
 import com.exoticworlds.engine.seam.ClientPosition;
 import com.exoticworlds.engine.seam.HeldArea;
 
@@ -22,8 +22,8 @@ import net.minecraft.world.phys.Vec3;
 
 class TranslationContextHeldAreaTest {
     private static final int WIDTH_IN_CHUNKS = 128;
-    private static final int VIEW_DISTANCE = 12;
-    private static final int RADIUS = 4;
+    private static final int VIEW_DISTANCE_CHUNKS = 12;
+    private static final int RADIUS_CHUNKS = 4;
 
     private static final WorldFold TORUS = WorldFolds.of(ShapeFixtures.torus(WorldLoopBounds.ofWidth(WIDTH_IN_CHUNKS)));
 
@@ -44,8 +44,8 @@ class TranslationContextHeldAreaTest {
                     throw new UnsupportedOperationException();
                 },
                 Level.OVERWORLD,
-                VIEW_DISTANCE,
-                VIEW_DISTANCE,
+                VIEW_DISTANCE_CHUNKS,
+                VIEW_DISTANCE_CHUNKS,
                 entityId -> null,
                 entityId -> null,
                 () -> {
@@ -53,11 +53,11 @@ class TranslationContextHeldAreaTest {
     }
 
     private static TranslationContext contextHoldingTheAntipode() {
-        return contextHolding(new HeldArea(ANTIPODE_SEAT, RADIUS));
+        return contextHolding(new HeldArea(ANTIPODE_SEAT, RADIUS_CHUNKS));
     }
 
     private static List<ChunkPos> antipodeAreaSeats() {
-        return IntStream.rangeClosed(-RADIUS, RADIUS)
+        return IntStream.rangeClosed(-RADIUS_CHUNKS, RADIUS_CHUNKS)
                 .mapToObj(dx -> new ChunkPos(ANTIPODE_SEAT.x() + dx, 0))
                 .toList();
     }
@@ -97,7 +97,7 @@ class TranslationContextHeldAreaTest {
         for (ChunkPos seat : antipodeAreaSeats()) {
             Vec3 server = Vec3.atCenterOf(serverChunkOf(seat).getMiddleBlockPosition(64));
             assertEquals(Vec3.atCenterOf(seat.getMiddleBlockPosition(64)),
-                    context.toClient(server, context.trackedReach()));
+                    context.toClient(server, context.getTrackedReach()));
         }
     }
 
@@ -110,17 +110,17 @@ class TranslationContextHeldAreaTest {
 
     @Test
     void anAreaChunkInsideTheHeldViewKeepsTheViewCopy() {
-        TranslationContext context = contextHolding(new HeldArea(IN_VIEW_SEAT_A_LAP_AWAY, RADIUS));
+        TranslationContext context = contextHolding(new HeldArea(IN_VIEW_SEAT_A_LAP_AWAY, RADIUS_CHUNKS));
         assertEquals(IN_VIEW, context.toClient(IN_VIEW));
         Vec3 inView = Vec3.atCenterOf(IN_VIEW.getMiddleBlockPosition(64));
-        assertEquals(inView, context.toClient(inView, context.trackedReach()));
+        assertEquals(inView, context.toClient(inView, context.getTrackedReach()));
     }
 
     @Test
     void anAreaChunkInsideTheHeldViewAlsoSeatsBesideTheAreaSeat() {
-        TranslationContext context = contextHolding(new HeldArea(IN_VIEW_SEAT_A_LAP_AWAY, RADIUS));
+        TranslationContext context = contextHolding(new HeldArea(IN_VIEW_SEAT_A_LAP_AWAY, RADIUS_CHUNKS));
         assertEquals(IN_VIEW, context.toClient(IN_VIEW));
-        assertEquals(2, context.seatPass().seats());
+        assertEquals(2, context.seatPass().getSeats());
 
         context.seatPass().answer(1);
         assertEquals(IN_VIEW_SEAT_A_LAP_AWAY, context.toClient(IN_VIEW));
@@ -132,15 +132,15 @@ class TranslationContextHeldAreaTest {
     void aChunkInsideTheHeldViewAndOutsideEveryAreaHasOneSeat() {
         TranslationContext context = contextHoldingTheAntipode();
         assertEquals(IN_VIEW, context.toClient(IN_VIEW));
-        assertEquals(1, context.seatPass().seats());
+        assertEquals(1, context.seatPass().getSeats());
     }
 
     @Test
     void aRebaseDropsTheHeldAreas() {
         ClientPosition clientPosition = new ClientPosition();
-        clientPosition.setHeldAreas(List.of(new HeldArea(ANTIPODE_SEAT, RADIUS)));
+        clientPosition.setHeldAreas(List.of(new HeldArea(ANTIPODE_SEAT, RADIUS_CHUNKS)));
         clientPosition.rebase(PLAYER_X, 0.0, Level.OVERWORLD, TORUS);
-        assertTrue(clientPosition.heldAreas().isEmpty());
+        assertTrue(clientPosition.getHeldAreas().isEmpty());
     }
 
     @Test

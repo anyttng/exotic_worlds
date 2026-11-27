@@ -10,9 +10,9 @@ import org.jspecify.annotations.Nullable;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import com.exoticworlds.accessors.SeamTravelHolder;
-import com.exoticworlds.core.CoordinateConstants;
-import com.exoticworlds.core.TranslationLattice;
-import com.exoticworlds.core.WorldFold;
+import com.exoticworlds.core.world.CoordinateConstants;
+import com.exoticworlds.core.fold.TranslationLattice;
+import com.exoticworlds.core.fold.WorldFold;
 
 import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceKey;
@@ -63,10 +63,10 @@ public final class SeamTravel {
     }
 
     public static SeamTravel of(ServerPlayer player) {
-        return ((SeamTravelHolder) player).exotic_worlds$travel();
+        return ((SeamTravelHolder) player).exotic_worlds$getTravel();
     }
 
-    public LapProgress in(ResourceKey<Level> space) {
+    public LapProgress getProgressIn(ResourceKey<Level> space) {
         return progress.getOrDefault(space, LapProgress.ZERO);
     }
 
@@ -89,22 +89,22 @@ public final class SeamTravel {
     }
 
     private Step travel(WorldFold fold, ResourceKey<Level> space, Vec3 folded) {
-        TranslationLattice lattice = fold.blockLattice();
+        TranslationLattice lattice = fold.getBlockLattice();
         double alongX = lattice.isSkewed()
-                ? folded.x - folded.z * lattice.skew() / lattice.z().domainLength
+                ? folded.x - folded.z * lattice.getSkew() / lattice.getZ().domainLength
                 : folded.x;
         Set<Direction.Axis> closed = EnumSet.noneOf(Direction.Axis.class);
-        LapProgress after = in(space);
+        LapProgress after = getProgressIn(space);
 
         for (Direction.Axis axis : CoordinateConstants.HORIZONTAL_AXES) {
-            if (!fold.bounds().loops(axis)) {
+            if (!fold.getBounds().isLooped(axis)) {
                 continue;
             }
 
-            int width = lattice.axis(axis).domainLength;
+            int widthBlocks = lattice.getAxis(axis).domainLength;
             double traveled = after.on(axis) + (axis == Direction.Axis.X ? alongX : folded.z);
-            if (Math.abs(traveled) >= width) {
-                traveled -= Math.signum(traveled) * width;
+            if (Math.abs(traveled) >= widthBlocks) {
+                traveled -= Math.signum(traveled) * widthBlocks;
                 closed.add(axis);
             }
 

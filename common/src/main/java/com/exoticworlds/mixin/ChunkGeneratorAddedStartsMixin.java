@@ -7,8 +7,8 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import com.exoticworlds.core.CarriedShape;
-import com.exoticworlds.core.ShapedChunkGenerator;
+import com.exoticworlds.core.world.CarriedShape;
+import com.exoticworlds.core.gen.GeneratorShapes;
 import com.exoticworlds.engine.gen.structure.AddedStructureStarts;
 
 import net.minecraft.SharedConstants;
@@ -37,14 +37,15 @@ public class ChunkGeneratorAddedStartsMixin {
         }
 
         ChunkGenerator generator = (ChunkGenerator) (Object) this;
-        CarriedShape carried = ShapedChunkGenerator.carriedShapeOf(generator);
+        CarriedShape carried = GeneratorShapes.getCarriedShape(generator);
         if (carried == null) {
             return;
         }
 
         ChunkPos chunk = centerChunk.getPos();
         List<StructureSet.StructureSelectionEntry> added = AddedStructureStarts.of(state,
-                ((StructureManagerAccessor) structureManager).exotic_worlds$structureCheck(), carried).at(chunk);
+                ((StructureManagerAccessor) structureManager).exotic_worlds$getStructureCheck(), carried, level)
+                .getEntriesAt(chunk);
         if (added.isEmpty()) {
             return;
         }

@@ -1,8 +1,8 @@
 package com.exoticworlds.engine.noise.cuboid;
 
-import static com.exoticworlds.core.CuboidFixtures.MIN_CHUNK_X;
-import static com.exoticworlds.core.CuboidFixtures.MIN_CHUNK_Z;
-import static com.exoticworlds.core.CuboidFixtures.cuboidFold;
+import static com.exoticworlds.core.fold.cuboid.CuboidFixtures.MIN_CHUNK_X;
+import static com.exoticworlds.core.fold.cuboid.CuboidFixtures.MIN_CHUNK_Z;
+import static com.exoticworlds.core.fold.cuboid.CuboidFixtures.cuboidFold;
 import static com.exoticworlds.engine.noise.DensityFunctionFixture.NOISE_DATA;
 import static com.exoticworlds.engine.noise.DensityFunctionFixture.foldedContext;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -13,8 +13,8 @@ import java.util.Set;
 
 import org.junit.jupiter.api.Test;
 
-import com.exoticworlds.core.CuboidAtlas;
-import com.exoticworlds.core.CuboidFace;
+import com.exoticworlds.core.fold.cuboid.CuboidAtlas;
+import com.exoticworlds.core.fold.cuboid.CuboidFace;
 import com.exoticworlds.engine.noise.AquiferCells;
 import com.exoticworlds.engine.noise.NoiseConstants;
 
@@ -52,8 +52,8 @@ class AquiferCellsCuboidTest {
         for (CuboidAtlas atlas : ATLASES) {
             AquiferCells cells = compile(atlas, SPREAD);
             for (CuboidFace face : atlas.faces()) {
-                assertCellsHold(cells, face, NoiseConstants.AQUIFER_FLUID_LEVEL_CELL_WIDTH, true);
-                assertCellsHold(cells, face, NoiseConstants.AQUIFER_FLUID_TYPE_CELL_WIDTH, false);
+                assertCellsHold(cells, face, NoiseConstants.AQUIFER_FLUID_LEVEL_CELL_WIDTH_BLOCKS, true);
+                assertCellsHold(cells, face, NoiseConstants.AQUIFER_FLUID_TYPE_CELL_WIDTH_BLOCKS, false);
             }
         }
     }

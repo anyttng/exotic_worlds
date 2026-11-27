@@ -15,12 +15,12 @@ public class NoiseStackMixin implements ContextOctavesHolder {
     private volatile @Nullable ContextOctaves exotic_worlds$contextOctaves;
 
     @Override
-    public @Nullable ContextOctaves exotic_worlds$contextOctaves() {
+    public @Nullable ContextOctaves exotic_worlds$getContextOctaves() {
         return this.exotic_worlds$contextOctaves;
     }
 
     @Override
-    public void exotic_worlds$contextOctaves(ContextOctaves octaves) {
+    public void exotic_worlds$setContextOctaves(ContextOctaves octaves) {
         this.exotic_worlds$contextOctaves = octaves;
     }
 }

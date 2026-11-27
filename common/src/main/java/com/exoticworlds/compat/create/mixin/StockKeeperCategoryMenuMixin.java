@@ -17,8 +17,8 @@ import net.minecraft.world.phys.Vec3;
 @Mixin(StockKeeperCategoryMenu.class)
 public class StockKeeperCategoryMenuMixin {
     @WrapOperation(method = "stillValid", at = @At(value = "INVOKE", target = InjectionTargets.VEC3_CLOSER_THAN))
-    private boolean exotic_worlds$keeperReachThroughSeam(Vec3 playerPosition, Position keeper, double distance,
+    private boolean exotic_worlds$keeperReachThroughSeam(Vec3 playerPosition, Position keeper, double distanceBlocks,
             Operation<Boolean> original, @Local(argsOnly = true) Player player) {
-        return original.call(playerPosition, SeamRange.toward(player, playerPosition, keeper), distance);
+        return original.call(playerPosition, SeamRange.toward(player, playerPosition, keeper), distanceBlocks);
     }
 }

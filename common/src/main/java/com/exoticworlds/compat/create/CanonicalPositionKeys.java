@@ -11,8 +11,8 @@ import java.util.Set;
 
 import org.jspecify.annotations.Nullable;
 
-import com.exoticworlds.core.WorldFold;
-import com.exoticworlds.core.WorldLoopAttachments;
+import com.exoticworlds.core.fold.WorldFold;
+import com.exoticworlds.core.fold.WorldLoopAttachments;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.BlockGetter;
@@ -20,17 +20,17 @@ import net.minecraft.world.level.LevelReader;
 
 public final class CanonicalPositionKeys {
     public static Set<BlockPos> set(@Nullable BlockGetter reader, Set<BlockPos> built) {
-        WorldFold fold = wrappedFoldOf(reader);
+        WorldFold fold = getWrappedFold(reader);
         return fold == null ? built : new CanonicalSet(fold);
     }
 
     public static <V> Map<BlockPos, V> map(@Nullable BlockGetter reader, Map<BlockPos, V> built) {
-        WorldFold fold = wrappedFoldOf(reader);
+        WorldFold fold = getWrappedFold(reader);
         return fold == null ? built : new CanonicalMap<>(fold);
     }
 
-    static @Nullable WorldFold wrappedFoldOf(@Nullable BlockGetter reader) {
-        return reader instanceof LevelReader levelReader ? WorldLoopAttachments.wrappedFoldOfReader(levelReader) : null;
+    static @Nullable WorldFold getWrappedFold(@Nullable BlockGetter reader) {
+        return reader instanceof LevelReader levelReader ? WorldLoopAttachments.getWrappedFoldOfReader(levelReader) : null;
     }
 
     private static Object key(WorldFold fold, Object candidate) {
@@ -71,12 +71,12 @@ public final class CanonicalPositionKeys {
 
         @Override
         public final boolean removeAll(Collection<?> candidates) {
-            boolean changed = false;
+            boolean isChanged = false;
             for (Object candidate : candidates) {
-                changed |= delegate.remove(canonical(candidate));
+                isChanged |= delegate.remove(canonical(candidate));
             }
 
-            return changed;
+            return isChanged;
         }
 
         @Override
@@ -126,12 +126,12 @@ public final class CanonicalPositionKeys {
 
         @Override
         public boolean addAll(Collection<? extends BlockPos> positions) {
-            boolean changed = false;
+            boolean isChanged = false;
             for (BlockPos pos : positions) {
-                changed |= delegate.add(fold.fold(pos));
+                isChanged |= delegate.add(fold.fold(pos));
             }
 
-            return changed;
+            return isChanged;
         }
     }
 

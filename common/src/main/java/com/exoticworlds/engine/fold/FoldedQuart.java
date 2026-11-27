@@ -1,7 +1,7 @@
 package com.exoticworlds.engine.fold;
 
-import com.exoticworlds.core.FoldOrientation;
-import com.exoticworlds.core.WorldFold;
+import com.exoticworlds.core.fold.FoldOrientation;
+import com.exoticworlds.core.fold.WorldFold;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.QuartPos;
@@ -17,7 +17,7 @@ public final class FoldedQuart {
     }
 
     public static FoldOrientation orientation(WorldFold fold, int quartX, int quartY, int quartZ) {
-        if (fold.preservesLocalIndices()) {
+        if (fold.isPreservingLocalIndices()) {
             return FoldOrientation.IDENTITY;
         }
 
@@ -27,15 +27,15 @@ public final class FoldedQuart {
     }
 
     public static double distanceX(FoldOrientation orientation, double distanceX, double distanceZ) {
-        return turned(orientation.flipsX(), orientation.swapsAxes() ? distanceZ : distanceX);
+        return turned(orientation.isXFlipped(), orientation.isSwappingAxes() ? distanceZ : distanceX);
     }
 
     public static double distanceZ(FoldOrientation orientation, double distanceX, double distanceZ) {
-        return turned(orientation.flipsZ(), orientation.swapsAxes() ? distanceX : distanceZ);
+        return turned(orientation.isZFlipped(), orientation.isSwappingAxes() ? distanceX : distanceZ);
     }
 
-    private static double turned(boolean flips, double distance) {
-        return flips ? -distance - BLOCK_IN_QUARTS : distance;
+    private static double turned(boolean isFlipped, double distance) {
+        return isFlipped ? -distance - BLOCK_IN_QUARTS : distance;
     }
 
     public static int x(long quartNode) {

@@ -58,7 +58,7 @@ class CompatGatesTest {
 
         for (String mixin : mixinsOf(json)) {
             String mixinClass = mixinPackage + "." + mixin;
-            long gates = plugin.gates().stream().filter(gate -> gate.covers(mixinClass)).count();
+            long gates = plugin.getGates().stream().filter(gate -> gate.isCovering(mixinClass)).count();
             assertEquals(1, gates, config.getFileName() + ": " + mixin + " is covered by " + gates + " gates");
         }
     }
@@ -66,8 +66,8 @@ class CompatGatesTest {
     @ParameterizedTest
     @MethodSource("configs")
     void everyGateAdmitsTheModBuildTheSuiteCarries(Path config) throws Exception {
-        for (ModPresence gate : pluginOf(read(config)).gates()) {
-            assertTrue(gate.admitted(), config.getFileName() + ": a gate refuses the build this suite runs against; "
+        for (ModPresence gate : pluginOf(read(config)).getGates()) {
+            assertTrue(gate.isAdmitted(), config.getFileName() + ": a gate refuses the build this suite runs against; "
                     + "the refusal line in the test log names the mixin and the member");
         }
     }
@@ -82,8 +82,8 @@ class CompatGatesTest {
     void everyClassOfAGatePackageBelongsToExactlyOneGate() throws Exception {
         List<Set<String>> owned = new ArrayList<>();
         for (Path config : configs()) {
-            for (ModPresence gate : pluginOf(read(config)).gates()) {
-                owned.add(Set.copyOf(gate.ownedClasses()));
+            for (ModPresence gate : pluginOf(read(config)).getGates()) {
+                owned.add(Set.copyOf(gate.scanOwnedClasses()));
             }
         }
 

@@ -1,7 +1,6 @@
 /**
- * Everything that may load on the client side alone ({@code client.engine} the client's half of the engine,
- * {@code client.shape} the World Shape screens, {@code client.settings} the settings screen), because this package
- * boundary is what keeps a {@code Screen} off a dedicated server. The public half of the same boundary is {@code api.v1.client}, which a shape
- * registers its screens through and which is entered from the client side alone for the same reason.
+ * The client entry points alone, which belong to no feature. Everything else that may load on the client side alone
+ * lives in the {@code client} subpackage of the feature it serves, and that subpackage is what keeps a {@code Screen}
+ * off a dedicated server.
  */
 package com.exoticworlds.client;

@@ -7,61 +7,61 @@ import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
-import com.exoticworlds.core.FlatShape;
-import com.exoticworlds.core.ShapeFixtures;
-import com.exoticworlds.core.WorldLoopBounds;
-import com.exoticworlds.core.WorldLoopSizes;
+import com.exoticworlds.core.world.FlatShape;
+import com.exoticworlds.core.world.ShapeFixtures;
+import com.exoticworlds.core.world.WorldLoopBounds;
+import com.exoticworlds.core.world.WorldLoopSizes;
 import com.exoticworlds.shape.WorldLoopPresets;
 
 import net.minecraft.core.Direction;
 
 class WorldShapeReportTest {
-    private static final int OVERWORLD_CHUNK_WIDTH = 192;
-    private static final int DIVIDING_NETHER_CHUNK_WIDTH = 24;
-    private static final int UNEVEN_OVERWORLD_CHUNK_WIDTH = 32;
-    private static final int NARROWER_NETHER_CHUNK_WIDTH = 24;
-    private static final int WIDER_NETHER_CHUNK_WIDTH = 64;
-    private static final int NARROW_END_CHUNK_WIDTH = 128;
+    private static final int OVERWORLD_WIDTH_CHUNKS = 192;
+    private static final int DIVIDING_NETHER_WIDTH_CHUNKS = 24;
+    private static final int UNEVEN_OVERWORLD_WIDTH_CHUNKS = 32;
+    private static final int NARROWER_NETHER_WIDTH_CHUNKS = 24;
+    private static final int WIDER_NETHER_WIDTH_CHUNKS = 64;
+    private static final int NARROW_END_WIDTH_CHUNKS = 128;
 
     @Test
     void aNetherWidthTheOverworldDividesByNamesItsScale() {
         assertEquals(", scale 1:8", WorldShapeReport.netherScaleText(
-                square(OVERWORLD_CHUNK_WIDTH), square(DIVIDING_NETHER_CHUNK_WIDTH)));
+                square(OVERWORLD_WIDTH_CHUNKS), square(DIVIDING_NETHER_WIDTH_CHUNKS)));
     }
 
     @Test
     void aNetherWidthTheOverworldDoesNotDivideByNamesItsReducedRatio() {
         assertEquals(", scale 3:4", WorldShapeReport.netherScaleText(
-                square(UNEVEN_OVERWORLD_CHUNK_WIDTH), square(NARROWER_NETHER_CHUNK_WIDTH)));
+                square(UNEVEN_OVERWORLD_WIDTH_CHUNKS), square(NARROWER_NETHER_WIDTH_CHUNKS)));
         assertEquals(", scale 2:1", WorldShapeReport.netherScaleText(
-                square(UNEVEN_OVERWORLD_CHUNK_WIDTH), square(WIDER_NETHER_CHUNK_WIDTH)));
+                square(UNEVEN_OVERWORLD_WIDTH_CHUNKS), square(WIDER_NETHER_WIDTH_CHUNKS)));
     }
 
     @Test
     void aCylinderNamesTheRatioOfItsLoopingAxis() {
         assertEquals(", scale 1:8", WorldShapeReport.netherScaleText(
-                loopedZ(OVERWORLD_CHUNK_WIDTH), loopedZ(DIVIDING_NETHER_CHUNK_WIDTH)));
+                loopedZ(OVERWORLD_WIDTH_CHUNKS), loopedZ(DIVIDING_NETHER_WIDTH_CHUNKS)));
         assertEquals(", scale 3:4", WorldShapeReport.netherScaleText(
-                loopedZ(UNEVEN_OVERWORLD_CHUNK_WIDTH), loopedZ(NARROWER_NETHER_CHUNK_WIDTH)));
+                loopedZ(UNEVEN_OVERWORLD_WIDTH_CHUNKS), loopedZ(NARROWER_NETHER_WIDTH_CHUNKS)));
         assertEquals(", scale 2:1", WorldShapeReport.netherScaleText(
-                loopedZ(UNEVEN_OVERWORLD_CHUNK_WIDTH), loopedZ(WIDER_NETHER_CHUNK_WIDTH)));
+                loopedZ(UNEVEN_OVERWORLD_WIDTH_CHUNKS), loopedZ(WIDER_NETHER_WIDTH_CHUNKS)));
     }
 
     @Test
     void aNetherThatLoopsOnNeitherOfTheOverworldsAxesSaysNothing() {
-        assertEquals("", WorldShapeReport.netherScaleText(loopedZ(OVERWORLD_CHUNK_WIDTH),
-                WorldLoopBounds.ofWidth(Direction.Axis.X, DIVIDING_NETHER_CHUNK_WIDTH)));
+        assertEquals("", WorldShapeReport.netherScaleText(loopedZ(OVERWORLD_WIDTH_CHUNKS),
+                WorldLoopBounds.ofWidth(Direction.Axis.X, DIVIDING_NETHER_WIDTH_CHUNKS)));
     }
 
     @Test
     void everyShippedPresetsNetherKeepsItsScale() {
         for (WorldLoopPresets preset : WorldLoopPresets.values()) {
-            int netherChunkWidth = preset.chunkWidth() / preset.netherScale();
+            int netherWidthChunks = preset.getWidthChunks() / preset.getNetherScale();
 
             for (String text : List.of(
-                    WorldShapeReport.netherScaleText(square(preset.chunkWidth()), square(netherChunkWidth)),
-                    WorldShapeReport.netherScaleText(loopedZ(preset.chunkWidth()), loopedZ(netherChunkWidth)))) {
-                assertEquals(", scale 1:" + preset.netherScale(), text, preset.id());
+                    WorldShapeReport.netherScaleText(square(preset.getWidthChunks()), square(netherWidthChunks)),
+                    WorldShapeReport.netherScaleText(loopedZ(preset.getWidthChunks()), loopedZ(netherWidthChunks)))) {
+                assertEquals(", scale 1:" + preset.getNetherScale(), text, preset.getId());
             }
         }
     }
@@ -69,20 +69,20 @@ class WorldShapeReportTest {
     @Test
     void aNetherSkewedByTheOverworldsSkewOverTheScaleSaysNothing() {
         assertEquals(WorldShapeReport.Note.NONE, WorldShapeReport.netherSkewNote(
-                FlatShape.latticeTorus(square(OVERWORLD_CHUNK_WIDTH), 16),
-                FlatShape.latticeTorus(square(DIVIDING_NETHER_CHUNK_WIDTH), 2)));
+                FlatShape.latticeTorus(square(OVERWORLD_WIDTH_CHUNKS), 16),
+                FlatShape.latticeTorus(square(DIVIDING_NETHER_WIDTH_CHUNKS), 2)));
         assertEquals(WorldShapeReport.Note.NONE, WorldShapeReport.netherSkewNote(
-                ShapeFixtures.torus(square(OVERWORLD_CHUNK_WIDTH)), ShapeFixtures.torus(
-                        square(DIVIDING_NETHER_CHUNK_WIDTH))));
+                ShapeFixtures.torus(square(OVERWORLD_WIDTH_CHUNKS)), ShapeFixtures.torus(
+                        square(DIVIDING_NETHER_WIDTH_CHUNKS))));
     }
 
     @Test
     void aNetherSkewThatDoesNotMatchTheOverworldsIsNamedAsBroken() {
         WorldShapeReport.Note note = WorldShapeReport.netherSkewNote(
-                FlatShape.latticeTorus(square(OVERWORLD_CHUNK_WIDTH), 16),
-                FlatShape.latticeTorus(square(DIVIDING_NETHER_CHUNK_WIDTH), 3));
+                FlatShape.latticeTorus(square(OVERWORLD_WIDTH_CHUNKS), 16),
+                FlatShape.latticeTorus(square(DIVIDING_NETHER_WIDTH_CHUNKS), 3));
 
-        assertTrue(note.broken(), note.text());
+        assertTrue(note.isBroken(), note.text());
         assertTrue(note.text().contains("skewed by 16"), note.text());
         assertTrue(note.text().contains("skewed by 2 chunks, not 3"), note.text());
     }
@@ -90,73 +90,79 @@ class WorldShapeReportTest {
     @Test
     void anOverworldSkewTheScaleDoesNotDivideIsNamedAsBroken() {
         WorldShapeReport.Note note = WorldShapeReport.netherSkewNote(
-                FlatShape.latticeTorus(square(OVERWORLD_CHUNK_WIDTH), 5),
-                ShapeFixtures.torus(square(DIVIDING_NETHER_CHUNK_WIDTH)));
+                FlatShape.latticeTorus(square(OVERWORLD_WIDTH_CHUNKS), 5),
+                ShapeFixtures.torus(square(DIVIDING_NETHER_WIDTH_CHUNKS)));
 
-        assertTrue(note.broken(), note.text());
+        assertTrue(note.isBroken(), note.text());
         assertTrue(note.text().contains("skewed by 5/8 chunks, not 0"), note.text());
     }
 
     @Test
     void aNetherSkewScaledByTheWidthRatioOfUnevenWidthsSaysNothing() {
         assertEquals(WorldShapeReport.Note.NONE, WorldShapeReport.netherSkewNote(
-                FlatShape.latticeTorus(square(UNEVEN_OVERWORLD_CHUNK_WIDTH), 4),
-                FlatShape.latticeTorus(square(NARROWER_NETHER_CHUNK_WIDTH), 3)));
+                FlatShape.latticeTorus(square(UNEVEN_OVERWORLD_WIDTH_CHUNKS), 4),
+                FlatShape.latticeTorus(square(NARROWER_NETHER_WIDTH_CHUNKS), 3)));
         assertEquals(WorldShapeReport.Note.NONE, WorldShapeReport.netherSkewNote(
-                FlatShape.latticeTorus(square(UNEVEN_OVERWORLD_CHUNK_WIDTH), 4),
-                FlatShape.latticeTorus(square(WIDER_NETHER_CHUNK_WIDTH), 8)));
+                FlatShape.latticeTorus(square(UNEVEN_OVERWORLD_WIDTH_CHUNKS), 4),
+                FlatShape.latticeTorus(square(WIDER_NETHER_WIDTH_CHUNKS), 8)));
     }
 
     @Test
     void aNetherSkewThatMissesTheWidthRatioOfUnevenWidthsIsNamedAsBroken() {
         WorldShapeReport.Note note = WorldShapeReport.netherSkewNote(
-                FlatShape.latticeTorus(square(UNEVEN_OVERWORLD_CHUNK_WIDTH), 4),
-                FlatShape.latticeTorus(square(NARROWER_NETHER_CHUNK_WIDTH), 2));
+                FlatShape.latticeTorus(square(UNEVEN_OVERWORLD_WIDTH_CHUNKS), 4),
+                FlatShape.latticeTorus(square(NARROWER_NETHER_WIDTH_CHUNKS), 2));
 
-        assertTrue(note.broken(), note.text());
+        assertTrue(note.isBroken(), note.text());
         assertTrue(note.text().contains("skewed by 3 chunks, not 2"), note.text());
     }
 
     @Test
     void anEndAtTheOuterIslandThresholdSaysNothing() {
         assertEquals(WorldShapeReport.Note.NONE,
-                WorldShapeReport.endWidthNote(square(WorldLoopSizes.END_MIN_CHUNK_WIDTH)));
+                WorldShapeReport.endWidthNote(square(WorldLoopSizes.END_MIN_WIDTH_CHUNKS)));
     }
 
     @Test
     void anEndBelowTheOuterIslandThresholdIsNamedAsBroken() {
-        WorldShapeReport.Note note = WorldShapeReport.endWidthNote(square(NARROW_END_CHUNK_WIDTH));
+        WorldShapeReport.Note note = WorldShapeReport.endWidthNote(square(NARROW_END_WIDTH_CHUNKS));
 
-        assertTrue(note.broken(), note.text());
-        assertTrue(note.text().contains(WorldLoopSizes.describe(NARROW_END_CHUNK_WIDTH)), note.text());
-        assertTrue(note.text().contains(WorldLoopSizes.describe(WorldLoopSizes.END_MIN_CHUNK_WIDTH)), note.text());
+        assertTrue(note.isBroken(), note.text());
+        assertTrue(note.text().contains(WorldLoopSizes.describe(NARROW_END_WIDTH_CHUNKS)), note.text());
+        assertTrue(note.text().contains(WorldLoopSizes.describe(WorldLoopSizes.END_MIN_WIDTH_CHUNKS)), note.text());
+    }
+
+    @Test
+    void aDimensionWithEndTerrainIsHeldToTheThresholdAndOneWithoutIsNot() {
+        assertTrue(WorldShapeReport.endWidth(true, square(NARROW_END_WIDTH_CHUNKS)).isBroken());
+        assertEquals(WorldShapeReport.Note.NONE, WorldShapeReport.endWidth(false, square(NARROW_END_WIDTH_CHUNKS)));
     }
 
     @Test
     void aCylinderEndIsHeldToTheThresholdOnItsLoopingAxis() {
-        WorldShapeReport.Note note = WorldShapeReport.endWidthNote(loopedZ(NARROW_END_CHUNK_WIDTH));
+        WorldShapeReport.Note note = WorldShapeReport.endWidthNote(loopedZ(NARROW_END_WIDTH_CHUNKS));
 
-        assertTrue(note.broken(), note.text());
+        assertTrue(note.isBroken(), note.text());
         assertTrue(note.text().contains(Direction.Axis.Z.getName()), note.text());
         assertEquals(WorldShapeReport.Note.NONE,
-                WorldShapeReport.endWidthNote(loopedZ(WorldLoopSizes.END_MIN_CHUNK_WIDTH)));
+                WorldShapeReport.endWidthNote(loopedZ(WorldLoopSizes.END_MIN_WIDTH_CHUNKS)));
     }
 
     @Test
     void everyShippedPresetsEndClearsTheThreshold() {
         for (WorldLoopPresets preset : WorldLoopPresets.values()) {
             assertEquals(WorldShapeReport.Note.NONE,
-                    WorldShapeReport.endWidthNote(square(preset.endChunkWidth())), preset.id());
+                    WorldShapeReport.endWidthNote(square(preset.getEndWidthChunks())), preset.getId());
             assertEquals(WorldShapeReport.Note.NONE,
-                    WorldShapeReport.endWidthNote(loopedZ(preset.endChunkWidth())), preset.id());
+                    WorldShapeReport.endWidthNote(loopedZ(preset.getEndWidthChunks())), preset.getId());
         }
     }
 
-    private static WorldLoopBounds square(int chunkWidth) {
-        return WorldLoopBounds.ofWidth(chunkWidth);
+    private static WorldLoopBounds square(int widthChunks) {
+        return WorldLoopBounds.ofWidth(widthChunks);
     }
 
-    private static WorldLoopBounds loopedZ(int chunkWidth) {
-        return WorldLoopBounds.ofWidth(Direction.Axis.Z, chunkWidth);
+    private static WorldLoopBounds loopedZ(int widthChunks) {
+        return WorldLoopBounds.ofWidth(Direction.Axis.Z, widthChunks);
     }
 }

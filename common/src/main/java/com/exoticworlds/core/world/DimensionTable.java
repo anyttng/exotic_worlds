@@ -1,0 +1,139 @@
+package com.exoticworlds.core.world;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+
+import org.jspecify.annotations.Nullable;
+
+import com.exoticworlds.core.option.ShapeOptions;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.DataResult;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
+
+import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.world.level.dimension.LevelStem;
+
+public final class DimensionTable {
+    public static final String KEY = "dimensions";
+
+    public static final DimensionTable EMPTY = new DimensionTable(Map.of());
+
+    private static final String FROM_OVERWORLD_KEY = "from_overworld";
+    public static final String SHAPE_ID_KEY = "shape";
+
+    public static final Codec<DimensionTable> CODEC = Codec
+            .unboundedMap(ResourceKey.codec(Registries.LEVEL_STEM), Entry.CODEC)
+            .validate(DimensionTable::refuseVanillaStems)
+            .xmap(DimensionTable::new, table -> table.entries);
+
+    private final Map<ResourceKey<LevelStem>, Entry> entries;
+
+    private DimensionTable(Map<ResourceKey<LevelStem>, Entry> entries) {
+        this.entries = Map.copyOf(entries);
+    }
+
+    public static DimensionTable of(Map<ResourceKey<LevelStem>, Entry> entries) {
+        return new DimensionTable(refuseVanillaStems(entries).getOrThrow(IllegalArgumentException::new));
+    }
+
+    public @Nullable Entry getEntry(ResourceKey<LevelStem> key) {
+        return this.entries.get(key);
+    }
+
+    public DimensionTable with(ResourceKey<LevelStem> key, Entry entry) {
+        Map<ResourceKey<LevelStem>, Entry> entries = new HashMap<>(this.entries);
+        entries.put(key, entry);
+        return of(entries);
+    }
+
+    public DimensionTable without(ResourceKey<LevelStem> key) {
+        Map<ResourceKey<LevelStem>, Entry> entries = new HashMap<>(this.entries);
+        entries.remove(key);
+        return new DimensionTable(entries);
+    }
+
+    public Map<ResourceKey<LevelStem>, Entry> getEntries() {
+        return this.entries;
+    }
+
+    public boolean isEmpty() {
+        return this.entries.isEmpty();
+    }
+
+    public static boolean isVanillaStem(ResourceKey<LevelStem> key) {
+        return VanillaStems.KEYS.contains(key);
+    }
+
+    private static DataResult<Map<ResourceKey<LevelStem>, Entry>> refuseVanillaStems(
+            Map<ResourceKey<LevelStem>, Entry> entries) {
+        for (ResourceKey<LevelStem> key : entries.keySet()) {
+            if (isVanillaStem(key)) {
+                return DataResult.error(() -> "A dimension table names " + key.identifier()
+                        + ", which carries its shape on its own generator");
+            }
+        }
+
+        return DataResult.success(entries);
+    }
+
+    @Override
+    public boolean equals(Object other) {
+        return other instanceof DimensionTable table && this.entries.equals(table.entries);
+    }
+
+    @Override
+    public int hashCode() {
+        return this.entries.hashCode();
+    }
+
+    private static final class VanillaStems {
+        // LevelStem's initializer reads ChunkGenerator.CODEC, which our codec mixin builds from this class.
+        private static final Set<ResourceKey<LevelStem>> KEYS = Set.of(LevelStem.OVERWORLD, LevelStem.NETHER,
+                LevelStem.END);
+    }
+
+    public record Entry(@Nullable CarriedShape carried, boolean isFromOverworld) {
+        public static final Entry UNWRAPPED = new Entry(null, false);
+        public static final Entry FROM_OVERWORLD = new Entry(null, true);
+
+        public static final Codec<Entry> CODEC = RecordCodecBuilder.<Stated>mapCodec(instance -> instance.group(
+                Codec.BOOL.optionalFieldOf(FROM_OVERWORLD_KEY, false).forGetter(Stated::isFromOverworld),
+                Identifier.CODEC.optionalFieldOf(SHAPE_ID_KEY).forGetter(Stated::shapeId),
+                CarriedShape.SHAPE_CODEC.optionalFieldOf(CarriedShape.WRAPPING_KEY).forGetter(Stated::shape),
+                ShapeOptions.mapCodec(CarriedShape.NO_KEY_PREFIX).forGetter(Stated::options)
+        ).apply(instance, Stated::new)).xmap(Stated::entry, Stated::of).codec();
+
+        public Entry {
+            if (isFromOverworld && carried != null) {
+                throw new IllegalArgumentException("A From Overworld entry carries no shape of its own");
+            }
+        }
+
+        public Entry(CarriedShape carried) {
+            this(carried, false);
+        }
+    }
+
+    private record Stated(boolean isFromOverworld, Optional<Identifier> shapeId, Optional<ShapeModel> shape,
+            ShapeOptions options) {
+        private static Stated of(Entry entry) {
+            CarriedShape carried = entry.carried();
+            return carried == null
+                    ? new Stated(entry.isFromOverworld(), Optional.empty(), Optional.empty(), ShapeOptions.DEFAULT)
+                    : new Stated(false, carried.getShapeId(), Optional.of(carried.getShape()), carried.getOptions());
+        }
+
+        private Entry entry() {
+            if (this.isFromOverworld) {
+                return Entry.FROM_OVERWORLD;
+            }
+
+            return this.shape.map(stated -> new Entry(new CarriedShape(this.shapeId.orElse(null), stated, this.options)))
+                    .orElse(Entry.UNWRAPPED);
+        }
+    }
+}

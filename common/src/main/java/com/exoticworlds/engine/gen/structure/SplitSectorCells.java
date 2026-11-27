@@ -3,7 +3,7 @@ package com.exoticworlds.engine.gen.structure;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.exoticworlds.core.WorldFold;
+import com.exoticworlds.core.fold.WorldFold;
 
 import net.minecraft.core.SectionPos;
 import net.minecraft.world.level.ChunkPos;
@@ -27,7 +27,7 @@ final class SplitSectorCells implements SectorCells {
     }
 
     @Override
-    public int offsetCap() {
+    public int getOffsetCap() {
         return this.offsetCap;
     }
 
@@ -44,7 +44,7 @@ final class SplitSectorCells implements SectorCells {
                 SectionPos.sectionToBlockCoord(cellZ * this.spacing),
                 SectionPos.sectionToBlockCoord((cellX + 1) * this.spacing) - 1, FLAT_Y,
                 SectionPos.sectionToBlockCoord((cellZ + 1) * this.spacing) - 1);
-        if (!this.fold.crossesBounds(cell)) {
+        if (!this.fold.isCrossingBounds(cell)) {
             return List.of(Read.whole(cellX, cellZ));
         }
 

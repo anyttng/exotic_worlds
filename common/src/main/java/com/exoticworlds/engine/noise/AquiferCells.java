@@ -18,8 +18,9 @@ public record AquiferCells(AquiferCellGrid levelGrid, DensitySampler level, Aqui
     };
 
     public static AquiferCells compile(FoldedCompileContext context, Aquifer.Config config) {
-        AquiferCellGrid levelGrid = AquiferCellGrid.of(context.fold(), NoiseConstants.AQUIFER_FLUID_LEVEL_CELL_WIDTH);
-        AquiferCellGrid typeGrid = AquiferCellGrid.of(context.fold(), NoiseConstants.AQUIFER_FLUID_TYPE_CELL_WIDTH);
+        AquiferCellGrid levelGrid = AquiferCellGrid.of(context.fold(),
+                NoiseConstants.AQUIFER_FLUID_LEVEL_CELL_WIDTH_BLOCKS);
+        AquiferCellGrid typeGrid = AquiferCellGrid.of(context.fold(), NoiseConstants.AQUIFER_FLUID_TYPE_CELL_WIDTH_BLOCKS);
         return new AquiferCells(
                 levelGrid, compileOnGrid(context, levelGrid, config.fluidLevelSpreadNoise()),
                 typeGrid, compileOnGrid(context, typeGrid, config.lavaNoise()));
@@ -37,7 +38,7 @@ public record AquiferCells(AquiferCellGrid levelGrid, DensitySampler level, Aqui
 
     private static DensitySampler compileOnGrid(FoldedCompileContext context, AquiferCellGrid grid,
             DensityFunction function) {
-        try (GenerationFoldContext.Context.DivisorScope _ = grid.divide(GenerationFoldContext.context())) {
+        try (GenerationFoldContext.Context.DivisorScope _ = grid.divide(GenerationFoldContext.getContext())) {
             return UNCACHED.rewrite(function).compileSampler(context.vanilla());
         }
     }

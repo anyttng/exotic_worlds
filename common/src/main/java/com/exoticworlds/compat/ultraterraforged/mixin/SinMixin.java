@@ -46,7 +46,7 @@ public abstract class SinMixin {
     private float exotic_worlds$closeOnLap(float x, float z, int seed, Operation<Float> original,
             @Share(LapOctaves.FRAME) LocalRef<RtfLap.@Nullable Frame> frame,
             @Share(LapOctaves.BLOCK_Z) LocalFloatRef blockZ) {
-        RtfLap.Frame bound = RtfLap.boundFrame();
+        RtfLap.Frame bound = RtfLap.getBoundFrame();
         frame.set(bound);
         blockZ.set(z);
         return original.call(x, z, seed);

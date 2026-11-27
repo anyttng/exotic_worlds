@@ -76,7 +76,6 @@
   "gui.exotic_worlds.world_shape_settings.shape.hint.cylinder": "eine horizontale Achse schließt sich, die andere geht wie in Vanilla endlos weiter.",
   "gui.exotic_worlds.world_shape_settings.shape.hint.cuboid": "die Oberfläche eines Quaders mit den Kanten A, B und C. Wer weit genug in eine Richtung geht, kommt am Ausgangspunkt wieder an.",
   "gui.exotic_worlds.world_shape_settings.shape.hint.from_overworld": "übernimmt die Form der Oberwelt in der eigenen Größe dieser Dimension.",
-  "gui.exotic_worlds.world_shape_settings.shape.hint.declared": "eine Form aus einer anderen Mod; ihre Beschreibung steht unter diesem Knopf.",
   "gui.exotic_worlds.world_shape_settings.shape.size_error": "Diese Form wird %s Chunks breit; diese Dimension erlaubt %s bis %s.",
   "gui.exotic_worlds.world_shape_settings.nether_scale": "Nether-Maßstab",
   "gui.exotic_worlds.world_shape_settings.size": "Weltgröße in Chunks (%s-%s)",
@@ -116,8 +115,6 @@
   "gui.exotic_worlds.world_shape_settings.guaranteed_nether_complexes.hint.intro": "Der Nether enthält mindestens eine Netherfestung und eine Bastionsruine, jede in einem Biom, in dem sie stehen kann. Ohne diese Option hat ein kleiner Nether oft keine von beiden.",
   "gui.exotic_worlds.world_shape_settings.guaranteed_nether_complexes.hint.on": "ein Nether, der keine von beiden hätte, bekommt eine Netherfestung und eine Bastionsruine.",
   "gui.exotic_worlds.world_shape_settings.guaranteed_nether_complexes.hint.off": "ein kleiner Nether hat vielleicht keine von beiden.",
-  "gui.exotic_worlds.world_shape.normal": "Normal",
-  "gui.exotic_worlds.world_shape.normal.hint": "Die Vanilla-Welt: eine endlose Ebene in alle Richtungen.",
   "gui.exotic_worlds.world_shape.seam_warning": "Dieser Welttyp bringt einen eigenen Weltgenerator mit: Eine Weltform begrenzt die Welt und schließt sie zur Schleife, aber das Gelände passt am Weltrand nicht zusammen.",
 
   "gui.exotic_worlds.settings.title": "Einstellungen von Exotic Worlds",

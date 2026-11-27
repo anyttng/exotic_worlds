@@ -28,14 +28,14 @@ final class LithiumOptionGate {
     }
 
     boolean read(ClassLoader classLoader) {
-        if (!this.gate.admitted()) {
+        if (!this.gate.isAdmitted()) {
             return false;
         }
 
         try {
-            boolean enabled = optionEnabled(classLoader);
-            LOGGER.info("{} option_enabled={}", this.label, enabled);
-            return enabled;
+            boolean isEnabled = readOptionEnabled(classLoader);
+            LOGGER.info("{} option_enabled={}", this.label, isEnabled);
+            return isEnabled;
         } catch (ReflectiveOperationException | RuntimeException | LinkageError unreadable) {
             // A read failure applies the mixin: an absent target then fails its apply in the log, while standing down leaves the seam blind and silent.
             LOGGER.warn("{} option_enabled=unreadable, applying", this.label, unreadable);
@@ -43,12 +43,12 @@ final class LithiumOptionGate {
         }
     }
 
-    private boolean optionEnabled(ClassLoader classLoader) throws ReflectiveOperationException {
-        return optionEnabled(Class.forName(MIXIN_PLUGIN_CLASS, true, classLoader), this.mixinRule);
+    private boolean readOptionEnabled(ClassLoader classLoader) throws ReflectiveOperationException {
+        return readOptionEnabled(Class.forName(MIXIN_PLUGIN_CLASS, true, classLoader), this.mixinRule);
     }
 
-    static boolean optionEnabled(Class<?> plugin, String mixinRule) throws ReflectiveOperationException {
-        if (allMixinsDisabled(plugin)) {
+    static boolean readOptionEnabled(Class<?> plugin, String mixinRule) throws ReflectiveOperationException {
+        if (readAllMixinsDisabled(plugin)) {
             return false;
         }
 
@@ -63,7 +63,7 @@ final class LithiumOptionGate {
         return option != null && (Boolean) option.getClass().getMethod(IS_ENABLED_METHOD).invoke(option);
     }
 
-    private static boolean allMixinsDisabled(Class<?> plugin) throws IllegalAccessException {
+    private static boolean readAllMixinsDisabled(Class<?> plugin) throws IllegalAccessException {
         try {
             return plugin.getField(DISABLE_ALL_FIELD).getBoolean(null);
         } catch (NoSuchFieldException absent) {

@@ -8,32 +8,32 @@ import java.util.Random;
 
 import org.junit.jupiter.api.Test;
 
-import com.exoticworlds.core.FlatShape;
-import com.exoticworlds.core.ShapeFixtures;
-import com.exoticworlds.core.TranslationLattice;
-import com.exoticworlds.core.WorldFolds;
-import com.exoticworlds.core.WrapDomain;
+import com.exoticworlds.core.world.FlatShape;
+import com.exoticworlds.core.world.ShapeFixtures;
+import com.exoticworlds.core.fold.TranslationLattice;
+import com.exoticworlds.core.fold.WorldFolds;
+import com.exoticworlds.core.fold.WrapDomain;
 
 import net.minecraft.world.level.levelgen.LegacyRandomSource;
 import net.minecraft.world.level.levelgen.synth.NoiseStack;
 import net.minecraft.world.level.levelgen.synth.NormalNoise;
 
 class ClimateLapTest {
-    private static final int LAP = 8192;
+    private static final int LAP_BLOCKS = 8192;
 
-    private static final int LAP_CHUNKS = LAP / 16;
+    private static final int LAP_CHUNKS = LAP_BLOCKS / 16;
 
     private static final int SKEW_CHUNKS = 96;
 
-    private static final WrapDomain LAP_DOMAIN = new WrapDomain(-LAP / 2, LAP / 2);
+    private static final WrapDomain LAP_DOMAIN = new WrapDomain(-LAP_BLOCKS / 2, LAP_BLOCKS / 2);
 
-    private static final WrapDomain OFF_CENTER_DOMAIN = new WrapDomain(-1000, LAP - 1000);
+    private static final WrapDomain OFF_CENTER_DOMAIN = new WrapDomain(-1000, LAP_BLOCKS - 1000);
 
     private static final TranslationLattice TORUS = TranslationLattice.unskewed(LAP_DOMAIN, LAP_DOMAIN);
 
     private static final TranslationLattice SKEWED = WorldFolds.of(FlatShape.latticeTorus(
             ShapeFixtures.loopedBounds(-LAP_CHUNKS / 2, LAP_CHUNKS / 2, -LAP_CHUNKS / 2, LAP_CHUNKS / 2), SKEW_CHUNKS))
-            .blockLattice();
+            .getBlockLattice();
 
     private static final TranslationLattice CYLINDER_X = TranslationLattice.unskewed(LAP_DOMAIN, new WrapDomain.Noop());
 
@@ -68,29 +68,29 @@ class ClimateLapTest {
 
     private static final double SIDE_WAVE_RATE = 0.003;
 
-    private static final int EVEN_SPAN = 64;
+    private static final int EVEN_SPAN_BLOCKS = 64;
 
     private static final int ROUNDING_SLACK = 2;
 
-    private static final double[] EQUATORIAL_DISTANCES = {50000.0, 2048.0, 700.0, 100.0};
+    private static final double[] EQUATORIAL_DISTANCES_BLOCKS = {50000.0, 2048.0, 700.0, 100.0};
 
-    private static final double EQUATOR_OFFSET = 1234.0;
+    private static final double EQUATOR_OFFSET_BLOCKS = 1234.0;
 
     private static final int[] CROSS = {-3000, -1, 0, 517, 3999};
 
-    private static final int[] OWN_SCALE_REACH = {1, 517, 3000, LAP / 2};
+    private static final int[] OWN_SCALE_REACH_BLOCKS = {1, 517, 3000, LAP_BLOCKS / 2};
 
-    private static final int WIDE_LAP_DISTANCE = 700;
+    private static final int WIDE_LAP_DISTANCE_BLOCKS = 700;
 
-    private static final int NARROW_LAP_DISTANCE = 50000;
+    private static final int NARROW_LAP_DISTANCE_BLOCKS = 50000;
 
     private static final boolean[] LOOPING_WORLD = {true, false};
 
-    private static final int[] SIDE_REACH = {1, 517, 3000};
+    private static final int[] SIDE_REACH_BLOCKS = {1, 517, 3000};
 
     private static final double[] WAVE_RATES = {0.0005, 0.0007, 0.003, 0.00001};
 
-    private static final double[] WAVE_LAPS = {LAP, LAP * 1.5, 512.0};
+    private static final double[] WAVE_LAPS = {LAP_BLOCKS, LAP_BLOCKS * 1.5, 512.0};
 
     private static final double WAVE_AMPLITUDE = 84.0;
 
@@ -118,9 +118,9 @@ class ClimateLapTest {
 
     private static final long NOISE_SEED = 42L;
 
-    private static final int NARROW_LAP = 512;
+    private static final int NARROW_LAP_BLOCKS = 512;
 
-    private static final int WIDE_LAP = 65536;
+    private static final int WIDE_LAP_BLOCKS = 65536;
 
     private static final int WIDE_STRIDE = 31;
 
@@ -136,7 +136,7 @@ class ClimateLapTest {
 
     private static final double FOLD_SLACK = 1.0E-6;
 
-    private static final double[] BAND_WIDTHS = {100.0, 500.0, 2500.0, 40000.0};
+    private static final double[] BAND_WIDTHS_BLOCKS = {100.0, 500.0, 2500.0, 40000.0};
 
     private static final double NOISE_CELLS_PER_BLOCK = 0.046875;
 
@@ -145,21 +145,21 @@ class ClimateLapTest {
     @Test
     void xTakesTheSameValueOneLapAwayOnEveryLattice() {
         for (TranslationLattice lattice : LATTICES) {
-            if (!lattice.x().loops()) {
+            if (!lattice.getX().isLooped()) {
                 continue;
             }
 
             for (double compression : COMPRESSIONS) {
                 ClimateLap lap = new ClimateLap(lattice, compression);
                 for (int mode : MODES) {
-                    for (double distance : EQUATORIAL_DISTANCES) {
+                    for (double distanceBlocks : EQUATORIAL_DISTANCES_BLOCKS) {
                         for (int z : CROSS) {
-                            for (int x = lattice.x().lowerBound - 3; x < lattice.x().lowerBound + 3; x++) {
-                                assertEquals(lap.x(x, z, mode, distance, true),
-                                        lap.x(x + lattice.x().domainLength, z, mode, distance, true));
-                                if (lattice.z().loops()) {
-                                    assertEquals(lap.x(x, z, mode, distance, true), lap.x(x + lattice.skew(),
-                                            z + lattice.z().domainLength, mode, distance, true));
+                            for (int x = lattice.getX().lowerBound - 3; x < lattice.getX().lowerBound + 3; x++) {
+                                assertEquals(lap.x(x, z, mode, distanceBlocks, true),
+                                        lap.x(x + lattice.getX().domainLength, z, mode, distanceBlocks, true));
+                                if (lattice.getZ().isLooped()) {
+                                    assertEquals(lap.x(x, z, mode, distanceBlocks, true), lap.x(x + lattice.getSkew(),
+                                            z + lattice.getZ().domainLength, mode, distanceBlocks, true));
                                 }
                             }
                         }
@@ -172,25 +172,25 @@ class ClimateLapTest {
     @Test
     void xStepsAcrossTheSeamAsBesideIt() {
         for (TranslationLattice lattice : LATTICES) {
-            if (!lattice.x().loops()) {
+            if (!lattice.getX().isLooped()) {
                 continue;
             }
 
             for (double compression : COMPRESSIONS) {
                 ClimateLap lap = new ClimateLap(lattice, compression);
                 for (int mode : MODES) {
-                    for (double distance : EQUATORIAL_DISTANCES) {
-                        int step = (int) Math.ceil(lap.xScale(mode, distance, true));
-                        double turn = ClimateLap.radial(mode) ? 0.0
-                                : lattice.x().domainLength * lap.xScale(mode, distance, true);
+                    for (double distanceBlocks : EQUATORIAL_DISTANCES_BLOCKS) {
+                        int step = (int) Math.ceil(lap.xScale(mode, distanceBlocks, true));
+                        double turn = ClimateLap.isRadial(mode) ? 0.0
+                                : lattice.getX().domainLength * lap.xScale(mode, distanceBlocks, true);
                         for (int z : CROSS) {
-                            int lower = lattice.x().lowerBound;
-                            int upper = lower + lattice.x().domainLength;
-                            int jump = Math.abs(lap.x(lower, z, mode, distance, true)
-                                    - lap.x(upper - 1, z, mode, distance, true));
+                            int lower = lattice.getX().lowerBound;
+                            int upper = lower + lattice.getX().domainLength;
+                            int jump = Math.abs(lap.x(lower, z, mode, distanceBlocks, true)
+                                    - lap.x(upper - 1, z, mode, distanceBlocks, true));
                             assertTrue(jump <= step || Math.abs(jump - turn) <= step + 1, "jump " + jump);
-                            assertTrue(Math.abs(lap.x(upper - 1, z, mode, distance, true)
-                                    - lap.x(upper - 2, z, mode, distance, true)) <= step);
+                            assertTrue(Math.abs(lap.x(upper - 1, z, mode, distanceBlocks, true)
+                                    - lap.x(upper - 2, z, mode, distanceBlocks, true)) <= step);
                         }
                     }
                 }
@@ -201,21 +201,21 @@ class ClimateLapTest {
     @Test
     void xAdvancesAsTheLatitudeOnALoopedZ() {
         for (TranslationLattice lattice : LOOPED_Z) {
-            WrapDomain x = lattice.x();
-            WrapDomain z = lattice.z();
-            int fromX = x.loops() ? x.lowerBound + x.domainLength / 2 : 0;
+            WrapDomain x = lattice.getX();
+            WrapDomain z = lattice.getZ();
+            int fromX = x.isLooped() ? x.lowerBound + x.domainLength / 2 : 0;
             int atZ = z.lowerBound + z.domainLength / 2;
             for (double compression : COMPRESSIONS) {
                 ClimateLap lap = new ClimateLap(lattice, compression);
                 for (int mode : LATITUDE_MODES) {
-                    for (double distance : EQUATORIAL_DISTANCES) {
-                        int span = Math.min(EVEN_SPAN, z.domainLength / (2 * lap.bands(distance)));
-                        int alongZ = Math.abs(lap.z(z.lowerBound + span, mode, distance, EQUATOR_OFFSET, true)
-                                - lap.z(z.lowerBound, mode, distance, EQUATOR_OFFSET, true));
-                        int alongX = Math.abs(lap.x(fromX + span, atZ, mode, distance, true)
-                                - lap.x(fromX, atZ, mode, distance, true));
+                    for (double distanceBlocks : EQUATORIAL_DISTANCES_BLOCKS) {
+                        int spanBlocks = Math.min(EVEN_SPAN_BLOCKS, z.domainLength / (2 * lap.bands(distanceBlocks)));
+                        int alongZ = Math.abs(lap.z(z.lowerBound + spanBlocks, mode, distanceBlocks, EQUATOR_OFFSET_BLOCKS, true)
+                                - lap.z(z.lowerBound, mode, distanceBlocks, EQUATOR_OFFSET_BLOCKS, true));
+                        int alongX = Math.abs(lap.x(fromX + spanBlocks, atZ, mode, distanceBlocks, true)
+                                - lap.x(fromX, atZ, mode, distanceBlocks, true));
                         assertTrue(Math.abs(alongZ - alongX) <= ROUNDING_SLACK,
-                                "z " + alongZ + " x " + alongX + " over " + span);
+                                "z " + alongZ + " x " + alongX + " over " + spanBlocks);
                     }
                 }
             }
@@ -225,17 +225,17 @@ class ClimateLapTest {
     @Test
     void zTakesTheSameValueOneLapAwayInEveryMode() {
         for (TranslationLattice lattice : LATTICES) {
-            if (!lattice.z().loops()) {
+            if (!lattice.getZ().isLooped()) {
                 continue;
             }
 
             for (double compression : COMPRESSIONS) {
                 ClimateLap lap = new ClimateLap(lattice, compression);
                 for (int mode : MODES) {
-                    for (double distance : EQUATORIAL_DISTANCES) {
-                        for (int z = lattice.z().lowerBound - 3; z < lattice.z().lowerBound + 3; z++) {
-                            assertEquals(lap.z(z, mode, distance, EQUATOR_OFFSET, true),
-                                    lap.z(z + lattice.z().domainLength, mode, distance, EQUATOR_OFFSET, true));
+                    for (double distanceBlocks : EQUATORIAL_DISTANCES_BLOCKS) {
+                        for (int z = lattice.getZ().lowerBound - 3; z < lattice.getZ().lowerBound + 3; z++) {
+                            assertEquals(lap.z(z, mode, distanceBlocks, EQUATOR_OFFSET_BLOCKS, true),
+                                    lap.z(z + lattice.getZ().domainLength, mode, distanceBlocks, EQUATOR_OFFSET_BLOCKS, true));
                         }
                     }
                 }
@@ -246,19 +246,19 @@ class ClimateLapTest {
     @Test
     void latitudeStepsAcrossTheSeamAsBesideIt() {
         for (TranslationLattice lattice : LATTICES) {
-            if (!lattice.z().loops()) {
+            if (!lattice.getZ().isLooped()) {
                 continue;
             }
 
             for (double compression : COMPRESSIONS) {
                 ClimateLap lap = new ClimateLap(lattice, compression);
-                for (double distance : EQUATORIAL_DISTANCES) {
-                    int lower = lattice.z().lowerBound;
-                    int upper = lower + lattice.z().domainLength;
-                    int seam = Math.abs(lap.z(lower, 0, distance, EQUATOR_OFFSET, true)
-                            - lap.z(upper - 1, 0, distance, EQUATOR_OFFSET, true));
-                    int beside = Math.abs(lap.z(upper - 1, 0, distance, EQUATOR_OFFSET, true)
-                            - lap.z(upper - 2, 0, distance, EQUATOR_OFFSET, true));
+                for (double distanceBlocks : EQUATORIAL_DISTANCES_BLOCKS) {
+                    int lower = lattice.getZ().lowerBound;
+                    int upper = lower + lattice.getZ().domainLength;
+                    int seam = Math.abs(lap.z(lower, 0, distanceBlocks, EQUATOR_OFFSET_BLOCKS, true)
+                            - lap.z(upper - 1, 0, distanceBlocks, EQUATOR_OFFSET_BLOCKS, true));
+                    int beside = Math.abs(lap.z(upper - 1, 0, distanceBlocks, EQUATOR_OFFSET_BLOCKS, true)
+                            - lap.z(upper - 2, 0, distanceBlocks, EQUATOR_OFFSET_BLOCKS, true));
                     assertTrue(seam <= beside + 1, "seam " + seam + " beside " + beside);
                 }
             }
@@ -269,10 +269,10 @@ class ClimateLapTest {
     void latitudeHasAPoleAtTheSeamAndTheEquatorAtTheCenter() {
         for (double compression : COMPRESSIONS) {
             ClimateLap lap = new ClimateLap(TORUS, compression);
-            for (double distance : EQUATORIAL_DISTANCES) {
-                assertEquals(Math.round(-distance - EQUATOR_OFFSET), lap.z(LAP_DOMAIN.lowerBound, 0, distance,
-                        EQUATOR_OFFSET, true));
-                assertEquals(Math.round(distance - EQUATOR_OFFSET), lap.z(0, 0, distance, EQUATOR_OFFSET, true));
+            for (double distanceBlocks : EQUATORIAL_DISTANCES_BLOCKS) {
+                assertEquals(Math.round(-distanceBlocks - EQUATOR_OFFSET_BLOCKS), lap.z(LAP_DOMAIN.lowerBound, 0, distanceBlocks,
+                        EQUATOR_OFFSET_BLOCKS, true));
+                assertEquals(Math.round(distanceBlocks - EQUATOR_OFFSET_BLOCKS), lap.z(0, 0, distanceBlocks, EQUATOR_OFFSET_BLOCKS, true));
             }
         }
     }
@@ -281,12 +281,12 @@ class ClimateLapTest {
     void bandsAreTheFewestOddCountNoWiderThanTheCompressedSpan() {
         for (double compression : COMPRESSIONS) {
             ClimateLap lap = new ClimateLap(TORUS, compression);
-            for (double distance : EQUATORIAL_DISTANCES) {
-                int bands = lap.bands(distance);
-                double capped = 2.0 * distance / compression;
+            for (double distanceBlocks : EQUATORIAL_DISTANCES_BLOCKS) {
+                int bands = lap.bands(distanceBlocks);
+                double capped = 2.0 * distanceBlocks / compression;
                 assertEquals(1, bands % 2);
-                assertTrue(LAP / (2.0 * bands) <= capped, bands + " bands, cap " + capped);
-                assertTrue(bands == 1 || LAP / (2.0 * (bands - 2)) > capped, bands + " bands, cap " + capped);
+                assertTrue(LAP_BLOCKS / (2.0 * bands) <= capped, bands + " bands, cap " + capped);
+                assertTrue(bands == 1 || LAP_BLOCKS / (2.0 * (bands - 2)) > capped, bands + " bands, cap " + capped);
             }
         }
     }
@@ -296,7 +296,7 @@ class ClimateLapTest {
         for (double compression : COMPRESSIONS) {
             ClimateLap lap = new ClimateLap(TORUS, compression);
             for (int z : CROSS) {
-                assertEquals(Math.round(Math.abs(z) * compression), lap.z(z, 3, 50000.0, EQUATOR_OFFSET, true));
+                assertEquals(Math.round(Math.abs(z) * compression), lap.z(z, 3, 50000.0, EQUATOR_OFFSET_BLOCKS, true));
                 assertEquals(Math.round(Math.abs(z) * compression), lap.x(z, 0, RADIAL_MODE, 50000.0, true));
             }
         }
@@ -305,11 +305,11 @@ class ClimateLapTest {
     @Test
     void radialModesKeepTheSideOfTheLapCenterForTheDisplacement() {
         for (TranslationLattice lattice : List.of(TORUS, SKEWED, CYLINDER_X, OFF_CENTER)) {
-            int center = lattice.x().lowerBound + lattice.x().domainLength / 2;
+            int center = lattice.getX().lowerBound + lattice.getX().domainLength / 2;
             for (double compression : COMPRESSIONS) {
                 ClimateLap lap = new ClimateLap(lattice, compression);
                 for (int mode : RADIAL_MODES) {
-                    assertSignedX(lap, lattice.x(), center, mode);
+                    assertSignedX(lap, lattice.getX(), center, mode);
                 }
             }
         }
@@ -318,7 +318,7 @@ class ClimateLapTest {
     private static void assertSignedX(ClimateLap lap, WrapDomain x, int center, int mode) {
         double handedLap = x.domainLength * lap.xScale(mode, 50000.0, true);
         int differing = 0;
-        for (int fromCenter : SIDE_REACH) {
+        for (int fromCenter : SIDE_REACH_BLOCKS) {
             int east = lap.signedX(center + fromCenter, 0, mode, 50000.0, true);
             int west = lap.signedX(center - fromCenter, 0, mode, 50000.0, true);
             assertTrue(east > 0 && west < 0, "east " + east + " west " + west);
@@ -340,12 +340,12 @@ class ClimateLapTest {
             ClimateLap cylinderZ = new ClimateLap(CYLINDER_Z, compression);
             for (int coord : CROSS) {
                 for (int mode : MODES) {
-                    assertEquals(Math.round(coord * compression), cylinderX.z(coord, mode, 50000.0, EQUATOR_OFFSET, true));
+                    assertEquals(Math.round(coord * compression), cylinderX.z(coord, mode, 50000.0, EQUATOR_OFFSET_BLOCKS, true));
                 }
 
                 assertEquals(Math.round(coord * compression), cylinderZ.x(coord, 0, RADIAL_MODE, 50000.0, true));
                 for (int mode : MODES) {
-                    assertEquals(Math.round((ClimateLap.radial(mode) ? Math.abs(coord) : coord) * compression),
+                    assertEquals(Math.round((ClimateLap.isRadial(mode) ? Math.abs(coord) : coord) * compression),
                             cylinderX.x(coord, 0, mode, 50000.0, true));
                 }
             }
@@ -356,7 +356,7 @@ class ClimateLapTest {
     void noEquatorialDistanceKeepsTheBlock() {
         ClimateLap lap = new ClimateLap(TORUS, 1.0);
         for (int z : CROSS) {
-            assertEquals(z, lap.z(z, 0, 0.0, EQUATOR_OFFSET, true));
+            assertEquals(z, lap.z(z, 0, 0.0, EQUATOR_OFFSET_BLOCKS, true));
         }
     }
 
@@ -364,7 +364,7 @@ class ClimateLapTest {
     void ownScaleKeepsTheMirroredDistanceFromTheLapCenter() {
         for (TranslationLattice lattice : LOOPED_Z) {
             for (double compression : COMPRESSIONS) {
-                assertOwnScaleZ(new ClimateLap(lattice, compression), lattice.z(), compression);
+                assertOwnScaleZ(new ClimateLap(lattice, compression), lattice.getZ(), compression);
             }
         }
     }
@@ -372,14 +372,14 @@ class ClimateLapTest {
     private static void assertOwnScaleZ(ClimateLap lap, WrapDomain z, double compression) {
         int center = z.lowerBound + z.domainLength / 2;
         for (int mode : LATITUDE_MODES) {
-            for (double distance : EQUATORIAL_DISTANCES) {
-                assertEquals(0, lap.z(center, mode, distance, EQUATOR_OFFSET, false));
-                for (int fromCenter : OWN_SCALE_REACH) {
+            for (double distanceBlocks : EQUATORIAL_DISTANCES_BLOCKS) {
+                assertEquals(0, lap.z(center, mode, distanceBlocks, EQUATOR_OFFSET_BLOCKS, false));
+                for (int fromCenter : OWN_SCALE_REACH_BLOCKS) {
                     int expected = (int) -Math.round(fromCenter * compression);
-                    assertEquals(expected, lap.z(center + fromCenter, mode, distance, EQUATOR_OFFSET, false));
-                    assertEquals(expected, lap.z(center - fromCenter, mode, distance, EQUATOR_OFFSET, false));
+                    assertEquals(expected, lap.z(center + fromCenter, mode, distanceBlocks, EQUATOR_OFFSET_BLOCKS, false));
+                    assertEquals(expected, lap.z(center - fromCenter, mode, distanceBlocks, EQUATOR_OFFSET_BLOCKS, false));
                     assertEquals(expected,
-                            lap.z(center + fromCenter + z.domainLength, mode, distance, EQUATOR_OFFSET, false));
+                            lap.z(center + fromCenter + z.domainLength, mode, distanceBlocks, EQUATOR_OFFSET_BLOCKS, false));
                 }
             }
         }
@@ -389,24 +389,24 @@ class ClimateLapTest {
     void ownScaleReachesTheModsPoleOnlyOnALapWiderThanTheBand() {
         ClimateLap lap = new ClimateLap(TORUS, 1.0);
         int edge = LAP_DOMAIN.lowerBound;
-        assertEquals(-WIDE_LAP_DISTANCE, lap.z(WIDE_LAP_DISTANCE, 0, WIDE_LAP_DISTANCE, 0.0, false));
-        assertEquals(-WIDE_LAP_DISTANCE, lap.z(-WIDE_LAP_DISTANCE, 0, WIDE_LAP_DISTANCE, 0.0, false));
-        assertEquals(-2 * WIDE_LAP_DISTANCE, lap.z(2 * WIDE_LAP_DISTANCE, 0, WIDE_LAP_DISTANCE, 0.0, false));
-        assertEquals(-LAP / 2, lap.z(edge, 0, WIDE_LAP_DISTANCE, 0.0, false));
-        assertEquals(-LAP / 2, lap.z(edge, 0, NARROW_LAP_DISTANCE, 0.0, false));
-        assertTrue(lap.z(edge, 0, WIDE_LAP_DISTANCE, 0.0, false) <= -WIDE_LAP_DISTANCE);
-        assertTrue(lap.z(edge, 0, NARROW_LAP_DISTANCE, 0.0, false) > -NARROW_LAP_DISTANCE);
+        assertEquals(-WIDE_LAP_DISTANCE_BLOCKS, lap.z(WIDE_LAP_DISTANCE_BLOCKS, 0, WIDE_LAP_DISTANCE_BLOCKS, 0.0, false));
+        assertEquals(-WIDE_LAP_DISTANCE_BLOCKS, lap.z(-WIDE_LAP_DISTANCE_BLOCKS, 0, WIDE_LAP_DISTANCE_BLOCKS, 0.0, false));
+        assertEquals(-2 * WIDE_LAP_DISTANCE_BLOCKS, lap.z(2 * WIDE_LAP_DISTANCE_BLOCKS, 0, WIDE_LAP_DISTANCE_BLOCKS, 0.0, false));
+        assertEquals(-LAP_BLOCKS / 2, lap.z(edge, 0, WIDE_LAP_DISTANCE_BLOCKS, 0.0, false));
+        assertEquals(-LAP_BLOCKS / 2, lap.z(edge, 0, NARROW_LAP_DISTANCE_BLOCKS, 0.0, false));
+        assertTrue(lap.z(edge, 0, WIDE_LAP_DISTANCE_BLOCKS, 0.0, false) <= -WIDE_LAP_DISTANCE_BLOCKS);
+        assertTrue(lap.z(edge, 0, NARROW_LAP_DISTANCE_BLOCKS, 0.0, false) > -NARROW_LAP_DISTANCE_BLOCKS);
     }
 
     @Test
     void ownScaleStepsAcrossTheZSeamAsBesideIt() {
         for (TranslationLattice lattice : LOOPED_Z) {
-            int lower = lattice.z().lowerBound;
-            int upper = lower + lattice.z().domainLength;
+            int lower = lattice.getZ().lowerBound;
+            int upper = lower + lattice.getZ().domainLength;
             for (double compression : COMPRESSIONS) {
                 ClimateLap lap = new ClimateLap(lattice, compression);
-                int seam = Math.abs(lap.z(lower, 0, 50000.0, EQUATOR_OFFSET, false)
-                        - lap.z(upper - 1, 0, 50000.0, EQUATOR_OFFSET, false));
+                int seam = Math.abs(lap.z(lower, 0, 50000.0, EQUATOR_OFFSET_BLOCKS, false)
+                        - lap.z(upper - 1, 0, 50000.0, EQUATOR_OFFSET_BLOCKS, false));
                 assertTrue(seam <= Math.ceil(compression), "seam " + seam);
             }
         }
@@ -422,18 +422,18 @@ class ClimateLapTest {
     }
 
     private static void assertOwnScaleAdvance(ClimateLap lap, TranslationLattice lattice, double compression) {
-        WrapDomain x = lattice.x();
-        WrapDomain z = lattice.z();
-        int fromX = x.loops() ? x.lowerBound + x.domainLength / 2 : 0;
+        WrapDomain x = lattice.getX();
+        WrapDomain z = lattice.getZ();
+        int fromX = x.isLooped() ? x.lowerBound + x.domainLength / 2 : 0;
         int atZ = z.lowerBound + z.domainLength / 2;
-        long expected = Math.round(EVEN_SPAN * compression);
+        long expected = Math.round(EVEN_SPAN_BLOCKS * compression);
         for (int mode : LATITUDE_MODES) {
-            for (double distance : EQUATORIAL_DISTANCES) {
-                assertEquals(compression, lap.xScale(mode, distance, false));
-                int alongZ = Math.abs(lap.z(atZ + EVEN_SPAN, mode, distance, EQUATOR_OFFSET, false)
-                        - lap.z(atZ, mode, distance, EQUATOR_OFFSET, false));
-                int alongX = Math.abs(lap.x(fromX + EVEN_SPAN, atZ, mode, distance, false)
-                        - lap.x(fromX, atZ, mode, distance, false));
+            for (double distanceBlocks : EQUATORIAL_DISTANCES_BLOCKS) {
+                assertEquals(compression, lap.xScale(mode, distanceBlocks, false));
+                int alongZ = Math.abs(lap.z(atZ + EVEN_SPAN_BLOCKS, mode, distanceBlocks, EQUATOR_OFFSET_BLOCKS, false)
+                        - lap.z(atZ, mode, distanceBlocks, EQUATOR_OFFSET_BLOCKS, false));
+                int alongX = Math.abs(lap.x(fromX + EVEN_SPAN_BLOCKS, atZ, mode, distanceBlocks, false)
+                        - lap.x(fromX, atZ, mode, distanceBlocks, false));
                 assertTrue(Math.abs(alongZ - expected) <= ROUNDING_SLACK, "z " + alongZ + " for " + expected);
                 assertTrue(Math.abs(alongX - expected) <= ROUNDING_SLACK, "x " + alongX + " for " + expected);
             }
@@ -450,12 +450,12 @@ class ClimateLapTest {
     }
 
     private static void assertOwnScaleXLaps(ClimateLap lap, TranslationLattice lattice) {
-        int lower = lattice.x().lowerBound;
+        int lower = lattice.getX().lowerBound;
         for (int z : CROSS) {
             for (int x = lower - 3; x < lower + 3; x++) {
                 int here = lap.x(x, z, 0, 50000.0, false);
-                assertEquals(here, lap.x(x + lattice.x().domainLength, z, 0, 50000.0, false));
-                assertEquals(here, lap.x(x + lattice.skew(), z + lattice.z().domainLength, 0, 50000.0, false));
+                assertEquals(here, lap.x(x + lattice.getX().domainLength, z, 0, 50000.0, false));
+                assertEquals(here, lap.x(x + lattice.getSkew(), z + lattice.getZ().domainLength, 0, 50000.0, false));
             }
         }
     }
@@ -463,12 +463,12 @@ class ClimateLapTest {
     @Test
     void xKeepsItsSideOfTheLapCenterOutsideRadialModes() {
         for (TranslationLattice lattice : List.of(TORUS, CYLINDER_X, OFF_CENTER)) {
-            int center = lattice.x().lowerBound + lattice.x().domainLength / 2;
+            int center = lattice.getX().lowerBound + lattice.getX().domainLength / 2;
             for (double compression : COMPRESSIONS) {
                 ClimateLap lap = new ClimateLap(lattice, compression);
                 for (int mode : LATITUDE_MODES) {
                     for (boolean looping : LOOPING_WORLD) {
-                        for (int fromCenter : SIDE_REACH) {
+                        for (int fromCenter : SIDE_REACH_BLOCKS) {
                             int east = lap.x(center + fromCenter, 0, mode, 50000.0, looping);
                             int west = lap.x(center - fromCenter, 0, mode, 50000.0, looping);
                             assertTrue(east != west, "mirrored at " + fromCenter);
@@ -508,18 +508,18 @@ class ClimateLapTest {
 
     @Test
     void theWaveIsFlatWithNoAmplitudeOrRate() {
-        assertEquals(0.0, ClimateLap.wave(CELLS, WAVE_SEED, 517.0, LAP, 0.0, 0.0005));
-        assertEquals(0.0, ClimateLap.wave(CELLS, WAVE_SEED, 517.0, LAP, WAVE_AMPLITUDE, 0.0));
+        assertEquals(0.0, ClimateLap.wave(CELLS, WAVE_SEED, 517.0, LAP_BLOCKS, 0.0, 0.0005));
+        assertEquals(0.0, ClimateLap.wave(CELLS, WAVE_SEED, 517.0, LAP_BLOCKS, WAVE_AMPLITUDE, 0.0));
     }
 
     @Test
     void theSixZoneCirclesAreRadialAndTheDiscreteModesFollowTheLatitude() {
         for (int mode : RADIAL_MODES) {
-            assertTrue(ClimateLap.radial(mode), "mode " + mode);
+            assertTrue(ClimateLap.isRadial(mode), "mode " + mode);
         }
 
         for (int mode : LATITUDE_MODES) {
-            assertTrue(!ClimateLap.radial(mode), "mode " + mode);
+            assertTrue(!ClimateLap.isRadial(mode), "mode " + mode);
         }
     }
 
@@ -527,14 +527,14 @@ class ClimateLapTest {
     void aCustomModeNamingARadialBodyIsRadial() {
         for (int mode : CUSTOM_MODES) {
             for (String body : RADIAL_BODIES) {
-                assertTrue(ClimateLap.radial(ClimateLap.mode(mode, body)), "mode " + mode + " with " + body);
+                assertTrue(ClimateLap.isRadial(ClimateLap.mode(mode, body)), "mode " + mode + " with " + body);
             }
 
             for (String body : LATITUDE_BODIES) {
-                assertTrue(!ClimateLap.radial(ClimateLap.mode(mode, body)), "mode " + mode + " with " + body);
+                assertTrue(!ClimateLap.isRadial(ClimateLap.mode(mode, body)), "mode " + mode + " with " + body);
             }
 
-            assertTrue(!ClimateLap.radial(ClimateLap.mode(mode, null)), "mode " + mode + " with no id");
+            assertTrue(!ClimateLap.isRadial(ClimateLap.mode(mode, null)), "mode " + mode + " with no id");
         }
     }
 
@@ -552,24 +552,24 @@ class ClimateLapTest {
         for (TranslationLattice lattice : LOOPED_Z) {
             for (double compression : COMPRESSIONS) {
                 ClimateLap lap = new ClimateLap(lattice, compression);
-                for (double distance : EQUATORIAL_DISTANCES) {
+                for (double distanceBlocks : EQUATORIAL_DISTANCES_BLOCKS) {
                     for (boolean looping : LOOPING_WORLD) {
-                        assertFoldAfterDisplacement(lap, lattice.z(), distance, looping);
+                        assertFoldAfterDisplacement(lap, lattice.getZ(), distanceBlocks, looping);
                     }
                 }
             }
         }
     }
 
-    private static void assertFoldAfterDisplacement(ClimateLap lap, WrapDomain z, double distance, boolean looping) {
-        double scale = lap.xScale(0, distance, looping);
+    private static void assertFoldAfterDisplacement(ClimateLap lap, WrapDomain z, double distanceBlocks, boolean looping) {
+        double scale = lap.xScale(0, distanceBlocks, looping);
         for (int blockZ : CROSS) {
-            int handed = lap.z(blockZ, 0, distance, EQUATOR_OFFSET, looping);
-            double carried = lap.carriedWave(blockZ, handed, WAVE, DISTORTION, 0, distance, EQUATOR_OFFSET, looping);
-            double displaced = lap.latitude(blockZ + (DISTORTION + WAVE) / scale, distance, EQUATOR_OFFSET, looping);
+            int handed = lap.z(blockZ, 0, distanceBlocks, EQUATOR_OFFSET_BLOCKS, looping);
+            double carried = lap.carriedWave(blockZ, handed, WAVE, DISTORTION, 0, distanceBlocks, EQUATOR_OFFSET_BLOCKS, looping);
+            double displaced = lap.latitude(blockZ + (DISTORTION + WAVE) / scale, distanceBlocks, EQUATOR_OFFSET_BLOCKS, looping);
             assertEquals(displaced, handed + DISTORTION + carried, FOLD_SLACK);
-            assertEquals(carried, lap.carriedWave(blockZ + z.domainLength, handed, WAVE, DISTORTION, 0, distance,
-                    EQUATOR_OFFSET, looping), FOLD_SLACK);
+            assertEquals(carried, lap.carriedWave(blockZ + z.domainLength, handed, WAVE, DISTORTION, 0, distanceBlocks,
+                    EQUATOR_OFFSET_BLOCKS, looping), FOLD_SLACK);
         }
     }
 
@@ -577,10 +577,10 @@ class ClimateLapTest {
     void aDisplacementMovesBothSidesOfTheCenterTheSameWay() {
         ClimateLap lap = new ClimateLap(TORUS, 1.0);
         for (boolean looping : LOOPING_WORLD) {
-            double north = lap.latitude(-EVEN_SPAN + WAVE, 2048.0, 0.0, looping)
-                    - lap.latitude(-EVEN_SPAN, 2048.0, 0.0, looping);
-            double south = lap.latitude(EVEN_SPAN + WAVE, 2048.0, 0.0, looping)
-                    - lap.latitude(EVEN_SPAN, 2048.0, 0.0, looping);
+            double north = lap.latitude(-EVEN_SPAN_BLOCKS + WAVE, 2048.0, 0.0, looping)
+                    - lap.latitude(-EVEN_SPAN_BLOCKS, 2048.0, 0.0, looping);
+            double south = lap.latitude(EVEN_SPAN_BLOCKS + WAVE, 2048.0, 0.0, looping)
+                    - lap.latitude(EVEN_SPAN_BLOCKS, 2048.0, 0.0, looping);
             assertEquals(-north, south, FOLD_SLACK);
             assertTrue(Math.abs(north) > FOLD_SLACK);
         }
@@ -589,9 +589,9 @@ class ClimateLapTest {
     @Test
     void theWaveIsLeftAloneOnAnOpenZAndInRadialModes() {
         assertEquals(WAVE, new ClimateLap(CYLINDER_X, 2.0).carriedWave(517, 1034, WAVE, DISTORTION, 0, 50000.0,
-                EQUATOR_OFFSET, true));
+                EQUATOR_OFFSET_BLOCKS, true));
         assertEquals(WAVE, new ClimateLap(TORUS, 2.0).carriedWave(517, 1034, WAVE, DISTORTION, RADIAL_MODE, 50000.0,
-                EQUATOR_OFFSET, true));
+                EQUATOR_OFFSET_BLOCKS, true));
     }
 
     @Test
@@ -600,21 +600,21 @@ class ClimateLapTest {
             for (double compression : COMPRESSIONS) {
                 ClimateLap lap = new ClimateLap(lattice, compression);
                 for (int mode : MODES) {
-                    assertBandsOnTheLap(lap, lattice.x(), mode);
+                    assertBandsOnTheLap(lap, lattice.getX(), mode);
                 }
             }
         }
 
-        assertEquals(500.0, new ClimateLap(CYLINDER_Z, 2.0).lapBandWidth(500.0, 0, 50000.0, true));
+        assertEquals(500.0, new ClimateLap(CYLINDER_Z, 2.0).lapBandWidthBlocks(500.0, 0, 50000.0, true));
     }
 
     private static void assertBandsOnTheLap(ClimateLap lap, WrapDomain x, int mode) {
         double handedLap = x.domainLength * lap.xScale(mode, 50000.0, true);
-        for (double width : BAND_WIDTHS) {
-            double fitted = lap.lapBandWidth(width, mode, 50000.0, true);
+        for (double widthBlocks : BAND_WIDTHS_BLOCKS) {
+            double fitted = lap.lapBandWidthBlocks(widthBlocks, mode, 50000.0, true);
             double repeats = handedLap / (4.0 * fitted);
             assertEquals(Math.rint(repeats), repeats, TURN_SLACK);
-            assertTrue(fitted <= width + TURN_SLACK, fitted + " over " + width);
+            assertTrue(fitted <= widthBlocks + TURN_SLACK, fitted + " over " + widthBlocks);
         }
     }
 
@@ -632,16 +632,16 @@ class ClimateLapTest {
 
     private static void assertNoiseOnTheLap(ClimateLap lap, TranslationLattice lattice, byte[] permutations,
             int mode) {
-        int lapX = lattice.x().loops() ? lattice.x().domainLength : 0;
-        int lapZ = lattice.z().loops() ? lattice.z().domainLength : 0;
+        int lapX = lattice.getX().isLooped() ? lattice.getX().domainLength : 0;
+        int lapZ = lattice.getZ().isLooped() ? lattice.getZ().domainLength : 0;
         int differing = 0;
         for (int x : CROSS) {
             for (int z : CROSS) {
                 double here = noiseAt(lap, permutations, x, z, mode);
                 assertEquals(here, noiseAt(lap, permutations, x + lapX, z, mode), NOISE_SLACK);
-                assertEquals(here, noiseAt(lap, permutations, x + lattice.skew(), z + lapZ, mode), NOISE_SLACK);
-                int mirrorX = 2 * (lattice.x().lowerBound + lapX / 2) - x;
-                int mirrorZ = 2 * (lattice.z().lowerBound + lapZ / 2) - z;
+                assertEquals(here, noiseAt(lap, permutations, x + lattice.getSkew(), z + lapZ, mode), NOISE_SLACK);
+                int mirrorX = 2 * (lattice.getX().lowerBound + lapX / 2) - x;
+                int mirrorZ = 2 * (lattice.getZ().lowerBound + lapZ / 2) - z;
                 if (lapX != 0 && Math.abs(here - noiseAt(lap, permutations, mirrorX, z, mode)) > NOISE_SLACK) {
                     differing++;
                 }
@@ -658,7 +658,7 @@ class ClimateLapTest {
     private static double noiseAt(ClimateLap lap, byte[] permutations, int blockX, int blockZ, int mode) {
         double scale = lap.xScale(mode, 50000.0, true);
         return lap.noise(permutations, 3.25, 7.5, 11.75, NOISE_CELLS_PER_BLOCK,
-                lap.signedX(blockX, blockZ, mode, 50000.0, true), lap.z(blockZ, mode, 50000.0, EQUATOR_OFFSET, true),
+                lap.signedX(blockX, blockZ, mode, 50000.0, true), lap.z(blockZ, mode, 50000.0, EQUATOR_OFFSET_BLOCKS, true),
                 blockZ, scale, lap.shrink(NOISE_CELLS_PER_BLOCK, scale));
     }
 
@@ -668,14 +668,14 @@ class ClimateLapTest {
                 .create(new LegacyRandomSource(NOISE_SEED));
         for (TranslationLattice lattice : LATTICES) {
             ClimateLap lap = new ClimateLap(lattice, 1.5);
-            int lapX = lattice.x().loops() ? lattice.x().domainLength : 0;
-            int lapZ = lattice.z().loops() ? lattice.z().domainLength : 0;
+            int lapX = lattice.getX().isLooped() ? lattice.getX().domainLength : 0;
+            int lapZ = lattice.getZ().isLooped() ? lattice.getZ().domainLength : 0;
             double span = 0.0;
             for (int x : CROSS) {
                 for (int z : CROSS) {
                     double here = stackAt(lap, stack, x, z);
                     assertEquals(here, stackAt(lap, stack, x + lapX, z), NOISE_SLACK);
-                    assertEquals(here, stackAt(lap, stack, x + lattice.skew(), z + lapZ), NOISE_SLACK);
+                    assertEquals(here, stackAt(lap, stack, x + lattice.getSkew(), z + lapZ), NOISE_SLACK);
                     span = Math.max(span, Math.abs(here));
                 }
             }
@@ -690,10 +690,10 @@ class ClimateLapTest {
                 .create(new LegacyRandomSource(NOISE_SEED));
         NoiseStack detail = (NoiseStack) NormalNoise.createParity(-7, 1.0).create(new LegacyRandomSource(NOISE_SEED));
         for (TranslationLattice lattice : List.of(TORUS, SKEWED, CYLINDER_X, OFF_CENTER)) {
-            for (double distance : EQUATORIAL_DISTANCES) {
+            for (double distanceBlocks : EQUATORIAL_DISTANCES_BLOCKS) {
                 ClimateLap lap = new ClimateLap(lattice, 1.5);
-                double scale = lap.xScale(0, distance, true);
-                double handedLap = lattice.x().domainLength * scale;
+                double scale = lap.xScale(0, distanceBlocks, true);
+                double handedLap = lattice.getX().domainLength * scale;
                 for (int z : CROSS) {
                     for (NoiseStack stack : List.of(large, detail)) {
                         double here = lap.noise(stack, DETAIL_SCALE, -handedLap / 2.0, 0.0, z, scale);
@@ -709,11 +709,11 @@ class ClimateLapTest {
     void aSqueezedNoiseStackKeepsItsMeanSlope() {
         NoiseStack large = (NoiseStack) NormalNoise.createParity(-14, -14.0, -14.0, -14.0)
                 .create(new LegacyRandomSource(NOISE_SEED));
-        WrapDomain narrow = new WrapDomain(-NARROW_LAP / 2, NARROW_LAP / 2);
-        WrapDomain wide = new WrapDomain(-WIDE_LAP / 2, WIDE_LAP / 2);
+        WrapDomain narrow = new WrapDomain(-NARROW_LAP_BLOCKS / 2, NARROW_LAP_BLOCKS / 2);
+        WrapDomain wide = new WrapDomain(-WIDE_LAP_BLOCKS / 2, WIDE_LAP_BLOCKS / 2);
         double squeezed = meanSlope(new ClimateLap(TranslationLattice.unskewed(narrow, narrow), 1.0), large,
-                NARROW_LAP, 1);
-        double shipped = meanSlope(new ClimateLap(TranslationLattice.unskewed(wide, wide), 1.0), large, WIDE_LAP,
+                NARROW_LAP_BLOCKS, 1);
+        double shipped = meanSlope(new ClimateLap(TranslationLattice.unskewed(wide, wide), 1.0), large, WIDE_LAP_BLOCKS,
                 WIDE_STRIDE);
         assertTrue(squeezed < STEEPER_SLACK * shipped && shipped < FLATTER_SLACK * squeezed,
                 "squeezed " + squeezed + " shipped " + shipped);
@@ -733,7 +733,7 @@ class ClimateLapTest {
 
     private static double stackAt(ClimateLap lap, NoiseStack stack, int blockX, int blockZ) {
         return lap.noise(stack, DETAIL_SCALE, lap.x(blockX, blockZ, 0, 50000.0, true),
-                lap.z(blockZ, 0, 50000.0, EQUATOR_OFFSET, true), blockZ, lap.xScale(0, 50000.0, true));
+                lap.z(blockZ, 0, 50000.0, EQUATOR_OFFSET_BLOCKS, true), blockZ, lap.xScale(0, 50000.0, true));
     }
 
     private static byte[] permutations() {

@@ -1,0 +1,566 @@
+package com.exoticworlds.core.fold.loop;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import org.jspecify.annotations.Nullable;
+
+import com.exoticworlds.core.fold.DeckTransformation;
+import com.exoticworlds.core.fold.SeamBoxes;
+import com.exoticworlds.core.fold.SeamTransform;
+import com.exoticworlds.core.fold.TranslationLattice;
+import com.exoticworlds.core.fold.WorldFold;
+import com.exoticworlds.core.fold.WrapDomain;
+import com.exoticworlds.core.fold.cuboid.CuboidAtlas;
+import com.exoticworlds.core.option.ShapeOptions;
+import com.exoticworlds.core.world.WorldLoopBounds.AxisBounds;
+import com.exoticworlds.core.world.WorldLoopBounds;
+
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.core.SectionPos;
+import net.minecraft.world.level.ChunkPos;
+import net.minecraft.world.level.levelgen.structure.BoundingBox;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec3;
+
+public final class WorldLoopFold implements WorldFold {
+    private final CoordOps coords;
+    private final ChunkOps chunks;
+    private final VectorOps vectors;
+    private final BlockOps blocks;
+
+    private final TranslationLattice blockLattice;
+    private final TranslationLattice chunkLattice;
+
+    private final WorldLoopBounds bounds;
+
+    private final boolean isWrapped;
+
+    private final ShapeOptions options;
+
+    private final int maxViewDistanceChunks;
+
+    public WorldLoopFold(WorldLoopBounds bounds, ShapeOptions options) {
+        this.bounds = bounds;
+        boolean isXLooped = bounds.x() instanceof AxisBounds.Looped;
+        boolean isZLooped = bounds.z() instanceof AxisBounds.Looped;
+        this.isWrapped = isXLooped || isZLooped;
+        this.options = options;
+        this.maxViewDistanceChunks = bounds.getMaxViewDistanceChunks();
+
+        this.coords = new CoordOps(blockDomainFor(bounds.x()), blockDomainFor(bounds.z()));
+        this.chunks = new ChunkOps(chunkDomainFor(bounds.x()), chunkDomainFor(bounds.z()));
+        this.vectors = new VectorOps();
+        this.blocks = new BlockOps();
+        this.blockLattice = TranslationLattice.unskewed(this.coords.x, this.coords.z);
+        this.chunkLattice = TranslationLattice.unskewed(this.chunks.x, this.chunks.z);
+    }
+
+    private static WrapDomain chunkDomainFor(AxisBounds axis) {
+        return switch (axis) {
+            case AxisBounds.Looped looped -> new WrapDomain(looped.minChunk(), looped.maxChunk());
+            case AxisBounds.Unbounded() -> new WrapDomain.Noop();
+        };
+    }
+
+    private static WrapDomain blockDomainFor(AxisBounds axis) {
+        return switch (axis) {
+            case AxisBounds.Looped looped -> new WrapDomain(looped.getMinBlock(), looped.getMaxBlock());
+            case AxisBounds.Unbounded() -> new WrapDomain.Noop();
+        };
+    }
+
+    private static final class CoordOps {
+        private final WrapDomain x;
+        private final WrapDomain z;
+
+        private CoordOps(WrapDomain x, WrapDomain z) {
+            this.x = x;
+            this.z = z;
+        }
+    }
+
+    private static final class ChunkOps {
+        private final WrapDomain x;
+        private final WrapDomain z;
+
+        private ChunkOps(WrapDomain x, WrapDomain z) {
+            this.x = x;
+            this.z = z;
+        }
+
+        private ChunkPos wrap(ChunkPos chunkPos) {
+            if (!x.isOver(chunkPos.x()) && !z.isOver(chunkPos.z())) {
+                return chunkPos;
+            }
+
+            return new ChunkPos(x.wrap(chunkPos.x()), z.wrap(chunkPos.z()));
+        }
+
+        private SectionPos wrapSection(SectionPos sectionPos) {
+            if (!x.isOver(sectionPos.x()) && !z.isOver(sectionPos.z())) {
+                return sectionPos;
+            }
+
+            return SectionPos.of(x.wrap(sectionPos.x()), sectionPos.y(), z.wrap(sectionPos.z()));
+        }
+
+        private long wrapSectionNode(long sectionNode) {
+            int sectionX = SectionPos.x(sectionNode);
+            int sectionZ = SectionPos.z(sectionNode);
+            if (!x.isOver(sectionX) && !z.isOver(sectionZ)) {
+                return sectionNode;
+            }
+
+            return SectionPos.asLong(x.wrap(sectionX), SectionPos.y(sectionNode), z.wrap(sectionZ));
+        }
+
+        private long wrapChunkKey(long chunkKey) {
+            int chunkX = ChunkPos.getX(chunkKey);
+            int chunkZ = ChunkPos.getZ(chunkKey);
+            if (!x.isOver(chunkX) && !z.isOver(chunkZ)) {
+                return chunkKey;
+            }
+
+            return ChunkPos.pack(x.wrap(chunkX), z.wrap(chunkZ));
+        }
+
+        private ChunkPos unwrap(ChunkPos anchor, ChunkPos wrapped) {
+            int unwrappedX = x.unwrapAround(anchor.x(), wrapped.x());
+            int unwrappedZ = z.unwrapAround(anchor.z(), wrapped.z());
+            if (unwrappedX == wrapped.x() && unwrappedZ == wrapped.z()) {
+                return wrapped;
+            }
+
+            return new ChunkPos(unwrappedX, unwrappedZ);
+        }
+
+        private long unwrapKey(long anchorKey, long chunkKey) {
+            return ChunkPos.pack(
+                    x.unwrapAround(ChunkPos.getX(anchorKey), ChunkPos.getX(chunkKey)),
+                    z.unwrapAround(ChunkPos.getZ(anchorKey), ChunkPos.getZ(chunkKey)));
+        }
+
+        private boolean isOver(ChunkPos chunkPos) {
+            return x.isOver(chunkPos.x()) || z.isOver(chunkPos.z());
+        }
+
+        private int overshoot(int chunkX, int chunkZ) {
+            return Math.max(x.overshoot(chunkX), z.overshoot(chunkZ));
+        }
+    }
+
+    private final class VectorOps {
+        private Vec3 wrap(Vec3 vec) {
+            if (!coords.x.isOver(vec.x) && !coords.z.isOver(vec.z)) {
+                return vec;
+            }
+
+            return new Vec3(coords.x.wrap(vec.x), vec.y, coords.z.wrap(vec.z));
+        }
+
+        private Vec3 nearestCopy(Vec3 ref, Vec3 target) {
+            double nearestX = coords.x.unwrapAround(ref.x, target.x);
+            double nearestZ = coords.z.unwrapAround(ref.z, target.z);
+            if (nearestX == target.x && nearestZ == target.z) {
+                return target;
+            }
+
+            return new Vec3(nearestX, target.y, nearestZ);
+        }
+
+        private boolean isOver(Vec3 vec) {
+            return coords.x.isOver(vec.x) || coords.z.isOver(vec.z);
+        }
+    }
+
+    private final class BlockOps {
+        private BlockPos wrap(BlockPos blockPos) {
+            if (!coords.x.isOver(blockPos.getX()) && !coords.z.isOver(blockPos.getZ())) {
+                return blockPos;
+            }
+
+            return new BlockPos(coords.x.wrap(blockPos.getX()), blockPos.getY(), coords.z.wrap(blockPos.getZ()));
+        }
+
+        private BlockPos nearestCopy(BlockPos ref, BlockPos target) {
+            int nearestX = coords.x.unwrapAround(ref.getX(), target.getX());
+            int nearestZ = coords.z.unwrapAround(ref.getZ(), target.getZ());
+            if (nearestX == target.getX() && nearestZ == target.getZ()) {
+                return target;
+            }
+
+            return new BlockPos(nearestX, target.getY(), nearestZ);
+        }
+    }
+
+    @Override
+    public boolean isCrossingBounds(AABB box) {
+        return SeamBoxes.isCrossing(coords.x, coords.z, box);
+    }
+
+    private List<AABB> splitAcrossBounds(AABB box) {
+        if (!isCrossingBounds(box)) {
+            return List.of(box);
+        }
+
+        List<double[]> xSpans = coords.x.spans(box.minX, box.maxX);
+        List<double[]> zSpans = coords.z.spans(box.minZ, box.maxZ);
+        List<AABB> pieces = new ArrayList<>(xSpans.size() * zSpans.size());
+        for (double[] xSpan : xSpans) {
+            for (double[] zSpan : zSpans) {
+                pieces.add(new AABB(xSpan[0], box.minY, zSpan[0], xSpan[1], box.maxY, zSpan[1]));
+            }
+        }
+
+        return pieces;
+    }
+
+    @Override
+    public boolean isCrossingBounds(BoundingBox region) {
+        return SeamBoxes.isCrossing(coords.x, coords.z, region);
+    }
+
+    private List<BoundingBox> splitAcrossBounds(BoundingBox region) {
+        if (!isCrossingBounds(region)) {
+            return List.of(region);
+        }
+
+        List<int[]> xSpans = coords.x.cellSpans(region.minX(), region.maxX());
+        List<int[]> zSpans = coords.z.cellSpans(region.minZ(), region.maxZ());
+        List<BoundingBox> pieces = new ArrayList<>(xSpans.size() * zSpans.size());
+        for (int[] xSpan : xSpans) {
+            for (int[] zSpan : zSpans) {
+                pieces.add(new BoundingBox(xSpan[0], region.minY(), zSpan[0], xSpan[1], region.maxY(), zSpan[1]));
+            }
+        }
+
+        return pieces;
+    }
+
+    @Override
+    public boolean areRegionsOverlapping(BoundingBox first, BoundingBox second) {
+        return coords.x.isOverlapping(first.minX(), first.maxX(), second.minX(), second.maxX())
+                && coords.z.isOverlapping(first.minZ(), first.maxZ(), second.minZ(), second.maxZ())
+                && first.minY() <= second.maxY() && second.minY() <= first.maxY();
+    }
+
+    @Override
+    public List<DeckTransformation> copiesTouching(BoundingBox region, int reachLaps) {
+        if (reachLaps < 0) {
+            throw new IllegalArgumentException("A copy reach is never negative, got " + reachLaps);
+        }
+
+        int[] lapsX = coords.x.laps(region.minX(), region.maxX());
+        int[] lapsZ = coords.z.laps(region.minZ(), region.maxZ());
+        int firstX = Math.max(lapsX[0], -reachLaps);
+        int lastX = Math.min(lapsX[1], reachLaps);
+        int firstZ = Math.max(lapsZ[0], -reachLaps);
+        int lastZ = Math.min(lapsZ[1], reachLaps);
+        if (firstX > lastX || firstZ > lastZ) {
+            return List.of();
+        }
+
+        List<DeckTransformation> copies = new ArrayList<>((lastX - firstX + 1) * (lastZ - firstZ + 1));
+        boolean isIdentityTouching = firstX <= 0 && 0 <= lastX && firstZ <= 0 && 0 <= lastZ;
+        if (isIdentityTouching) {
+            copies.add(DeckTransformation.IDENTITY);
+        }
+
+        for (int lapX = firstX; lapX <= lastX; lapX++) {
+            for (int lapZ = firstZ; lapZ <= lastZ; lapZ++) {
+                if (lapX == 0 && lapZ == 0) {
+                    continue;
+                }
+
+                copies.add(new DeckTransformation(SeamTransform.translation(
+                        Math.multiplyExact(lapX, coords.x.domainLength),
+                        Math.multiplyExact(lapZ, coords.z.domainLength))));
+            }
+        }
+
+        return copies;
+    }
+
+    @Override
+    public boolean isFoldedOntoItself(BoundingBox region) {
+        return coords.x.isFoldedOntoItself(region.getXSpan()) || coords.z.isFoldedOntoItself(region.getZSpan());
+    }
+
+    @Override
+    public int stepsToCoverTheWorld(int step) {
+        return Math.max(coords.x.stepsToCoverTheWorld(step), coords.z.stepsToCoverTheWorld(step));
+    }
+
+    @Override
+    public @Nullable CuboidAtlas getCuboidAtlas() {
+        return null;
+    }
+
+    @Override
+    public int getMaxViewDistanceChunks() {
+        return maxViewDistanceChunks;
+    }
+
+    @Override
+    public boolean isOver(Vec3 pos) {
+        return vectors.isOver(pos);
+    }
+
+    @Override
+    public boolean isOver(BlockPos pos) {
+        return coords.x.isOver(pos.getX()) || coords.z.isOver(pos.getZ());
+    }
+
+    @Override
+    public boolean isOver(ChunkPos pos) {
+        return chunks.isOver(pos);
+    }
+
+    @Override
+    public int chunkOvershoot(ChunkPos pos) {
+        return chunks.overshoot(pos.x(), pos.z());
+    }
+
+    @Override
+    public String toString() {
+        return "WorldLoopFold[x=" + bounds.x().getSpanText() + ", z=" + bounds.z().getSpanText() + "]";
+    }
+
+    @Override
+    public boolean isWrapped() {
+        return this.isWrapped;
+    }
+
+    @Override
+    public WorldLoopBounds getBounds() {
+        return this.bounds;
+    }
+
+    @Override
+    public boolean isDecomposedPerAxis() {
+        return true;
+    }
+
+    @Override
+    public boolean isPreservingLocalIndices() {
+        return true;
+    }
+
+    @Override
+    public ShapeOptions getOptions() {
+        return this.options;
+    }
+
+    @Override
+    public WrapDomain getBlockDomain(Direction.Axis axis) {
+        return switch (axis) {
+            case X -> coords.x;
+            case Z -> coords.z;
+            case Y -> throw new IllegalArgumentException("The fold contract carries no Y axis");
+        };
+    }
+
+    @Override
+    public WrapDomain getChunkDomain(Direction.Axis axis) {
+        return switch (axis) {
+            case X -> chunks.x;
+            case Z -> chunks.z;
+            case Y -> throw new IllegalArgumentException("The fold contract carries no Y axis");
+        };
+    }
+
+    @Override
+    public TranslationLattice getBlockLattice() {
+        return this.blockLattice;
+    }
+
+    @Override
+    public TranslationLattice getChunkLattice() {
+        return this.chunkLattice;
+    }
+
+    @Override
+    public Vec3 fold(Vec3 pos) {
+        return vectors.wrap(pos);
+    }
+
+    @Override
+    public BlockPos fold(BlockPos pos) {
+        return blocks.wrap(pos);
+    }
+
+    @Override
+    public ChunkPos fold(ChunkPos pos) {
+        return chunks.wrap(pos);
+    }
+
+    @Override
+    public SectionPos fold(SectionPos pos) {
+        return chunks.wrapSection(pos);
+    }
+
+    @Override
+    public long foldBlockNode(long blockNode) {
+        int x = BlockPos.getX(blockNode);
+        int z = BlockPos.getZ(blockNode);
+        if (!coords.x.isOver(x) && !coords.z.isOver(z)) {
+            return blockNode;
+        }
+
+        return BlockPos.asLong(coords.x.wrap(x), BlockPos.getY(blockNode), coords.z.wrap(z));
+    }
+
+    @Override
+    public long foldChunkKey(long chunkKey) {
+        return chunks.wrapChunkKey(chunkKey);
+    }
+
+    @Override
+    public long foldSectionNode(long sectionNode) {
+        return chunks.wrapSectionNode(sectionNode);
+    }
+
+    @Override
+    public Folded<Vec3> foldOriented(Vec3 pos) {
+        return Folded.of(vectors.wrap(pos));
+    }
+
+    @Override
+    public Folded<BlockPos> foldOriented(BlockPos pos) {
+        return Folded.of(blocks.wrap(pos));
+    }
+
+    @Override
+    public Folded<ChunkPos> foldOriented(ChunkPos pos) {
+        return Folded.of(chunks.wrap(pos));
+    }
+
+    @Override
+    public Vec3 nearestCopy(Vec3 ref, Vec3 target) {
+        return vectors.nearestCopy(ref, target);
+    }
+
+    @Override
+    public BlockPos nearestCopy(BlockPos ref, BlockPos target) {
+        return blocks.nearestCopy(ref, target);
+    }
+
+    @Override
+    public ChunkPos nearestCopy(ChunkPos ref, ChunkPos target) {
+        return chunks.unwrap(ref, target);
+    }
+
+    @Override
+    public long nearestCopyChunkKey(long refKey, long chunkKey) {
+        return chunks.unwrapKey(refKey, chunkKey);
+    }
+
+    @Override
+    public Folded<Vec3> nearestCopyOriented(Vec3 ref, Vec3 target) {
+        return Folded.of(vectors.nearestCopy(ref, target));
+    }
+
+    @Override
+    public Folded<BlockPos> nearestCopyOriented(BlockPos ref, BlockPos target) {
+        return Folded.of(blocks.nearestCopy(ref, target));
+    }
+
+    @Override
+    public DeckTransformation foldTransformation(Vec3 pos) {
+        return translation(coords.x.shiftOver(pos.x), coords.z.shiftOver(pos.z));
+    }
+
+    @Override
+    public DeckTransformation nearestCopyTransformation(Vec3 ref, Vec3 target) {
+        return translation(coords.x.shiftToward(ref.x, target.x), coords.z.shiftToward(ref.z, target.z));
+    }
+
+    @Override
+    public DeckTransformation nearestCopyTransformation(BlockPos ref, BlockPos target) {
+        return translation(
+                coords.x.shiftToward(ref.getX(), target.getX()),
+                coords.z.shiftToward(ref.getZ(), target.getZ()));
+    }
+
+    private static DeckTransformation translation(int shiftX, int shiftZ) {
+        if (shiftX == 0 && shiftZ == 0) {
+            return DeckTransformation.IDENTITY;
+        }
+
+        return new DeckTransformation(SeamTransform.translation(shiftX, shiftZ));
+    }
+
+    @Override
+    public DeckTransformation deckTransformation(ChunkPos chunk, ChunkPos copy) {
+        int deltaX = copy.x() - chunk.x();
+        int deltaZ = copy.z() - chunk.z();
+        if (deltaX == 0 && deltaZ == 0) {
+            return DeckTransformation.IDENTITY;
+        }
+
+        requireCopy(chunk, copy, deltaX, deltaZ);
+        return new DeckTransformation(SeamTransform.translation(
+                SectionPos.sectionToBlockCoord(deltaX), SectionPos.sectionToBlockCoord(deltaZ)));
+    }
+
+    @Override
+    public BlockPos reseat(BlockPos pos, ChunkPos copy) {
+        int deltaX = copy.x() - SectionPos.blockToSectionCoord(pos.getX());
+        int deltaZ = copy.z() - SectionPos.blockToSectionCoord(pos.getZ());
+        if (deltaX == 0 && deltaZ == 0) {
+            return pos;
+        }
+
+        requireCopy(ChunkPos.containing(pos), copy, deltaX, deltaZ);
+        return pos.offset(SectionPos.sectionToBlockCoord(deltaX), 0, SectionPos.sectionToBlockCoord(deltaZ));
+    }
+
+    private void requireCopy(ChunkPos chunk, ChunkPos copy, int deltaX, int deltaZ) {
+        if (!chunks.x.isWholeLaps(deltaX) || !chunks.z.isWholeLaps(deltaZ)) {
+            throw new IllegalArgumentException(copy + " is not a copy of " + chunk + " in " + this);
+        }
+    }
+
+    @Override
+    public double sqrDistanceBlocks(double xFrom, double yFrom, double zFrom, double xTo, double yTo, double zTo) {
+        double dx = coords.x.unwrapAround(xFrom, xTo) - xFrom;
+        double dy = yTo - yFrom;
+        double dz = coords.z.unwrapAround(zFrom, zTo) - zFrom;
+        return dx * dx + dy * dy + dz * dz;
+    }
+
+    @Override
+    public int sqrDistanceChunks(ChunkPos from, ChunkPos to) {
+        int dx = chunks.x.unwrapAround(from.x(), to.x()) - from.x();
+        int dz = chunks.z.unwrapAround(from.z(), to.z()) - from.z();
+        return dx * dx + dz * dz;
+    }
+
+    @Override
+    public List<Folded<AABB>> split(AABB box) {
+        return foldedAll(splitAcrossBounds(box));
+    }
+
+    @Override
+    public List<Folded<BoundingBox>> split(BoundingBox region) {
+        return foldedAll(splitAcrossBounds(region));
+    }
+
+    private static <T> List<Folded<T>> foldedAll(List<T> pieces) {
+        List<Folded<T>> oriented = new ArrayList<>(pieces.size());
+        for (T piece : pieces) {
+            oriented.add(Folded.of(piece));
+        }
+
+        return oriented;
+    }
+
+    @Override
+    public Folded<AABB> nearestCopyOriented(Vec3 ref, AABB box) {
+        int shiftX = coords.x.shiftToward(ref.x, SeamBoxes.center(box.minX, box.maxX));
+        int shiftZ = coords.z.shiftToward(ref.z, SeamBoxes.center(box.minZ, box.maxZ));
+        return Folded.of(shiftX == 0 && shiftZ == 0 ? box : SeamTransform.translation(shiftX, shiftZ).apply(box));
+    }
+}

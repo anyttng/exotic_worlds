@@ -10,9 +10,10 @@ import com.google.gson.JsonElement;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.JsonOps;
 import com.exoticworlds.ExoticWorlds;
-import com.exoticworlds.shape.climate.ClimateScale;
-import com.exoticworlds.shape.climate.CompactBiomes;
-import com.exoticworlds.shape.torus.GuaranteedLand;
+import com.exoticworlds.bridge.v1.option.OptionBridge;
+import com.exoticworlds.shape.feature.compactbiomes.ClimateScale;
+import com.exoticworlds.shape.feature.compactbiomes.CompactBiomes;
+import com.exoticworlds.shape.feature.guaranteedland.GuaranteedLand;
 
 class GenerationOptionsTest {
     private static final String NO_PREFIX = "";
@@ -20,9 +21,12 @@ class GenerationOptionsTest {
 
     private static final List<String> PREFIXES = List.of(NO_PREFIX, STAMP_PREFIX);
 
+    private static final WorldOption<ClimateScale> COMPACT_BIOMES = OptionBridge.twin(CompactBiomes.FEATURE.getOption());
+    private static final WorldOption<Boolean> GUARANTEED_LAND = OptionBridge.twin(GuaranteedLand.FEATURE.getOption());
+
     private static final GenerationOptions CHOSEN = GenerationOptions.DEFAULT
-            .with(CompactBiomes.OPTION, ClimateScale.OFF)
-            .with(GuaranteedLand.OPTION, true);
+            .with(COMPACT_BIOMES, ClimateScale.OFF)
+            .with(GUARANTEED_LAND, true);
 
     @Test
     void anOptionSetToItsDefaultEqualsTheDefaultOptions() {
@@ -37,8 +41,8 @@ class GenerationOptionsTest {
     @Test
     void aChosenValueSetBackToItsDefaultLeavesNoTrace() {
         GenerationOptions reset = CHOSEN
-                .with(CompactBiomes.OPTION, CompactBiomes.OPTION.defaultValue())
-                .with(GuaranteedLand.OPTION, GuaranteedLand.OPTION.defaultValue());
+                .with(COMPACT_BIOMES, COMPACT_BIOMES.defaultValue())
+                .with(GUARANTEED_LAND, GUARANTEED_LAND.defaultValue());
 
         assertEquals(GenerationOptions.DEFAULT, reset);
     }

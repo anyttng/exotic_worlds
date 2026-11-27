@@ -2,8 +2,8 @@ package com.exoticworlds.compat.xaero;
 
 import org.jspecify.annotations.Nullable;
 
-import com.exoticworlds.api.v1.ToroidalShape;
 import com.exoticworlds.compat.map.AxisCopies;
+import com.exoticworlds.core.fold.WorldFold;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -20,15 +20,15 @@ public final class XaeroCursorLap {
     private @Nullable Object trackedSelection;
     private int selectionEndX;
     private int selectionEndZ;
-    private boolean selectionEndPending;
+    private boolean isSelectionEndPending;
     private ChunkPos selectionEnd = ChunkPos.ZERO;
 
     public BlockPos foldCursor(int rawX, int rawZ) {
-        return foldCursor(XaeroWorldMapFold.browsedShape(), rawX, rawZ);
+        return foldCursor(XaeroWorldMapFold.getBrowsedFold(), rawX, rawZ);
     }
 
-    BlockPos foldCursor(@Nullable ToroidalShape shape, int rawX, int rawZ) {
-        BlockPos folded = XaeroWorldMapFold.foldBlock(shape, rawX, rawZ);
+    BlockPos foldCursor(@Nullable WorldFold fold, int rawX, int rawZ) {
+        BlockPos folded = XaeroWorldMapFold.foldBlock(fold, rawX, rawZ);
         this.cursorLapX = rawX - folded.getX();
         this.cursorLapZ = rawZ - folded.getZ();
         return folded;
@@ -43,30 +43,30 @@ public final class XaeroCursorLap {
     }
 
     public ChunkPos selectionEnd(MapTileSelection selection, int cursorX, int cursorZ) {
-        return selectionEnd(XaeroWorldMapFold.browsedShape(), selection, selection.getStartX(), selection.getStartZ(),
+        return selectionEnd(XaeroWorldMapFold.getBrowsedFold(), selection, selection.getStartX(), selection.getStartZ(),
                 cursorX, cursorZ);
     }
 
-    ChunkPos selectionEnd(@Nullable ToroidalShape shape, Object selection, int startX, int startZ, int cursorX,
+    ChunkPos selectionEnd(@Nullable WorldFold fold, Object selection, int startX, int startZ, int cursorX,
             int cursorZ) {
-        if (this.selectionEndPending) {
-            this.selectionEndPending = false;
+        if (this.isSelectionEndPending) {
+            this.isSelectionEndPending = false;
             return this.selectionEnd;
         }
 
         int endX = SectionPos.blockToSectionCoord(cursorX);
         int endZ = SectionPos.blockToSectionCoord(cursorZ);
-        boolean fresh = selection != this.trackedSelection;
+        boolean isFresh = selection != this.trackedSelection;
         this.trackedSelection = selection;
-        ChunkPos reference = fresh ? new ChunkPos(startX, startZ) : new ChunkPos(this.selectionEndX, this.selectionEndZ);
-        ChunkPos unwrapped = XaeroWorldMapFold.nearestChunk(shape, reference, endX, endZ);
+        ChunkPos reference = isFresh ? new ChunkPos(startX, startZ) : new ChunkPos(this.selectionEndX, this.selectionEndZ);
+        ChunkPos unwrapped = XaeroWorldMapFold.nearestChunk(fold, reference, endX, endZ);
         this.selectionEndX = unwrapped.x();
         this.selectionEndZ = unwrapped.z();
         this.selectionLapX = this.cursorLapX - SectionPos.sectionToBlockCoord(unwrapped.x() - endX);
         this.selectionLapZ = this.cursorLapZ - SectionPos.sectionToBlockCoord(unwrapped.z() - endZ);
-        this.selectionEnd = new ChunkPos(AxisCopies.ofChunks(shape, Direction.Axis.X).withinOneLap(startX, unwrapped.x()),
-                AxisCopies.ofChunks(shape, Direction.Axis.Z).withinOneLap(startZ, unwrapped.z()));
-        this.selectionEndPending = true;
+        this.selectionEnd = new ChunkPos(AxisCopies.ofChunks(fold, Direction.Axis.X).withinOneLap(startX, unwrapped.x()),
+                AxisCopies.ofChunks(fold, Direction.Axis.Z).withinOneLap(startZ, unwrapped.z()));
+        this.isSelectionEndPending = true;
         return this.selectionEnd;
     }
 

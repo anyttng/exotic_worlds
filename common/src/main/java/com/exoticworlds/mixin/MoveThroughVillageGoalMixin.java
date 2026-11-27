@@ -29,9 +29,9 @@ public class MoveThroughVillageGoalMixin {
             method = {"canContinueToUse", "stop"},
             at = @At(value = "INVOKE",
                     target = InjectionTargets.BLOCK_POS_CLOSER_TO_CENTER_THAN))
-    private boolean exotic_worlds$poiArrivalThroughSeam(BlockPos poiPos, Position bodyPosition, double distance,
+    private boolean exotic_worlds$poiArrivalThroughSeam(BlockPos poiPos, Position bodyPosition, double distanceBlocks,
             Operation<Boolean> original) {
-        return original.call(poiPos, SeamRange.towardCenterOf(this.mob, poiPos, bodyPosition), distance);
+        return original.call(poiPos, SeamRange.towardCenterOf(this.mob, poiPos, bodyPosition), distanceBlocks);
     }
 
     @WrapOperation(

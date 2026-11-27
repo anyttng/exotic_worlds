@@ -9,8 +9,8 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.ModifyArg;
 
 import com.exoticworlds.InjectionTargets;
-import com.exoticworlds.core.WorldFold;
-import com.exoticworlds.core.WorldLoopAttachments;
+import com.exoticworlds.core.fold.WorldFold;
+import com.exoticworlds.core.fold.WorldLoopAttachments;
 import com.exoticworlds.engine.fold.FoldedOrder;
 import com.exoticworlds.engine.seam.SeamRange;
 import com.exoticworlds.engine.seam.SeamSteering;
@@ -54,10 +54,10 @@ public class RaidMixin {
             at = @At(
                     value = "INVOKE",
                     target = "Lnet/minecraft/core/SectionPos;cube(Lnet/minecraft/core/SectionPos;I)Ljava/util/stream/Stream;"))
-    private Stream<SectionPos> exotic_worlds$villageSectionsThroughSeam(SectionPos cubeCenter, int radius,
+    private Stream<SectionPos> exotic_worlds$villageSectionsThroughSeam(SectionPos cubeCenter, int radiusSections,
             Operation<Stream<SectionPos>> original, @Local(argsOnly = true) ServerLevel level) {
-        Stream<SectionPos> sections = original.call(cubeCenter, radius);
-        WorldFold fold = WorldLoopAttachments.wrappedFoldOf(level);
+        Stream<SectionPos> sections = original.call(cubeCenter, radiusSections);
+        WorldFold fold = WorldLoopAttachments.getWrappedFold(level);
         if (fold == null) {
             return sections;
         }
@@ -71,7 +71,7 @@ public class RaidMixin {
             index = 0)
     private Comparator<BlockPos> exotic_worlds$nearestVillageSectionThroughSeam(Comparator<BlockPos> original,
             @Local(argsOnly = true) ServerLevel level) {
-        WorldFold fold = WorldLoopAttachments.wrappedFoldOf(level);
+        WorldFold fold = WorldLoopAttachments.getWrappedFold(level);
         if (fold == null) {
             return original;
         }

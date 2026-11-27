@@ -2,7 +2,7 @@ package com.exoticworlds.compat.terrablender;
 
 import org.jspecify.annotations.Nullable;
 
-import com.exoticworlds.core.WorldFold;
+import com.exoticworlds.core.fold.WorldFold;
 import com.exoticworlds.engine.noise.GenerationFoldContext;
 
 public final class RegionLayerStack {
@@ -16,8 +16,8 @@ public final class RegionLayerStack {
         }
     }
 
-    public @Nullable RegionLayerFold resolved() {
-        WorldFold worldFold = GenerationFoldContext.context().wrappedFold();
+    public @Nullable RegionLayerFold getFold() {
+        WorldFold worldFold = GenerationFoldContext.getContext().getWrappedFold();
         if (worldFold == null) {
             return null;
         }

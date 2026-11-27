@@ -16,14 +16,14 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.ValueSource;
 
-import com.exoticworlds.core.CuboidAtlas;
-import com.exoticworlds.core.CuboidFace;
-import com.exoticworlds.core.CuboidFixtures;
-import com.exoticworlds.core.FlatShape;
-import com.exoticworlds.core.ShapeFixtures;
-import com.exoticworlds.core.TranslationLattice;
-import com.exoticworlds.core.WorldFold;
-import com.exoticworlds.core.WorldFolds;
+import com.exoticworlds.core.world.FlatShape;
+import com.exoticworlds.core.world.ShapeFixtures;
+import com.exoticworlds.core.fold.TranslationLattice;
+import com.exoticworlds.core.fold.WorldFold;
+import com.exoticworlds.core.fold.WorldFolds;
+import com.exoticworlds.core.fold.cuboid.CuboidAtlas;
+import com.exoticworlds.core.fold.cuboid.CuboidFace;
+import com.exoticworlds.core.fold.cuboid.CuboidFixtures;
 
 import net.minecraft.core.SectionPos;
 import net.minecraft.world.level.ChunkPos;
@@ -32,7 +32,7 @@ import net.minecraft.world.level.levelgen.structure.placement.RandomSpreadType;
 
 class SpreadRingScanTest {
     private static final int SKEW_CHUNKS = 16;
-    private static final int SPACING = 8;
+    private static final int SPACING_CHUNKS = 8;
     private static final int SEPARATION = 4;
     private static final int SALT = 14357617;
     private static final long SEED = 0x5EEDL;
@@ -41,7 +41,7 @@ class SpreadRingScanTest {
     private static final WorldFold FOLD =
             WorldFolds.of(FlatShape.latticeTorus(ShapeFixtures.loopedBounds(-32, 32, -32, 32), SKEW_CHUNKS));
     private static final RandomSpreadStructurePlacement PLACEMENT =
-            new RandomSpreadStructurePlacement(SPACING, SEPARATION, RandomSpreadType.LINEAR, SALT);
+            new RandomSpreadStructurePlacement(SPACING_CHUNKS, SEPARATION, RandomSpreadType.LINEAR, SALT);
     private static final int CUBOID_EDGE_CHUNKS = 16;
     private static final CuboidAtlas CUBOID = CuboidAtlas.of(CUBOID_EDGE_CHUNKS, CUBOID_EDGE_CHUNKS,
             CUBOID_EDGE_CHUNKS, CuboidFixtures.MIN_CHUNK_X, CuboidFixtures.MIN_CHUNK_Z);
@@ -52,23 +52,23 @@ class SpreadRingScanTest {
     }
 
     private static int offsetCap(ChunkPos center) {
-        TranslationLattice lattice = FOLD.chunkLattice();
-        return Math.max(SectorGridAxis.of(lattice.x(), SPACING, center.x()).offsetCap(),
-                SectorGridAxis.of(lattice.z(), SPACING, center.z()).offsetCap());
+        TranslationLattice lattice = FOLD.getChunkLattice();
+        return Math.max(SectorGridAxis.of(lattice.getX(), SPACING_CHUNKS, center.x()).getOffsetCap(),
+                SectorGridAxis.of(lattice.getZ(), SPACING_CHUNKS, center.z()).getOffsetCap());
     }
 
     @ParameterizedTest
     @ValueSource(ints = {-32, 24})
     void everyCellProbesThePickOfTheCellItsPositionFoldsTo(int centerZ) {
         ChunkPos center = new ChunkPos(CENTER_X, centerZ);
-        TranslationLattice lattice = FOLD.chunkLattice();
+        TranslationLattice lattice = FOLD.getChunkLattice();
         SpreadRingScan scan = scanAround(center);
         int cap = offsetCap(center);
         boolean crossedTheZSeam = false;
         for (int x = -cap; x <= cap; x++) {
             for (int z = -cap; z <= cap; z++) {
-                int unwrappedX = center.x() + x * SPACING;
-                int unwrappedZ = center.z() + z * SPACING;
+                int unwrappedX = center.x() + x * SPACING_CHUNKS;
+                int unwrappedZ = center.z() + z * SPACING_CHUNKS;
                 ChunkPos expected = PLACEMENT.getPotentialStructureChunk(SEED,
                         lattice.foldX(unwrappedX, unwrappedZ), lattice.foldZ(unwrappedZ));
                 assertEquals(expected, scan.cell(x, z, chunk -> chunk, added -> null), "cell " + x + ", " + z);
@@ -96,7 +96,7 @@ class SpreadRingScanTest {
         CuboidFace top = CuboidFixtures.face(CUBOID, CuboidFace.Side.TOP);
         ChunkPos center = new ChunkPos(SectionPos.blockToSectionCoord(top.minBlockX()),
                 SectionPos.blockToSectionCoord(top.minBlockZ() + top.depthBlocks() / 2));
-        List<SectorCells.Read> reads = new SplitSectorCells(CUBOID_FOLD, SPACING, center).reads(-1, 0);
+        List<SectorCells.Read> reads = new SplitSectorCells(CUBOID_FOLD, SPACING_CHUNKS, center).reads(-1, 0);
 
         Set<CuboidFace.Side> faces = new HashSet<>();
         for (SectorCells.Read read : reads) {
@@ -104,8 +104,8 @@ class SpreadRingScanTest {
                     SectionPos.sectionToBlockCoord(read.minChunkZ()));
             assertSame(face, CUBOID.faceAt(SectionPos.sectionToBlockCoord(read.maxChunkX()),
                     SectionPos.sectionToBlockCoord(read.maxChunkZ())), "read " + read);
-            assertTrue(read.cellX() * SPACING <= read.maxChunkX() && (read.cellX() + 1) * SPACING > read.minChunkX()
-                    && read.cellZ() * SPACING <= read.maxChunkZ() && (read.cellZ() + 1) * SPACING > read.minChunkZ(),
+            assertTrue(read.cellX() * SPACING_CHUNKS <= read.maxChunkX() && (read.cellX() + 1) * SPACING_CHUNKS > read.minChunkX()
+                    && read.cellZ() * SPACING_CHUNKS <= read.maxChunkZ() && (read.cellZ() + 1) * SPACING_CHUNKS > read.minChunkZ(),
                     "read " + read);
             faces.add(face.side());
         }
@@ -153,7 +153,7 @@ class SpreadRingScanTest {
     }
 
     private static int cuboidCap() {
-        return CUBOID_FOLD.stepsToCoverTheWorld(SPACING * SectionPos.SECTION_SIZE);
+        return CUBOID_FOLD.stepsToCoverTheWorld(SPACING_CHUNKS * SectionPos.SECTION_SIZE);
     }
 
     private static Set<ChunkPos> picksOnTheNet() {
@@ -169,9 +169,9 @@ class SpreadRingScanTest {
         }
 
         Set<ChunkPos> picks = new HashSet<>();
-        for (int cellX = Math.floorDiv(minChunkX, SPACING); cellX <= Math.floorDiv(maxChunkX, SPACING); cellX++) {
-            for (int cellZ = Math.floorDiv(minChunkZ, SPACING); cellZ <= Math.floorDiv(maxChunkZ, SPACING); cellZ++) {
-                ChunkPos picked = PLACEMENT.getPotentialStructureChunk(SEED, cellX * SPACING, cellZ * SPACING);
+        for (int cellX = Math.floorDiv(minChunkX, SPACING_CHUNKS); cellX <= Math.floorDiv(maxChunkX, SPACING_CHUNKS); cellX++) {
+            for (int cellZ = Math.floorDiv(minChunkZ, SPACING_CHUNKS); cellZ <= Math.floorDiv(maxChunkZ, SPACING_CHUNKS); cellZ++) {
+                ChunkPos picked = PLACEMENT.getPotentialStructureChunk(SEED, cellX * SPACING_CHUNKS, cellZ * SPACING_CHUNKS);
                 if (!CUBOID_FOLD.isOver(picked)) {
                     picks.add(picked);
                 }

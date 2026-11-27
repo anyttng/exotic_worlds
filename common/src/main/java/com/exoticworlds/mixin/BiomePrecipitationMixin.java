@@ -2,8 +2,8 @@ package com.exoticworlds.mixin;
 
 import org.spongepowered.asm.mixin.Mixin;
 
-import com.exoticworlds.core.WorldFold;
-import com.exoticworlds.core.WorldLoopAttachments;
+import com.exoticworlds.core.fold.WorldFold;
+import com.exoticworlds.core.fold.WorldLoopAttachments;
 import com.exoticworlds.engine.noise.GenerationFoldContext;
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
@@ -22,16 +22,16 @@ public class BiomePrecipitationMixin {
             return original.call(pos, seaLevel);
         }
 
-        if (GenerationFoldContext.context().wrappedFold() != null) {
+        if (GenerationFoldContext.getContext().getWrappedFold() != null) {
             return original.call(pos, seaLevel);
         }
 
-        WorldFold bounds = WorldLoopAttachments.wrappedClientBoundsFoldOf(minecraft.level);
+        WorldFold bounds = WorldLoopAttachments.getWrappedClientBoundsFold(minecraft.level);
         if (bounds == null) {
             return original.call(pos, seaLevel);
         }
 
-        try (GenerationFoldContext.Context.FoldScope _ = GenerationFoldContext.context().withFold(bounds)) {
+        try (GenerationFoldContext.Context.FoldScope _ = GenerationFoldContext.getContext().withFold(bounds)) {
             return original.call(pos, seaLevel);
         }
     }

@@ -2,7 +2,7 @@ package com.exoticworlds.engine.net;
 
 import org.jspecify.annotations.Nullable;
 
-import com.exoticworlds.core.FoldOrientation;
+import com.exoticworlds.core.fold.FoldOrientation;
 
 import net.minecraft.core.Direction;
 import net.minecraft.network.FriendlyByteBuf;
@@ -62,8 +62,8 @@ final class EntityPacketTurns {
                 : new ClientboundSetEntityMotionPacket(packet.id(), orientation.applyToDelta(packet.movement()));
     }
 
-    static @Nullable Class<?> turnedEntityClass(TranslationContext context, int entityId) {
-        if (context.fold().preservesLocalIndices()) {
+    static @Nullable Class<?> getTurnedEntityClass(TranslationContext context, int entityId) {
+        if (context.fold().isPreservingLocalIndices()) {
             return null;
         }
 
@@ -107,13 +107,13 @@ final class EntityPacketTurns {
     }
 
     private static short turnedX(short xa, short za, FoldOrientation orientation) {
-        short source = orientation.swapsAxes() ? za : xa;
-        return orientation.flipsX() ? reversed(source) : source;
+        short source = orientation.isSwappingAxes() ? za : xa;
+        return orientation.isXFlipped() ? reversed(source) : source;
     }
 
     private static short turnedZ(short xa, short za, FoldOrientation orientation) {
-        short source = orientation.swapsAxes() ? xa : za;
-        return orientation.flipsZ() ? reversed(source) : source;
+        short source = orientation.isSwappingAxes() ? xa : za;
+        return orientation.isZFlipped() ? reversed(source) : source;
     }
 
     private static short reversed(short step) {

@@ -12,6 +12,7 @@ import org.junit.jupiter.api.Test;
 import com.google.gson.JsonParser;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.JsonOps;
+import com.exoticworlds.engine.net.RecordPayloadFold.ComponentRole;
 import com.exoticworlds.engine.net.RecordPayloadFold.Role;
 import com.exoticworlds.engine.net.TagPositions.Nesting;
 import com.exoticworlds.engine.net.TagPositions.PositionShape;
@@ -24,6 +25,7 @@ class PositionRowsTest {
     private static final Identifier MISSING_ID = Identifier.fromNamespaceAndPath("cject", "missing");
     private static final Identifier OFFSET_PAYLOAD_ID = Identifier.fromNamespaceAndPath("cject", "offset_probe");
     private static final Identifier SIZE_PAYLOAD_ID = Identifier.fromNamespaceAndPath("pack", "size_probe");
+    private static final Identifier CURVE_PAYLOAD_ID = Identifier.fromNamespaceAndPath("pack", "curve_probe");
     private static final Identifier ANCHOR_COMPONENT_ID = Identifier.fromNamespaceAndPath("cject", "anchor");
     private static final Identifier TARGET_COMPONENT_ID = Identifier.fromNamespaceAndPath("pack", "target");
 
@@ -52,6 +54,19 @@ class PositionRowsTest {
 
     private static DataResult<PositionRows> parse(String json) {
         return PositionRows.CODEC.parse(JsonOps.INSTANCE, JsonParser.parseString(json));
+    }
+
+    private static ComponentRole direct(Role role) {
+        return new ComponentRole.Direct(role);
+    }
+
+    private static ComponentRole nested(Map<String, ComponentRole> components) {
+        return new ComponentRole.Nested(components);
+    }
+
+    private static PositionRows mergedPayloads(String cject, String pack) {
+        return PositionRows.merge(Map.of(CJECT_FILE, parse(cject).getOrThrow(), PACK_FILE, parse(pack).getOrThrow()),
+                id -> true, id -> true, id -> true);
     }
 
     @Test
@@ -182,9 +197,38 @@ class PositionRowsTest {
                 """).getOrThrow();
 
         assertEquals(Map.of(
-                        OFFSET_PAYLOAD_ID, Map.of("from", Role.GROUP, "to", Role.GROUP),
-                        SIZE_PAYLOAD_ID, Map.of("origin", Role.WORLD, "size", Role.UNTOUCHED)),
+                        OFFSET_PAYLOAD_ID, Map.of("from", direct(Role.GROUP), "to", direct(Role.GROUP)),
+                        SIZE_PAYLOAD_ID, Map.of("origin", direct(Role.WORLD), "size", direct(Role.UNTOUCHED))),
                 rows.payloads());
+    }
+
+    @Test
+    void aNestedObjectDecodesToTheRolesOfTheRecordItHolds() {
+        PositionRows rows = parse("""
+                {
+                  "payloads": {
+                    "pack:curve_probe": {
+                      "curve": { "start": "world", "tangent": "untouched" },
+                      "arm": { "motion": { "side": "untouched" } }
+                    }
+                  }
+                }
+                """).getOrThrow();
+
+        assertEquals(Map.of(
+                        "curve", nested(Map.of("start", direct(Role.WORLD), "tangent", direct(Role.UNTOUCHED))),
+                        "arm", nested(Map.of("motion", nested(Map.of("side", direct(Role.UNTOUCHED)))))),
+                rows.payloads().get(CURVE_PAYLOAD_ID));
+    }
+
+    @Test
+    void aNestedRowEncodesBackToTheSameRow() {
+        PositionRows rows = parse("""
+                { "payloads": { "pack:curve_probe": { "curve": { "tangent": "untouched" } } } }
+                """).getOrThrow();
+
+        assertEquals(rows, parse(PositionRows.CODEC.encodeStart(JsonOps.INSTANCE, rows).getOrThrow().toString())
+                .getOrThrow());
     }
 
     @Test
@@ -206,7 +250,43 @@ class PositionRowsTest {
         PositionRows merged =
                 PositionRows.merge(Map.of(CJECT_FILE, cject, PACK_FILE, pack), id -> true, id -> true, id -> true);
 
-        assertEquals(Map.of("origin", Role.WORLD, "size", Role.UNTOUCHED), merged.payloads().get(SIZE_PAYLOAD_ID));
+        assertEquals(Map.of("origin", direct(Role.WORLD), "size", direct(Role.UNTOUCHED)),
+                merged.payloads().get(SIZE_PAYLOAD_ID));
+    }
+
+    @Test
+    void twoNamespacesNestingIntoOneComponentJoinTheirNestedRoles() {
+        PositionRows merged = mergedPayloads("""
+                { "payloads": { "pack:curve_probe": { "curve": { "start": "world" } } } }
+                """, """
+                { "payloads": { "pack:curve_probe": { "curve": { "tangent": "untouched" } } } }
+                """);
+
+        assertEquals(Map.of("curve", nested(Map.of("start", direct(Role.WORLD), "tangent", direct(Role.UNTOUCHED)))),
+                merged.payloads().get(CURVE_PAYLOAD_ID));
+    }
+
+    @Test
+    void aRoleAndANestedObjectOnOneComponentAreDroppedAndTheRestKept() {
+        PositionRows merged = mergedPayloads("""
+                { "payloads": { "pack:curve_probe": { "curve": "untouched", "origin": "world" } } }
+                """, """
+                { "payloads": { "pack:curve_probe": { "curve": { "tangent": "untouched" } } } }
+                """);
+
+        assertEquals(Map.of("origin", direct(Role.WORLD)), merged.payloads().get(CURVE_PAYLOAD_ID));
+    }
+
+    @Test
+    void aNestedComponentTwoNamespacesNameDifferentlyIsDroppedAndItsSiblingsKept() {
+        PositionRows merged = mergedPayloads("""
+                { "payloads": { "pack:curve_probe": { "curve": { "start": "world", "tangent": "untouched" } } } }
+                """, """
+                { "payloads": { "pack:curve_probe": { "curve": { "tangent": "group" } } } }
+                """);
+
+        assertEquals(Map.of("curve", nested(Map.of("start", direct(Role.WORLD)))),
+                merged.payloads().get(CURVE_PAYLOAD_ID));
     }
 
     @Test
@@ -221,6 +301,6 @@ class PositionRowsTest {
         PositionRows merged =
                 PositionRows.merge(Map.of(CJECT_FILE, cject, PACK_FILE, pack), id -> true, id -> true, id -> true);
 
-        assertEquals(Map.of("origin", Role.WORLD), merged.payloads().get(SIZE_PAYLOAD_ID));
+        assertEquals(Map.of("origin", direct(Role.WORLD)), merged.payloads().get(SIZE_PAYLOAD_ID));
     }
 }

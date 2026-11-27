@@ -10,9 +10,9 @@ import java.util.TreeSet;
 
 import org.jspecify.annotations.Nullable;
 
-import com.exoticworlds.core.CuboidAtlas;
-import com.exoticworlds.core.DensityFunctionNodes;
-import com.exoticworlds.core.WorldFold;
+import com.exoticworlds.core.fold.WorldFold;
+import com.exoticworlds.core.fold.cuboid.CuboidAtlas;
+import com.exoticworlds.core.gen.DensityFunctionNodes;
 import com.exoticworlds.engine.noise.cuboid.CuboidScaleCells;
 import com.exoticworlds.engine.noise.periodic.LapFloor;
 
@@ -72,7 +72,7 @@ public final class NoiseScaleLadder {
     }
 
     private static @Nullable Span spanOf(WorldFold fold) {
-        CuboidAtlas atlas = fold.cuboidAtlas();
+        CuboidAtlas atlas = fold.getCuboidAtlas();
         if (atlas != null) {
             return new CuboidSpan(atlas, CuboidScaleCells.shortestEdgeBlocks(atlas));
         }
@@ -90,8 +90,8 @@ public final class NoiseScaleLadder {
                 continue;
             }
 
-            NoiseStack.Layer[] layers = FoldedSamplers.stackOf(context.createNoiseSampler(entry.getKey())).layers;
-            if (collides(span, ascending, layers)) {
+            NoiseStack.Layer[] layers = FoldedSamplers.getStack(context.createNoiseSampler(entry.getKey())).layers;
+            if (isColliding(span, ascending, layers)) {
                 separated.put(entry.getKey(), rungs(span, ascending, lowestFrequency(layers)));
             }
         }
@@ -99,7 +99,7 @@ public final class NoiseScaleLadder {
         return separated.isEmpty() ? NONE : new NoiseScaleLadder(Map.copyOf(separated));
     }
 
-    public double separated(Holder<NormalNoise> noise, double xzScale) {
+    public double getSeparated(Holder<NormalNoise> noise, double xzScale) {
         Map<Double, Double> rungs = this.separated.get(noise);
         if (rungs == null) {
             return xzScale;
@@ -122,7 +122,7 @@ public final class NoiseScaleLadder {
         return scales;
     }
 
-    private static boolean collides(Span span, SortedSet<Double> scales, NoiseStack.Layer[] layers) {
+    private static boolean isColliding(Span span, SortedSet<Double> scales, NoiseStack.Layer[] layers) {
         for (NoiseStack.Layer layer : layers) {
             Set<Object> lattices = new HashSet<>();
             for (double scale : scales) {

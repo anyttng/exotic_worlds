@@ -7,8 +7,8 @@ import org.spongepowered.asm.mixin.injection.ModifyArg;
 
 import com.exoticworlds.InjectionTargets;
 import com.exoticworlds.accessors.FoldHolder;
-import com.exoticworlds.core.WorldFold;
-import com.exoticworlds.core.WorldFolds;
+import com.exoticworlds.core.fold.WorldFold;
+import com.exoticworlds.core.fold.WorldFolds;
 import com.llamalad7.mixinextras.injector.ModifyReturnValue;
 
 import net.minecraft.server.level.ChunkTrackingView;
@@ -20,7 +20,7 @@ public abstract class ChunkTrackingViewPositionedMixin implements FoldHolder {
     private WorldFold exotic_worlds$fold = WorldFolds.NOOP;
 
     @Override
-    public WorldFold exotic_worlds$fold() {
+    public WorldFold exotic_worlds$getFold() {
         return this.exotic_worlds$fold;
     }
 
@@ -36,12 +36,12 @@ public abstract class ChunkTrackingViewPositionedMixin implements FoldHolder {
         }
 
         ChunkPos center = ((ChunkTrackingView.Positioned) (Object) this).center();
-        int viewDistance = ((ChunkTrackingView.Positioned) (Object) this).viewDistance();
+        int viewDistanceChunks = ((ChunkTrackingView.Positioned) (Object) this).viewDistance();
 
         ChunkPos unwrapped = this.exotic_worlds$fold.nearestCopy(center, new ChunkPos(chunkX, chunkZ));
 
         return ChunkTrackingView.isWithinDistance(
-                center.x(), center.z(), viewDistance, unwrapped.x(), unwrapped.z(), includeNeighbors);
+                center.x(), center.z(), viewDistanceChunks, unwrapped.x(), unwrapped.z(), includeNeighbors);
     }
 
     @ModifyArg(method = "forEach", at = @At(value = "INVOKE", target = InjectionTargets.CONSUMER_ACCEPT))

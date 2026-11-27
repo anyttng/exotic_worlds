@@ -4,10 +4,10 @@ import java.util.List;
 
 import org.jspecify.annotations.Nullable;
 
-import com.exoticworlds.core.CuboidAtlas;
-import com.exoticworlds.core.CuboidFace;
-import com.exoticworlds.core.SpawnPoint;
-import com.exoticworlds.core.WorldFold;
+import com.exoticworlds.core.fold.cuboid.CuboidAtlas;
+import com.exoticworlds.core.fold.cuboid.CuboidFace;
+import com.exoticworlds.core.world.SpawnPoint;
+import com.exoticworlds.core.fold.WorldFold;
 import com.exoticworlds.engine.noise.cuboid.CuboidStraightWalk;
 
 import net.minecraft.core.BlockPos;
@@ -31,7 +31,7 @@ final class SpawnSurface {
     }
 
     static @Nullable SpawnSurface of(WorldFold fold) {
-        CuboidAtlas atlas = fold.cuboidAtlas();
+        CuboidAtlas atlas = fold.getCuboidAtlas();
         return atlas == null ? null : new SpawnSurface(fold, atlas);
     }
 
@@ -54,7 +54,7 @@ final class SpawnSurface {
     }
 
     BlockPos nearestTo(SpawnPoint point, int blockX, int blockZ) {
-        return this.fold.nearestCopy(new BlockPos(point.blockX(), 0, point.blockZ()), new BlockPos(blockX, 0, blockZ));
+        return this.fold.nearestCopy(new BlockPos(point.getBlockX(), 0, point.getBlockZ()), new BlockPos(blockX, 0, blockZ));
     }
 
     private int faceAt(int blockX, int blockZ) {

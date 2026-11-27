@@ -2,26 +2,22 @@ package com.exoticworlds.shape.layout;
 
 import org.jspecify.annotations.Nullable;
 
-import com.exoticworlds.api.v1.option.GenerationOptions;
-import com.exoticworlds.api.v1.shape.LoopSpans;
-import com.exoticworlds.api.v2.shape.DimensionContext;
-import com.exoticworlds.api.v2.shape.DimensionShape;
-import com.exoticworlds.core.FlatShape;
+import com.exoticworlds.core.option.ShapeOption;
+import com.exoticworlds.core.option.ShapeOptions;
+import com.exoticworlds.core.world.ShapeModel;
 import com.exoticworlds.shape.WorldLoopPresets;
+import com.exoticworlds.shape.dimension.DeclaredShapes;
+import com.exoticworlds.shape.dimension.DimensionContext;
+import com.exoticworlds.shape.dimension.DimensionShape;
+import com.exoticworlds.shape.option.DimensionOption;
 
-import net.minecraft.core.Direction;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.level.dimension.LevelStem;
 
 public final class LayoutPreset {
 
-    public static boolean offered(WorldLayout layout) {
-        if (layout.overworld().kind() == ShapeKind.CUBOID) {
-            return false;
-        }
-
-        Identifier declared = layout.overworld().shape();
-        return declared == null || presetShape(declared) != null;
+    public static boolean isOffered(WorldLayout layout) {
+        return getPresetShape(layout.overworld()) != null;
     }
 
     public static WorldLayout apply(WorldLayout layout, WorldLoopPresets preset, double overworldScale) {
@@ -31,64 +27,68 @@ public final class LayoutPreset {
                 : new WorldLayout(overworld,
                         DimensionLayout.fromOverworld(layout.nether().options()),
                         DimensionLayout.fromOverworld(layout.end().options()),
-                        layout.modDimensions(), preset.netherScale());
+                        layout.modDimensions(), preset.getNetherScale());
     }
 
-    public static boolean matches(WorldLayout layout, WorldLoopPresets preset) {
+    public static boolean isMatching(WorldLayout layout, WorldLoopPresets preset) {
         DimensionLayout overworld = layout.overworld();
-        if (layout.nether().kind() != ShapeKind.FROM_OVERWORLD || layout.end().kind() != ShapeKind.FROM_OVERWORLD
-                || layout.netherScale() != preset.netherScale()) {
+        if (layout.nether().mode() != DimensionMode.FROM_OVERWORLD || layout.end().mode() != DimensionMode.FROM_OVERWORLD
+                || layout.netherScale() != preset.getNetherScale() || overworld.shape() == null) {
             return false;
         }
 
-        Identifier declared = overworld.shape();
-        if (declared != null) {
-            DimensionShape shape = presetShape(declared);
-            return shape != null
-                    && shape.withPreset(preset.chunkWidth(), overworld.options()).equals(overworld.options());
-        }
-
-        LoopSpans spans = overworld.spans();
-        if (spans == null) {
+        DimensionShape shape = getPresetShape(overworld);
+        if (shape == null) {
             return false;
         }
 
-        int chunkWidth = preset.chunkWidth();
-        if (overworld.kind() == ShapeKind.CYLINDER) {
-            return spans.chunkWidth(loopedAxis(spans)) == chunkWidth;
-        }
-
-        return spans.chunkWidth(Direction.Axis.X) == chunkWidth && spans.chunkWidth(Direction.Axis.Z) == chunkWidth
-                && spans.skewChunks() == FlatShape.NO_SKEW;
+        ShapeOptions current = getCurrentOptions(shape, overworld);
+        return shape.withPreset(preset, current).equals(current);
     }
 
     private static @Nullable DimensionLayout sized(DimensionLayout overworld, WorldLoopPresets preset,
             double overworldScale) {
-        Identifier declared = overworld.shape();
-        if (declared != null) {
-            DimensionShape shape = presetShape(declared);
-            if (shape == null) {
-                return null;
-            }
-
-            GenerationOptions options = shape.withPreset(preset.chunkWidth(), overworld.options());
-            return DimensionLayout.declared(declared, DeclaredShapes.resolve(shape, new DimensionContext(
-                    LevelStem.OVERWORLD, options, null, overworldScale, overworldScale)), options);
+        DimensionShape shape = getPresetShape(overworld);
+        if (shape == null) {
+            return null;
         }
 
-        LoopSpans current = overworld.spans();
-        return DimensionLayout.looped(current != null && overworld.kind() == ShapeKind.CYLINDER
-                ? LoopSpans.ofWidth(loopedAxis(current), preset.chunkWidth())
-                : LoopSpans.ofWidth(preset.chunkWidth()), overworld.options());
+        ShapeOptions options = shape.withPreset(preset, getCurrentOptions(shape, overworld));
+        ShapeModel spans = DeclaredShapes.resolve(shape,
+                new DimensionContext(LevelStem.OVERWORLD, options, null, overworldScale, overworldScale));
+        ShapeOptions stored = options;
+        for (DimensionOption<?> parameter : shape.getParameters()) {
+            stored = reset(parameter.getOption(), stored);
+        }
+
+        return DimensionLayout.shaped(shape.getId(), spans, stored);
     }
 
-    private static @Nullable DimensionShape presetShape(Identifier declared) {
-        DimensionShape shape = DeclaredShapes.of(declared);
-        return shape != null && shape.takesPresets() ? shape : null;
+    private static ShapeOptions getCurrentOptions(DimensionShape shape, DimensionLayout overworld) {
+        ShapeModel spans = overworld.spans();
+        ShapeOptions read = spans == null || overworld.shape() == null
+                ? ShapeOptions.DEFAULT
+                : shape.optionsFor(spans).orElse(ShapeOptions.DEFAULT);
+        ShapeOptions current = overworld.options();
+        for (DimensionOption<?> parameter : shape.getParameters()) {
+            current = copied(parameter.getOption(), read, current);
+        }
+
+        return current;
     }
 
-    private static Direction.Axis loopedAxis(LoopSpans spans) {
-        return spans.loops(Direction.Axis.X) ? Direction.Axis.X : Direction.Axis.Z;
+    private static @Nullable DimensionShape getPresetShape(DimensionLayout overworld) {
+        Identifier chosen = overworld.shape();
+        DimensionShape shape = chosen == null ? DeclaredShapes.getPresetDefault() : DeclaredShapes.of(chosen);
+        return shape != null && shape.canTakePresets() ? shape : null;
+    }
+
+    private static <T> ShapeOptions copied(ShapeOption<T> option, ShapeOptions from, ShapeOptions into) {
+        return into.with(option, from.get(option));
+    }
+
+    private static <T> ShapeOptions reset(ShapeOption<T> option, ShapeOptions options) {
+        return options.with(option, option.defaultValue());
     }
 
     private LayoutPreset() {

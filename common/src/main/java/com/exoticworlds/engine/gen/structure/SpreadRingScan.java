@@ -5,28 +5,28 @@ import java.util.function.Function;
 
 import org.jspecify.annotations.Nullable;
 
-import com.exoticworlds.api.v2.gen.StructureStarts;
-import com.exoticworlds.core.WorldFold;
+import com.exoticworlds.core.fold.WorldFold;
+import com.exoticworlds.core.gen.AddedStart;
 
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.levelgen.structure.placement.RandomSpreadStructurePlacement;
 
 public final class SpreadRingScan {
     private final WorldFold fold;
-    private final List<StructureStarts.Added> added;
+    private final List<AddedStart> added;
     private final RandomSpreadStructurePlacement placement;
     private final long seed;
     private final SectorCells cells;
 
-    private SpreadRingScan(WorldFold fold, List<StructureStarts.Added> added,
+    private SpreadRingScan(WorldFold fold, List<AddedStart> added,
             RandomSpreadStructurePlacement placement, long seed, ChunkPos center) {
         this.fold = fold;
         this.added = added;
         this.placement = placement;
         this.seed = seed;
-        this.cells = fold.cuboidAtlas() != null
+        this.cells = fold.getCuboidAtlas() != null
                 ? new SplitSectorCells(fold, placement.spacing(), center)
-                : new LatticeSectorCells(fold.chunkLattice(), placement.spacing(), center);
+                : new LatticeSectorCells(fold.getChunkLattice(), placement.spacing(), center);
     }
 
     public static SpreadRingScan of(WorldFold fold, AddedStructureStarts added,
@@ -35,15 +35,15 @@ public final class SpreadRingScan {
     }
 
     public <T> @Nullable T ring(int radius, Function<ChunkPos, @Nullable T> candidate,
-            Function<StructureStarts.Added, @Nullable T> addedStart) {
-        if (radius > this.cells.offsetCap()) {
+            Function<AddedStart, @Nullable T> addedStart) {
+        if (radius > this.cells.getOffsetCap()) {
             return null;
         }
 
         for (int x = -radius; x <= radius; x++) {
-            boolean xEdge = x == -radius || x == radius;
+            boolean isXEdge = x == -radius || x == radius;
             for (int z = -radius; z <= radius; z++) {
-                if (!xEdge && z != -radius && z != radius) {
+                if (!isXEdge && z != -radius && z != radius) {
                     continue;
                 }
 
@@ -59,7 +59,7 @@ public final class SpreadRingScan {
 
     // mc/1.21: Supplementaries' structure locator folds the cells of its own round rings through it.
     public <T> @Nullable T cell(int x, int z, Function<ChunkPos, @Nullable T> candidate,
-            Function<StructureStarts.Added, @Nullable T> addedStart) {
+            Function<AddedStart, @Nullable T> addedStart) {
         for (SectorCells.Read read : this.cells.reads(x, z)) {
             T found = read(read, candidate, addedStart);
             if (found != null) {
@@ -71,11 +71,11 @@ public final class SpreadRingScan {
     }
 
     private <T> @Nullable T read(SectorCells.Read read, Function<ChunkPos, @Nullable T> candidate,
-            Function<StructureStarts.Added, @Nullable T> addedStart) {
-        int spacing = this.placement.spacing();
-        ChunkPos picked = this.placement.getPotentialStructureChunk(this.seed, read.cellX() * spacing,
-                read.cellZ() * spacing);
-        if (read.holds(picked) && !this.fold.isOver(picked)) {
+            Function<AddedStart, @Nullable T> addedStart) {
+        int spacingChunks = this.placement.spacing();
+        ChunkPos picked = this.placement.getPotentialStructureChunk(this.seed, read.cellX() * spacingChunks,
+                read.cellZ() * spacingChunks);
+        if (read.isHolding(picked) && !this.fold.isOver(picked)) {
             T found = candidate.apply(picked);
             if (found != null) {
                 return found;
@@ -86,11 +86,11 @@ public final class SpreadRingScan {
     }
 
     private <T> @Nullable T addedInCell(SectorCells.Read read,
-            Function<StructureStarts.Added, @Nullable T> addedStart) {
-        int spacing = this.placement.spacing();
-        for (StructureStarts.Added start : this.added) {
-            if (Math.floorDiv(start.chunk().x(), spacing) != read.cellX()
-                    || Math.floorDiv(start.chunk().z(), spacing) != read.cellZ() || !read.holds(start.chunk())) {
+            Function<AddedStart, @Nullable T> addedStart) {
+        int spacingChunks = this.placement.spacing();
+        for (AddedStart start : this.added) {
+            if (Math.floorDiv(start.chunk().x(), spacingChunks) != read.cellX()
+                    || Math.floorDiv(start.chunk().z(), spacingChunks) != read.cellZ() || !read.isHolding(start.chunk())) {
                 continue;
             }
 

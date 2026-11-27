@@ -36,8 +36,8 @@ public class ChunkUpdateQueueManagerMixin {
         for (ChunkPos copyPos : DhRowCopies.copiesOf(lattice, pos.getX(), pos.getZ())) {
             ChunkWrapper copy = DhRowCopies.buildAt(copyPos, wrapper::copy);
             ChunkWrapperAccessor light = (ChunkWrapperAccessor) wrapper;
-            copy.setBlockLightStorage(light.exotic_worlds$blockLightStorage());
-            copy.setSkyLightStorage(light.exotic_worlds$skyLightStorage());
+            copy.setBlockLightStorage(light.exotic_worlds$getBlockLightStorage());
+            copy.setSkyLightStorage(light.exotic_worlds$getSkyLightStorage());
             copy.setIsDhBlockLightCorrect(wrapper.isDhBlockLightingCorrect());
             copy.setIsDhSkyLightCorrect(wrapper.isDhSkyLightCorrect());
             original.call(level, copy, chunkHash);

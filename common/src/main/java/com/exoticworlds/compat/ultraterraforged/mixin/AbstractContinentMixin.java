@@ -21,7 +21,7 @@ public abstract class AbstractContinentMixin {
     // The default continent is the cell at the origin, and every copy of it one lap away is the same continent.
     @WrapMethod(method = "isDefaultContinent")
     private boolean exotic_worlds$foldDefault(int cellX, int cellY, Operation<Boolean> original) {
-        RtfLap.Frame frame = RtfLap.boundFrame();
+        RtfLap.Frame frame = RtfLap.getBoundFrame();
         if (frame == null) {
             return original.call(cellX, cellY);
         }
@@ -31,7 +31,7 @@ public abstract class AbstractContinentMixin {
 
     @WrapMethod(method = "getDistanceToOcean")
     private float exotic_worlds$firstCoast(int x, int z, float dx, float dz, Operation<Float> original) {
-        RtfLap.Frame frame = RtfLap.boundFrame();
+        RtfLap.Frame frame = RtfLap.getBoundFrame();
         float reach = frame == null ? RiverReach.UNBOUNDED : UltraTerraForgedRiverReach.INSTANCE.reach(frame);
         if (reach == RiverReach.UNBOUNDED) {
             return original.call(x, z, dx, dz);

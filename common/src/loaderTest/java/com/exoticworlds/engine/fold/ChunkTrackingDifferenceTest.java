@@ -14,11 +14,11 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
 
 import com.exoticworlds.accessors.FoldHolder;
-import com.exoticworlds.core.ShapeFixtures;
-import com.exoticworlds.core.WorldFold;
-import com.exoticworlds.core.WorldFolds;
-import com.exoticworlds.core.WorldLoopBounds;
-import com.exoticworlds.core.WorldLoopBounds.AxisBounds;
+import com.exoticworlds.core.world.ShapeFixtures;
+import com.exoticworlds.core.fold.WorldFold;
+import com.exoticworlds.core.fold.WorldFolds;
+import com.exoticworlds.core.world.WorldLoopBounds;
+import com.exoticworlds.core.world.WorldLoopBounds.AxisBounds;
 
 import net.minecraft.server.level.ChunkTrackingView;
 import net.minecraft.world.level.ChunkPos;
@@ -27,7 +27,7 @@ import net.minecraft.world.level.ChunkPos;
 class ChunkTrackingDifferenceTest {
     private static final int MIN_CHUNK = -16;
     private static final int MAX_CHUNK = 15;
-    private static final int VIEW_DISTANCE = 8;
+    private static final int VIEW_DISTANCE_CHUNKS = 8;
     private static final int NEIGHBOR_BUFFER = 2;
 
     private static final WorldFold CYLINDER = WorldFolds.of(ShapeFixtures.cylinder(
@@ -70,7 +70,7 @@ class ChunkTrackingDifferenceTest {
 
         assertTrue(view.contains(MAX_CHUNK + 1, 0), "the raw neighbor across the seam is refused");
         assertEquals(view.contains(MIN_CHUNK + 2, 0), view.contains(MAX_CHUNK + 3, 0));
-        assertFalse(view.contains(MAX_CHUNK + VIEW_DISTANCE + NEIGHBOR_BUFFER + 1, 0));
+        assertFalse(view.contains(MAX_CHUNK + VIEW_DISTANCE_CHUNKS + NEIGHBOR_BUFFER + 1, 0));
     }
 
     @Test
@@ -84,22 +84,22 @@ class ChunkTrackingDifferenceTest {
 
     private static ChunkTrackingView.Positioned view(WorldFold fold, int centerX, int centerZ) {
         ChunkTrackingView.Positioned view =
-                (ChunkTrackingView.Positioned) ChunkTrackingView.of(new ChunkPos(centerX, centerZ), VIEW_DISTANCE);
+                (ChunkTrackingView.Positioned) ChunkTrackingView.of(new ChunkPos(centerX, centerZ), VIEW_DISTANCE_CHUNKS);
         ((FoldHolder) (Object) view).exotic_worlds$setFold(fold);
 
-        assertSame(fold, ((FoldHolder) (Object) view).exotic_worlds$fold(), "the view kept no fold");
+        assertSame(fold, ((FoldHolder) (Object) view).exotic_worlds$getFold(), "the view kept no fold");
         return view;
     }
 
     private static Set<ChunkPos> viewChunks(WorldFold fold, int centerX, int centerZ) {
         Set<ChunkPos> chunks = new HashSet<>();
-        int radius = VIEW_DISTANCE + 1;
+        int radiusChunks = VIEW_DISTANCE_CHUNKS + 1;
 
-        for (int x = centerX - radius; x <= centerX + radius; x++) {
-            for (int z = centerZ - radius; z <= centerZ + radius; z++) {
+        for (int x = centerX - radiusChunks; x <= centerX + radiusChunks; x++) {
+            for (int z = centerZ - radiusChunks; z <= centerZ + radiusChunks; z++) {
                 long deltaX = Math.max(0, Math.abs(x - centerX) - NEIGHBOR_BUFFER);
                 long deltaZ = Math.max(0, Math.abs(z - centerZ) - NEIGHBOR_BUFFER);
-                if (deltaX * deltaX + deltaZ * deltaZ < (long) VIEW_DISTANCE * VIEW_DISTANCE) {
+                if (deltaX * deltaX + deltaZ * deltaZ < (long) VIEW_DISTANCE_CHUNKS * VIEW_DISTANCE_CHUNKS) {
                     chunks.add(fold.fold(new ChunkPos(x, z)));
                 }
             }

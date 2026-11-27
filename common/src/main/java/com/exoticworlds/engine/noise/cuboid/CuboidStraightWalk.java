@@ -2,9 +2,9 @@ package com.exoticworlds.engine.noise.cuboid;
 
 import java.util.List;
 
-import com.exoticworlds.core.CuboidAtlas;
-import com.exoticworlds.core.CuboidFace;
-import com.exoticworlds.core.SeamTransform;
+import com.exoticworlds.core.fold.cuboid.CuboidAtlas;
+import com.exoticworlds.core.fold.cuboid.CuboidFace;
+import com.exoticworlds.core.fold.SeamTransform;
 import com.exoticworlds.engine.noise.cuboid.CuboidCrossings.Crossing;
 
 import net.minecraft.util.Mth;

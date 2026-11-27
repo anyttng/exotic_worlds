@@ -37,12 +37,12 @@ public class NoiseBiomeBandsGeneratorMixin implements BandNoises {
     }
 
     @Override
-    public NoiseStack exotic_worlds$large() {
+    public NoiseStack exotic_worlds$getLarge() {
         return this.exotic_worlds$large;
     }
 
     @Override
-    public NoiseStack exotic_worlds$detail() {
+    public NoiseStack exotic_worlds$getDetail() {
         return this.exotic_worlds$detail;
     }
 }

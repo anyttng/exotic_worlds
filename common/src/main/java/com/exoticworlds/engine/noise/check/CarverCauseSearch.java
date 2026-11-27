@@ -27,7 +27,7 @@ final class CarverCauseSearch {
         return all.stream()
                 .filter(carver -> !Objects.equals(here.get(carver), there.get(carver)))
                 .map(carver -> nodeOf(carver, carvers))
-                .min(Comparator.comparing(SeamCause.Node::vanilla).thenComparing(SeamCause.Node::type))
+                .min(Comparator.comparing(SeamCause.Node::isVanilla).thenComparing(SeamCause.Node::type))
                 .orElse(null);
     }
 
@@ -36,14 +36,14 @@ final class CarverCauseSearch {
         Identifier holderKey = carvers.getKey(carver);
         @Nullable String holder = holderKey != null ? holderKey.toString() : null;
         String className = carver.getClass().getName();
-        boolean vanilla = type != null
+        boolean isVanilla = type != null
                 ? type.getNamespace().equals(Identifier.DEFAULT_NAMESPACE)
                 : className.startsWith(VANILLA_PACKAGE);
-        List<String> candidates = vanilla
+        List<String> candidates = isVanilla
                 ? AppliedMixins.foreignOn(List.of(className, CARVER_CLASS))
                 : List.of();
         return new SeamCause.Node(type != null ? type.toString() : className, holder,
-                type != null ? type.getNamespace() : null, vanilla, candidates);
+                type != null ? type.getNamespace() : null, isVanilla, candidates);
     }
 
     private CarverCauseSearch() {

@@ -11,24 +11,32 @@ import java.util.Optional;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-import com.exoticworlds.api.v1.option.GenerationOptions;
-import com.exoticworlds.core.CarriedShape;
-import com.exoticworlds.core.CuboidShape;
-import com.exoticworlds.core.ShapeFixtures;
-import com.exoticworlds.core.SpawnPoint;
-import com.exoticworlds.core.WorldLoopBounds;
+import com.exoticworlds.shape.dimension.DeclaredShapes;
+import com.exoticworlds.accessors.ShapeStamp;
+import com.exoticworlds.core.gen.GeneratorShapes;
+import com.exoticworlds.core.world.CarriedShape;
+import com.exoticworlds.core.world.ShapeFixtures;
+import com.exoticworlds.core.option.ShapeOptions;
+import com.exoticworlds.core.world.SpawnPoint;
+import com.exoticworlds.core.world.WorldLoopBounds;
+import com.exoticworlds.core.world.CuboidShape;
 import com.exoticworlds.engine.noise.GenerationFoldContext;
 import com.exoticworlds.shape.StartupRegistrations;
 
+import net.minecraft.world.level.dimension.LevelStem;
 import net.minecraft.SharedConstants;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.data.registries.VanillaRegistries;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.Bootstrap;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.biome.Biomes;
 import net.minecraft.world.level.biome.FixedBiomeSource;
+import net.minecraft.world.level.chunk.ChunkGenerator;
+import net.minecraft.world.level.levelgen.FlatLevelSource;
+import net.minecraft.world.level.levelgen.NoiseBasedChunkGenerator;
 import net.minecraft.world.level.levelgen.NoiseGeneratorSettings;
 import net.minecraft.world.level.levelgen.RandomState;
 import net.minecraft.world.level.levelgen.flat.FlatLevelGeneratorSettings;
@@ -40,6 +48,9 @@ class SpawnSearchTest {
     private static final int SEARCH_REACH_BLOCKS = 2560;
     private static final int CUBE_CHUNKS = 16;
 
+    private static final Identifier SHAPE_WITHOUT_SPAWN =
+            Identifier.fromNamespaceAndPath("example_mod", "shape_without_spawn");
+
     private static HolderLookup.Provider holders;
     private static Holder<NoiseGeneratorSettings> overworldSettings;
 
@@ -48,27 +59,26 @@ class SpawnSearchTest {
         SharedConstants.tryDetectVersion();
         Bootstrap.bootStrap();
         StartupRegistrations.options();
-        StartupRegistrations.generationHooks();
         holders = VanillaRegistries.createWorldLookup();
         overworldSettings = holders.lookupOrThrow(Registries.NOISE_SETTINGS).getOrThrow(NoiseGeneratorSettings.OVERWORLD);
     }
 
     @Test
     void theSpawnSearchStartsAtTheSpawnPoint() {
-        LoopedChunkGenerator generator = noiseGenerator(FAR_POINT);
+        NoiseBasedChunkGenerator generator = noiseGenerator(FAR_POINT);
         RandomState state = randomState(generator);
 
         ChunkPos spawn = SpawnSearch.from(generator, () -> generator.getOrigin(state));
 
-        assertTrue(Math.abs(spawn.getMinBlockX() - FAR_POINT.blockX()) <= SEARCH_REACH_BLOCKS
-                        && Math.abs(spawn.getMinBlockZ() - FAR_POINT.blockZ()) <= SEARCH_REACH_BLOCKS,
+        assertTrue(Math.abs(spawn.getMinBlockX() - FAR_POINT.getBlockX()) <= SEARCH_REACH_BLOCKS
+                        && Math.abs(spawn.getMinBlockZ() - FAR_POINT.getBlockZ()) <= SEARCH_REACH_BLOCKS,
                 "spawn chunk " + spawn + " is not near the spawn point " + FAR_POINT);
     }
 
     @Test
     void theStructureOriginKeepsSearchingFromZero() {
-        LoopedChunkGenerator moved = noiseGenerator(FAR_POINT);
-        LoopedChunkGenerator unmoved = noiseGenerator(SpawnPoint.DEFAULT);
+        NoiseBasedChunkGenerator moved = noiseGenerator(FAR_POINT);
+        NoiseBasedChunkGenerator unmoved = noiseGenerator(SpawnPoint.DEFAULT);
         RandomState state = randomState(unmoved);
 
         assertEquals(unmoved.getOrigin(state), moved.getOrigin(state));
@@ -76,24 +86,41 @@ class SpawnSearchTest {
 
     @Test
     void aWorldWithoutASpawnPointSearchesAsVanillaDoes() {
-        LoopedChunkGenerator generator = noiseGenerator(SpawnPoint.DEFAULT);
+        NoiseBasedChunkGenerator generator = noiseGenerator(SpawnPoint.DEFAULT);
         RandomState state = randomState(generator);
 
         assertEquals(generator.getOrigin(state), SpawnSearch.from(generator, () -> generator.getOrigin(state)));
     }
 
     @Test
+    void aShapeWithoutTheSpawnFeatureKeepsTheVanillaSearch() {
+        NoiseBasedChunkGenerator generator = new NoiseBasedChunkGenerator(
+                new FixedBiomeSource(holders.lookupOrThrow(Registries.BIOME).getOrThrow(Biomes.PLAINS)),
+                overworldSettings);
+        ((ShapeStamp) generator).exotic_worlds$stamp(new CarriedShape(SHAPE_WITHOUT_SPAWN,
+                ShapeFixtures.torus(WorldLoopBounds.ofWidth(WIDE_CHUNKS)), ShapeOptions.DEFAULT.with(SpawnPoint.OPTION, FAR_POINT)));
+        List<SpawnPoint> seen = new ArrayList<>();
+
+        SpawnSearch.from(generator, () -> {
+            seen.add(SpawnSearch.getBound());
+            return ChunkPos.ZERO;
+        });
+
+        assertEquals(List.of(SpawnPoint.DEFAULT), seen);
+    }
+
+    @Test
     void aPointAtChunkZeroIsBoundAndDefaultIsNot() {
-        LoopedChunkGenerator atZero = noiseGenerator(new SpawnPoint(0, 0));
-        LoopedChunkGenerator unset = noiseGenerator(SpawnPoint.DEFAULT);
+        NoiseBasedChunkGenerator atZero = noiseGenerator(new SpawnPoint(0, 0));
+        NoiseBasedChunkGenerator unset = noiseGenerator(SpawnPoint.DEFAULT);
         List<SpawnPoint> seen = new ArrayList<>();
 
         SpawnSearch.from(atZero, () -> {
-            seen.add(SpawnSearch.bound());
+            seen.add(SpawnSearch.getBound());
             return ChunkPos.ZERO;
         });
         SpawnSearch.from(unset, () -> {
-            seen.add(SpawnSearch.bound());
+            seen.add(SpawnSearch.getBound());
             return ChunkPos.ZERO;
         });
 
@@ -103,42 +130,47 @@ class SpawnSearchTest {
 
     @Test
     void aFlatWorldSpawnsAtItsSpawnPointChunk() {
-        LoopedFlatChunkGenerator generator = new LoopedFlatChunkGenerator(
+        FlatLevelSource generator = stamped(new FlatLevelSource(
                 new FlatLevelGeneratorSettings(Optional.empty(),
-                        holders.lookupOrThrow(Registries.BIOME).getOrThrow(Biomes.PLAINS), List.of()),
-                new CarriedShape(ShapeFixtures.torus(WorldLoopBounds.ofWidth(WIDE_CHUNKS)),
-                        GenerationOptions.DEFAULT.with(SpawnPoint.OPTION, FAR_POINT)));
+                        holders.lookupOrThrow(Registries.BIOME).getOrThrow(Biomes.PLAINS), List.of())), FAR_POINT);
         RandomState state = randomState(noiseGenerator(SpawnPoint.DEFAULT));
 
-        assertEquals(new ChunkPos(FAR_POINT.xChunk(), FAR_POINT.zChunk()),
+        assertEquals(new ChunkPos(FAR_POINT.chunkX(), FAR_POINT.chunkZ()),
                 SpawnSearch.from(generator, () -> generator.getOrigin(state)));
     }
 
     @Test
     void theSpawnSearchOnACuboidAnswersOnAFace() {
-        LoopedChunkGenerator generator = noiseGenerator(
-                new CarriedShape(new CuboidShape(CUBE_CHUNKS, CUBE_CHUNKS, CUBE_CHUNKS), GenerationOptions.DEFAULT));
+        NoiseBasedChunkGenerator generator = stamped(new NoiseBasedChunkGenerator(
+                new FixedBiomeSource(holders.lookupOrThrow(Registries.BIOME).getOrThrow(Biomes.PLAINS)),
+                overworldSettings), new CarriedShape(DeclaredShapes.CUBOID,
+                        new CuboidShape(CUBE_CHUNKS, CUBE_CHUNKS, CUBE_CHUNKS), ShapeOptions.DEFAULT));
         RandomState state = randomState(generator);
 
         ChunkPos origin = generator.getOrigin(state);
 
-        assertFalse(generator.carriedShape().fold().isOver(origin), "origin " + origin + " is on no face");
+        assertFalse(GeneratorShapes.getFold(generator).isOver(origin), "origin " + origin + " is on no face");
     }
 
-    private static LoopedChunkGenerator noiseGenerator(SpawnPoint point) {
-        return noiseGenerator(new CarriedShape(ShapeFixtures.torus(WorldLoopBounds.ofWidth(WIDE_CHUNKS)),
-                GenerationOptions.DEFAULT.with(SpawnPoint.OPTION, point)));
-    }
-
-    private static LoopedChunkGenerator noiseGenerator(CarriedShape shape) {
-        return new LoopedChunkGenerator(
+    private static NoiseBasedChunkGenerator noiseGenerator(SpawnPoint point) {
+        return stamped(new NoiseBasedChunkGenerator(
                 new FixedBiomeSource(holders.lookupOrThrow(Registries.BIOME).getOrThrow(Biomes.PLAINS)),
-                overworldSettings,
-                shape);
+                overworldSettings), point);
     }
 
-    private static RandomState randomState(LoopedChunkGenerator generator) {
-        return GenerationFoldContext.withRouterBuild(generator.carriedShape().fold(),
+    private static <G extends ChunkGenerator> G stamped(G generator, SpawnPoint point) {
+        return stamped(generator, new CarriedShape(null,
+                ShapeFixtures.torus(WorldLoopBounds.ofWidth(WIDE_CHUNKS)), ShapeOptions.DEFAULT.with(SpawnPoint.OPTION, point)));
+    }
+
+    private static <G extends ChunkGenerator> G stamped(G generator, CarriedShape shape) {
+        ((ShapeStamp) generator).exotic_worlds$stamp(shape);
+        return generator;
+    }
+
+    private static RandomState randomState(NoiseBasedChunkGenerator generator) {
+        return GenerationFoldContext.withRouterBuild(GeneratorShapes.getFold(generator), LevelStem.OVERWORLD,
+                List.of(),
                 () -> RandomState.create(holders.lookupOrThrow(Registries.NOISE), SEED, overworldSettings.value()));
     }
 }

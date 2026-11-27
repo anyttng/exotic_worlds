@@ -3,7 +3,7 @@ package com.exoticworlds.mixin;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 
-import com.exoticworlds.core.WorldLoopAttachments;
+import com.exoticworlds.core.fold.WorldLoopAttachments;
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import com.llamalad7.mixinextras.sugar.Local;
 
@@ -17,6 +17,6 @@ public class DedicatedServerMixin {
             target = "Lnet/minecraft/world/level/storage/LevelData$RespawnData;pos()Lnet/minecraft/core/BlockPos;"))
     private BlockPos exotic_worlds$nearestSpawnCopy(BlockPos spawnPos,
             @Local(argsOnly = true) ServerLevel level, @Local(argsOnly = true) BlockPos pos) {
-        return WorldLoopAttachments.foldOf(level).nearestCopy(pos, spawnPos);
+        return WorldLoopAttachments.getFold(level).nearestCopy(pos, spawnPos);
     }
 }

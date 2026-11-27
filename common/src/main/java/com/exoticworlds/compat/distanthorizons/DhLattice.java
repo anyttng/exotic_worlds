@@ -1,12 +1,10 @@
 package com.exoticworlds.compat.distanthorizons;
 
-import com.exoticworlds.api.v1.ToroidalShape;
-import com.exoticworlds.core.WorldFold;
+import com.exoticworlds.core.fold.WorldFold;
 
-public record DhLattice(ToroidalShape shape, int skewBlocks, String seamDistance) {
+public record DhLattice(WorldFold fold, int skewBlocks, String seamDistance) {
     public static DhLattice of(WorldFold fold) {
-        ToroidalShape shape = fold.shapeView();
-        int skewBlocks = fold.blockLattice().skew();
-        return new DhLattice(shape, skewBlocks, DhSeamSql.seamDistance(shape, skewBlocks));
+        int skewBlocks = fold.getBlockLattice().getSkew();
+        return new DhLattice(fold, skewBlocks, DhSeamSql.seamDistance(fold, skewBlocks));
     }
 }

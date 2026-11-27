@@ -17,13 +17,13 @@ import org.junit.jupiter.api.Test;
 
 import com.exoticworlds.api.v1.ToroidalShape.Orientation;
 import com.exoticworlds.api.v1.ToroidalShape.Oriented;
-import com.exoticworlds.api.v1.option.GenerationOptions;
-import com.exoticworlds.core.DeckGroupFold;
-import com.exoticworlds.core.FlatShape;
-import com.exoticworlds.core.ShapeFixtures;
-import com.exoticworlds.core.WorldFolds;
-import com.exoticworlds.core.WorldLoopBounds;
-import com.exoticworlds.core.WorldLoopBounds.AxisBounds;
+import com.exoticworlds.core.fold.deck.DeckGroupFold;
+import com.exoticworlds.core.world.FlatShape;
+import com.exoticworlds.core.world.ShapeFixtures;
+import com.exoticworlds.core.option.ShapeOptions;
+import com.exoticworlds.core.fold.WorldFolds;
+import com.exoticworlds.core.world.WorldLoopBounds;
+import com.exoticworlds.core.world.WorldLoopBounds.AxisBounds;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -54,17 +54,17 @@ class ToroidalShapeContractTest {
 
     private static ToroidalShape mobius() {
         return TestShapes.of(
-                new DeckGroupFold(ShapeFixtures.mirrored(X_ONLY, Direction.Axis.Z, 0), GenerationOptions.DEFAULT));
+                new DeckGroupFold(ShapeFixtures.mirrored(X_ONLY, Direction.Axis.Z, 0), ShapeOptions.DEFAULT));
     }
 
     private static ToroidalShape klein() {
         return TestShapes.of(
-                new DeckGroupFold(ShapeFixtures.mirrored(BOTH, Direction.Axis.Z, 3), GenerationOptions.DEFAULT));
+                new DeckGroupFold(ShapeFixtures.mirrored(BOTH, Direction.Axis.Z, 3), ShapeOptions.DEFAULT));
     }
 
     private static ToroidalShape latticeTorus() {
         return TestShapes.of(
-                new DeckGroupFold(FlatShape.latticeTorus(BOTH, LATTICE_SKEW_CHUNKS), GenerationOptions.DEFAULT));
+                new DeckGroupFold(FlatShape.latticeTorus(BOTH, LATTICE_SKEW_CHUNKS), ShapeOptions.DEFAULT));
     }
 
     @Nested

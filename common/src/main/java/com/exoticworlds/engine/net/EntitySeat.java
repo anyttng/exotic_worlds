@@ -1,13 +1,13 @@
 package com.exoticworlds.engine.net;
 
-import com.exoticworlds.core.FoldOrientation;
+import com.exoticworlds.core.fold.FoldOrientation;
 import com.exoticworlds.engine.seam.ClientPosition;
 
 import net.minecraft.world.phys.Vec3;
 
 record EntitySeat(Vec3 position, FoldOrientation orientation) {
     static EntitySeat of(TranslationContext context, Vec3 serverPosition) {
-        return at(context, context.toClient(serverPosition, context.trackedReach()));
+        return at(context, context.toClient(serverPosition, context.getTrackedReach()));
     }
 
     static EntitySeat ofEntity(TranslationContext context, int entityId) {
@@ -18,7 +18,7 @@ record EntitySeat(Vec3 position, FoldOrientation orientation) {
     }
 
     static FoldOrientation orientationOf(TranslationContext context, int entityId) {
-        return context.fold().preservesLocalIndices()
+        return context.fold().isPreservingLocalIndices()
                 ? FoldOrientation.IDENTITY
                 : ofEntity(context, entityId).orientation();
     }

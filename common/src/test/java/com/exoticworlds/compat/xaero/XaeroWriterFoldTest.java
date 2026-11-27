@@ -8,14 +8,14 @@ import java.util.Set;
 import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Test;
 
-import com.exoticworlds.api.v1.ToroidalShape;
-import com.exoticworlds.compat.map.MapShapes;
+import com.exoticworlds.compat.map.MapFolds;
+import com.exoticworlds.core.fold.WorldFold;
 
 import net.minecraft.world.level.ChunkPos;
 
 class XaeroWriterFoldTest {
-    private static final ToroidalShape OFF_GRID = MapShapes.torus(-937, 938);
-    private static final ToroidalShape SMALL = MapShapes.torus(-16, 16);
+    private static final WorldFold OFF_GRID = MapFolds.torus(-937, 938);
+    private static final WorldFold SMALL = MapFolds.torus(-16, 16);
     private static final int RAW = 99;
 
     @Test
@@ -36,7 +36,7 @@ class XaeroWriterFoldTest {
 
     @Test
     void aChunkPastALatticeSeamWritesIntoTheTileTheSkewMovesItTo() {
-        XaeroWriterFold fold = fold(MapShapes.latticeTorus(-16, 16, 8));
+        XaeroWriterFold fold = fold(MapFolds.latticeTorus(-16, 16, 8));
         assertEquals(-2, fold.tileX(RAW, 0, 16), "chunk (0, 16) folds onto (-8, -16)");
         assertEquals(-4, fold.tileZ(RAW, 0, 16));
     }
@@ -54,27 +54,27 @@ class XaeroWriterFoldTest {
     void theLastChunkOfTheWorldTriggersTheBufferAtTheTilesLastSlot() {
         XaeroWriterFold fold = fold(OFF_GRID);
         fold.enterChunk(937, 0);
-        assertEquals(1, fold.insideX(RAW));
-        assertEquals(3, fold.lastInsideX(RAW), "937 is the world's last chunk, so the tile is complete after it");
-        assertEquals(0, fold.lastInsideZ(RAW));
+        assertEquals(1, fold.getInsideX(RAW));
+        assertEquals(3, fold.getLastInsideX(RAW), "937 is the world's last chunk, so the tile is complete after it");
+        assertEquals(0, fold.getLastInsideZ(RAW));
     }
 
     @Test
     void aChunkPastTheSeamTakesItsCanonicalSlotInsideTheTile() {
         XaeroWriterFold fold = fold(OFF_GRID);
         fold.enterChunk(938, 0);
-        assertEquals(3, fold.insideX(RAW), "938 folds onto -937, slot 3 of tile -235");
-        assertEquals(3, fold.lastInsideX(RAW));
+        assertEquals(3, fold.getInsideX(RAW), "938 folds onto -937, slot 3 of tile -235");
+        assertEquals(3, fold.getLastInsideX(RAW));
     }
 
     @Test
     void anUnshapedWorldKeepsXaerosOwnSlots() {
         XaeroWriterFold fold = fold(null);
         fold.enterChunk(938, 0);
-        assertEquals(RAW, fold.insideX(RAW));
-        assertEquals(RAW, fold.insideZ(RAW));
-        assertEquals(RAW, fold.lastInsideX(RAW));
-        assertEquals(RAW, fold.lastInsideZ(RAW));
+        assertEquals(RAW, fold.getInsideX(RAW));
+        assertEquals(RAW, fold.getInsideZ(RAW));
+        assertEquals(RAW, fold.getLastInsideX(RAW));
+        assertEquals(RAW, fold.getLastInsideZ(RAW));
     }
 
     @Test
@@ -117,7 +117,7 @@ class XaeroWriterFoldTest {
         assertEquals(new ChunkPos(1, 2), fold.comparisonLeaf(922, 0, 1, 2));
     }
 
-    private static XaeroWriterFold fold(@Nullable ToroidalShape shape) {
+    private static XaeroWriterFold fold(@Nullable WorldFold shape) {
         XaeroWriterFold fold = new XaeroWriterFold();
         fold.beginRender(shape);
         return fold;

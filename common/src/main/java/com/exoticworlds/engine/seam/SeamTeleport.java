@@ -8,8 +8,8 @@ import org.jspecify.annotations.Nullable;
 
 import com.exoticworlds.accessors.ChunkResender;
 import com.exoticworlds.accessors.TrackedEntityRefresher;
-import com.exoticworlds.core.WorldFold;
-import com.exoticworlds.core.WorldLoopAttachments;
+import com.exoticworlds.core.fold.WorldFold;
+import com.exoticworlds.core.fold.WorldLoopAttachments;
 import com.exoticworlds.engine.fold.RelativePosition;
 
 import net.minecraft.core.SectionPos;
@@ -21,12 +21,12 @@ import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.phys.Vec3;
 
 public final class SeamTeleport {
-    public record Dropped(boolean wholeView, List<ChunkPos> flipped) {
+    public record Dropped(boolean isWholeView, List<ChunkPos> flipped) {
     }
 
     public static PositionMoveRotation destination(ServerPlayer player, PositionMoveRotation destination,
             Set<Relative> relatives) {
-        WorldFold fold = WorldLoopAttachments.wrappedFoldOf(player.level());
+        WorldFold fold = WorldLoopAttachments.getWrappedFold(player.level());
         return fold == null ? destination : destination(fold, player.position(), destination, relatives);
     }
 
@@ -44,23 +44,23 @@ public final class SeamTeleport {
 
     public static @Nullable Dropped dropBefore(ServerPlayer player, PositionMoveRotation destination,
             Set<Relative> relatives) {
-        ChunkResender resender = chunkResender(player);
+        ChunkResender resender = getChunkResender(player);
         if (resender == null) {
             return null;
         }
 
         ClientPosition mirror = ClientPosition.of(player);
-        if (!mirror.describes(player.level().dimension())) {
+        if (!mirror.isForDimension(player.level().dimension())) {
             resender.exotic_worlds$dropTrackedChunks(player);
             return new Dropped(true, List.of());
         }
 
-        WorldFold fold = WorldLoopAttachments.foldOf(player.level());
+        WorldFold fold = WorldLoopAttachments.getFold(player.level());
         Vec3 clientDestination = mirror.destinationOf(fold, destination.position(), relatives);
         ChunkPos toAnchor = new ChunkPos(
                 SectionPos.blockToSectionCoord(clientDestination.x),
                 SectionPos.blockToSectionCoord(clientDestination.z));
-        List<ChunkPos> flipped = flipped(fold, mirror.seatChunk(), toAnchor, player.getChunkTrackingView());
+        List<ChunkPos> flipped = flipped(fold, mirror.getSeatChunk(), toAnchor, player.getChunkTrackingView());
         if (!flipped.isEmpty()) {
             resender.exotic_worlds$dropChunks(player, flipped);
         }
@@ -68,12 +68,12 @@ public final class SeamTeleport {
     }
 
     public static void resendAfter(ServerPlayer player, @Nullable Dropped dropped) {
-        ChunkResender resender = chunkResender(player);
+        ChunkResender resender = getChunkResender(player);
         if (resender == null) {
             return;
         }
 
-        if (dropped != null && dropped.wholeView()) {
+        if (dropped != null && dropped.isWholeView()) {
             resender.exotic_worlds$resendTrackedChunks(player);
         } else if (dropped != null && !dropped.flipped().isEmpty()) {
             resender.exotic_worlds$resendChunks(player, dropped.flipped());
@@ -94,8 +94,8 @@ public final class SeamTeleport {
         return flipped;
     }
 
-    private static @Nullable ChunkResender chunkResender(ServerPlayer player) {
-        if (WorldLoopAttachments.wrappedFoldOf(player.level()) == null) {
+    private static @Nullable ChunkResender getChunkResender(ServerPlayer player) {
+        if (WorldLoopAttachments.getWrappedFold(player.level()) == null) {
             return null;
         }
 

@@ -21,7 +21,7 @@
  * </ul>
  *
  * <p>The settings screen and option control types of {@code api.v1.client} are deprecated: an option is declared
- * and drawn through {@code api.v2.option}.</p>
+ * and drawn through {@code api.v2.feature}.</p>
  *
  * <p>Making a mechanism of your own work on one — added in 0.17.0. Every vanilla packet carrying a world position
  * is already rewritten between the server's frame and the client's; a payload, a particle type or a rigid group

@@ -12,9 +12,9 @@ import org.betterx.wover.generator.api.map.BiomeMap;
 import org.betterx.wover.util.function.TriConsumer;
 import org.junit.jupiter.api.Test;
 
-import com.exoticworlds.core.ShapeFixtures;
-import com.exoticworlds.core.WorldFold;
-import com.exoticworlds.core.WorldFolds;
+import com.exoticworlds.core.world.ShapeFixtures;
+import com.exoticworlds.core.fold.WorldFold;
+import com.exoticworlds.core.fold.WorldFolds;
 import com.exoticworlds.engine.noise.ClimateScaleCompression;
 
 class StackLayersTest {

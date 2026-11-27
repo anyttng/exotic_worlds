@@ -3,9 +3,9 @@ package com.exoticworlds.engine.seam;
 import org.jspecify.annotations.Nullable;
 
 import com.exoticworlds.accessors.RegionLevelSource;
-import com.exoticworlds.core.WorldFold;
-import com.exoticworlds.core.WorldFolds;
-import com.exoticworlds.core.WorldLoopAttachments;
+import com.exoticworlds.core.fold.WorldFold;
+import com.exoticworlds.core.fold.WorldFolds;
+import com.exoticworlds.core.fold.WorldLoopAttachments;
 import com.exoticworlds.engine.ObjectStack;
 
 import net.minecraft.core.BlockPos;
@@ -30,7 +30,7 @@ public final class BlockOffsetSeed {
     }
 
     static Vec3 inCopyFrame(WorldFold fold, BlockPos pos, Vec3 canonicalOffset) {
-        if (fold.preservesLocalIndices()) {
+        if (fold.isPreservingLocalIndices()) {
             return canonicalOffset;
         }
 
@@ -43,7 +43,7 @@ public final class BlockOffsetSeed {
         }
 
         BlockOffsetSeed scope = CURRENT.get();
-        scope.push(foldOf(getter));
+        scope.push(getFold(getter));
         return scope;
     }
 
@@ -53,13 +53,13 @@ public final class BlockOffsetSeed {
         }
     }
 
-    private static WorldFold foldOf(@Nullable BlockGetter getter) {
+    private static WorldFold getFold(@Nullable BlockGetter getter) {
         if (getter instanceof LevelReader reader) {
-            return WorldLoopAttachments.foldOfReader(reader);
+            return WorldLoopAttachments.getFoldOfReader(reader);
         }
 
         if (getter instanceof RegionLevelSource region) {
-            return WorldLoopAttachments.foldOfReader(region.exotic_worlds$regionLevel());
+            return WorldLoopAttachments.getFoldOfReader(region.exotic_worlds$getRegionLevel());
         }
 
         return WorldFolds.NOOP;

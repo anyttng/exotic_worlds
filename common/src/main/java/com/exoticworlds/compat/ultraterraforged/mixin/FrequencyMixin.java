@@ -23,14 +23,14 @@ public abstract class FrequencyMixin {
     // A coordinate multiplied by a varying factor has no lap left; only a constant factor carries the frame along.
     @WrapMethod(method = "compute")
     private float exotic_worlds$carryLap(float x, float z, int seed, Operation<Float> original) {
-        RtfLap.Frame frame = RtfLap.boundFrame();
+        RtfLap.Frame frame = RtfLap.getBoundFrame();
         if (frame == null) {
             return original.call(x, z, seed);
         }
 
-        boolean constant = this.xFreq.minValue() == this.xFreq.maxValue()
+        boolean isConstant = this.xFreq.minValue() == this.xFreq.maxValue()
                 && this.zFreq.minValue() == this.zFreq.maxValue();
-        try (RtfLap.Frame.Scope _ = constant
+        try (RtfLap.Frame.Scope _ = isConstant
                 ? frame.scale(this.xFreq.minValue(), this.zFreq.minValue())
                 : frame.open()) {
             return original.call(x, z, seed);
