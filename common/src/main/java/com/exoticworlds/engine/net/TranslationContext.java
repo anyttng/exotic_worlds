@@ -400,18 +400,31 @@ public record TranslationContext(
     }
 
     public BlockPos toServer(BlockPos pos) {
-        return fold.fold(pos);
+        return fold.isPreservingLocalIndices() ? fold.fold(pos) : toServerMove(Vec3.atCenterOf(pos)).apply(pos);
     }
 
     public WorldFold.Folded<BlockPos> toServerOriented(BlockPos pos) {
-        return fold.foldOriented(pos);
+        if (fold.isPreservingLocalIndices()) {
+            return fold.foldOriented(pos);
+        }
+
+        DeckTransformation move = toServerMove(Vec3.atCenterOf(pos));
+        return new WorldFold.Folded<>(move.apply(pos), move.getOrientation());
     }
 
     public Vec3 toServer(Vec3 position) {
-        return fold.fold(position);
+        return fold.isPreservingLocalIndices() ? fold.fold(position) : toServerMove(position).apply(position);
     }
 
     public ChunkPos toServer(ChunkPos chunkPos) {
-        return fold.fold(chunkPos);
+        return fold.isPreservingLocalIndices()
+                ? fold.fold(chunkPos)
+                : toServerMove(Vec3.atCenterOf(chunkPos.getMiddleBlockPosition(0))).apply(chunkPos);
+    }
+
+    public DeckTransformation toServerMove(Vec3 clientPoint) {
+        return fold.isPreservingLocalIndices()
+                ? fold.foldTransformation(clientPoint)
+                : clientPosition.toServerMove(fold, clientPoint);
     }
 }

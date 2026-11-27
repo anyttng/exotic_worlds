@@ -66,8 +66,7 @@ public final class FoldedValue {
     }
 
     static Leaves toServer(TranslationContext context) {
-        WorldFold fold = context.fold();
-        return new Leaves(fold::fold, fold::fold, fold::fold, fold::foldTransformation);
+        return new Leaves(context::toServer, context::toServer, context::toServer, context::toServerMove);
     }
 
     static Object walk(TranslationContext context, Leaves leaves, Object value) {

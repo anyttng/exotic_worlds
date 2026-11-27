@@ -252,7 +252,11 @@ public final class ClientPosition {
     }
 
     public Vec3 toServerFrame(WorldFold fold, Vec3 clientPoint) {
-        return chartAt(this.mirror, fold, clientPoint).apply(clientPoint);
+        return toServerMove(fold, clientPoint).apply(clientPoint);
+    }
+
+    public DeckTransformation toServerMove(WorldFold fold, Vec3 clientPoint) {
+        return chartAt(this.mirror, fold, clientPoint);
     }
 
     public Vec3 nearestCopy(WorldFold fold, Vec3 clientRef, Vec3 target) {
