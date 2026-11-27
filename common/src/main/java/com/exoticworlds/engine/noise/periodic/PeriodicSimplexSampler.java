@@ -15,7 +15,7 @@ public final class PeriodicSimplexSampler {
     private static final int GRADIENT_COUNT = 12;
     private static final int PERMUTATION_MASK = 0xFF;
 
-    public static boolean carries(WorldFold fold, double scale) {
+    public static boolean canCarry(WorldFold fold, double scale) {
         TranslationLattice lattice = fold.getBlockLattice();
         LapFloor floor = LapFloor.of(fold);
         return PeriodicNoiseSampler.period(lattice.getX(), scale, floor) <= SimplexLattice.MAX_LAP_PERIOD

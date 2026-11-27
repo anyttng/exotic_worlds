@@ -123,16 +123,16 @@ public class BiomeMixin {
             PerlinSimplexNoise noise,
             double x,
             double z,
-            boolean useNoiseStart,
+            boolean shouldUseNoiseStart,
             Operation<Double> original,
             @Local(argsOnly = true) BlockPos pos) {
         Context generation = GenerationFoldContext.getContext();
         if (generation.getWrappedFold() == null) {
-            return original.call(noise, x, z, useNoiseStart);
+            return original.call(noise, x, z, shouldUseNoiseStart);
         }
 
         try (Context.ScaleScope _ = generation.withScale(NoiseConstants.HEIGHT_TEMPERATURE_SCALE)) {
-            return original.call(noise, (double) pos.getX(), (double) pos.getZ(), useNoiseStart);
+            return original.call(noise, (double) pos.getX(), (double) pos.getZ(), shouldUseNoiseStart);
         }
     }
 }

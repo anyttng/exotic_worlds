@@ -11,12 +11,12 @@ public final class CanonicalCellSampler {
         double at(DensityFunction.FunctionContext cell);
     }
 
-    private final int vanillaCellWidth;
+    private final int vanillaCellWidthBlocks;
 
     private @Nullable TilingCellGrid grid;
 
-    public CanonicalCellSampler(int vanillaCellWidth) {
-        this.vanillaCellWidth = vanillaCellWidth;
+    public CanonicalCellSampler(int vanillaCellWidthBlocks) {
+        this.vanillaCellWidthBlocks = vanillaCellWidthBlocks;
     }
 
     public double sample(DensityFunction.FunctionContext cell, int blockX, int blockZ, Sample sample) {
@@ -25,7 +25,7 @@ public final class CanonicalCellSampler {
             return sample.at(cell);
         }
 
-        TilingCellGrid grid = TilingCellGrid.resolve(this.grid, generation.getFold(), this.vanillaCellWidth);
+        TilingCellGrid grid = TilingCellGrid.resolve(this.grid, generation.getFold(), this.vanillaCellWidthBlocks);
         this.grid = grid;
 
         try (Context.DivisorScope _ = generation.withDivisors(grid.xCellWidthBlocks(), grid.zCellWidthBlocks())) {

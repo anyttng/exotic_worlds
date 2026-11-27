@@ -99,8 +99,8 @@ class ClimateCompressionTest {
                         Math.pow(2.0, field.firstOctave()), xzScale, verticalShare))).getDouble(0);
     }
 
-    private static WorldFold square(int chunkWidth) {
-        return WorldFolds.of(ShapeFixtures.torus(WorldLoopBounds.ofWidth(chunkWidth)));
+    private static WorldFold square(int widthChunks) {
+        return WorldFolds.of(ShapeFixtures.torus(WorldLoopBounds.ofWidth(widthChunks)));
     }
 
     private static WorldFold uncompressedSquare(int widthChunks) {
@@ -179,12 +179,12 @@ class ClimateCompressionTest {
     void theMemoAnswersWhatAFreshCallAnswersAndStoresOncePerBinding() {
         for (Field field : List.of(TEMPERATURE, TEMPERATURE_LARGE, VEGETATION, CONTINENTALNESS, EROSION,
                 TEMPERATURE_NETHER)) {
-            for (int chunkWidth : new int[] {16, 32, 64, 128, 256, 512}) {
+            for (int widthChunks : new int[] {16, 32, 64, 128, 256, 512}) {
                 for (double share : new double[] {HORIZONTAL, 0.5,
                         GenerationFoldContext.UNDECLARED_VERTICAL_SHARE}) {
-                    WorldFold fold = square(chunkWidth);
+                    WorldFold fold = square(widthChunks);
                     Storing cache = new Storing();
-                    String where = field.name() + " on " + chunkWidth * 16 + " blocks, share " + share;
+                    String where = field.name() + " on " + widthChunks * 16 + " blocks, share " + share;
 
                     double fresh = actual(field, fold, share);
                     assertEquals(fresh, resolved(cache, field, fold, XZ_SCALE, share), 0.0, where + ", first call");

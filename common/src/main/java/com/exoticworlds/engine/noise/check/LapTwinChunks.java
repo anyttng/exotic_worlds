@@ -94,9 +94,9 @@ final class LapTwinChunks {
                     this.chunk, this.noise, rule, null);
         }
 
-        private CarverRecording carvers() {
+        private CarverRecording runCarvers() {
             CarverRecording recording = new CarverRecording();
-            WorldGenRegion region = this.region();
+            WorldGenRegion region = this.buildRegion();
             CarverRecording.recording(recording, () -> {
                 this.inputs.generator().applyCarvers(region, this.inputs.level().getSeed(),
                         this.inputs.randomState(), this.inputs.biomeManager(),
@@ -125,7 +125,7 @@ final class LapTwinChunks {
             return recording;
         }
 
-        private WorldGenRegion region() {
+        private WorldGenRegion buildRegion() {
             ChunkPos center = this.chunk.getPos();
             StaticCache2D<GenerationChunkHolder> cache = StaticCache2D.create(center.x(), center.z(),
                     CARVERS_STEP.getAccumulatedRadiusOf(ChunkStatus.EMPTY),
@@ -210,7 +210,7 @@ final class LapTwinChunks {
         here.surface(rule);
         there.surface(rule);
         SeamCauseSearch.Point surfaceAt = differenceOf(here.chunk, there.chunk);
-        SeamCause carvers = CarverCauseSearch.causeOf(here.carvers().getCarved(), there.carvers().getCarved(),
+        SeamCause carvers = CarverCauseSearch.causeOf(here.runCarvers().getCarved(), there.runCarvers().getCarved(),
                 inputs.level().registryAccess().lookupOrThrow(Registries.CONFIGURED_CARVER));
         if (carvers != null) {
             breaks.add(new SeamVerdict.Break(SeamField.CARVERS.getId(), carvers));

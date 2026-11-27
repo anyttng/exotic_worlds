@@ -55,8 +55,8 @@ public class NoiseBasedChunkGeneratorCarversMixin {
             ChunkAccess chunk, Function<BlockPos, Holder<Biome>> biomeGetter, RandomSource random, Aquifer aquifer,
             ChunkPos sourceChunkPos, CarvingMask mask, Operation<Boolean> original) {
         long @Nullable [] before = CarverRecording.before(mask);
-        boolean carved = original.call(carver, context, chunk, biomeGetter, random, aquifer, sourceChunkPos, mask);
+        boolean isCarved = original.call(carver, context, chunk, biomeGetter, random, aquifer, sourceChunkPos, mask);
         CarverRecording.after(carver, mask, before);
-        return carved;
+        return isCarved;
     }
 }

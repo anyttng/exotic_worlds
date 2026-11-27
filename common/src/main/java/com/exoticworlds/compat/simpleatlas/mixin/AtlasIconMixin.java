@@ -24,7 +24,7 @@ public abstract class AtlasIconMixin {
                     target = "Lrubbertoe/simple_atlas/client/screen/icon/AtlasIcon$WorldPoint;x()D"))
     private double exotic_worlds$pointXNearTile(@Coerce Object point, Operation<Double> original,
             @Local(name = "tile") AtlasTilePayload tile) {
-        return exotic_worlds$seat(tile, original.call(point), ((AtlasIconPointAccessor) point).exotic_worlds$z()).x;
+        return exotic_worlds$seat(tile, original.call(point), ((AtlasIconPointAccessor) point).exotic_worlds$getZ()).x;
     }
 
     @WrapOperation(
@@ -33,7 +33,7 @@ public abstract class AtlasIconMixin {
                     target = "Lrubbertoe/simple_atlas/client/screen/icon/AtlasIcon$WorldPoint;z()D"))
     private double exotic_worlds$pointZNearTile(@Coerce Object point, Operation<Double> original,
             @Local(name = "tile") AtlasTilePayload tile) {
-        return exotic_worlds$seat(tile, ((AtlasIconPointAccessor) point).exotic_worlds$x(), original.call(point)).z;
+        return exotic_worlds$seat(tile, ((AtlasIconPointAccessor) point).exotic_worlds$getX(), original.call(point)).z;
     }
 
     @Unique

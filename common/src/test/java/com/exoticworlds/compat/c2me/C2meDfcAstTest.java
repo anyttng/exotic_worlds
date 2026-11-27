@@ -26,7 +26,7 @@ class C2meDfcAstTest {
 
     @Test
     void anUnfoldedFastNoiseNodeIsReported() {
-        assertTrue(C2meDfcAst.reportsMiss(new ForeignNoise(), new GenericFastNoiseNode(CoordinateNode.AXIS_X,
+        assertTrue(C2meDfcAst.tryRecordMiss(new ForeignNoise(), new GenericFastNoiseNode(CoordinateNode.AXIS_X,
                 CoordinateNode.AXIS_Y, CoordinateNode.AXIS_Z, STATE, CONFIG), fold()),
                 "a fast noise node C2ME compiled from a foreign function samples the raw coordinate");
     }
@@ -34,7 +34,7 @@ class C2meDfcAstTest {
     @Test
     void aFoldedFastNoiseNodeIsNotReported() {
         WorldFold fold = fold();
-        assertFalse(C2meDfcAst.reportsMiss(new ForeignNoise(), new C2meFoldedFastNoiseNode(CoordinateNode.AXIS_X,
+        assertFalse(C2meDfcAst.tryRecordMiss(new ForeignNoise(), new C2meFoldedFastNoiseNode(CoordinateNode.AXIS_X,
                 CoordinateNode.AXIS_Y, CoordinateNode.AXIS_Z, STATE, CONFIG, fold), fold),
                 "the folded fast noise node samples the lap");
     }

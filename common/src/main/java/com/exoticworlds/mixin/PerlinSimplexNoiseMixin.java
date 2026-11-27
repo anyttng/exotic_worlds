@@ -33,10 +33,10 @@ public class PerlinSimplexNoiseMixin {
     private final SimplexSlots exotic_worlds$slots = new SimplexSlots();
 
     @WrapMethod(method = "getValue(DDZ)D")
-    private double exotic_worlds$periodicValue(double x, double z, boolean useNoiseStart, Operation<Double> original) {
+    private double exotic_worlds$periodicValue(double x, double z, boolean shouldUseNoiseStart, Operation<Double> original) {
         Context generation = GenerationFoldContext.wrappedContext();
         if (generation == null) {
-            return original.call(x, z, useNoiseStart);
+            return original.call(x, z, shouldUseNoiseStart);
         }
 
         SimplexLattice[] lattices = this.exotic_worlds$slots.octaves(generation.getFold(), generation.getHorizontalScale(),
@@ -47,7 +47,7 @@ public class PerlinSimplexNoiseMixin {
             SimplexNoise noiseLevel = this.noiseLevels[i];
             if (noiseLevel != null) {
                 value += lattices[i].sample(((SimplexNoiseAccessor) (Object) noiseLevel).exotic_worlds$permutations(),
-                        useNoiseStart ? noiseLevel.xo : 0.0, useNoiseStart ? noiseLevel.yo : 0.0, x, z) * valueFactor;
+                        shouldUseNoiseStart ? noiseLevel.xo : 0.0, shouldUseNoiseStart ? noiseLevel.yo : 0.0, x, z) * valueFactor;
             }
 
             valueFactor *= 2.0;

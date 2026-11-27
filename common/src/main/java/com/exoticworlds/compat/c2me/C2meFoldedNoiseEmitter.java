@@ -109,7 +109,7 @@ public final class C2meFoldedNoiseEmitter implements BytecodeEmitter<C2meFoldedN
 
         m.load(0, InstructionAdapter.OBJECT_TYPE);
         m.getfield(context.className, foldField, FOLD_DESC);
-        if (node.warped()) {
+        if (node.isWarped()) {
             m.load(0, InstructionAdapter.OBJECT_TYPE);
             m.getfield(context.className, noiseField, NOISE_HOLDER_DESC);
             m.load(SINGLE_X_LOCAL, Type.INT_TYPE);
@@ -145,11 +145,11 @@ public final class C2meFoldedNoiseEmitter implements BytecodeEmitter<C2meFoldedN
         ValuesMethodDefF64 slotXMethod = context.newMultiMethodF64(node.slotX);
         ValuesMethodDefF64 slotYMethod = context.newMultiMethodF64(node.slotY);
         ValuesMethodDefF64 slotZMethod = context.newMultiMethodF64(node.slotZ);
-        boolean constantX = slotXMethod.isConst();
-        boolean constantY = slotYMethod.isConst();
-        boolean constantZ = slotZMethod.isConst();
+        boolean isConstantX = slotXMethod.isConst();
+        boolean isConstantY = slotYMethod.isConst();
+        boolean isConstantZ = slotZMethod.isConst();
 
-        int arraysNeeded = (constantX ? 0 : 1) + (constantY ? 0 : 1) + (constantZ ? 0 : 1);
+        int arraysNeeded = (isConstantX ? 0 : 1) + (isConstantY ? 0 : 1) + (isConstantZ ? 0 : 1);
         int[] arrays = new int[arraysNeeded];
         if (arraysNeeded >= 1) {
             arrays[0] = RESULT_ARRAY_LOCAL;
@@ -170,21 +170,21 @@ public final class C2meFoldedNoiseEmitter implements BytecodeEmitter<C2meFoldedN
         }
 
         int filledArrays = 0;
-        if (!constantX) {
+        if (!isConstantX) {
             context.callDelegateMulti(m, slotXMethod, arrays[filledArrays++]);
         }
 
-        if (!constantY) {
+        if (!isConstantY) {
             context.callDelegateMulti(m, slotYMethod, arrays[filledArrays++]);
         }
 
-        if (!constantZ) {
+        if (!isConstantZ) {
             context.callDelegateMulti(m, slotZMethod, arrays[filledArrays++]);
         }
 
         m.load(0, InstructionAdapter.OBJECT_TYPE);
         m.getfield(context.className, foldField, FOLD_DESC);
-        if (!node.warped()) {
+        if (!node.isWarped()) {
             String slotAxesField = context.newField(SlotAxes.class, node.slotAxes);
             m.load(0, InstructionAdapter.OBJECT_TYPE);
             m.getfield(context.className, slotAxesField, SLOT_AXES_DESC);
@@ -193,17 +193,17 @@ public final class C2meFoldedNoiseEmitter implements BytecodeEmitter<C2meFoldedN
         m.load(0, InstructionAdapter.OBJECT_TYPE);
         m.getfield(context.className, noiseField, NOISE_HOLDER_DESC);
         m.load(RESULT_ARRAY_LOCAL, InstructionAdapter.OBJECT_TYPE);
-        if (node.warped()) {
+        if (node.isWarped()) {
             m.load(MULTI_X_LOCAL, InstructionAdapter.OBJECT_TYPE);
             m.load(MULTI_Z_LOCAL, InstructionAdapter.OBJECT_TYPE);
         }
 
         int readArrays = 0;
-        readArrays = loadAxis(m, arrays, readArrays, slotXMethod, constantX);
-        readArrays = loadAxis(m, arrays, readArrays, slotYMethod, constantY);
-        loadAxis(m, arrays, readArrays, slotZMethod, constantZ);
+        readArrays = loadAxis(m, arrays, readArrays, slotXMethod, isConstantX);
+        readArrays = loadAxis(m, arrays, readArrays, slotYMethod, isConstantY);
+        loadAxis(m, arrays, readArrays, slotZMethod, isConstantZ);
 
-        if (node.warped()) {
+        if (node.isWarped()) {
             m.dconst(node.warpDivisor);
             loadScales(m, node);
             m.invokestatic(LOOP_CLASS, WARPED_FILL_METHOD, WARPED_FILL_DESC, false);
@@ -231,8 +231,8 @@ public final class C2meFoldedNoiseEmitter implements BytecodeEmitter<C2meFoldedN
     }
 
     private static int loadAxis(InstructionAdapter m, int[] arrays, int readArrays,
-            ValuesMethodDefF64 method, boolean constant) {
-        if (constant) {
+            ValuesMethodDefF64 method, boolean isConstant) {
+        if (isConstant) {
             m.aconst(null);
             m.dconst(method.constValue());
             return readArrays;

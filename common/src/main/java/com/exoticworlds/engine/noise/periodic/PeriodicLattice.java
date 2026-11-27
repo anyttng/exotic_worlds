@@ -26,7 +26,7 @@ public record PeriodicLattice(byte[] permutations, double xOffset, double yOffse
         }
     }
 
-    public boolean indexable() {
+    public boolean isIndexable() {
         return this.x.isIndexable() && this.y.isIndexable() && this.z.isIndexable();
     }
 

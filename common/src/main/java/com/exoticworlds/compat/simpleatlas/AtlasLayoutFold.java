@@ -29,15 +29,15 @@ public final class AtlasLayoutFold {
         for (Map.Entry<String, List<Integer>> dimension : byDimension.entrySet()) {
             WorldFold fold = shapes.apply(dimension.getKey());
             List<Integer> indices = dimension.getValue();
-            int span = blocksPerTile.applyAsInt(tiles.get(indices.getFirst()));
-            if (fold == null || span == 0) {
+            int spanBlocks = blocksPerTile.applyAsInt(tiles.get(indices.getFirst()));
+            if (fold == null || spanBlocks == 0) {
                 continue;
             }
 
             if (relaid == null) {
                 relaid = new ArrayList<>(tiles);
             }
-            relayDimension(tiles, indices, fold, span, copies, relaid);
+            relayDimension(tiles, indices, fold, spanBlocks, copies, relaid);
         }
 
         return relaid == null ? tiles : relaid;
@@ -45,29 +45,29 @@ public final class AtlasLayoutFold {
 
     private static void relayDimension(List<AtlasTilePayload> tiles, List<Integer> indices, WorldFold fold,
             int blocksPerTile, MapCopies copies, List<AtlasTilePayload> relaid) {
-        int[] cellsX = new int[indices.size()];
-        int[] cellsZ = new int[indices.size()];
+        int[] cellXs = new int[indices.size()];
+        int[] cellZs = new int[indices.size()];
         BlockPos origin = center(tiles.get(indices.getFirst()));
-        int minX = Integer.MAX_VALUE;
-        int minZ = Integer.MAX_VALUE;
+        int minCellX = Integer.MAX_VALUE;
+        int minCellZ = Integer.MAX_VALUE;
         for (int i = 0; i < indices.size(); i++) {
             BlockPos center = center(tiles.get(indices.get(i)));
             BlockPos seated = copies == MapCopies.SINGLE ? center : fold.nearestCopy(origin, center);
-            cellsX[i] = cell(seated.getX() - origin.getX(), blocksPerTile);
-            cellsZ[i] = cell(seated.getZ() - origin.getZ(), blocksPerTile);
-            minX = Math.min(minX, cellsX[i]);
-            minZ = Math.min(minZ, cellsZ[i]);
+            cellXs[i] = cell(seated.getX() - origin.getX(), blocksPerTile);
+            cellZs[i] = cell(seated.getZ() - origin.getZ(), blocksPerTile);
+            minCellX = Math.min(minCellX, cellXs[i]);
+            minCellZ = Math.min(minCellZ, cellZs[i]);
         }
 
         for (int i = 0; i < indices.size(); i++) {
             AtlasTilePayload tile = tiles.get(indices.get(i));
             relaid.set(indices.get(i), new AtlasTilePayload(tile.mapId(), tile.centerX(), tile.centerZ(),
-                    cellsX[i] - minX, cellsZ[i] - minZ, tile.dimension()));
+                    cellXs[i] - minCellX, cellZs[i] - minCellZ, tile.dimension()));
         }
     }
 
-    private static int cell(int delta, int blocksPerTile) {
-        return (int) Math.round((double) delta / blocksPerTile);
+    private static int cell(int deltaBlocks, int blocksPerTile) {
+        return (int) Math.round((double) deltaBlocks / blocksPerTile);
     }
 
     private static BlockPos center(AtlasTilePayload tile) {

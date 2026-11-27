@@ -24,12 +24,12 @@ public class PointSamplerMixin {
     private float exotic_worlds$sampleTheFoldedField(NoiseMapType type, int blockX, int blockY, int blockZ,
             Operation<Float> original) {
         FoldedNoiseSampler sampler = (FoldedNoiseSampler) (Object) this.this$0;
-        WorldFold fold = sampler.exotic_worlds$fold();
+        WorldFold fold = sampler.exotic_worlds$getFold();
         if (!fold.isWrapped()) {
             return original.call(type, blockX, blockY, blockZ);
         }
 
-        return sampler.exotic_worlds$cache(type).get(blockX, blockY, blockZ, () -> GenerationFoldContext.withFold(
+        return sampler.exotic_worlds$getCache(type).computeIfAbsent(blockX, blockY, blockZ, () -> GenerationFoldContext.withFold(
                 fold, () -> original.call(type, blockX, blockY, blockZ)));
     }
 }

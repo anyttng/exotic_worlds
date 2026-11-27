@@ -68,11 +68,11 @@ public final class GenerationFoldContext {
             return this.horizontalScale;
         }
 
-        public double vanillaScale() {
+        public double getVanillaScale() {
             return this.vanillaScale;
         }
 
-        public double verticalShare() {
+        public double getVerticalShare() {
             return this.verticalShare;
         }
 
@@ -248,14 +248,14 @@ public final class GenerationFoldContext {
 
     private static final ThreadLocal<Context> CONTEXT = ThreadLocal.withInitial(Context::new);
 
-    private static volatile boolean wrappedEverBound;
+    private static volatile boolean isWrappedEverBound;
 
     public static Context getContext() {
         return CONTEXT.get();
     }
 
     public static @Nullable Context wrappedContext() {
-        if (!wrappedEverBound) {
+        if (!isWrappedEverBound) {
             return null;
         }
 
@@ -264,8 +264,8 @@ public final class GenerationFoldContext {
     }
 
     private static void markBound(WorldFold fold) {
-        if (!wrappedEverBound && fold.isWrapped()) {
-            wrappedEverBound = true;
+        if (!isWrappedEverBound && fold.isWrapped()) {
+            isWrappedEverBound = true;
         }
     }
 

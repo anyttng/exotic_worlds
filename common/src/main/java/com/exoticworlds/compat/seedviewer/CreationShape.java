@@ -23,7 +23,7 @@ public final class CreationShape {
 
     private static final Map<CarriedShape, String> FINGERPRINTS = new ConcurrentHashMap<>();
 
-    private static boolean sessionOpen;
+    private static boolean isSessionOpen;
 
     private static @Nullable Chosen kept;
 
@@ -32,12 +32,12 @@ public final class CreationShape {
     }
 
     public static void openSession() {
-        sessionOpen = true;
+        isSessionOpen = true;
         kept = null;
     }
 
     public static void closeSession() {
-        sessionOpen = false;
+        isSessionOpen = false;
         kept = null;
     }
 
@@ -60,7 +60,7 @@ public final class CreationShape {
         return fingerprint != null ? foreign + fingerprint : foreign;
     }
 
-    public static WorldFold routerBuildFold() {
+    public static WorldFold getRouterBuildFold() {
         WorldFold fold = GenerationFoldContext.getContext().getRouterBuildFold();
         return fold != null ? fold : WorldFolds.NOOP;
     }
@@ -75,7 +75,7 @@ public final class CreationShape {
         Chosen chosen = new Chosen(settings, carried, carried == null
                 ? null
                 : FINGERPRINTS.computeIfAbsent(carried, key -> FINGERPRINT_PREFIX + FINGERPRINTS.size()));
-        if (sessionOpen) {
+        if (isSessionOpen) {
             kept = chosen;
         }
         return chosen;

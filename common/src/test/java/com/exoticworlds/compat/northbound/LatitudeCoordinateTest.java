@@ -80,22 +80,22 @@ class LatitudeCoordinateTest {
 
     @Test
     void layOneBandOnEveryPresetWithoutCompression() {
-        for (int chunkWidth : PRESET_CHUNK_WIDTHS) {
-            int lap = chunkWidth * CoordinateConstants.CHUNK_WIDTH_BLOCKS;
+        for (int widthChunks : PRESET_CHUNK_WIDTHS) {
+            int lap = widthChunks * CoordinateConstants.CHUNK_WIDTH_BLOCKS;
             for (NorthboundLatitude.Variant variant : NorthboundLatitude.Variant.values()) {
-                assertEquals(1, NorthboundLatitude.bands(lap, variant.poleToEquatorBlocks()), "lap " + lap);
+                assertEquals(1, NorthboundLatitude.bands(lap, variant.getPoleToEquatorBlocks()), "lap " + lap);
             }
         }
     }
 
     @Test
     void layTheFewestOddBandsNoWiderThanTheCap() {
-        for (int chunkWidth = WorldLoopSizes.MIN_WIDTH_CHUNKS; chunkWidth <= WorldLoopSizes.MAX_WIDTH_CHUNKS;
-                chunkWidth = chunkWidth * 3 / 2) {
-            int lap = chunkWidth * CoordinateConstants.CHUNK_WIDTH_BLOCKS;
+        for (int widthChunks = WorldLoopSizes.MIN_WIDTH_CHUNKS; widthChunks <= WorldLoopSizes.MAX_WIDTH_CHUNKS;
+                widthChunks = widthChunks * 3 / 2) {
+            int lap = widthChunks * CoordinateConstants.CHUNK_WIDTH_BLOCKS;
             for (NorthboundLatitude.Variant variant : NorthboundLatitude.Variant.values()) {
                 for (double factor : FACTORS) {
-                    double cap = variant.poleToEquatorBlocks() / factor;
+                    double cap = variant.getPoleToEquatorBlocks() / factor;
                     int bands = NorthboundLatitude.bands(lap, cap);
                     String reading = "lap " + lap + ", cap " + cap + ", bands " + bands;
                     assertEquals(1, bands % 2, reading);

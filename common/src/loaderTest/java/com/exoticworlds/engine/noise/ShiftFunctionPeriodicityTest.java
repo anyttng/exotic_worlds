@@ -52,13 +52,13 @@ class ShiftFunctionPeriodicityTest {
         for (ShiftFunction shift : UNINDEXABLE_SHIFTS) {
             for (WorldFold fold : WORLDS) {
                 TranslationLattice lattice = fold.getBlockLattice();
-                int xWidth = fold.getBlockDomain(Direction.Axis.X).domainLength;
-                int zWidth = fold.getBlockDomain(Direction.Axis.Z).domainLength;
+                int xWidthBlocks = fold.getBlockDomain(Direction.Axis.X).domainLength;
+                int zWidthBlocks = fold.getBlockDomain(Direction.Axis.Z).domainLength;
                 for (int i = 0; i < SAMPLES; i++) {
                     int x = blockIn(random, fold.getBlockDomain(Direction.Axis.X));
                     int y = blockY(random);
                     int z = blockIn(random, fold.getBlockDomain(Direction.Axis.Z));
-                    for (int[] block : new int[][] {{x, z}, {x + xWidth, z}, {x, z + zWidth}}) {
+                    for (int[] block : new int[][] {{x, z}, {x + xWidthBlocks, z}, {x, z + zWidthBlocks}}) {
                         double expected = shift.function().compute(new DensityFunction.SinglePointContext(
                                 lattice.foldX(block[0], block[1]), y, lattice.foldZ(block[1])));
                         assertEquals(expected, sample(shift, fold, block[0], y, block[1]),

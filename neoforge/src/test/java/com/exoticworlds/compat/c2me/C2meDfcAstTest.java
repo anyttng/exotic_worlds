@@ -134,17 +134,17 @@ class C2meDfcAstTest {
                 CLIMATE_XZ_SCALE, CLIMATE_NOISE_DATA));
         AstNode folded = GenerationFoldContext.withRouterBuild(SQUARE, LevelStem.OVERWORLD, List.of(), () -> McToAst.toAst(source));
         Random random = new Random(SEED);
-        int xWidth = SQUARE.getBlockDomain(Direction.Axis.X).domainLength;
-        int zWidth = SQUARE.getBlockDomain(Direction.Axis.Z).domainLength;
+        int xWidthBlocks = SQUARE.getBlockDomain(Direction.Axis.X).domainLength;
+        int zWidthBlocks = SQUARE.getBlockDomain(Direction.Axis.Z).domainLength;
 
         for (int i = 0; i < PERIODICITY_SAMPLES; i++) {
             int x = blockIn(random, SQUARE.getBlockDomain(Direction.Axis.X));
             int y = blockY(random);
             int z = blockIn(random, SQUARE.getBlockDomain(Direction.Axis.Z));
 
-            assertEquals(sampleFolded(folded, x, y, z), sampleFolded(folded, x + xWidth, y, z),
+            assertEquals(sampleFolded(folded, x, y, z), sampleFolded(folded, x + xWidthBlocks, y, z),
                     "x lap at (" + x + ", " + y + ", " + z + ")");
-            assertEquals(sampleFolded(folded, x, y, z), sampleFolded(folded, x, y, z + zWidth),
+            assertEquals(sampleFolded(folded, x, y, z), sampleFolded(folded, x, y, z + zWidthBlocks),
                     "z lap at (" + x + ", " + y + ", " + z + ")");
         }
     }
@@ -181,17 +181,17 @@ class C2meDfcAstTest {
                 withLiveNoise(DensityFunctions.shiftB(NOISE_DATA)))) {
             for (WorldFold worldFold : WORLDS) {
                 AstNode folded = GenerationFoldContext.withRouterBuild(worldFold, LevelStem.OVERWORLD, List.of(), () -> McToAst.toAst(source));
-                int xWidth = worldFold.getBlockDomain(Direction.Axis.X).domainLength;
-                int zWidth = worldFold.getBlockDomain(Direction.Axis.Z).domainLength;
+                int xWidthBlocks = worldFold.getBlockDomain(Direction.Axis.X).domainLength;
+                int zWidthBlocks = worldFold.getBlockDomain(Direction.Axis.Z).domainLength;
 
                 for (int i = 0; i < PERIODICITY_SAMPLES; i++) {
                     int x = blockIn(random, worldFold.getBlockDomain(Direction.Axis.X));
                     int y = blockY(random);
                     int z = blockIn(random, worldFold.getBlockDomain(Direction.Axis.Z));
 
-                    assertEquals(sampleFolded(folded, x, y, z), sampleFolded(folded, x + xWidth, y, z),
+                    assertEquals(sampleFolded(folded, x, y, z), sampleFolded(folded, x + xWidthBlocks, y, z),
                             "x lap of " + source + " in " + worldFold + " at (" + x + ", " + y + ", " + z + ")");
-                    assertEquals(sampleFolded(folded, x, y, z), sampleFolded(folded, x, y, z + zWidth),
+                    assertEquals(sampleFolded(folded, x, y, z), sampleFolded(folded, x, y, z + zWidthBlocks),
                             "z lap of " + source + " in " + worldFold + " at (" + x + ", " + y + ", " + z + ")");
                 }
             }
@@ -214,7 +214,7 @@ class C2meDfcAstTest {
         AstNode produced = new AddNode(new MulNode(unfoldedNoiseNode(), new ConstantNode(MULTIPLIER)),
                 new ConstantNode(OFFSET));
 
-        assertTrue(C2meDfcAst.reportsMiss(source, produced, SQUARE));
+        assertTrue(C2meDfcAst.tryRecordMiss(source, produced, SQUARE));
     }
 
     @Test
@@ -222,7 +222,7 @@ class C2meDfcAstTest {
         DensityFunction source = DensityFunctions.add(DensityFunctions.zero(), DensityFunctions.zero());
         AstNode produced = new AddNode(unfoldedNoiseNode(), new ConstantNode(OFFSET));
 
-        assertFalse(C2meDfcAst.reportsMiss(source, produced, SQUARE));
+        assertFalse(C2meDfcAst.tryRecordMiss(source, produced, SQUARE));
     }
 
     @Test
@@ -266,7 +266,7 @@ class C2meDfcAstTest {
 
         assertInstanceOf(C2meFoldedNoiseNode.class, produced,
                 "blend_density hands its input's node straight back, so the fixture proves nothing otherwise");
-        assertFalse(C2meDfcAst.reportsMiss(source, produced, SQUARE));
+        assertFalse(C2meDfcAst.tryRecordMiss(source, produced, SQUARE));
     }
 
     @Test
@@ -274,13 +274,13 @@ class C2meDfcAstTest {
         DensityFunction source = DensityFunctions.constant(1.0);
         AstNode produced = unfoldedNoiseNode();
 
-        assertTrue(C2meDfcAst.reportsMiss(source, produced, SQUARE));
-        assertFalse(C2meDfcAst.reportsMiss(source, produced, SQUARE));
+        assertTrue(C2meDfcAst.tryRecordMiss(source, produced, SQUARE));
+        assertFalse(C2meDfcAst.tryRecordMiss(source, produced, SQUARE));
     }
 
     @Test
     void routerThatFoldsNothingReportsNothing() {
-        assertFalse(C2meDfcAst.reportsMiss(DensityFunctions.blendAlpha(), unfoldedNoiseNode(), null));
+        assertFalse(C2meDfcAst.tryRecordMiss(DensityFunctions.blendAlpha(), unfoldedNoiseNode(), null));
     }
 
     @Test
@@ -288,12 +288,12 @@ class C2meDfcAstTest {
         DensityFunction source = DensityFunctions.yClampedGradient(0, 1, 0.0, 1.0);
         AstNode produced = unfoldedNoiseNode();
 
-        assertTrue(C2meDfcAst.reportsMiss(source, produced, SQUARE));
-        assertTrue(C2meDfcAst.reportsMiss(source, produced, RECTANGULAR));
+        assertTrue(C2meDfcAst.tryRecordMiss(source, produced, SQUARE));
+        assertTrue(C2meDfcAst.tryRecordMiss(source, produced, RECTANGULAR));
     }
 
-    private static void assertScaledShiftedFoldMatchesVanilla(boolean shiftsScaled) {
-        ScaledShiftedStandIn source = scaledShiftedNoise(shiftsScaled);
+    private static void assertScaledShiftedFoldMatchesVanilla(boolean isShiftScaled) {
+        ScaledShiftedStandIn source = scaledShiftedNoise(isShiftScaled);
         AstNode folded = GenerationFoldContext.withRouterBuild(SQUARE, LevelStem.OVERWORLD, List.of(),
                 () -> C2meDfcAst.fold(source, c2meTreeOf(source)));
         AddNode offset = assertInstanceOf(AddNode.class, folded);
@@ -314,9 +314,9 @@ class C2meDfcAstTest {
         }
     }
 
-    private static ScaledShiftedStandIn scaledShiftedNoise(boolean shiftsScaled) {
+    private static ScaledShiftedStandIn scaledShiftedNoise(boolean isShiftScaled) {
         return (ScaledShiftedStandIn) withLiveNoise(new ScaledShiftedStandIn(new DensityFunction.NoiseHolder(NOISE_DATA),
-                DensityFunctions.constant(SHIFT_X), DensityFunctions.constant(SHIFT_Z), XZ_SCALE, shiftsScaled,
+                DensityFunctions.constant(SHIFT_X), DensityFunctions.constant(SHIFT_Z), XZ_SCALE, isShiftScaled,
                 MULTIPLIER, OFFSET));
     }
 
@@ -324,10 +324,10 @@ class C2meDfcAstTest {
         AstNode scale = new ConstantNode(source.scale());
         AstNode shiftX = McToAst.toAst(source.shiftX());
         AstNode shiftZ = McToAst.toAst(source.shiftZ());
-        AstNode inputX = source.shiftsScaled()
+        AstNode inputX = source.isShiftScaled()
                 ? new MulNode(new AddNode(CoordinateNode.AXIS_X, shiftX), scale)
                 : new AddNode(new MulNode(CoordinateNode.AXIS_X, scale), shiftX);
-        AstNode inputZ = source.shiftsScaled()
+        AstNode inputZ = source.isShiftScaled()
                 ? new MulNode(new AddNode(CoordinateNode.AXIS_Z, shiftZ), scale)
                 : new AddNode(new MulNode(CoordinateNode.AXIS_Z, scale), shiftZ);
 
@@ -388,7 +388,7 @@ class C2meDfcAstTest {
         double slotX = evaluate(fold.slotX, x, y, z);
         double slotY = evaluate(fold.slotY, x, y, z);
         double slotZ = evaluate(fold.slotZ, x, y, z);
-        double sample = fold.warped()
+        double sample = fold.isWarped()
                 ? ContextScaledNoise.sampleWrappedWarped(fold.worldFold, fold.noise, x, slotY, z, slotX, slotZ,
                         fold.warpDivisor, fold.horizontalScale, fold.vanillaScale, fold.verticalShare)
                 : ContextScaledNoise.sampleWrapped(fold.worldFold, fold.slotAxes, fold.noise, slotX, slotY, slotZ,
@@ -418,21 +418,21 @@ class C2meDfcAstTest {
     }
 
     private record ScaledShiftedStandIn(DensityFunction.NoiseHolder noise, DensityFunction shiftX,
-            DensityFunction shiftZ, double scale, boolean shiftsScaled, double multiplier, double offset)
+            DensityFunction shiftZ, double scale, boolean isShiftScaled, double multiplier, double offset)
             implements DensityFunction, ScaledShiftedNoise {
         @Override
-        public DensityFunction.NoiseHolder exotic_worlds$noise() {
+        public DensityFunction.NoiseHolder exotic_worlds$getNoise() {
             return this.noise;
         }
 
         @Override
-        public double exotic_worlds$scale() {
+        public double exotic_worlds$getScale() {
             return this.scale;
         }
 
         @Override
-        public boolean exotic_worlds$shiftsScaled() {
-            return this.shiftsScaled;
+        public boolean exotic_worlds$isShiftScaled() {
+            return this.isShiftScaled;
         }
 
         @Override
@@ -452,7 +452,7 @@ class C2meDfcAstTest {
         @Override
         public DensityFunction mapChildren(DensityFunction.Visitor visitor) {
             return new ScaledShiftedStandIn(visitor.visitNoise(this.noise), visitor.apply(this.shiftX),
-                    visitor.apply(this.shiftZ), this.scale, this.shiftsScaled, this.multiplier, this.offset);
+                    visitor.apply(this.shiftZ), this.scale, this.isShiftScaled, this.multiplier, this.offset);
         }
 
         @Override

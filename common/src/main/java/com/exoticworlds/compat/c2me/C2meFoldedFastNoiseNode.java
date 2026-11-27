@@ -37,11 +37,11 @@ public final class C2meFoldedFastNoiseNode extends GenericFastNoiseNode {
         AstNode transformedInputX = this.inputX.transform(transformer);
         AstNode transformedInputY = this.inputY.transform(transformer);
         AstNode transformedInputZ = this.inputZ.transform(transformer);
-        boolean unchanged = transformedInputX == this.inputX
+        boolean isUnchanged = transformedInputX == this.inputX
                 && transformedInputY == this.inputY
                 && transformedInputZ == this.inputZ;
 
-        return transformer.transform(unchanged
+        return transformer.transform(isUnchanged
                 ? this
                 : new C2meFoldedFastNoiseNode(transformedInputX, transformedInputY, transformedInputZ, this.state,
                         this.config, this.worldFold));

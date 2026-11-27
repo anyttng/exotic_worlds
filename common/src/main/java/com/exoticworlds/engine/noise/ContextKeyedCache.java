@@ -14,10 +14,10 @@ public final class ContextKeyedCache<T> {
 
     private record Entry<T>(WorldFold fold, SlotAxes axes, double scale, double verticalShare, double xDivisor,
             double zDivisor, T value) {
-        boolean matches(WorldFold fold, Context context) {
+        boolean isMatching(WorldFold fold, Context context) {
             return this.fold == fold
                     && this.scale == context.getHorizontalScale()
-                    && this.verticalShare == context.verticalShare()
+                    && this.verticalShare == context.getVerticalShare()
                     && this.xDivisor == context.getXDivisor()
                     && this.zDivisor == context.getZDivisor()
                     && this.axes.equals(context.getSlotAxes());
@@ -29,7 +29,7 @@ public final class ContextKeyedCache<T> {
 
     public @Nullable T find(WorldFold fold, Context context) {
         for (Entry<T> entry : this.entries) {
-            if (entry.matches(fold, context)) {
+            if (entry.isMatching(fold, context)) {
                 return entry.value();
             }
         }
@@ -41,7 +41,7 @@ public final class ContextKeyedCache<T> {
         Entry<T>[] current = this.entries;
         int kept = Math.min(current.length, CAPACITY - 1);
         Entry<T>[] next = Arrays.copyOfRange(current, current.length - kept, current.length + 1);
-        next[kept] = new Entry<>(fold, context.getSlotAxes(), context.getHorizontalScale(), context.verticalShare(),
+        next[kept] = new Entry<>(fold, context.getSlotAxes(), context.getHorizontalScale(), context.getVerticalShare(),
                 context.getXDivisor(), context.getZDivisor(), value);
         this.entries = next;
         return value;

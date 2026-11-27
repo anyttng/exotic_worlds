@@ -15,17 +15,17 @@ public final class ClimateCompression {
     private static final double LN_2 = Math.log(2.0);
 
     public record Resolved(WorldFold fold, double baseScale, double verticalShare, DoubleList factors) {
-        boolean covers(WorldFold fold, double baseScale, double verticalShare) {
+        boolean isCovering(WorldFold fold, double baseScale, double verticalShare) {
             return this.fold == fold && this.baseScale == baseScale && this.verticalShare == verticalShare;
         }
     }
 
     public static DoubleList resolve(ClimateCompressionCache cache, WorldFold fold, double baseScale,
             double verticalShare, Supplier<DoubleList> factors) {
-        Resolved resolved = cache.exotic_worlds$climateCompression();
-        if (resolved == null || !resolved.covers(fold, baseScale, verticalShare)) {
+        Resolved resolved = cache.exotic_worlds$getClimateCompression();
+        if (resolved == null || !resolved.isCovering(fold, baseScale, verticalShare)) {
             resolved = new Resolved(fold, baseScale, verticalShare, factors.get());
-            cache.exotic_worlds$climateCompression(resolved);
+            cache.exotic_worlds$setClimateCompression(resolved);
         }
 
         return resolved.factors();

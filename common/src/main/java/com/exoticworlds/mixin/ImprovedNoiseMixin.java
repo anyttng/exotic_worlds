@@ -55,9 +55,9 @@ public class ImprovedNoiseMixin implements IndexableNoise, WrappedImprovedNoise 
     }
 
     @Override
-    public boolean exotic_worlds$indexable(Context context) {
+    public boolean exotic_worlds$isIndexable(Context context) {
         WorldFold fold = context.getWrappedFold();
         return fold == null
-                || this.exotic_worlds$lattices.indexable(this.p, this.xo, this.yo, this.zo, fold, context);
+                || this.exotic_worlds$lattices.isIndexable(this.p, this.xo, this.yo, this.zo, fold, context);
     }
 }

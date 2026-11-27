@@ -5,7 +5,7 @@ import com.exoticworlds.core.fold.WorldFold;
 import net.acenia.seedviewer.client.worldgen.NoiseMapType;
 
 public interface FoldedNoiseSampler {
-    WorldFold exotic_worlds$fold();
+    WorldFold exotic_worlds$getFold();
 
-    FoldedSampleCache<Float> exotic_worlds$cache(NoiseMapType type);
+    FoldedSampleCache<Float> exotic_worlds$getCache(NoiseMapType type);
 }

@@ -23,7 +23,7 @@ public final class AtlasCopies {
                     && y < this.originY + this.height;
         }
 
-        boolean meets(Offset offset, AtlasView area) {
+        boolean isMeeting(Offset offset, AtlasView area) {
             float x = this.originX + offset.x();
             float y = this.originY + offset.y();
             return x + this.width > area.contentX() && x < area.contentX() + area.contentWidth()
@@ -35,7 +35,7 @@ public final class AtlasCopies {
 
     public static final List<Offset> BASE_ONLY = List.of(BASE);
 
-    public static final int ANY_MOVE = 1;
+    public static final int ANY_MOVE_BLOCKS = 1;
 
     private static final Comparator<Offset> ROWS_THEN_COLUMNS =
             Comparator.comparingDouble(Offset::y).thenComparingDouble(Offset::x);
@@ -61,7 +61,7 @@ public final class AtlasCopies {
             }
 
             Offset offset = new Offset(moveX * pixelsPerBlock, moveZ * pixelsPerBlock);
-            if (layout.meets(offset, area)) {
+            if (layout.isMeeting(offset, area)) {
                 offsets.add(offset);
             }
         }

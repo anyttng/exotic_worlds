@@ -17,12 +17,12 @@ public record ShiftedNoiseFold(DensityFunction.NoiseHolder noise, double horizon
     private static final double UNSCALED_SHIFT = 1.0;
 
     public static ShiftedNoiseFold of(ScaledShiftedNoise source) {
-        DensityFunction.NoiseHolder noise = source.exotic_worlds$noise();
-        double scale = source.exotic_worlds$scale();
+        DensityFunction.NoiseHolder noise = source.exotic_worlds$getNoise();
+        double scale = source.exotic_worlds$getScale();
         double horizontalScale = NoiseScaleLadder.installedScale(noise, scale);
         return new ShiftedNoiseFold(noise, horizontalScale, scale,
                 GenerationFoldContext.verticalShare(horizontalScale, NO_Y),
-                source.exotic_worlds$shiftsScaled() ? scale : UNSCALED_SHIFT);
+                source.exotic_worlds$isShiftScaled() ? scale : UNSCALED_SHIFT);
     }
 
     public double warpDivisor(WorldFold fold) {

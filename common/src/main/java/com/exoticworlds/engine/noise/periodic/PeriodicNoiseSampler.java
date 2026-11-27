@@ -51,8 +51,8 @@ public final class PeriodicNoiseSampler {
         TranslationLattice translations = fold.getBlockLattice();
         SlotAxes axes = context.getSlotAxes();
         double scale = context.getHorizontalScale();
-        boolean slotted = axes != SlotAxes.DEFAULT || context.getXDivisor() != 1.0 || context.getZDivisor() != 1.0;
-        return slotted
+        boolean isSlotted = axes != SlotAxes.DEFAULT || context.getXDivisor() != 1.0 || context.getZDivisor() != 1.0;
+        return isSlotted
                 ? slottedLattice(permutations, xOffset, yOffset, zOffset, translations, axes, context, scale, floor)
                 : worldLattice(permutations, xOffset, yOffset, zOffset, translations, context, scale, floor);
     }
@@ -73,7 +73,7 @@ public final class PeriodicNoiseSampler {
         WrapDomain zDomain = translations.getZ();
         long xPeriod = period(xDomain, scale, floor);
         long zPeriod = period(zDomain, scale, floor);
-        double verticalShare = context.verticalShare();
+        double verticalShare = context.getVerticalShare();
         double correction = OctaveVarianceCorrection.factor(xDomain, zDomain, scale, verticalShare);
         double anchorGain = OctaveVarianceCorrection.anchorGain(xDomain, zDomain, scale, verticalShare);
         PeriodicLattice.Axis xAxis = PeriodicLattice.Axis.of(true, xDomain, xPeriod, scale);

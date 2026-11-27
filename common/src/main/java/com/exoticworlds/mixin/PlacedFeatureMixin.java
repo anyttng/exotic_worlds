@@ -62,13 +62,13 @@ public class PlacedFeatureMixin {
         }
 
         recording.enterFeature();
-        boolean answer = false;
+        boolean isPlaced = false;
         try {
-            answer = original.call(feature, level, generator, random, pos);
+            isPlaced = original.call(feature, level, generator, random, pos);
         } finally {
-            recording.exitFeature(feature, pos, answer);
+            recording.exitFeature(feature, pos, isPlaced);
         }
 
-        return answer;
+        return isPlaced;
     }
 }
