@@ -13,8 +13,9 @@ import net.minecraft.world.level.levelgen.RandomState;
 /**
  * What this mod does to terrain, offered to a mod that reproduces generation outside the chunk map: an LOD generator
  * sampling on its own threads, or a harness measuring many seeds in one server session with no world on disk. Two
- * pieces are offered: the router a seed is given, and the fold bound on the thread that samples it. The crumb passes
- * the chunk map runs are not offered, so a chunk filled outside it keeps the detached masses a generated one loses.
+ * pieces are offered: the router a seed is given, which carries the fold in its compiled density functions, and the
+ * fold bound on the thread for the noise read outside them. The crumb passes the chunk map runs are not offered, so a
+ * chunk filled outside it keeps the detached masses a generated one loses.
  *
  * <p>Nothing here generates a chunk. The caller drives vanilla's own generator ({@code fillFromNoise},
  * {@code buildSurface}, {@code applyCarvers}) and uses these two to make that run the folded world's rather than
@@ -40,9 +41,10 @@ public final class GenerationProbe {
     }
 
     /**
-     * Runs {@code body} with the level's fold bound on the calling thread, which is what a sampler needs to read the
-     * folded field. Generation driven outside the chunk map reaches no hook that would bind it, so a density read
-     * without this returns the unbounded vanilla value. The binding is per thread and lasts only for the call.
+     * Runs {@code body} with the level's fold bound on the calling thread, which is what noise read outside a density
+     * function needs to read the folded field. Generation driven outside the chunk map reaches no hook that would bind
+     * it, so such a read without this returns the unbounded vanilla value; a density function of the router
+     * {@link #randomState} built is folded either way. The binding is per thread and lasts only for the call.
      */
     public static void withFold(ServerLevel level, Runnable body) {
         ProbeBridge.withFold(level, body);
