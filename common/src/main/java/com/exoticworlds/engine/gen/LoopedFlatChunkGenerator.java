@@ -1,6 +1,7 @@
 package com.exoticworlds.engine.gen;
 
 import com.exoticworlds.core.CarriedShape;
+import com.exoticworlds.core.FoldGenerators;
 import com.exoticworlds.core.ShapedChunkGenerator;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
@@ -9,7 +10,7 @@ import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.levelgen.FlatLevelSource;
 import net.minecraft.world.level.levelgen.flat.FlatLevelGeneratorSettings;
 
-public class LoopedFlatChunkGenerator extends FlatLevelSource implements ShapedChunkGenerator {
+public final class LoopedFlatChunkGenerator extends FlatLevelSource implements ShapedChunkGenerator {
     public static final MapCodec<LoopedFlatChunkGenerator> CODEC = RecordCodecBuilder.mapCodec(
             instance -> instance.group(
                     FlatLevelGeneratorSettings.CODEC.fieldOf(SETTINGS_KEY).forGetter(LoopedFlatChunkGenerator::settings),
@@ -21,6 +22,7 @@ public class LoopedFlatChunkGenerator extends FlatLevelSource implements ShapedC
     public LoopedFlatChunkGenerator(FlatLevelGeneratorSettings settings, CarriedShape carriedShape) {
         super(settings);
         this.carriedShape = carriedShape;
+        FoldGenerators.fileFold(this, carriedShape);
     }
 
     @Override
