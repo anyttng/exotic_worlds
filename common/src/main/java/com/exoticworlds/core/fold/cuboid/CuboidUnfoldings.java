@@ -6,86 +6,150 @@ import java.util.ArrayList;
 import java.util.List;
 
 final class CuboidUnfoldings {
-    private static final int NO_SIDE = -1;
+    private static final double ON_EDGE_BLOCKS = 1.0E-7;
+    private static final double ON_LINE = 1.0E-9;
 
-    private final SeamTransform[][][] moves;
+    private record Edge(boolean isAcrossX, double line, double min, double max) {
+        static Edge of(CuboidFold.Rect face, int side, SeamTransform toAnchor) {
+            boolean isAlongZ = side == CuboidFold.WEST || side == CuboidFold.EAST;
+            int fixed = switch (side) {
+                case CuboidFold.WEST -> face.minX();
+                case CuboidFold.EAST -> face.endX();
+                case CuboidFold.NORTH -> face.minZ();
+                default -> face.endZ();
+            };
+            double fromX = isAlongZ ? fixed : face.minX();
+            double fromZ = isAlongZ ? face.minZ() : fixed;
+            double toX = isAlongZ ? fixed : face.endX();
+            double toZ = isAlongZ ? face.endZ() : fixed;
+            double firstX = toAnchor.applyX(fromX, fromZ);
+            double firstZ = toAnchor.applyZ(fromX, fromZ);
+            double secondX = toAnchor.applyX(toX, toZ);
+            double secondZ = toAnchor.applyZ(toX, toZ);
+            return firstX == secondX
+                    ? new Edge(true, firstX, Math.min(firstZ, secondZ), Math.max(firstZ, secondZ))
+                    : new Edge(false, firstZ, Math.min(firstX, secondX), Math.max(firstX, secondX));
+        }
+    }
 
-    private CuboidUnfoldings(SeamTransform[][][] moves) {
+    private record Unfolding(SeamTransform move, List<Edge> edges) {
+    }
+
+    private static final class Search {
+        private final CuboidFold.Rect[] faces;
+        private final CuboidFold.Crossing[][] crossings;
+        private final int target;
+        private final List<Unfolding> found = new ArrayList<>();
+
+        private Search(CuboidFold.Rect[] faces, CuboidFold.Crossing[][] crossings, int target) {
+            this.faces = faces;
+            this.crossings = crossings;
+            this.target = target;
+        }
+    }
+
+    private final Unfolding[][][] moves;
+
+    private CuboidUnfoldings(Unfolding[][][] moves) {
         this.moves = moves;
     }
 
-    static CuboidUnfoldings of(CuboidFold.Crossing[][] crossings) {
-        int faces = crossings.length;
-        SeamTransform[][][] moves = new SeamTransform[faces][faces][];
-        for (int anchor = 0; anchor < faces; anchor++) {
-            for (int target = 0; target < faces; target++) {
-                moves[anchor][target] = unfoldingsOf(crossings, anchor, target);
+    static CuboidUnfoldings of(CuboidFold.Rect[] faces, CuboidFold.Crossing[][] crossings) {
+        int count = faces.length;
+        Unfolding[][][] moves = new Unfolding[count][count][];
+        for (int anchor = 0; anchor < count; anchor++) {
+            for (int target = 0; target < count; target++) {
+                moves[anchor][target] = unfoldingsOf(faces, crossings, anchor, target);
             }
         }
 
         return new CuboidUnfoldings(moves);
     }
 
-    private static SeamTransform[] unfoldingsOf(CuboidFold.Crossing[][] crossings, int anchor, int target) {
+    private static Unfolding[] unfoldingsOf(CuboidFold.Rect[] faces, CuboidFold.Crossing[][] crossings,
+            int anchor, int target) {
         if (anchor == target) {
-            return new SeamTransform[] {SeamTransform.IDENTITY};
+            return new Unfolding[] {new Unfolding(SeamTransform.IDENTITY, List.of())};
         }
 
-        List<SeamTransform> unfoldings = new ArrayList<>();
-        int direct = sideToward(crossings[anchor], target);
-        if (direct != NO_SIDE) {
-            unfoldings.add(crossings[anchor][direct].transform().inverse());
-        }
+        Search search = new Search(faces, crossings, target);
+        walk(search, anchor, SeamTransform.IDENTITY, 1 << anchor, List.of());
+        return unmovedFirst(search.found);
+    }
 
+    private static void walk(Search search, int face, SeamTransform toAnchor, int visited, List<Edge> crossed) {
         for (int side = 0; side < CuboidFold.SIDES; side++) {
-            CuboidFold.Crossing first = crossings[anchor][side];
-            int onward = side == direct ? NO_SIDE : sideToward(crossings[first.face()], target);
-            if (onward != NO_SIDE) {
-                unfoldings.add(first.transform().then(crossings[first.face()][onward].transform()).inverse());
+            CuboidFold.Crossing crossing = search.crossings[face][side];
+            int next = crossing.face();
+            if ((visited & (1 << next)) != 0) {
+                continue;
+            }
+
+            List<Edge> edges = new ArrayList<>(crossed);
+            edges.add(Edge.of(search.faces[face], side, toAnchor));
+            SeamTransform nextToAnchor = crossing.transform().inverse().then(toAnchor);
+            if (next == search.target) {
+                search.found.add(new Unfolding(nextToAnchor, List.copyOf(edges)));
+            } else {
+                walk(search, next, nextToAnchor, visited | (1 << next), edges);
             }
         }
-
-        return unmovedFirst(unfoldings);
     }
 
-    private static int sideToward(CuboidFold.Crossing[] sides, int face) {
-        for (int side = 0; side < sides.length; side++) {
-            if (sides[side].face() == face) {
-                return side;
-            }
-        }
-
-        return NO_SIDE;
-    }
-
-    private static SeamTransform[] unmovedFirst(List<SeamTransform> unfoldings) {
+    private static Unfolding[] unmovedFirst(List<Unfolding> unfoldings) {
         for (int index = 1; index < unfoldings.size(); index++) {
-            if (unfoldings.get(index).isIdentity()) {
+            if (unfoldings.get(index).move().isIdentity()) {
                 unfoldings.add(0, unfoldings.remove(index));
             }
         }
 
-        return unfoldings.toArray(SeamTransform[]::new);
+        return unfoldings.toArray(Unfolding[]::new);
     }
 
     SeamTransform nearest(int anchorFace, int targetFace, double anchorX, double anchorZ, double x, double z) {
-        SeamTransform[] unfoldings = this.moves[anchorFace][targetFace];
-        SeamTransform nearest = unfoldings[0];
-        double nearestDistance = sqrDistance(nearest, anchorX, anchorZ, x, z);
-        for (int index = 1; index < unfoldings.length; index++) {
-            double distance = sqrDistance(unfoldings[index], anchorX, anchorZ, x, z);
-            if (distance < nearestDistance) {
-                nearest = unfoldings[index];
+        Unfolding nearest = null;
+        double nearestDistance = Double.MAX_VALUE;
+        for (Unfolding unfolding : this.moves[anchorFace][targetFace]) {
+            double seatedX = unfolding.move().applyX(x, z);
+            double seatedZ = unfolding.move().applyZ(x, z);
+            double dx = seatedX - anchorX;
+            double dz = seatedZ - anchorZ;
+            double distance = dx * dx + dz * dz;
+            if (distance < nearestDistance && isCrossingEveryEdge(unfolding.edges(), anchorX, anchorZ, dx, dz)) {
+                nearest = unfolding;
                 nearestDistance = distance;
             }
         }
 
-        return nearest;
+        return nearest == null ? SeamTransform.IDENTITY : nearest.move();
     }
 
-    private static double sqrDistance(SeamTransform unfolding, double anchorX, double anchorZ, double x, double z) {
-        double dx = unfolding.applyX(x, z) - anchorX;
-        double dz = unfolding.applyZ(x, z) - anchorZ;
-        return dx * dx + dz * dz;
+    private static boolean isCrossingEveryEdge(List<Edge> edges, double anchorX, double anchorZ, double dx,
+            double dz) {
+        double last = 0.0;
+        for (int index = 0; index < edges.size(); index++) {
+            double at = crossingAt(edges.get(index), anchorX, anchorZ, dx, dz, last);
+            if (Double.isNaN(at)) {
+                return false;
+            }
+
+            last = at;
+        }
+
+        return true;
+    }
+
+    private static double crossingAt(Edge edge, double anchorX, double anchorZ, double dx, double dz, double after) {
+        double start = edge.isAcrossX() ? anchorX : anchorZ;
+        double toward = edge.isAcrossX() ? dx : dz;
+        if (toward == 0.0) {
+            return Math.abs(start - edge.line()) <= ON_EDGE_BLOCKS ? after : Double.NaN;
+        }
+
+        double at = (edge.line() - start) / toward;
+        double along = edge.isAcrossX() ? anchorZ + at * dz : anchorX + at * dx;
+        boolean isOnSegment = at >= after - ON_LINE && at <= 1.0 + ON_LINE
+                && along >= edge.min() - ON_EDGE_BLOCKS && along <= edge.max() + ON_EDGE_BLOCKS;
+        return isOnSegment ? at : Double.NaN;
     }
 }

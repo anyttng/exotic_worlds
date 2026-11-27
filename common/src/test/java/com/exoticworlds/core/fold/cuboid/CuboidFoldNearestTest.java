@@ -14,6 +14,7 @@ import com.exoticworlds.core.fold.FoldOrientation;
 import com.exoticworlds.core.fold.SeamTransform;
 import com.exoticworlds.core.fold.WorldFold;
 import com.exoticworlds.core.fold.cuboid.CuboidFace.Side;
+import com.exoticworlds.core.world.CoordinateConstants;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -28,6 +29,11 @@ class CuboidFoldNearestTest {
     private static final int INWARD = 2;
     private static final int OUTWARD = 1;
     private static final int ALONG = 2;
+    private static final int LONG_EDGE_CHUNKS = 30;
+    private static final int SHORT_EDGE_CHUNKS = 12;
+    private static final int SHORTEST_CHUNKS = 40;
+    private static final double TOLERANCE = 1.0E-9;
+    private static final double[] SAMPLE_SHARES = {0.03, 0.31, 0.5, 0.77, 0.97};
 
     private record Crossing(WorldFold fold, CuboidFace from, Direction fromSide, SeamTransform transform) {
         SeamTransform back() {
@@ -219,6 +225,67 @@ class CuboidFoldNearestTest {
             assertEquals(frontByWest.distSqr(pastWest), sqrDistance(fold, frontByWest, backByWest));
             assertEquals(frontByWest.distSqr(pastWest), sqrDistance(fold, backByWest, frontByWest));
         }
+    }
+
+    @Test
+    void theShortestPathOverFourEdgesIsTaken() {
+        CuboidAtlas atlas = CuboidAtlas.of(LONG_EDGE_CHUNKS, SHORT_EDGE_CHUNKS, SHORT_EDGE_CHUNKS,
+                CuboidFixtures.MIN_CHUNK_X, CuboidFixtures.MIN_CHUNK_Z);
+        WorldFold fold = CuboidFixtures.cuboidFold(atlas);
+        CuboidFace west = CuboidFixtures.face(atlas, Side.WEST);
+        CuboidFace east = CuboidFixtures.face(atlas, Side.EAST);
+        int chunkBlocks = CoordinateConstants.CHUNK_WIDTH_BLOCKS;
+        Vec3 byTop = new Vec3(west.minBlockX() + west.widthBlocks() / 2.0, BLOCK_Y, west.minBlockZ() + chunkBlocks);
+        Vec3 byBottom = new Vec3(east.minBlockX() + east.widthBlocks() / 2.0, BLOCK_Y,
+                east.minBlockZ() + east.depthBlocks() - chunkBlocks);
+        double shortest = SHORTEST_CHUNKS * chunkBlocks;
+
+        assertEquals(shortest * shortest, fold.sqrDistanceBlocks(byTop.x, byTop.y, byTop.z,
+                byBottom.x, byBottom.y, byBottom.z), TOLERANCE);
+        assertEquals(shortest * shortest, fold.sqrDistanceBlocks(byBottom.x, byBottom.y, byBottom.z,
+                byTop.x, byTop.y, byTop.z), TOLERANCE);
+        assertEquals(shortest, byTop.distanceTo(fold.nearestCopy(byTop, byBottom)), TOLERANCE);
+    }
+
+    @Test
+    void everyDistanceIsTheShortestPathOverTheSurface() {
+        for (CuboidAtlas atlas : CuboidFixtures.atlases()) {
+            WorldFold fold = CuboidFixtures.cuboidFold(atlas);
+            BoxGeodesics geodesics = BoxGeodesics.of(atlas);
+            for (CuboidFace from : atlas.faces()) {
+                for (CuboidFace to : atlas.faces()) {
+                    assertShortestBetween(fold, geodesics, from, to);
+                }
+            }
+        }
+    }
+
+    private static void assertShortestBetween(WorldFold fold, BoxGeodesics geodesics, CuboidFace from,
+            CuboidFace to) {
+        for (double[] start : samplesOn(from)) {
+            for (double[] end : samplesOn(to)) {
+                double shortest = geodesics.shortestBlocks(from, start[0], start[1], to, end[0], end[1]);
+                assertEquals(shortest * shortest,
+                        fold.sqrDistanceBlocks(start[0], BLOCK_Y, start[1], end[0], BLOCK_Y, end[1]),
+                        TOLERANCE * shortest * shortest,
+                        () -> from.side() + " " + start[0] + ", " + start[1] + " to " + to.side() + " "
+                                + end[0] + ", " + end[1]);
+            }
+        }
+    }
+
+    private static double[][] samplesOn(CuboidFace face) {
+        double[][] samples = new double[SAMPLE_SHARES.length * SAMPLE_SHARES.length][];
+        int index = 0;
+        for (double shareX : SAMPLE_SHARES) {
+            for (double shareZ : SAMPLE_SHARES) {
+                samples[index++] = new double[] {
+                        face.minBlockX() + shareX * face.widthBlocks(),
+                        face.minBlockZ() + shareZ * face.depthBlocks()};
+            }
+        }
+
+        return samples;
     }
 
     @Test

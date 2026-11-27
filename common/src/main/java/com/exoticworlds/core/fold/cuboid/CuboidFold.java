@@ -111,7 +111,7 @@ public final class CuboidFold implements WorldFold {
         }
 
         this.crossings = crossingsOf(atlasFaces, atlas.edges());
-        this.unfoldings = CuboidUnfoldings.of(this.crossings);
+        this.unfoldings = CuboidUnfoldings.of(this.faces, this.crossings);
         this.regions = new CuboidRegions(this.faces, this.crossings);
         this.maxViewDistanceChunks = Math.max(1, smallestEdge / 2 - CoordinateConstants.VIEW_DISTANCE_MARGIN_CHUNKS);
         this.netSideBlocks = netSideBlocks(this.faces);
