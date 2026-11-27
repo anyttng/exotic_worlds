@@ -2,6 +2,7 @@ package com.exoticworlds.engine.gen;
 
 import com.exoticworlds.accessors.BaseHeightsHolder;
 import com.exoticworlds.core.CarriedShape;
+import com.exoticworlds.core.FoldGenerators;
 import com.exoticworlds.core.ShapedChunkGenerator;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
@@ -15,7 +16,7 @@ import net.minecraft.world.level.levelgen.NoiseBasedChunkGenerator;
 import net.minecraft.world.level.levelgen.NoiseGeneratorSettings;
 import net.minecraft.world.level.levelgen.RandomState;
 
-public class LoopedChunkGenerator extends NoiseBasedChunkGenerator implements ShapedChunkGenerator {
+public final class LoopedChunkGenerator extends NoiseBasedChunkGenerator implements ShapedChunkGenerator {
     private static final String BIOME_SOURCE_KEY = "biome_source";
 
     public static final MapCodec<LoopedChunkGenerator> CODEC = RecordCodecBuilder.mapCodec(
@@ -31,6 +32,7 @@ public class LoopedChunkGenerator extends NoiseBasedChunkGenerator implements Sh
             CarriedShape carriedShape) {
         super(biomeSource, settings);
         this.carriedShape = carriedShape;
+        FoldGenerators.fileFold(this, carriedShape);
     }
 
     @Override

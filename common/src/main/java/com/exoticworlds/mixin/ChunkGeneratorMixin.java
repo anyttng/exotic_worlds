@@ -7,6 +7,7 @@ import org.spongepowered.asm.mixin.Unique;
 import com.exoticworlds.accessors.ShapeStamp;
 import com.exoticworlds.core.CarriedShape;
 import com.exoticworlds.core.DimensionTable;
+import com.exoticworlds.core.FoldGenerators;
 
 import net.minecraft.world.level.chunk.ChunkGenerator;
 
@@ -29,6 +30,7 @@ public class ChunkGeneratorMixin implements ShapeStamp {
     @Override
     public void exotic_worlds$stamp(CarriedShape carried) {
         this.exotic_worlds$carriedShape = carried;
+        FoldGenerators.fileFold((ChunkGenerator) (Object) this, carried);
     }
 
     @Override
@@ -39,6 +41,7 @@ public class ChunkGeneratorMixin implements ShapeStamp {
     @Override
     public void exotic_worlds$stampBaked(@Nullable CarriedShape carried) {
         this.exotic_worlds$bakedShape = carried;
+        FoldGenerators.fileFold((ChunkGenerator) (Object) this, carried);
     }
 
     @Override
