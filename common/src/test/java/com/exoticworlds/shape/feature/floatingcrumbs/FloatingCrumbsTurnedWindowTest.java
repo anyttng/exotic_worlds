@@ -12,6 +12,8 @@ import com.exoticworlds.core.world.CoordinateConstants;
 import com.exoticworlds.core.fold.FoldOrientation;
 import com.exoticworlds.core.fold.WorldFold;
 
+import it.unimi.dsi.fastutil.ints.IntArrayList;
+
 import net.minecraft.world.level.ChunkPos;
 
 class FloatingCrumbsTurnedWindowTest {
@@ -53,35 +55,78 @@ class FloatingCrumbsTurnedWindowTest {
     }
 
     private static TerrainMask mask(ChunkPos pos, @Nullable WorldFold turning, FoldOrientation frame,
-            @Nullable Box solid) {
+            @Nullable Box solid, boolean hasBorderCells) {
         boolean[] cells = new boolean[GRID.getCellCount()];
+        IntArrayList border = new IntArrayList();
         if (solid != null) {
             for (int localZ = solid.minZ(); localZ <= solid.maxZ(); localZ++) {
                 for (int localX = solid.minX(); localX <= solid.maxX(); localX++) {
-                    cells[GRID.cell(frame.applyToLocalX(localX, localZ, CHUNK_WIDTH_BLOCKS), LAYER,
-                            frame.applyToLocalZ(localX, localZ, CHUNK_WIDTH_BLOCKS))] = true;
+                    int cell = GRID.cell(frame.applyToLocalX(localX, localZ, CHUNK_WIDTH_BLOCKS), LAYER,
+                            frame.applyToLocalZ(localX, localZ, CHUNK_WIDTH_BLOCKS));
+                    cells[cell] = true;
+                    border.add(cell);
                 }
             }
         }
 
-        return TerrainMask.of(cells, pos, MIN_Y, GRID, turning);
+        return TerrainMask.of(cells, pos, MIN_Y, GRID, turning, hasBorderCells ? border.toIntArray() : null);
     }
 
     private static TerrainMask[] window(@Nullable WorldFold turning, FoldOrientation eastFrame, Box east) {
+        return window(turning, eastFrame, east, false);
+    }
+
+    private static TerrainMask[] window(@Nullable WorldFold turning, FoldOrientation eastFrame, Box east,
+            boolean hasBorderCells) {
         TerrainMask[] window = new TerrainMask[WINDOW_CHUNKS * WINDOW_CHUNKS];
         for (int stepZ = -1; stepZ <= 1; stepZ++) {
             for (int stepX = -1; stepX <= 1; stepX++) {
                 int index = (stepZ + 1) * WINDOW_CHUNKS + stepX + 1;
                 ChunkPos pos = new ChunkPos(CENTER.x() + stepX, CENTER.z() + stepZ);
                 window[index] = switch (index) {
-                    case CENTER_INDEX -> mask(pos, turning, FoldOrientation.IDENTITY, CRUMB);
-                    case EAST_INDEX -> mask(pos, turning, eastFrame, east);
-                    default -> mask(pos, turning, FoldOrientation.IDENTITY, null);
+                    case CENTER_INDEX -> mask(pos, turning, FoldOrientation.IDENTITY, CRUMB, hasBorderCells);
+                    case EAST_INDEX -> mask(pos, turning, eastFrame, east, hasBorderCells);
+                    default -> mask(pos, turning, FoldOrientation.IDENTITY, null, hasBorderCells);
                 };
             }
         }
 
         return window;
+    }
+
+    @Test
+    void borderCellsClearTheCrumbBesideAMassApart() {
+        long[] scanned = FloatingCrumbs.crumbPositions(window(null, FoldOrientation.IDENTITY, MASS_APART));
+        long[] started = FloatingCrumbs.crumbPositions(window(null, FoldOrientation.IDENTITY, MASS_APART, true));
+
+        assertEquals(CRUMB.blocks(), started.length, "the crumb was not cleared whole from its border cells");
+        assertArrayEquals(scanned, started, "the border cells cleared another set than the full scan");
+    }
+
+    @Test
+    void borderCellsKeepACrumbContinuingIntoTheNeighbor() {
+        long[] started = FloatingCrumbs.crumbPositions(window(null, FoldOrientation.IDENTITY, CONTINUATION, true));
+
+        assertEquals(0, started.length, "a component lying across the edge was cleared from its border cells");
+    }
+
+    @Test
+    void noBorderCellsClearNothing() {
+        TerrainMask[] window = window(null, FoldOrientation.IDENTITY, MASS_APART);
+        window[CENTER_INDEX] = TerrainMask.of(solidCells(CRUMB), CENTER, MIN_Y, GRID, null, new int[0]);
+
+        assertEquals(0, FloatingCrumbs.crumbPositions(window).length, "a center with no border cells was walked");
+    }
+
+    private static boolean[] solidCells(Box solid) {
+        boolean[] cells = new boolean[GRID.getCellCount()];
+        for (int localZ = solid.minZ(); localZ <= solid.maxZ(); localZ++) {
+            for (int localX = solid.minX(); localX <= solid.maxX(); localX++) {
+                cells[GRID.cell(localX, LAYER, localZ)] = true;
+            }
+        }
+
+        return cells;
     }
 
     @Test

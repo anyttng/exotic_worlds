@@ -28,7 +28,10 @@ final class CrumbFlood {
     record Sweep(int detached, int swept, int blocks) {
     }
 
-    static Sweep clearCrumbs(CellGrid grid, boolean[] solid, byte[] fluid, int solidBlocks, IntConsumer cleared) {
+    record Sink(IntConsumer cleared, IntConsumer border) {
+    }
+
+    static Sweep clearCrumbs(CellGrid grid, boolean[] solid, byte[] fluid, int solidBlocks, Sink sink) {
         boolean[] taken = new boolean[solid.length];
         int[] pending = new int[solidBlocks];
         int detached = 0;
@@ -42,6 +45,7 @@ final class CrumbFlood {
 
             int size = collect(grid, solid, taken, pending, start);
             if (isTouchingSide(grid, pending, size)) {
+                reportBorder(pending, size, sink.border());
                 continue;
             }
 
@@ -52,10 +56,20 @@ final class CrumbFlood {
 
             swept++;
             blocks += size;
-            sweep(grid, solid, fluid, Arrays.copyOf(pending, size), cleared);
+            sweep(grid, solid, fluid, Arrays.copyOf(pending, size), sink.cleared());
         }
 
         return new Sweep(detached, swept, blocks);
+    }
+
+    private static void reportBorder(int[] cells, int count, IntConsumer border) {
+        if (count >= SMALLEST_KEPT_BLOCKS) {
+            return;
+        }
+
+        for (int i = 0; i < count; i++) {
+            border.accept(cells[i]);
+        }
     }
 
     private static int collect(CellGrid grid, boolean[] solid, boolean[] taken, int[] pending, int start) {

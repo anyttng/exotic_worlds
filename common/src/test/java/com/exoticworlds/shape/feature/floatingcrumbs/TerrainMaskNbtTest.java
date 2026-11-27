@@ -1,5 +1,6 @@
 package com.exoticworlds.shape.feature.floatingcrumbs;
 
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -7,6 +8,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import org.junit.jupiter.api.Test;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.level.ChunkPos;
 
 class TerrainMaskNbtTest {
@@ -19,6 +21,10 @@ class TerrainMaskNbtTest {
     private static final ChunkPos POS = new ChunkPos(-3, 7);
 
     private static final CellGrid GRID = new CellGrid(SIDE_BLOCKS, HEIGHT_BLOCKS);
+
+    private static final int[] BORDER = {GRID.cell(0, 9, 3), GRID.cell(0, 2, 3), GRID.cell(15, 2, 11)};
+
+    private static final String BORDER_KEY = "border";
 
     private static boolean solid(int x, int y, int z) {
         return (x * 7 + y * 3 + z * 5) % 4 != 0 && y < HEIGHT_BLOCKS - 5;
@@ -38,7 +44,7 @@ class TerrainMaskNbtTest {
             }
         }
 
-        TerrainMask mask = TerrainMask.of(cells, POS, MIN_Y, GRID, null);
+        TerrainMask mask = TerrainMask.of(cells, POS, MIN_Y, GRID, null, BORDER.clone());
         for (int y = 0; y < HEIGHT_BLOCKS; y++) {
             for (int z = 0; z < SIDE_BLOCKS; z++) {
                 for (int x = 0; x < SIDE_BLOCKS; x++) {
@@ -70,6 +76,37 @@ class TerrainMaskNbtTest {
                 }
             }
         }
+    }
+
+    @Test
+    void roundTripKeepsTheBorderCellsInCellOrder() {
+        TerrainMask loaded = TerrainMask.load(sample().save(), POS, MIN_Y, HEIGHT_BLOCKS, null);
+
+        assertNotNull(loaded);
+        assertArrayEquals(new int[] {GRID.cell(0, 2, 3), GRID.cell(15, 2, 11), GRID.cell(0, 9, 3)},
+                loaded.getBorderCells());
+    }
+
+    @Test
+    void aMaskSavedWithoutBorderCellsLoadsWithNone() {
+        CompoundTag saved = sample().save();
+        saved.remove(BORDER_KEY);
+
+        TerrainMask loaded = TerrainMask.load(saved, POS, MIN_Y, HEIGHT_BLOCKS, null);
+
+        assertNotNull(loaded);
+        assertNull(loaded.getBorderCells());
+    }
+
+    @Test
+    void aBorderCellOutsideTheGridDropsTheList() {
+        CompoundTag saved = sample().save();
+        saved.putIntArray(BORDER_KEY, new int[] {GRID.cell(0, 2, 3), GRID.getCellCount()});
+
+        TerrainMask loaded = TerrainMask.load(saved, POS, MIN_Y, HEIGHT_BLOCKS, null);
+
+        assertNotNull(loaded);
+        assertNull(loaded.getBorderCells());
     }
 
     @Test
