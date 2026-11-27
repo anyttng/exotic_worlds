@@ -62,7 +62,8 @@ public class RaidMixin {
             return sections;
         }
 
-        return sections.map(section -> fold.fold(section)).distinct();
+        long centerNode = cubeCenter.asLong();
+        return sections.map(section -> SectionPos.of(fold.foldSectionNodeFrom(centerNode, section.asLong()))).distinct();
     }
 
     @ModifyArg(

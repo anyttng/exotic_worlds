@@ -105,6 +105,14 @@ public interface WorldFold {
         return foldChunkKey(chunkKey);
     }
 
+    default ChunkPos foldFrom(ChunkPos ref, ChunkPos pos) {
+        return fold(pos);
+    }
+
+    default long foldSectionNodeFrom(long refNode, long sectionNode) {
+        return foldSectionNode(sectionNode);
+    }
+
     long foldSectionNode(long sectionNode);
 
     Folded<Vec3> foldOriented(Vec3 pos);

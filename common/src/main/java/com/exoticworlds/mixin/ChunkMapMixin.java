@@ -185,8 +185,10 @@ public class ChunkMapMixin implements LevelHolder, ChunkResender, SeamDriveSched
     @WrapOperation(
             method = "getChunkRangeFuture",
             at = @At(value = "INVOKE", target = InjectionTargets.CHUNK_POS_PACK))
-    private long exotic_worlds$rangeOverPhysicalChunks(int chunkX, int chunkZ, Operation<Long> original) {
-        long folded = WorldLoopAttachments.getFold(this.level).foldChunkKey(ChunkPos.pack(chunkX, chunkZ));
+    private long exotic_worlds$rangeOverPhysicalChunks(int chunkX, int chunkZ, Operation<Long> original,
+            @Local(argsOnly = true) ChunkHolder centerChunk) {
+        long folded = WorldLoopAttachments.getFold(this.level)
+                .foldChunkKeyFrom(centerChunk.getPos().pack(), ChunkPos.pack(chunkX, chunkZ));
         return original.call(ChunkPos.getX(folded), ChunkPos.getZ(folded));
     }
 
@@ -357,6 +359,19 @@ public class ChunkMapMixin implements LevelHolder, ChunkResender, SeamDriveSched
     @ModifyExpressionValue(method = "isChunkTracked", at = @At(value = "INVOKE", target = InjectionTargets.CHUNK_POS_PACK))
     private long exotic_worlds$pendingPhysicalChunk(long chunkKey) {
         return WorldLoopAttachments.getFold(this.level).foldChunkKey(chunkKey);
+    }
+
+    @WrapOperation(
+            method = "isChunkOnTrackedBorder",
+            at = @At(
+                    value = "INVOKE",
+                    target = "Lnet/minecraft/server/level/ChunkMap;isChunkTracked(Lnet/minecraft/server/level/ServerPlayer;II)Z"))
+    private boolean exotic_worlds$borderNeighborFromItsChunk(ChunkMap chunkMap, ServerPlayer player, int neighborX,
+            int neighborZ, Operation<Boolean> original, @Local(argsOnly = true, ordinal = 0) int chunkX,
+            @Local(argsOnly = true, ordinal = 1) int chunkZ) {
+        long folded = WorldLoopAttachments.getFold(this.level)
+                .foldChunkKeyFrom(ChunkPos.pack(chunkX, chunkZ), ChunkPos.pack(neighborX, neighborZ));
+        return original.call(chunkMap, player, ChunkPos.getX(folded), ChunkPos.getZ(folded));
     }
 
     @ModifyReturnValue(method = "getPlayerViewDistance", at = @At("RETURN"))

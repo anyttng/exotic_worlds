@@ -101,7 +101,7 @@ public class ServerLevelMixin {
             return square;
         }
 
-        return square.map(chunkPos -> fold.fold(chunkPos)).distinct();
+        return square.map(chunkPos -> fold.foldFrom(center, chunkPos)).distinct();
     }
 
     @WrapOperation(

@@ -46,6 +46,6 @@ public abstract class ChunkTrackingViewPositionedMixin implements FoldHolder {
 
     @ModifyArg(method = "forEach", at = @At(value = "INVOKE", target = InjectionTargets.CONSUMER_ACCEPT))
     private Object exotic_worlds$foldVisited(Object pos) {
-        return this.exotic_worlds$fold.fold((ChunkPos) pos);
+        return this.exotic_worlds$fold.foldFrom(((ChunkTrackingView.Positioned) (Object) this).center(), (ChunkPos) pos);
     }
 }

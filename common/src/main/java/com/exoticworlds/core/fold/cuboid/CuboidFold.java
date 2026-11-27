@@ -459,6 +459,22 @@ public final class CuboidFold implements WorldFold {
     }
 
     @Override
+    public ChunkPos foldFrom(ChunkPos ref, ChunkPos pos) {
+        long chunkKey = pos.pack();
+        long folded = foldChunkKeyFrom(ref.pack(), chunkKey);
+        return folded == chunkKey ? pos : ChunkPos.unpack(folded);
+    }
+
+    @Override
+    public long foldSectionNodeFrom(long refNode, long sectionNode) {
+        long chunkKey = ChunkPos.pack(SectionPos.x(sectionNode), SectionPos.z(sectionNode));
+        long folded = foldChunkKeyFrom(ChunkPos.pack(SectionPos.x(refNode), SectionPos.z(refNode)), chunkKey);
+        return folded == chunkKey
+                ? sectionNode
+                : SectionPos.asLong(ChunkPos.getX(folded), SectionPos.y(sectionNode), ChunkPos.getZ(folded));
+    }
+
+    @Override
     public long foldSectionNode(long sectionNode) {
         int x = SectionPos.x(sectionNode);
         int z = SectionPos.z(sectionNode);

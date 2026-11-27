@@ -18,9 +18,9 @@ public final class PoiSeamSearch {
 
     public static Stream<ChunkPos> chunksAround(WorldFold fold, ChunkPos center, int radiusChunks) {
         Stream<ChunkPos> wrapped = ChunkPos.rangeClosed(center, radiusChunks)
-                .map(fold::fold);
+                .map(chunkPos -> fold.foldFrom(center, chunkPos));
 
-        if (!fold.isFoldedOntoItself(blocksOf(center, radiusChunks))) {
+        if (fold.getCuboidAtlas() == null && !fold.isFoldedOntoItself(blocksOf(center, radiusChunks))) {
             return wrapped;
         }
 

@@ -49,7 +49,7 @@ public interface ChunkTrackingViewMixin {
 
         for (int x = box.minX(); x <= box.maxX(); x++) {
             for (int z = box.minZ(); z <= box.maxZ(); z++) {
-                ChunkPos pos = fold.fold(new ChunkPos(x, z));
+                ChunkPos pos = fold.foldFrom(previous.center(), new ChunkPos(x, z));
                 if (!visited.add(pos.pack())) {
                     continue;
                 }

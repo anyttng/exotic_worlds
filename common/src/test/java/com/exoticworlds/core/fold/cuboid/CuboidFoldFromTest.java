@@ -24,6 +24,8 @@ class CuboidFoldFromTest {
     private static final int NEIGHBOR_STEP_CHUNKS = 1;
     private static final int TORUS_REACH_CHUNKS = 40;
     private static final int TORUS_STEP_CHUNKS = 7;
+    private static final int SECTION_Y = -3;
+    private static final int REF_SECTION_Y = 5;
     private static final WorldFold CUBE_32 = CuboidFixtures.cuboidFold(new CuboidShape(32, 32, 32).atlas());
     private static final List<WorldFold> PLAYABLE = List.of(
             CuboidFixtures.cuboidFold(new CuboidShape(16, 16, 16).atlas()),
@@ -152,12 +154,49 @@ class CuboidFoldFromTest {
     }
 
     @Test
+    void theChunkPastTheVertexFoldsAlikeAsAChunkPosAndAsASection() {
+        assertEquals(new ChunkPos(-16, -17), CUBE_32.foldFrom(new ChunkPos(-17, -16), new ChunkPos(-17, -17)));
+        assertEquals(SectionPos.asLong(-16, SECTION_Y, -17),
+                CUBE_32.foldSectionNodeFrom(SectionPos.asLong(-17, REF_SECTION_Y, -16),
+                        SectionPos.asLong(-17, SECTION_Y, -17)));
+    }
+
+    @Test
+    void everyNeighborFoldsAsAChunkPosAndAsASectionWhereItsKeyFolds() {
+        for (WorldFold fold : PLAYABLE) {
+            for (long chunk : netChunksBesideAnEdge(fold)) {
+                ChunkPos center = ChunkPos.unpack(chunk);
+                long centerSection = SectionPos.asLong(center.x(), REF_SECTION_Y, center.z());
+                for (int offsetX = -NEIGHBOR_STEP_CHUNKS; offsetX <= NEIGHBOR_STEP_CHUNKS; offsetX++) {
+                    for (int offsetZ = -NEIGHBOR_STEP_CHUNKS; offsetZ <= NEIGHBOR_STEP_CHUNKS; offsetZ++) {
+                        ChunkPos neighbor = new ChunkPos(center.x() + offsetX, center.z() + offsetZ);
+                        long folded = fold.foldChunkKeyFrom(chunk, neighbor.pack());
+                        long section = fold.foldSectionNodeFrom(centerSection,
+                                SectionPos.asLong(neighbor.x(), SECTION_Y, neighbor.z()));
+                        String where = neighbor + " beside " + center;
+
+                        assertEquals(ChunkPos.unpack(folded), fold.foldFrom(center, neighbor), where);
+                        assertEquals(SectionPos.asLong(ChunkPos.getX(folded), SECTION_Y, ChunkPos.getZ(folded)),
+                                section, where);
+                    }
+                }
+            }
+        }
+    }
+
+    @Test
     void aTorusFoldsFromAnyChunkAsItFoldsAlone() {
         for (WorldFold fold : List.of(CompatFoldFixture.PER_AXIS, CompatFoldFixture.DECK_TORUS)) {
             long ref = key(0, 0);
+            ChunkPos refPos = ChunkPos.unpack(ref);
+            long refSection = SectionPos.asLong(0, REF_SECTION_Y, 0);
             for (int x = -TORUS_REACH_CHUNKS; x <= TORUS_REACH_CHUNKS; x += TORUS_STEP_CHUNKS) {
                 for (int z = -TORUS_REACH_CHUNKS; z <= TORUS_REACH_CHUNKS; z += TORUS_STEP_CHUNKS) {
+                    long section = SectionPos.asLong(x, SECTION_Y, z);
+
                     assertEquals(fold.foldChunkKey(key(x, z)), fold.foldChunkKeyFrom(ref, key(x, z)));
+                    assertEquals(fold.fold(new ChunkPos(x, z)), fold.foldFrom(refPos, new ChunkPos(x, z)));
+                    assertEquals(fold.foldSectionNode(section), fold.foldSectionNodeFrom(refSection, section));
                 }
             }
         }

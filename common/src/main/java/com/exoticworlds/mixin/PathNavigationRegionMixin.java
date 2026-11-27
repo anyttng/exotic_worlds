@@ -10,7 +10,10 @@ import com.exoticworlds.accessors.RegionLevelSource;
 import com.exoticworlds.core.fold.WorldLoopAttachments;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
+import com.llamalad7.mixinextras.sugar.Local;
 
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.SectionPos;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.PathNavigationRegion;
@@ -33,8 +36,11 @@ public class PathNavigationRegionMixin implements RegionLevelSource {
             at = @At(value = "INVOKE",
                     target = "Lnet/minecraft/world/level/chunk/ChunkSource;getChunkNow(II)Lnet/minecraft/world/level/chunk/LevelChunk;"))
     private @Nullable LevelChunk exotic_worlds$foldSnapshotChunk(ChunkSource chunkSource, int chunkX, int chunkZ,
-            Operation<@Nullable LevelChunk> original) {
-        long folded = WorldLoopAttachments.getFold(this.level).foldChunkKey(ChunkPos.pack(chunkX, chunkZ));
+            Operation<@Nullable LevelChunk> original, @Local(argsOnly = true, ordinal = 0) BlockPos start,
+            @Local(argsOnly = true, ordinal = 1) BlockPos end) {
+        long centerKey = ChunkPos.pack(SectionPos.blockToSectionCoord((start.getX() + end.getX()) >> 1),
+                SectionPos.blockToSectionCoord((start.getZ() + end.getZ()) >> 1));
+        long folded = WorldLoopAttachments.getFold(this.level).foldChunkKeyFrom(centerKey, ChunkPos.pack(chunkX, chunkZ));
         return original.call(chunkSource, ChunkPos.getX(folded), ChunkPos.getZ(folded));
     }
 }

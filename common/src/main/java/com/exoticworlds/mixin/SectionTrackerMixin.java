@@ -28,6 +28,7 @@ public class SectionTrackerMixin implements LevelBindable {
             at = @At(value = "INVOKE", target = InjectionTargets.SECTION_POS_OFFSET))
     private long exotic_worlds$physicalNeighborSection(
             long sectionNode, int stepX, int stepY, int stepZ, Operation<Long> original) {
-        return this.exotic_worlds$bound.getFold().foldSectionNode(original.call(sectionNode, stepX, stepY, stepZ));
+        return this.exotic_worlds$bound.getFold()
+                .foldSectionNodeFrom(sectionNode, original.call(sectionNode, stepX, stepY, stepZ));
     }
 }
