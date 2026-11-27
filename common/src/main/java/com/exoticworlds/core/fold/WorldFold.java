@@ -100,6 +100,10 @@ public interface WorldFold {
 
     long foldChunkKey(long chunkKey);
 
+    default long foldChunkKeyFrom(long refKey, long chunkKey) {
+        return foldChunkKey(chunkKey);
+    }
+
     long foldSectionNode(long sectionNode);
 
     Folded<Vec3> foldOriented(Vec3 pos);

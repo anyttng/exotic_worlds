@@ -75,11 +75,11 @@ public class ChunkGenerationTaskMixin {
             return initializer.get(slotX, slotZ);
         }
 
-        ChunkPos wrapped = fold.fold(slot);
-        int wrappedX = wrapped.x();
-        int wrappedZ = wrapped.z();
+        long wrapped = fold.foldChunkKeyFrom(ChunkPos.pack(centerX, centerZ), ChunkPos.pack(slotX, slotZ));
+        int wrappedX = ChunkPos.getX(wrapped);
+        int wrappedZ = ChunkPos.getZ(wrapped);
 
-        if (map.getUpdatingChunkIfPresent(ChunkPos.pack(wrappedX, wrappedZ)) == null) {
+        if (map.getUpdatingChunkIfPresent(wrapped) == null) {
             exotic_worlds$LOGGER.warn(
                     "missing_folded_holder level={} slot_x={} slot_z={} wrapped_x={} wrapped_z={} center_x={} center_z={}",
                     levelName, slotX, slotZ, wrappedX, wrappedZ, centerX, centerZ);

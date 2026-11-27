@@ -432,6 +432,27 @@ public final class CuboidFold implements WorldFold {
     }
 
     @Override
+    public long foldChunkKeyFrom(long refKey, long chunkKey) {
+        int x = ChunkPos.getX(chunkKey);
+        int z = ChunkPos.getZ(chunkKey);
+        int blockX = SectionPos.sectionToBlockCoord(x);
+        int blockZ = SectionPos.sectionToBlockCoord(z);
+        if (faceOf(blockX, blockZ) != NO_FACE) {
+            return chunkKey;
+        }
+
+        int refBlockX = SectionPos.sectionToBlockCoord(ChunkPos.getX(refKey));
+        int refBlockZ = SectionPos.sectionToBlockCoord(ChunkPos.getZ(refKey));
+        int refFace = faceOf(refBlockX, refBlockZ);
+        SeamTransform move = refFace == NO_FACE ? null : this.unfoldings.moveAlongLine(refFace,
+                refBlockX + CHUNK_CENTER, refBlockZ + CHUNK_CENTER,
+                blockX + CHUNK_CENTER, blockZ + CHUNK_CENTER, blockX, blockZ);
+        return move == null
+                ? foldChunkKey(chunkKey)
+                : ChunkPos.pack(carriedChunkX(move, x, z), carriedChunkZ(move, x, z));
+    }
+
+    @Override
     public long foldSectionNode(long sectionNode) {
         int x = SectionPos.x(sectionNode);
         int z = SectionPos.z(sectionNode);

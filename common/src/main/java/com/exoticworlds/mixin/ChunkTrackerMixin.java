@@ -8,6 +8,7 @@ import com.exoticworlds.InjectionTargets;
 import com.exoticworlds.accessors.LevelBindable;
 import com.exoticworlds.engine.level.BoundLevelFold;
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
+import com.llamalad7.mixinextras.sugar.Local;
 
 import net.minecraft.server.level.ChunkTracker;
 import net.minecraft.server.level.ServerLevel;
@@ -26,7 +27,7 @@ public class ChunkTrackerMixin implements LevelBindable {
             method = {"checkNeighborsAfterUpdate", "getComputedLevel"},
             at = @At(value = "INVOKE", target = InjectionTargets.CHUNK_POS_PACK),
             expect = 2)
-    private long exotic_worlds$physicalNeighborKey(long key) {
-        return this.exotic_worlds$bound.getFold().foldChunkKey(key);
+    private long exotic_worlds$physicalNeighborKey(long key, @Local(argsOnly = true, ordinal = 0) long node) {
+        return this.exotic_worlds$bound.getFold().foldChunkKeyFrom(node, key);
     }
 }

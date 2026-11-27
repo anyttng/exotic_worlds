@@ -5,6 +5,8 @@ import com.exoticworlds.core.fold.SeamTransform;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.jspecify.annotations.Nullable;
+
 final class CuboidUnfoldings {
     private static final double ON_EDGE_BLOCKS = 1.0E-7;
     private static final double ON_LINE = 1.0E-9;
@@ -48,9 +50,12 @@ final class CuboidUnfoldings {
         }
     }
 
+    private final CuboidFold.Rect[] faces;
+
     private final Unfolding[][][] moves;
 
-    private CuboidUnfoldings(Unfolding[][][] moves) {
+    private CuboidUnfoldings(CuboidFold.Rect[] faces, Unfolding[][][] moves) {
+        this.faces = faces;
         this.moves = moves;
     }
 
@@ -63,7 +68,7 @@ final class CuboidUnfoldings {
             }
         }
 
-        return new CuboidUnfoldings(moves);
+        return new CuboidUnfoldings(faces, moves);
     }
 
     private static Unfolding[] unfoldingsOf(CuboidFold.Rect[] faces, CuboidFold.Crossing[][] crossings,
@@ -122,6 +127,37 @@ final class CuboidUnfoldings {
         }
 
         return nearest == null ? SeamTransform.IDENTITY : nearest.move();
+    }
+
+    @Nullable SeamTransform moveAlongLine(int anchorFace, double anchorX, double anchorZ, double x, double z,
+            int blockX, int blockZ) {
+        for (int targetFace = 0; targetFace < this.faces.length; targetFace++) {
+            if (targetFace == anchorFace) {
+                continue;
+            }
+
+            SeamTransform back = lineUnfoldingBack(anchorFace, targetFace, anchorX, anchorZ, x, z, blockX, blockZ);
+            if (back != null) {
+                return back;
+            }
+        }
+
+        return null;
+    }
+
+    private @Nullable SeamTransform lineUnfoldingBack(int anchorFace, int targetFace, double anchorX, double anchorZ,
+            double x, double z, int blockX, int blockZ) {
+        for (Unfolding unfolding : this.moves[anchorFace][targetFace]) {
+            SeamTransform back = unfolding.move().inverse();
+            boolean isSeatedOnTarget = this.faces[targetFace].contains(
+                    back.applyCellX(blockX, blockZ), back.applyCellZ(blockX, blockZ));
+            if (isSeatedOnTarget
+                    && isCrossingEveryEdge(unfolding.edges(), anchorX, anchorZ, x - anchorX, z - anchorZ)) {
+                return back;
+            }
+        }
+
+        return null;
     }
 
     private static boolean isCrossingEveryEdge(List<Edge> edges, double anchorX, double anchorZ, double dx,
