@@ -1,32 +1,21 @@
 package com.exoticworlds.engine.gen;
 
-import java.util.List;
-
 import org.jspecify.annotations.Nullable;
 
 import com.exoticworlds.core.fold.cuboid.CuboidAtlas;
-import com.exoticworlds.core.fold.cuboid.CuboidFace;
 import com.exoticworlds.core.world.SpawnPoint;
 import com.exoticworlds.core.fold.WorldFold;
 import com.exoticworlds.engine.noise.cuboid.CuboidStraightWalk;
 
 import net.minecraft.core.BlockPos;
-import net.minecraft.util.Mth;
 
 final class SpawnSurface {
-    private static final int NO_FACE = -1;
-
-    private static final double CELL_CENTER = 0.5;
-
     private final WorldFold fold;
-
-    private final List<CuboidFace> faces;
 
     private final CuboidStraightWalk walk;
 
     private SpawnSurface(WorldFold fold, CuboidAtlas atlas) {
         this.fold = fold;
-        this.faces = atlas.faces();
         this.walk = CuboidStraightWalk.of(atlas);
     }
 
@@ -36,34 +25,10 @@ final class SpawnSurface {
     }
 
     BlockPos walked(BlockPos searchOrigin, int blockX, int blockZ) {
-        BlockPos.MutableBlockPos landed = new BlockPos.MutableBlockPos(blockX, searchOrigin.getY(), blockZ);
-        int startFace = faceAt(searchOrigin.getX(), searchOrigin.getZ());
-        if (startFace == NO_FACE) {
-            return landed;
-        }
-
-        this.walk.land(startFace,
-                searchOrigin.getX() + CELL_CENTER, searchOrigin.getZ() + CELL_CENTER,
-                blockX + CELL_CENTER, blockZ + CELL_CENTER,
-                (atlasFace, localX, localZ) -> {
-                    CuboidFace face = this.faces.get(atlasFace);
-                    landed.setX(face.blockX(Math.min(Mth.floor(localX), face.widthBlocks() - 1)));
-                    landed.setZ(face.blockZ(Math.min(Mth.floor(localZ), face.depthBlocks() - 1)));
-                });
-        return landed;
+        return this.walk.landedBlock(searchOrigin, blockX, blockZ);
     }
 
     BlockPos nearestTo(SpawnPoint point, int blockX, int blockZ) {
         return this.fold.nearestCopy(new BlockPos(point.getBlockX(), 0, point.getBlockZ()), new BlockPos(blockX, 0, blockZ));
-    }
-
-    private int faceAt(int blockX, int blockZ) {
-        for (int face = 0; face < this.faces.size(); face++) {
-            if (this.faces.get(face).contains(blockX, blockZ)) {
-                return face;
-            }
-        }
-
-        return NO_FACE;
     }
 }

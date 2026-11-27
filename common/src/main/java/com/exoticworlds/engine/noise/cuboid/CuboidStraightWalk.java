@@ -7,6 +7,7 @@ import com.exoticworlds.core.fold.cuboid.CuboidFace;
 import com.exoticworlds.core.fold.SeamTransform;
 import com.exoticworlds.engine.noise.cuboid.CuboidCrossings.Crossing;
 
+import net.minecraft.core.BlockPos;
 import net.minecraft.util.Mth;
 
 public final class CuboidStraightWalk {
@@ -16,13 +17,17 @@ public final class CuboidStraightWalk {
 
     private static final double NO_HEIGHT = 0.0;
 
+    private static final int NO_FACE = -1;
+
+    private static final double CELL_CENTER = 0.5;
+
     private static final Reading<Landing> LANDED = (landing, atlasFace, localX, y, localZ) -> {
         landing.at(atlasFace, localX, localZ);
         return 0.0F;
     };
 
     @FunctionalInterface
-    public interface Landing {
+    interface Landing {
         void at(int atlasFace, double localX, double localZ);
     }
 
@@ -44,8 +49,35 @@ public final class CuboidStraightWalk {
         return new CuboidStraightWalk(atlas.faces(), CuboidCrossings.of(atlas));
     }
 
-    public void land(int atlasFace, double startX, double startZ, double endX, double endZ, Landing landing) {
+    void land(int atlasFace, double startX, double startZ, double endX, double endZ, Landing landing) {
         read(landing, LANDED, atlasFace, startX, startZ, endX, endZ, NO_HEIGHT);
+    }
+
+    public BlockPos landedBlock(BlockPos from, int blockX, int blockZ) {
+        BlockPos.MutableBlockPos landed = new BlockPos.MutableBlockPos(blockX, from.getY(), blockZ);
+        int startFace = faceAt(from.getX(), from.getZ());
+        if (startFace == NO_FACE) {
+            return landed;
+        }
+
+        land(startFace, from.getX() + CELL_CENTER, from.getZ() + CELL_CENTER,
+                blockX + CELL_CENTER, blockZ + CELL_CENTER,
+                (atlasFace, localX, localZ) -> {
+                    CuboidFace face = this.faces.get(atlasFace);
+                    landed.setX(face.blockX(Math.min(Mth.floor(localX), face.widthBlocks() - 1)));
+                    landed.setZ(face.blockZ(Math.min(Mth.floor(localZ), face.depthBlocks() - 1)));
+                });
+        return landed;
+    }
+
+    private int faceAt(int blockX, int blockZ) {
+        for (int face = 0; face < this.faces.size(); face++) {
+            if (this.faces.get(face).contains(blockX, blockZ)) {
+                return face;
+            }
+        }
+
+        return NO_FACE;
     }
 
     <T> float read(T field, Reading<T> reading, int atlasFace, double startX, double startZ, double endX, double endZ,
