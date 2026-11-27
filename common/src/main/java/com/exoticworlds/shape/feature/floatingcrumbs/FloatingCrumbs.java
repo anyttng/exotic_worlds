@@ -21,6 +21,7 @@ import com.exoticworlds.core.fold.WorldLoopAttachments;
 import com.exoticworlds.engine.gen.terrain.TerrainCeiling;
 import com.exoticworlds.shape.feature.ShapeFeature;
 
+import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.longs.LongArrayList;
 
 import net.minecraft.core.BlockPos;
@@ -188,13 +189,16 @@ public final class FloatingCrumbs extends ShapeFeature
         byte[] fluid = new byte[solid.length];
         List<BlockState> fluids = new ArrayList<>();
         int solidBlocks = CrumbFlood.fill(chunk, grid, solid, fluid, fluids, minY);
+        IntArrayList border = new IntArrayList();
         if (solidBlocks > 0) {
             BlockPos.MutableBlockPos cursor = new BlockPos.MutableBlockPos();
-            CrumbFlood.clearCrumbs(grid, solid, fluid, solidBlocks,
-                    cell -> write(chunk, grid, cursor, cell, minY, CrumbFlood.getBlock(fluids, fluid[cell])));
+            CrumbFlood.clearCrumbs(grid, solid, fluid, solidBlocks, new CrumbFlood.Sink(
+                    cell -> write(chunk, grid, cursor, cell, minY, CrumbFlood.getBlock(fluids, fluid[cell])),
+                    border::add));
         }
 
-        attachTerrainMask(chunk, TerrainMask.of(solid, chunk.getPos(), minY, grid, getTurningFold(level)));
+        attachTerrainMask(chunk, TerrainMask.of(solid, chunk.getPos(), minY, grid, getTurningFold(level),
+                border.toIntArray()));
     }
 
     private static void registerMask(ServerLevel level, ChunkAccess chunk) {
@@ -300,7 +304,8 @@ public final class FloatingCrumbs extends ShapeFeature
         }
 
         TerrainMask center = window[CENTER_INDEX];
-        if (lowestY > highestY || center.isEmpty()) {
+        int[] border = center.getBorderCells();
+        if (lowestY > highestY || center.isEmpty() || (border != null && border.length == 0)) {
             return null;
         }
 
@@ -310,24 +315,37 @@ public final class FloatingCrumbs extends ShapeFeature
         int[] pending = new int[CrumbFlood.SMALLEST_KEPT_BLOCKS];
         Cleared cleared = new Cleared(grid, lowestY);
         CrumbSearch search = new CrumbSearch(window, center.windowFrames(WINDOW_CHUNKS), taken, rejected, pending);
+        if (border != null) {
+            CellGrid maskGrid = center.getGrid();
+            for (int cell : border) {
+                takeCrumbAt(search, cleared, maskGrid.localX(cell), center.getMinY() + maskGrid.layer(cell),
+                        maskGrid.localZ(cell));
+            }
+
+            return cleared;
+        }
 
         for (int y = center.getLowestY(); y <= center.getHighestY(); y++) {
             for (int localZ = 0; localZ < CoordinateConstants.CHUNK_WIDTH_BLOCKS; localZ++) {
                 for (int localX = 0; localX < CoordinateConstants.CHUNK_WIDTH_BLOCKS; localX++) {
-                    if (!center.isSolidAt(localX, y, localZ)) {
-                        continue;
-                    }
-
-                    int start = grid.cell(CoordinateConstants.CHUNK_WIDTH_BLOCKS + localX, y - lowestY,
-                            CoordinateConstants.CHUNK_WIDTH_BLOCKS + localZ);
-                    if (!taken.get(start)) {
-                        takeCrumb(search, cleared, start);
-                    }
+                    takeCrumbAt(search, cleared, localX, y, localZ);
                 }
             }
         }
 
         return cleared;
+    }
+
+    private static void takeCrumbAt(CrumbSearch search, Cleared cleared, int localX, int y, int localZ) {
+        if (!search.window[CENTER_INDEX].isSolidAt(localX, y, localZ)) {
+            return;
+        }
+
+        int start = cleared.grid.cell(CoordinateConstants.CHUNK_WIDTH_BLOCKS + localX, y - cleared.lowestY,
+                CoordinateConstants.CHUNK_WIDTH_BLOCKS + localZ);
+        if (!search.taken.get(start)) {
+            markCleared(search, cleared, gatherCrumb(search, cleared, start));
+        }
     }
 
     private static int centerLocalX(CellGrid window, int cell) {
@@ -336,10 +354,6 @@ public final class FloatingCrumbs extends ShapeFeature
 
     private static int centerLocalZ(CellGrid window, int cell) {
         return window.localZ(cell) - CoordinateConstants.CHUNK_WIDTH_BLOCKS;
-    }
-
-    private static void takeCrumb(CrumbSearch search, Cleared cleared, int start) {
-        markCleared(search, cleared, gatherCrumb(search, cleared, start));
     }
 
     private static int gatherCrumb(CrumbSearch search, Cleared cleared, int start) {
