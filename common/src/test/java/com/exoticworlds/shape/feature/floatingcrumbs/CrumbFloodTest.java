@@ -63,11 +63,46 @@ class CrumbFloodTest {
 
         List<Integer> sweep() {
             List<Integer> cleared = new ArrayList<>();
-            this.result = CrumbFlood.clearCrumbs(GRID, this.solid, this.fluid, this.blocks, cleared::add);
+            this.result = CrumbFlood.clearCrumbs(GRID, this.solid, this.fluid, this.blocks,
+                    new CrumbFlood.Sink(cleared::add, this.border::add));
             return cleared;
         }
 
         private CrumbFlood.Sweep result;
+
+        private final List<Integer> border = new ArrayList<>();
+    }
+
+    @Test
+    void aSmallMassAgainstASideIsReportedForTheBorderPass() {
+        Grid grid = new Grid().set(0, 8, 4).set(1, 8, 4).set(1, 8, 5);
+
+        grid.sweep();
+
+        assertEquals(List.of(Grid.cell(0, 8, 4), Grid.cell(1, 8, 4), Grid.cell(1, 8, 5)),
+                grid.border.stream().sorted().toList());
+    }
+
+    @Test
+    void aMassOfTheCeilingAgainstASideIsNotReported() {
+        Grid grid = new Grid();
+        for (int z = 0; z < SIDE; z++) {
+            grid.set(0, z, 4).set(0, z, 5);
+        }
+
+        grid.sweep();
+
+        assertEquals(CrumbFlood.SMALLEST_KEPT_BLOCKS, grid.blocks);
+        assertTrue(grid.border.isEmpty(), "reported a mass of 32 blocks against a side");
+    }
+
+    @Test
+    void anInteriorCrumbIsNotReportedForTheBorderPass() {
+        Grid grid = new Grid().set(8, 8, 4);
+
+        grid.sweep();
+
+        assertTrue(grid.border.isEmpty(), "reported a crumb the chunk pass already cleared");
     }
 
     @Test
