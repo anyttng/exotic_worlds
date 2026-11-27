@@ -17,13 +17,13 @@ public final class SeamLines {
 
     public static void draw(GuiGraphicsExtractor graphics, BiomeSampler sampler, MapCamera camera,
             MapViewport viewport) {
-        WorldFold fold = ((FoldedBiomeSampler) (Object) sampler).exotic_worlds$fold();
+        WorldFold fold = ((FoldedBiomeSampler) (Object) sampler).exotic_worlds$getFold();
         if (!fold.isWrapped()) {
             return;
         }
 
-        if (narrowerThanFloor(AxisCopies.of(fold, Direction.Axis.X), camera)
-                || narrowerThanFloor(AxisCopies.of(fold, Direction.Axis.Z), camera)) {
+        if (isNarrowerThanFloor(AxisCopies.of(fold, Direction.Axis.X), camera)
+                || isNarrowerThanFloor(AxisCopies.of(fold, Direction.Axis.Z), camera)) {
             return;
         }
 
@@ -43,7 +43,7 @@ public final class SeamLines {
         }
     }
 
-    private static boolean narrowerThanFloor(AxisCopies axis, MapCamera camera) {
+    private static boolean isNarrowerThanFloor(AxisCopies axis, MapCamera camera) {
         return axis.isLooped() && axis.getWidth() * camera.pixelsPerBlock() < FullscreenZoomFloor.MIN_WORLD_PIXELS;
     }
 

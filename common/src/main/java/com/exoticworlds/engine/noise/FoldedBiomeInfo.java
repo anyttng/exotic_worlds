@@ -11,7 +11,7 @@ public final class FoldedBiomeInfo {
     @SuppressWarnings("removal")
     public static double sample(Context generation, WorldFold fold, double divisor, int x, int z) {
         double scale = 1.0 / divisor;
-        if (PeriodicSimplexSampler.carries(fold, scale)) {
+        if (PeriodicSimplexSampler.canCarry(fold, scale)) {
             try (Context.ScaleScope _ = generation.withScale(scale)) {
                 return Biome.BIOME_INFO_NOISE.getValue(x, z, false);
             }

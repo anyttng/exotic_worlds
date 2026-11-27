@@ -11,12 +11,12 @@ final class ClimateCompressionCacheFixture {
         int stores;
 
         @Override
-        public @Nullable Resolved exotic_worlds$climateCompression() {
+        public @Nullable Resolved exotic_worlds$getClimateCompression() {
             return this.resolved;
         }
 
         @Override
-        public void exotic_worlds$climateCompression(Resolved resolved) {
+        public void exotic_worlds$setClimateCompression(Resolved resolved) {
             this.resolved = resolved;
             this.stores++;
         }

@@ -101,8 +101,8 @@ public final class ContextScaledNoise {
     private static double warped(Context context, DensityFunction.NoiseHolder noise,
             int blockX, double y, int blockZ, double shiftX, double shiftZ, double warpDivisor) {
         TranslationLattice lattice = context.getFold().getBlockLattice();
-        double vanillaScale = context.vanillaScale();
-        if (!indexable(context, noise) || !DomainWarp.canCarry(lattice, blockX, blockZ, shiftX, shiftZ, vanillaScale)) {
+        double vanillaScale = context.getVanillaScale();
+        if (!isIndexable(context, noise) || !DomainWarp.canCarry(lattice, blockX, blockZ, shiftX, shiftZ, vanillaScale)) {
             return vanillaAt(context, noise, lattice.foldX(blockX, blockZ) * vanillaScale + shiftX, y,
                     lattice.foldZ(blockZ) * vanillaScale + shiftZ);
         }
@@ -111,8 +111,8 @@ public final class ContextScaledNoise {
                 DomainWarp.applyZ(lattice, blockZ, shiftZ, warpDivisor));
     }
 
-    private static boolean indexable(Context context, DensityFunction.NoiseHolder noise) {
-        return !(noise.noise() instanceof IndexableNoise indexable) || indexable.exotic_worlds$indexable(context);
+    private static boolean isIndexable(Context context, DensityFunction.NoiseHolder noise) {
+        return !(noise.noise() instanceof IndexableNoise indexable) || indexable.exotic_worlds$isIndexable(context);
     }
 
     private static double vanillaAt(Context context, DensityFunction.NoiseHolder noise, double x, double y,
@@ -141,8 +141,8 @@ public final class ContextScaledNoise {
 
     private static double vanillaSlot(Context context, SlotAxis axis, double raw, double foldedX, double foldedZ) {
         return switch (axis) {
-            case X -> foldedX * context.vanillaScale() / axis.getDivisor(context);
-            case Z -> foldedZ * context.vanillaScale() / axis.getDivisor(context);
+            case X -> foldedX * context.getVanillaScale() / axis.getDivisor(context);
+            case Z -> foldedZ * context.getVanillaScale() / axis.getDivisor(context);
             case NONE -> raw;
         };
     }

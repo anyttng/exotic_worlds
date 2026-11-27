@@ -87,9 +87,9 @@ public class MinecraftServerMixin implements SeamDetailsPendingHolder, SeamCheck
 
     @WrapMethod(method = "setInitialSpawn")
     private static void exotic_worlds$spawnSearchFromTheSpawnPoint(ServerLevel level, ServerLevelData levelData,
-            boolean spawnBonusChest, boolean isDebug, LevelLoadListener levelLoadListener, Operation<Void> original) {
+            boolean shouldSpawnBonusChest, boolean isDebug, LevelLoadListener levelLoadListener, Operation<Void> original) {
         SpawnSearch.from(level.getChunkSource().getGenerator(),
-                () -> original.call(level, levelData, spawnBonusChest, isDebug, levelLoadListener));
+                () -> original.call(level, levelData, shouldSpawnBonusChest, isDebug, levelLoadListener));
     }
 
     @WrapOperation(

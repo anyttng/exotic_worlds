@@ -76,8 +76,8 @@ public class PerlinNoiseMixin implements ClimateCompressionCache, IndexableNoise
     }
 
     @Override
-    public boolean exotic_worlds$indexable(Context context) {
-        return context.getWrappedFold() == null || PeriodicOctaveSampler.indexable(context,
+    public boolean exotic_worlds$isIndexable(Context context) {
+        return context.getWrappedFold() == null || PeriodicOctaveSampler.isIndexable(context,
                 context.getHorizontalScale(), this.exotic_worlds$octaveFactors(context), this.noiseLevels,
                 this.lowestFreqInputFactor);
     }
@@ -86,7 +86,7 @@ public class PerlinNoiseMixin implements ClimateCompressionCache, IndexableNoise
     private DoubleList exotic_worlds$octaveFactors(Context generation) {
         double declaredScale = generation.getHorizontalScale();
         WorldFold fold = generation.getFold();
-        double verticalShare = generation.verticalShare();
+        double verticalShare = generation.getVerticalShare();
         return ClimateCompression.resolve(this, fold, declaredScale, verticalShare,
                 () -> exotic_worlds$octaveFactorsAt(fold, declaredScale, verticalShare));
     }
@@ -122,12 +122,12 @@ public class PerlinNoiseMixin implements ClimateCompressionCache, IndexableNoise
     }
 
     @Override
-    public @Nullable Resolved exotic_worlds$climateCompression() {
+    public @Nullable Resolved exotic_worlds$getClimateCompression() {
         return this.exotic_worlds$climateCompression;
     }
 
     @Override
-    public void exotic_worlds$climateCompression(Resolved resolved) {
+    public void exotic_worlds$setClimateCompression(Resolved resolved) {
         this.exotic_worlds$climateCompression = resolved;
     }
 }

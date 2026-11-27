@@ -26,12 +26,12 @@ class FoldedBiomeInfoTest {
         Random random = new Random(SEED);
         for (WorldFold fold : WORLDS) {
             TranslationLattice lattice = fold.getBlockLattice();
-            int xWidth = fold.getBlockDomain(Direction.Axis.X).domainLength;
-            int zWidth = fold.getBlockDomain(Direction.Axis.Z).domainLength;
+            int xWidthBlocks = fold.getBlockDomain(Direction.Axis.X).domainLength;
+            int zWidthBlocks = fold.getBlockDomain(Direction.Axis.Z).domainLength;
             for (int i = 0; i < SAMPLES; i++) {
                 int x = blockIn(random, fold.getBlockDomain(Direction.Axis.X));
                 int z = blockIn(random, fold.getBlockDomain(Direction.Axis.Z));
-                for (int[] block : new int[][] {{x, z}, {x + xWidth, z}, {x, z + zWidth}}) {
+                for (int[] block : new int[][] {{x, z}, {x + xWidthBlocks, z}, {x, z + zWidthBlocks}}) {
                     double expected = Biome.BIOME_INFO_NOISE.getValue(
                             lattice.foldX(block[0], block[1]) / UNCARRIED_FACTOR,
                             lattice.foldZ(block[1]) / UNCARRIED_FACTOR, false);

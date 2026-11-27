@@ -91,12 +91,12 @@ public abstract class AtlasSingleViewMixin implements AtlasViews {
     }
 
     @Override
-    public @Nullable AtlasView exotic_worlds$view() {
+    public @Nullable AtlasView exotic_worlds$getView() {
         return this.exotic_worlds$view;
     }
 
     @Override
-    public @Nullable AtlasView exotic_worlds$singleWorld() {
+    public @Nullable AtlasView exotic_worlds$getSingleWorld() {
         return this.exotic_worlds$singleWorld;
     }
 
@@ -105,8 +105,8 @@ public abstract class AtlasSingleViewMixin implements AtlasViews {
     private Object exotic_worlds$holdSingleZoom(AtlasScreen screen, Operation<Object> original) {
         Object viewport = original.call(screen);
         AtlasViewportAccessor content = (AtlasViewportAccessor) viewport;
-        AtlasView view = new AtlasView(content.exotic_worlds$contentX(), content.exotic_worlds$contentY(),
-                content.exotic_worlds$contentWidth(), content.exotic_worlds$contentHeight());
+        AtlasView view = new AtlasView(content.exotic_worlds$getContentX(), content.exotic_worlds$getContentY(),
+                content.exotic_worlds$getContentWidth(), content.exotic_worlds$getContentHeight());
         this.exotic_worlds$view = view;
         this.exotic_worlds$singleWorld = null;
         this.exotic_worlds$tileBeforeHold = 0.0F;
@@ -115,8 +115,8 @@ public abstract class AtlasSingleViewMixin implements AtlasViews {
         }
 
         String dimension = this.getSelectedDimension();
-        WorldFold fold = AtlasTileFold.foldOf(dimension);
-        int blocksPerTile = AtlasTileFold.blocksPerTile(Minecraft.getInstance().level,
+        WorldFold fold = AtlasTileFold.getFold(dimension);
+        int blocksPerTile = AtlasTileFold.getBlocksPerTile(Minecraft.getInstance().level,
                 AtlasTileFold.firstOf(this.tiles, dimension));
         if (fold == null || blocksPerTile == 0) {
             return viewport;
@@ -161,9 +161,9 @@ public abstract class AtlasSingleViewMixin implements AtlasViews {
     @Unique
     private void exotic_worlds$holdSinglePan(String dimension, float tile, float originY, float originBeforeY) {
         AtlasView view = this.exotic_worlds$view;
-        WorldFold fold = AtlasTileFold.foldOf(dimension);
+        WorldFold fold = AtlasTileFold.getFold(dimension);
         AtlasTilePayload first = AtlasTileFold.firstOf(this.tiles, dimension);
-        int blocksPerTile = AtlasTileFold.blocksPerTile(Minecraft.getInstance().level, first);
+        int blocksPerTile = AtlasTileFold.getBlocksPerTile(Minecraft.getInstance().level, first);
         if (view == null || fold == null || first == null || blocksPerTile == 0) {
             return;
         }

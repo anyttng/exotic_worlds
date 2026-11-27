@@ -92,9 +92,9 @@ public class BlendedNoiseMixin {
         double mainX = limitX / this.xzFactor;
         double mainZ = limitZ / this.xzFactor;
         int indexableStacks = exotic_worlds$indexableStacks(generation, mainScale);
-        boolean mainIndexable = (indexableStacks & MAIN_INDEXABLE) != 0;
-        boolean minIndexable = (indexableStacks & MIN_INDEXABLE) != 0;
-        boolean maxIndexable = (indexableStacks & MAX_INDEXABLE) != 0;
+        boolean isMainIndexable = (indexableStacks & MAIN_INDEXABLE) != 0;
+        boolean isMinIndexable = (indexableStacks & MIN_INDEXABLE) != 0;
+        boolean isMaxIndexable = (indexableStacks & MAX_INDEXABLE) != 0;
         double blendMin = 0.0;
         double blendMax = 0.0;
         double mainNoiseValue = 0.0;
@@ -106,7 +106,7 @@ public class BlendedNoiseMixin {
                 if (noise != null) {
                     scope.rescale(mainScale * pow);
                     double wy = PerlinNoise.wrap(mainY * pow);
-                    mainNoiseValue += (mainIndexable
+                    mainNoiseValue += (isMainIndexable
                             ? exotic_worlds$wrapped(generation, noise, blockX, wy, blockZ, mainSmear * pow, mainY * pow)
                             : exotic_worlds$vanilla(generation, noise, PerlinNoise.wrap(mainX * pow), wy,
                                     PerlinNoise.wrap(mainZ * pow), mainSmear * pow, mainY * pow)) / pow;
@@ -129,7 +129,7 @@ public class BlendedNoiseMixin {
                 if (!isMax) {
                     ImprovedNoise minNoise = this.minLimitNoise.getOctaveNoise(i);
                     if (minNoise != null) {
-                        blendMin += (minIndexable
+                        blendMin += (isMinIndexable
                                 ? exotic_worlds$wrapped(generation, minNoise, blockX, wy, blockZ, yScalePow, limitY * pow)
                                 : exotic_worlds$vanilla(generation, minNoise, wx, wy, wz, yScalePow, limitY * pow)) / pow;
                     }
@@ -138,7 +138,7 @@ public class BlendedNoiseMixin {
                 if (!isMin) {
                     ImprovedNoise maxNoise = this.maxLimitNoise.getOctaveNoise(i);
                     if (maxNoise != null) {
-                        blendMax += (maxIndexable
+                        blendMax += (isMaxIndexable
                                 ? exotic_worlds$wrapped(generation, maxNoise, blockX, wy, blockZ, yScalePow, limitY * pow)
                                 : exotic_worlds$vanilla(generation, maxNoise, wx, wy, wz, yScalePow, limitY * pow)) / pow;
                     }
@@ -158,24 +158,24 @@ public class BlendedNoiseMixin {
             return cached;
         }
 
-        int decided = (exotic_worlds$indexable(generation, this.mainNoise, MAIN_OCTAVES, mainScale) ? MAIN_INDEXABLE : 0)
-                | (exotic_worlds$indexable(generation, this.minLimitNoise, LIMIT_OCTAVES, this.xzMultiplier)
+        int decided = (exotic_worlds$isIndexable(generation, this.mainNoise, MAIN_OCTAVES, mainScale) ? MAIN_INDEXABLE : 0)
+                | (exotic_worlds$isIndexable(generation, this.minLimitNoise, LIMIT_OCTAVES, this.xzMultiplier)
                         ? MIN_INDEXABLE : 0)
-                | (exotic_worlds$indexable(generation, this.maxLimitNoise, LIMIT_OCTAVES, this.xzMultiplier)
+                | (exotic_worlds$isIndexable(generation, this.maxLimitNoise, LIMIT_OCTAVES, this.xzMultiplier)
                         ? MAX_INDEXABLE : 0);
         return this.exotic_worlds$indexability.put(generation.getFold(), generation, decided);
     }
 
     // The highest-frequency octave comes first here, and the period grows with the scale.
     @Unique
-    private static boolean exotic_worlds$indexable(Context generation, PerlinNoise stack, int octaves, double scale) {
+    private static boolean exotic_worlds$isIndexable(Context generation, PerlinNoise stack, int octaves, double scale) {
         double pow = 1.0;
         for (int i = 0; i < octaves; i++) {
             ImprovedNoise noise = stack.getOctaveNoise(i);
             if (noise != null) {
                 try (Context.ScaleScope scope = generation.openScale()) {
                     scope.rescale(scale * pow);
-                    return ((IndexableNoise) (Object) noise).exotic_worlds$indexable(generation);
+                    return ((IndexableNoise) (Object) noise).exotic_worlds$isIndexable(generation);
                 }
             }
 

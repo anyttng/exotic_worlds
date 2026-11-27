@@ -81,7 +81,7 @@ public abstract class AtlasScreenMixin {
     private float exotic_worlds$copiesTileSize;
 
     @Unique
-    private boolean exotic_worlds$seamLines;
+    private boolean exotic_worlds$isDrawingSeamLines;
 
     @Shadow
     private static Map<String, Object> buildDimensionTileBounds(List<AtlasTilePayload> tiles) {
@@ -107,7 +107,7 @@ public abstract class AtlasScreenMixin {
     private void exotic_worlds$relayTiles(CallbackInfo ci) {
         Minecraft minecraft = Minecraft.getInstance();
         List<AtlasTilePayload> relaid = AtlasLayoutFold.relaid(this.tiles,
-                tile -> AtlasTileFold.blocksPerTile(minecraft.level, tile), AtlasTileFold::foldOf,
+                tile -> AtlasTileFold.getBlocksPerTile(minecraft.level, tile), AtlasTileFold::getFold,
                 MapCopies.getCurrent());
         if (relaid == this.tiles) {
             return;
@@ -121,7 +121,7 @@ public abstract class AtlasScreenMixin {
 
     @Inject(method = "extractRenderState", at = @At("HEAD"))
     private void exotic_worlds$readSeamLines(CallbackInfo ci) {
-        this.exotic_worlds$seamLines = MapCopies.getCurrent().isDrawingSeamLines();
+        this.exotic_worlds$isDrawingSeamLines = MapCopies.getCurrent().isDrawingSeamLines();
     }
 
     @ModifyArg(method = "screenToWorldPoint", at = @At(value = "INVOKE", target = WORLD_POINT_INIT), index = 0)
@@ -156,8 +156,8 @@ public abstract class AtlasScreenMixin {
             float y, float scale, Operation<Void> original, @Local(name = "tile") AtlasTilePayload tile,
             @Local(name = "mapOriginX") float mapOriginX, @Local(name = "mapOriginY") float mapOriginY,
             @Local(name = "scaledTileSize") float scaledTileSize) {
-        AtlasView singleWorld = exotic_worlds$views().exotic_worlds$singleWorld();
-        List<SeamLine> lines = this.exotic_worlds$seamLines ? exotic_worlds$seamLinesOf(tile) : List.of();
+        AtlasView singleWorld = exotic_worlds$asViews().exotic_worlds$getSingleWorld();
+        List<SeamLine> lines = this.exotic_worlds$isDrawingSeamLines ? exotic_worlds$seamLinesOf(tile) : List.of();
         for (AtlasCopies.Offset offset : exotic_worlds$tileCopies(mapOriginX, mapOriginY, scaledTileSize)) {
             float copyX = x + offset.x();
             float copyY = y + offset.y();
@@ -173,15 +173,15 @@ public abstract class AtlasScreenMixin {
     }
 
     @ModifyVariable(method = "extractRenderState", at = @At("STORE"), name = "hovered")
-    private boolean exotic_worlds$hoverTileCopy(boolean hovered, @Local(name = "x") float x, @Local(name = "y") float y,
+    private boolean exotic_worlds$hoverTileCopy(boolean isHovered, @Local(name = "x") float x, @Local(name = "y") float y,
             @Local(name = "mapOriginX") float mapOriginX, @Local(name = "mapOriginY") float mapOriginY,
             @Local(name = "scaledTileSize") float scaledTileSize,
-            @Local(name = "mouseWithinAtlasContent") boolean mouseWithinAtlasContent,
+            @Local(name = "mouseWithinAtlasContent") boolean isMouseWithinAtlasContent,
             @Local(argsOnly = true, ordinal = 0) int mouseX, @Local(argsOnly = true, ordinal = 1) int mouseY) {
         AtlasCopies.Offset under = exotic_worlds$copyUnder(mouseX, mouseY, mapOriginX, mapOriginY, scaledTileSize);
         double baseX = mouseX - under.x();
         double baseY = mouseY - under.y();
-        return mouseWithinAtlasContent && baseX >= x && baseX < x + scaledTileSize && baseY >= y
+        return isMouseWithinAtlasContent && baseX >= x && baseX < x + scaledTileSize && baseY >= y
                 && baseY < y + scaledTileSize;
     }
 
@@ -194,7 +194,7 @@ public abstract class AtlasScreenMixin {
             @Local(name = "mapOriginY") float mapOriginY, @Local(argsOnly = true, ordinal = 0) int mouseX,
             @Local(argsOnly = true, ordinal = 1) int mouseY) {
         AtlasCopies.Offset under = exotic_worlds$copyUnder(mouseX, mouseY, mapOriginX, mapOriginY, scaledTileSize);
-        AtlasView singleWorld = exotic_worlds$views().exotic_worlds$singleWorld();
+        AtlasView singleWorld = exotic_worlds$asViews().exotic_worlds$getSingleWorld();
         if (singleWorld != null) {
             exotic_worlds$scissorTo(graphics, singleWorld);
         }
@@ -279,8 +279,8 @@ public abstract class AtlasScreenMixin {
     @Unique
     private List<AtlasCopies.Offset> exotic_worlds$tileCopies(float mapOriginX, float mapOriginY, float scaledTileSize) {
         MapCopies mode = MapCopies.getCurrent();
-        AtlasViews views = exotic_worlds$views();
-        AtlasView area = mode == MapCopies.SINGLE ? views.exotic_worlds$singleWorld() : views.exotic_worlds$view();
+        AtlasViews views = exotic_worlds$asViews();
+        AtlasView area = mode == MapCopies.SINGLE ? views.exotic_worlds$getSingleWorld() : views.exotic_worlds$getView();
         if (area == null) {
             return AtlasCopies.BASE_ONLY;
         }
@@ -294,19 +294,19 @@ public abstract class AtlasScreenMixin {
         }
 
         AtlasTilePayload first = AtlasTileFold.firstOf(this.tiles, dimension);
-        int blocksPerTile = AtlasTileFold.blocksPerTile(Minecraft.getInstance().level, first);
+        int blocksPerTile = AtlasTileFold.getBlocksPerTile(Minecraft.getInstance().level, first);
         AtlasCopies.Layout layout = first == null || blocksPerTile == 0
                 ? null
                 : new AtlasCopies.Layout(mapOriginX, mapOriginY,
-                        exotic_worlds$span(dimension, Direction.Axis.X) * scaledTileSize,
-                        exotic_worlds$span(dimension, Direction.Axis.Z) * scaledTileSize,
+                        exotic_worlds$spanTiles(dimension, Direction.Axis.X) * scaledTileSize,
+                        exotic_worlds$spanTiles(dimension, Direction.Axis.Z) * scaledTileSize,
                         first.centerX() - blocksPerTile / 2 - this.localTileX(dimension, first) * blocksPerTile,
                         first.centerZ() - blocksPerTile / 2 - this.localTileY(dimension, first) * blocksPerTile,
                         scaledTileSize / blocksPerTile);
         List<AtlasCopies.Offset> copies = layout == null
                 ? AtlasCopies.BASE_ONLY
-                : AtlasCopies.visible(AtlasTileFold.foldOf(dimension), layout, area,
-                        mode == MapCopies.SINGLE ? AtlasCopies.ANY_MOVE : blocksPerTile);
+                : AtlasCopies.visible(AtlasTileFold.getFold(dimension), layout, area,
+                        mode == MapCopies.SINGLE ? AtlasCopies.ANY_MOVE_BLOCKS : blocksPerTile);
         this.exotic_worlds$copies = copies;
         this.exotic_worlds$copiesLayout = layout;
         this.exotic_worlds$copiesMode = mode;
@@ -319,22 +319,22 @@ public abstract class AtlasScreenMixin {
     }
 
     @Unique
-    private int exotic_worlds$span(String dimension, Direction.Axis axis) {
-        int span = 0;
+    private int exotic_worlds$spanTiles(String dimension, Direction.Axis axis) {
+        int spanTiles = 0;
         for (AtlasTilePayload tile : this.tiles) {
             if (tile.dimension().equals(dimension)) {
                 int local = axis == Direction.Axis.X
                         ? this.localTileX(dimension, tile)
                         : this.localTileY(dimension, tile);
-                span = Math.max(span, local + 1);
+                spanTiles = Math.max(spanTiles, local + 1);
             }
         }
 
-        return span;
+        return spanTiles;
     }
 
     @Unique
-    private AtlasViews exotic_worlds$views() {
+    private AtlasViews exotic_worlds$asViews() {
         return (AtlasViews) (Object) this;
     }
 
@@ -346,7 +346,7 @@ public abstract class AtlasScreenMixin {
 
     @Unique
     private static List<SeamLine> exotic_worlds$seamLinesOf(AtlasTilePayload tile) {
-        int blocksPerTile = AtlasTileFold.blocksPerTile(Minecraft.getInstance().level, tile);
+        int blocksPerTile = AtlasTileFold.getBlocksPerTile(Minecraft.getInstance().level, tile);
         return blocksPerTile == 0 ? List.of() : AtlasTileFold.seamLines(tile, blocksPerTile);
     }
 }

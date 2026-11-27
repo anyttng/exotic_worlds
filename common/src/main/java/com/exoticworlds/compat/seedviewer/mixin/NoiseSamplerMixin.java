@@ -32,7 +32,7 @@ public class NoiseSamplerMixin implements FoldedNoiseSampler {
     @Inject(method = SeedViewerInjectionTargets.CONSTRUCTOR + SeedViewerInjectionTargets.FROM_RANDOM_STATE,
             at = @At("RETURN"))
     private void exotic_worlds$takeTheRouterBuildsFold(CallbackInfo callback) {
-        exotic_worlds$bind(CreationShape.routerBuildFold());
+        exotic_worlds$bind(CreationShape.getRouterBuildFold());
     }
 
     @Inject(method = SeedViewerInjectionTargets.CONSTRUCTOR + SeedViewerInjectionTargets.FROM_LEVEL,
@@ -42,12 +42,12 @@ public class NoiseSamplerMixin implements FoldedNoiseSampler {
     }
 
     @Override
-    public WorldFold exotic_worlds$fold() {
+    public WorldFold exotic_worlds$getFold() {
         return this.exotic_worlds$fold;
     }
 
     @Override
-    public FoldedSampleCache<Float> exotic_worlds$cache(NoiseMapType type) {
+    public FoldedSampleCache<Float> exotic_worlds$getCache(NoiseMapType type) {
         return this.exotic_worlds$caches.get(type);
     }
 

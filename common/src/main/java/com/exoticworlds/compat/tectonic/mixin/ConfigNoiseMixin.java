@@ -25,17 +25,17 @@ public class ConfigNoiseMixin implements ScaledShiftedNoise {
     private @Nullable Divisor exotic_worlds$warpDivisor;
 
     @Override
-    public DensityFunction.NoiseHolder exotic_worlds$noise() {
+    public DensityFunction.NoiseHolder exotic_worlds$getNoise() {
         return ((ConfigNoise) (Object) this).noise();
     }
 
     @Override
-    public double exotic_worlds$scale() {
+    public double exotic_worlds$getScale() {
         return ((ConfigNoise) (Object) this).scale();
     }
 
     @Override
-    public boolean exotic_worlds$shiftsScaled() {
+    public boolean exotic_worlds$isShiftScaled() {
         return ((ConfigNoise) (Object) this).smootherScaling();
     }
 

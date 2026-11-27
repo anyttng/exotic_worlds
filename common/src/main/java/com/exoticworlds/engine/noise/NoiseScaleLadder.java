@@ -30,8 +30,8 @@ public final class NoiseScaleLadder {
     }
 
     public static NoiseScaleLadder of(WorldFold fold, List<DensityFunction> roots) {
-        int lap = ClimateScaleCompression.lapBlocks(fold);
-        if (lap == ClimateScaleCompression.UNBOUNDED_LAP) {
+        int lapBlocks = ClimateScaleCompression.lapBlocks(fold);
+        if (lapBlocks == ClimateScaleCompression.UNBOUNDED_LAP) {
             return NONE;
         }
 
@@ -42,8 +42,8 @@ public final class NoiseScaleLadder {
             }
 
             double[] frequencies = frequencies(scales.parameters());
-            if (collides(lap, scales.ascending(), frequencies)) {
-                separated.put(scales.noise(), rungs(lap, scales.ascending(), lowestFrequency(frequencies)));
+            if (isColliding(lapBlocks, scales.ascending(), frequencies)) {
+                separated.put(scales.noise(), rungs(lapBlocks, scales.ascending(), lowestFrequency(frequencies)));
             }
         }
 
@@ -51,11 +51,11 @@ public final class NoiseScaleLadder {
     }
 
     public static double installedScale(DensityFunction.NoiseHolder holder, double xzScale) {
-        return holder.noise() instanceof NoiseScaleRungs rungs ? rungOf(rungs.exotic_worlds$scaleRungs(), xzScale) : xzScale;
+        return holder.noise() instanceof NoiseScaleRungs rungs ? rungOf(rungs.exotic_worlds$getScaleRungs(), xzScale) : xzScale;
     }
 
     public void install() {
-        this.separated.forEach((noise, rungs) -> ((NoiseScaleRungs) noise).exotic_worlds$scaleRungs(rungs));
+        this.separated.forEach((noise, rungs) -> ((NoiseScaleRungs) noise).exotic_worlds$setScaleRungs(rungs));
     }
 
     private static double rungOf(Map<Double, Double> rungs, double xzScale) {
@@ -107,11 +107,11 @@ public final class NoiseScaleLadder {
         return frequencies.stream().mapToDouble(Double::doubleValue).toArray();
     }
 
-    private static boolean collides(int lap, SortedSet<Double> scales, double[] frequencies) {
+    private static boolean isColliding(int lapBlocks, SortedSet<Double> scales, double[] frequencies) {
         for (double frequency : frequencies) {
             Set<Long> periods = new HashSet<>();
             for (double scale : scales) {
-                periods.add(cells(lap, scale, frequency));
+                periods.add(cells(lapBlocks, scale, frequency));
             }
 
             if (periods.size() < scales.size()) {

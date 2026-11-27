@@ -19,13 +19,13 @@ public final class FoldedSampleCache<T> {
     private static final int STRIPE_SHIFT = Long.SIZE - Integer.numberOfTrailingZeros(STRIPES);
 
     private final WorldFold fold;
-    private final boolean perQuart;
+    private final boolean isPerQuart;
     private final Long2ObjectOpenHashMap<T>[] stripes;
 
     @SuppressWarnings("unchecked")
-    private FoldedSampleCache(WorldFold fold, boolean perQuart) {
+    private FoldedSampleCache(WorldFold fold, boolean isPerQuart) {
         this.fold = fold;
-        this.perQuart = perQuart;
+        this.isPerQuart = isPerQuart;
         this.stripes = (Long2ObjectOpenHashMap<T>[]) new Long2ObjectOpenHashMap<?>[STRIPES];
         for (int stripe = 0; stripe < STRIPES; stripe++) {
             this.stripes[stripe] = new Long2ObjectOpenHashMap<>();
@@ -40,8 +40,8 @@ public final class FoldedSampleCache<T> {
         return new FoldedSampleCache<>(fold, false);
     }
 
-    public T get(int blockX, int blockY, int blockZ, Supplier<T> sample) {
-        long key = this.fold.foldBlockNode(this.perQuart
+    public T computeIfAbsent(int blockX, int blockY, int blockZ, Supplier<T> sample) {
+        long key = this.fold.foldBlockNode(this.isPerQuart
                 ? BlockPos.asLong(quartCorner(blockX), quartCorner(blockY), quartCorner(blockZ))
                 : BlockPos.asLong(blockX, blockY, blockZ));
         Long2ObjectOpenHashMap<T> stripe = this.stripes[(int) (HashCommon.mix(key) >>> STRIPE_SHIFT)];

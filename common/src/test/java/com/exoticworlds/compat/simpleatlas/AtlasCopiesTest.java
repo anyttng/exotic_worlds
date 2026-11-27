@@ -60,7 +60,7 @@ class AtlasCopiesTest {
     @Test
     void anyMoveDrawsTheCopyOneUnevenLapOver() {
         List<AtlasCopies.Offset> offsets = AtlasCopies.visible(UNEVEN_TORUS, ONE_TILE,
-                new AtlasView(150.0F, 0.0F, 40.0F, 40.0F), AtlasCopies.ANY_MOVE);
+                new AtlasView(150.0F, 0.0F, 40.0F, 40.0F), AtlasCopies.ANY_MOVE_BLOCKS);
 
         assertEquals(List.of(new AtlasCopies.Offset(170.0F, 0.0F)), offsets);
     }

@@ -77,19 +77,19 @@ public class NormalNoiseMixin implements NoiseOriginHolder, NoiseScaleRungs, Ind
         NoiseOffset offset = this.exotic_worlds$offsets.find(fold, context);
         if (offset == null) {
             offset = this.exotic_worlds$offsets.put(fold, context,
-                    origin.offsetAt(fold, context.getHorizontalScale(), context.verticalShare()));
+                    origin.offsetAt(fold, context.getHorizontalScale(), context.getVerticalShare()));
         }
 
         return offset.get();
     }
 
     @Override
-    public Map<Double, Double> exotic_worlds$scaleRungs() {
+    public Map<Double, Double> exotic_worlds$getScaleRungs() {
         return this.exotic_worlds$scaleRungs;
     }
 
     @Override
-    public void exotic_worlds$scaleRungs(Map<Double, Double> rungs) {
+    public void exotic_worlds$setScaleRungs(Map<Double, Double> rungs) {
         this.exotic_worlds$scaleRungs = rungs;
     }
 
@@ -105,30 +105,30 @@ public class NormalNoiseMixin implements NoiseOriginHolder, NoiseScaleRungs, Ind
 
     @Override
     public double exotic_worlds$sampleWrapped(Context generation, double x, double y, double z) {
-        double value = this.exotic_worlds$indexable(generation)
+        double value = this.exotic_worlds$isIndexable(generation)
                 ? this.exotic_worlds$foldedValue(generation, x, y, z)
                 : ContextScaledNoise.vanillaAtFoldedSlots(generation, (NormalNoise) (Object) this, x, y, z);
         return value + exotic_worlds$getOffsetAt(generation);
     }
 
     @Override
-    public boolean exotic_worlds$indexable(Context context) {
+    public boolean exotic_worlds$isIndexable(Context context) {
         Boolean cached = this.exotic_worlds$indexability.find(context.getFold(), context);
         if (cached != null) {
             return cached;
         }
 
-        return this.exotic_worlds$indexability.put(context.getFold(), context, exotic_worlds$decideIndexable(context));
+        return this.exotic_worlds$indexability.put(context.getFold(), context, exotic_worlds$areBothHalvesIndexable(context));
     }
 
     @Unique
-    private boolean exotic_worlds$decideIndexable(Context context) {
-        if (!((IndexableNoise) (Object) this.first).exotic_worlds$indexable(context)) {
+    private boolean exotic_worlds$areBothHalvesIndexable(Context context) {
+        if (!((IndexableNoise) (Object) this.first).exotic_worlds$isIndexable(context)) {
             return false;
         }
 
         try (Context.ScaleScope _ = exotic_worlds$detuned(context)) {
-            return ((IndexableNoise) (Object) this.second).exotic_worlds$indexable(context);
+            return ((IndexableNoise) (Object) this.second).exotic_worlds$isIndexable(context);
         }
     }
 
@@ -149,6 +149,6 @@ public class NormalNoiseMixin implements NoiseOriginHolder, NoiseScaleRungs, Ind
     @Unique
     private static Context.ScaleScope exotic_worlds$detuned(Context generation) {
         return generation.withScales(generation.getHorizontalScale() * NoiseConstants.SECOND_LAYER_DETUNE,
-                generation.vanillaScale() * NoiseConstants.SECOND_LAYER_DETUNE);
+                generation.getVanillaScale() * NoiseConstants.SECOND_LAYER_DETUNE);
     }
 }

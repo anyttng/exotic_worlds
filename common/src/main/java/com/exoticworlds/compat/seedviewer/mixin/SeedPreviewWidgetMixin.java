@@ -56,7 +56,7 @@ public class SeedPreviewWidgetMixin {
             at = @At(value = "INVOKE", target = SeedViewerInjectionTargets.DISABLE_SCISSOR))
     private void exotic_worlds$drawTheSeams(GuiGraphicsExtractor graphics, CallbackInfo callback) {
         SeamLines.draw(graphics,
-                ((WorldCreationPreviewContextAccessor) (Object) this.previewContext).exotic_worlds$biomeSampler(),
+                ((WorldCreationPreviewContextAccessor) (Object) this.previewContext).exotic_worlds$getBiomeSampler(),
                 this.camera, this.viewport);
     }
 }

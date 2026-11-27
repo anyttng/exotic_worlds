@@ -16,9 +16,9 @@ public final class PeriodicLattices {
                 x, y, z, yScale, yFudge);
     }
 
-    public boolean indexable(byte[] permutations, double xOffset, double yOffset, double zOffset,
+    public boolean isIndexable(byte[] permutations, double xOffset, double yOffset, double zOffset,
             WorldFold fold, Context context) {
-        return latticeFor(permutations, xOffset, yOffset, zOffset, fold, context).indexable();
+        return latticeFor(permutations, xOffset, yOffset, zOffset, fold, context).isIndexable();
     }
 
     PeriodicLattice latticeFor(byte[] permutations, double xOffset, double yOffset, double zOffset,

@@ -22,7 +22,7 @@ public final class PeriodicOctaveSampler {
             double z,
             double yScale,
             double yFudge) {
-        boolean yCarriesWorldAxis = generation.getSlotAxes().y().hasWorldAxis();
+        boolean isYCarryingWorldAxis = generation.getSlotAxes().y().hasWorldAxis();
         double value = 0.0;
         double factor = lowestFreqInputFactor;
         double valueFactor = lowestFreqValueFactor;
@@ -32,7 +32,7 @@ public final class PeriodicOctaveSampler {
                 ImprovedNoise noise = noiseLevels[i];
                 if (noise != null) {
                     scope.rescale(baseScale * octaveFactors.getDouble(i) * factor);
-                    double slotY = yCarriesWorldAxis ? y : PerlinNoise.wrap(y * factor);
+                    double slotY = isYCarryingWorldAxis ? y : PerlinNoise.wrap(y * factor);
                     double noiseValue = ((WrappedImprovedNoise) (Object) noise).exotic_worlds$sampleWrapped(
                             generation, x, slotY, z, yScale * factor, yFudge * factor);
                     value += amplitudes.getDouble(i) * noiseValue * valueFactor;
@@ -46,7 +46,7 @@ public final class PeriodicOctaveSampler {
         return value;
     }
 
-    public static boolean indexable(Context generation, double baseScale, DoubleList octaveFactors,
+    public static boolean isIndexable(Context generation, double baseScale, DoubleList octaveFactors,
             ImprovedNoise[] noiseLevels, double lowestFreqInputFactor) {
         int widest = -1;
         double widestScale = 0.0;
@@ -64,7 +64,7 @@ public final class PeriodicOctaveSampler {
 
         try (Context.ScaleScope scope = generation.openScale()) {
             scope.rescale(baseScale * widestScale);
-            return ((IndexableNoise) (Object) noiseLevels[widest]).exotic_worlds$indexable(generation);
+            return ((IndexableNoise) (Object) noiseLevels[widest]).exotic_worlds$isIndexable(generation);
         }
     }
 

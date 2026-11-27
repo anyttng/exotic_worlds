@@ -34,7 +34,7 @@ public final class NorthboundLatitude {
             this.stretch = stretch;
         }
 
-        double poleToEquatorBlocks() {
+        double getPoleToEquatorBlocks() {
             return (EQUATOR_Z - POLE_Z) * this.stretch;
         }
     }
@@ -58,12 +58,12 @@ public final class NorthboundLatitude {
     }
 
     static LatitudeCoordinate coordinate(WrapDomain z, Variant variant, double factor) {
-        return new LatitudeCoordinate(z, bands(z.domainLength, variant.poleToEquatorBlocks() / factor),
+        return new LatitudeCoordinate(z, bands(z.domainLength, variant.getPoleToEquatorBlocks() / factor),
                 POLE_Z * variant.stretch, EQUATOR_Z * variant.stretch);
     }
 
-    static int bands(int lap, double poleToEquatorCap) {
-        int bands = Math.max(1, (int) Math.ceil(lap / (2.0 * poleToEquatorCap)));
+    static int bands(int lapBlocks, double poleToEquatorCapBlocks) {
+        int bands = Math.max(1, (int) Math.ceil(lapBlocks / (2.0 * poleToEquatorCapBlocks)));
         return bands % 2 == 0 ? bands + 1 : bands;
     }
 

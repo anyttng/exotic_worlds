@@ -35,11 +35,11 @@ public class WorldCreationPreviewContextMixin {
 
     @WrapMethod(method = BUILD, order = BinderOrder.FOLD)
     private static WorldCreationPreviewContext exotic_worlds$buildForTheChosenShape(CreateWorldScreen screen,
-            WorldCreationUiState uiState, WorldgenEditorState editorState, boolean applyEditorEdits,
+            WorldCreationUiState uiState, WorldgenEditorState editorState, boolean shouldApplyEditorEdits,
             Operation<WorldCreationPreviewContext> original) {
         return GenerationFoldContext.withRouterBuild(CreationShape.fold(uiState.getSettings()), LevelStem.OVERWORLD,
                 CreationShape.activeFeatures(uiState.getSettings()),
-                () -> original.call(screen, uiState, editorState, applyEditorEdits));
+                () -> original.call(screen, uiState, editorState, shouldApplyEditorEdits));
     }
 
     @ModifyArg(

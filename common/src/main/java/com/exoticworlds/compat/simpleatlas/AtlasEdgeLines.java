@@ -13,12 +13,12 @@ public final class AtlasEdgeLines {
             return;
         }
 
-        int thickness = Math.max(1, Mth.ceil(1.0F / scale));
+        int thicknessPixels = Math.max(1, Mth.ceil(1.0F / scale));
         graphics.pose().pushMatrix();
         graphics.pose().translate(x, y);
         graphics.pose().scale(scale, scale);
         for (SeamLine line : lines) {
-            line.fill(graphics, Math.min(thickness, AtlasTileFold.MAP_PIXELS - line.at()));
+            line.fill(graphics, Math.min(thicknessPixels, AtlasTileFold.MAP_PIXELS - line.at()));
         }
 
         graphics.pose().popMatrix();

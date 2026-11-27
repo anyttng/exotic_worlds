@@ -34,7 +34,7 @@ public class BiomeSamplerMixin implements FoldedBiomeSampler {
     @Inject(method = SeedViewerInjectionTargets.CONSTRUCTOR + SeedViewerInjectionTargets.FROM_BIOME_SOURCE,
             at = @At("RETURN"))
     private void exotic_worlds$takeTheRouterBuildsFold(CallbackInfo callback) {
-        exotic_worlds$bind(CreationShape.routerBuildFold());
+        exotic_worlds$bind(CreationShape.getRouterBuildFold());
     }
 
     @Inject(method = SeedViewerInjectionTargets.CONSTRUCTOR + SeedViewerInjectionTargets.FROM_LEVEL,
@@ -51,12 +51,12 @@ public class BiomeSamplerMixin implements FoldedBiomeSampler {
             return original.call(blockX, blockY, blockZ);
         }
 
-        return cache.get(blockX, blockY, blockZ, () -> GenerationFoldContext.withFold(this.exotic_worlds$fold,
+        return cache.computeIfAbsent(blockX, blockY, blockZ, () -> GenerationFoldContext.withFold(this.exotic_worlds$fold,
                 () -> original.call(blockX, blockY, blockZ)));
     }
 
     @Override
-    public WorldFold exotic_worlds$fold() {
+    public WorldFold exotic_worlds$getFold() {
         return this.exotic_worlds$fold;
     }
 

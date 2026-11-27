@@ -32,7 +32,7 @@ public final class C2meFastNoise {
         return GATE.isAdmitted() ? C2meFoldedFastNoiseNode.folding(source, produced, worldFold) : produced;
     }
 
-    static boolean unfolded(AstNode node) {
+    static boolean isUnfolded(AstNode node) {
         return FAST_NOISE_NODE.equals(node.getClass().getName());
     }
 

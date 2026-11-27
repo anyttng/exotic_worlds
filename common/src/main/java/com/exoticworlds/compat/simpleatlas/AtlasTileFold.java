@@ -24,7 +24,7 @@ public final class AtlasTileFold {
     public static final int MAP_PIXELS = 128;
 
     public static Vec3 nearestToTile(AtlasTilePayload tile, double x, double z) {
-        return nearestToTile(foldOf(tile.dimension()), tile, x, z);
+        return nearestToTile(getFold(tile.dimension()), tile, x, z);
     }
 
     static Vec3 nearestToTile(@Nullable WorldFold fold, AtlasTilePayload tile, double x, double z) {
@@ -33,7 +33,7 @@ public final class AtlasTileFold {
     }
 
     public static Vec3 foldOnTile(AtlasTilePayload tile, double x, double z) {
-        return foldOnTile(foldOf(tile.dimension()), x, z);
+        return foldOnTile(getFold(tile.dimension()), x, z);
     }
 
     static Vec3 foldOnTile(@Nullable WorldFold fold, double x, double z) {
@@ -41,7 +41,7 @@ public final class AtlasTileFold {
     }
 
     public static List<SeamLine> seamLines(AtlasTilePayload tile, int blocksPerTile) {
-        return seamLines(foldOf(tile.dimension()), tile, blocksPerTile);
+        return seamLines(getFold(tile.dimension()), tile, blocksPerTile);
     }
 
     static List<SeamLine> seamLines(@Nullable WorldFold fold, AtlasTilePayload tile, int blocksPerTile) {
@@ -67,12 +67,12 @@ public final class AtlasTileFold {
         return null;
     }
 
-    public static int blocksPerTile(@Nullable Level level, @Nullable AtlasTilePayload tile) {
+    public static int getBlocksPerTile(@Nullable Level level, @Nullable AtlasTilePayload tile) {
         MapItemSavedData data = tile == null || level == null ? null : level.getMapData(new MapId(tile.mapId()));
         return data == null ? 0 : MAP_PIXELS << data.scale;
     }
 
-    public static @Nullable WorldFold foldOf(String dimension) {
+    public static @Nullable WorldFold getFold(String dimension) {
         Identifier id = Identifier.tryParse(dimension);
         return id == null ? null : ClientFolds.of(ResourceKey.create(Registries.DIMENSION, id));
     }

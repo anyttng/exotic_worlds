@@ -62,7 +62,7 @@ public final class C2meDfcAst {
             return produced;
         }
 
-        if (fold.amplified()) {
+        if (fold.isAmplified()) {
             if (!(produced instanceof MulNode amplified && amplified.left instanceof GenericShiftedNoiseNode noise)) {
                 throw brokenShape(source, produced);
             }
@@ -91,46 +91,46 @@ public final class C2meDfcAst {
     }
 
     private static AstNode reported(DensityFunction source, AstNode produced, @Nullable WorldFold worldFold) {
-        if (reportsMiss(source, produced, worldFold)) {
+        if (tryRecordMiss(source, produced, worldFold)) {
             LOGGER.warn("[ew/c2me-compat] dfc_ast noise_not_folded type={}", source.getClass().getName());
         }
 
         return produced;
     }
 
-    private static boolean delegatesToItsInput(DensityFunction source) {
+    private static boolean isDelegatingToItsInput(DensityFunction source) {
         return source instanceof DensityFunctions.HolderHolder;
     }
 
-    static boolean reportsMiss(DensityFunction source, AstNode produced, @Nullable WorldFold worldFold) {
+    static boolean tryRecordMiss(DensityFunction source, AstNode produced, @Nullable WorldFold worldFold) {
         if (worldFold == null
-                || delegatesToItsInput(source)
-                || !holdsUnfoldedNoise(produced, isForeign(source))) {
+                || isDelegatingToItsInput(source)
+                || !isHoldingUnfoldedNoise(produced, isForeign(source))) {
             return false;
         }
 
-        return firstMissOf(worldFold, source.getClass().getName());
+        return tryRecordFirstMiss(worldFold, source.getClass().getName());
     }
 
     private static boolean isForeign(DensityFunction source) {
         return !source.getClass().getName().startsWith(GAME_PACKAGE);
     }
 
-    private static boolean holdsUnfoldedNoise(AstNode node, boolean searchesChildren) {
+    private static boolean isHoldingUnfoldedNoise(AstNode node, boolean shouldSearchChildren) {
         if (node instanceof GenericShiftedNoiseNode) {
             return !(node instanceof C2meFoldedNoiseNode);
         }
 
-        if (C2meFastNoise.unfolded(node)) {
+        if (C2meFastNoise.isUnfolded(node)) {
             return true;
         }
 
-        if (!searchesChildren) {
+        if (!shouldSearchChildren) {
             return false;
         }
 
         for (AstNode child : node.getChildren()) {
-            if (holdsUnfoldedNoise(child, true)) {
+            if (isHoldingUnfoldedNoise(child, true)) {
                 return true;
             }
         }
@@ -138,7 +138,7 @@ public final class C2meDfcAst {
         return false;
     }
 
-    private static synchronized boolean firstMissOf(WorldFold worldFold, String type) {
+    private static synchronized boolean tryRecordFirstMiss(WorldFold worldFold, String type) {
         if (worldFold != reportedMissesFor) {
             REPORTED_MISSES.clear();
             reportedMissesFor = worldFold;
@@ -164,7 +164,7 @@ public final class C2meDfcAst {
             WorldFold worldFold) {
         SlotAxes axes = fold.axes();
         AstNode slotY = slotNode(axes.y(), noise.inputY);
-        if (fold.warped()) {
+        if (fold.isWarped()) {
             return new C2meFoldedNoiseNode(noise.inputX, noise.inputY, noise.inputZ, noise.noise,
                     shiftOf(source, CoordinateNode.Axis.X, noise.inputX), slotY,
                     shiftOf(source, CoordinateNode.Axis.Z, noise.inputZ), axes, fold.horizontalScale(),
@@ -187,19 +187,19 @@ public final class C2meDfcAst {
         }
 
         ShiftedNoiseFold fold = ShiftedNoiseFold.of(scaled);
-        boolean shiftsScaled = scaled.exotic_worlds$shiftsScaled();
+        boolean isShiftScaled = scaled.exotic_worlds$isShiftScaled();
         AstNode folded = new C2meFoldedNoiseNode(noise.inputX, noise.inputY, noise.inputZ, noise.noise,
-                warpOf(source, shiftsScaled, CoordinateNode.Axis.X, noise.inputX, fold.shiftScale()),
+                warpOf(source, isShiftScaled, CoordinateNode.Axis.X, noise.inputX, fold.shiftScale()),
                 slotNode(SlotAxes.DEFAULT.y(), noise.inputY),
-                warpOf(source, shiftsScaled, CoordinateNode.Axis.Z, noise.inputZ, fold.shiftScale()),
+                warpOf(source, isShiftScaled, CoordinateNode.Axis.Z, noise.inputZ, fold.shiftScale()),
                 SlotAxes.DEFAULT, fold.horizontalScale(), fold.vanillaScale(), fold.verticalShare(),
                 fold.warpDivisor(worldFold), worldFold);
         return new AddNode(new MulNode(folded, multiplied.right), offset.right);
     }
 
-    private static AstNode warpOf(DensityFunction source, boolean shiftsScaled, CoordinateNode.Axis axis,
+    private static AstNode warpOf(DensityFunction source, boolean isShiftScaled, CoordinateNode.Axis axis,
             AstNode ownInput, double shiftScale) {
-        if (!shiftsScaled) {
+        if (!isShiftScaled) {
             return shiftOf(source, axis, ownInput);
         }
 
@@ -239,7 +239,7 @@ public final class C2meDfcAst {
     }
 
     private record Fold(SlotAxes axes, double horizontalScale, double vanillaScale, double verticalShare,
-            boolean amplified, boolean warped) {
+            boolean isAmplified, boolean isWarped) {
     }
 
     private C2meDfcAst() {

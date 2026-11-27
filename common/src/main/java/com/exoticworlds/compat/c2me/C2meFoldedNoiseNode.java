@@ -46,7 +46,7 @@ public final class C2meFoldedNoiseNode extends GenericShiftedNoiseNode {
         this.worldFold = Objects.requireNonNull(worldFold);
     }
 
-    public boolean warped() {
+    public boolean isWarped() {
         return this.warpDivisor != UNWARPED;
     }
 
@@ -63,14 +63,14 @@ public final class C2meFoldedNoiseNode extends GenericShiftedNoiseNode {
         AstNode transformedSlotX = this.slotX.transform(transformer);
         AstNode transformedSlotY = this.slotY.transform(transformer);
         AstNode transformedSlotZ = this.slotZ.transform(transformer);
-        boolean unchanged = transformedInputX == this.inputX
+        boolean isUnchanged = transformedInputX == this.inputX
                 && transformedInputY == this.inputY
                 && transformedInputZ == this.inputZ
                 && transformedSlotX == this.slotX
                 && transformedSlotY == this.slotY
                 && transformedSlotZ == this.slotZ;
 
-        return transformer.transform(unchanged
+        return transformer.transform(isUnchanged
                 ? this
                 : new C2meFoldedNoiseNode(transformedInputX, transformedInputY, transformedInputZ, this.noise,
                         transformedSlotX, transformedSlotY, transformedSlotZ, this.slotAxes, this.horizontalScale,
@@ -84,7 +84,7 @@ public final class C2meFoldedNoiseNode extends GenericShiftedNoiseNode {
         }
 
         C2meFoldedNoiseNode that = (C2meFoldedNoiseNode) o;
-        return sameFields(that)
+        return hasSameFields(that)
                 && this.slotX.equals(that.slotX)
                 && this.slotY.equals(that.slotY)
                 && this.slotZ.equals(that.slotZ);
@@ -106,7 +106,7 @@ public final class C2meFoldedNoiseNode extends GenericShiftedNoiseNode {
         }
 
         C2meFoldedNoiseNode that = (C2meFoldedNoiseNode) o;
-        return sameFields(that)
+        return hasSameFields(that)
                 && this.slotX.relaxedEquals(that.slotX)
                 && this.slotY.relaxedEquals(that.slotY)
                 && this.slotZ.relaxedEquals(that.slotZ);
@@ -121,7 +121,7 @@ public final class C2meFoldedNoiseNode extends GenericShiftedNoiseNode {
         return fieldHash(result);
     }
 
-    private boolean sameFields(C2meFoldedNoiseNode that) {
+    private boolean hasSameFields(C2meFoldedNoiseNode that) {
         return Double.compare(this.horizontalScale, that.horizontalScale) == 0
                 && Double.compare(this.vanillaScale, that.vanillaScale) == 0
                 && Double.compare(this.verticalShare, that.verticalShare) == 0
