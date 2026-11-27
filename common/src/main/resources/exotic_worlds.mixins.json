@@ -42,6 +42,7 @@
     "BreezeShootMixin",
     "BreezeSlideMixin",
     "BreezeUtilMixin",
+    "BulkSectionAccessMixin",
     "ChargeAttackMixin",
     "ChargeCursorAccessor",
     "ChunkAccessAccessor",
