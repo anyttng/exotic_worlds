@@ -60,7 +60,7 @@ public final class SeamTeleport {
         ChunkPos toAnchor = new ChunkPos(
                 SectionPos.blockToSectionCoord(clientDestination.x),
                 SectionPos.blockToSectionCoord(clientDestination.z));
-        List<ChunkPos> flipped = flipped(fold, mirror.getSeatChunk(), toAnchor, player.getChunkTrackingView());
+        List<ChunkPos> flipped = flipped(mirror, fold, mirror.getSeatChunk(), toAnchor, player.getChunkTrackingView());
         if (!flipped.isEmpty()) {
             resender.exotic_worlds$dropChunks(player, flipped);
         }
@@ -83,11 +83,12 @@ public final class SeamTeleport {
                 .exotic_worlds$refreshTrackedEntities(player);
     }
 
-    static List<ChunkPos> flipped(WorldFold fold, ChunkPos fromAnchor, ChunkPos toAnchor, ChunkTrackingView view) {
+    static List<ChunkPos> flipped(ClientPosition mirror, WorldFold fold, ChunkPos fromAnchor, ChunkPos toAnchor,
+            ChunkTrackingView view) {
         List<ChunkPos> flipped = new ArrayList<>();
         view.forEach(viewPos -> {
             ChunkPos physical = fold.fold(viewPos);
-            if (!fold.nearestCopy(fromAnchor, physical).equals(fold.nearestCopy(toAnchor, physical))) {
+            if (!mirror.nearestCopy(fold, fromAnchor, physical).equals(mirror.nearestCopy(fold, toAnchor, physical))) {
                 flipped.add(viewPos);
             }
         });

@@ -47,9 +47,9 @@ class SeamTeleportTest {
         ChunkTrackingView view = ChunkTrackingView.of(new ChunkPos(0, 0), VIEW_RADIUS_CHUNKS);
         ChunkPos to = new ChunkPos(1, 1);
 
-        assertEquals(List.of(), SeamTeleport.flipped(TORUS, new ChunkPos(0, 0), to, view));
-        assertEquals(List.of(), SeamTeleport.flipped(CYLINDER_X, new ChunkPos(0, 0), to, view));
-        assertEquals(List.of(), SeamTeleport.flipped(SKEWED, new ChunkPos(0, 0), to, view));
+        assertEquals(List.of(), SeamTeleport.flipped(new ClientPosition(), TORUS, new ChunkPos(0, 0), to, view));
+        assertEquals(List.of(), SeamTeleport.flipped(new ClientPosition(), CYLINDER_X, new ChunkPos(0, 0), to, view));
+        assertEquals(List.of(), SeamTeleport.flipped(new ClientPosition(), SKEWED, new ChunkPos(0, 0), to, view));
     }
 
     @Test
@@ -59,8 +59,8 @@ class SeamTeleportTest {
         ChunkTrackingView view = ChunkTrackingView.of(from, VIEW_RADIUS_CHUNKS);
         Set<ChunkPos> expected = viewChunks(view, pos -> pos.x() <= LAST_FLIPPED_CHUNK);
 
-        assertEquals(expected, new HashSet<>(SeamTeleport.flipped(TORUS, from, to, view)));
-        assertEquals(expected, new HashSet<>(SeamTeleport.flipped(CYLINDER_X, from, to, view)));
+        assertEquals(expected, new HashSet<>(SeamTeleport.flipped(new ClientPosition(), TORUS, from, to, view)));
+        assertEquals(expected, new HashSet<>(SeamTeleport.flipped(new ClientPosition(), CYLINDER_X, from, to, view)));
     }
 
     @Test
@@ -69,9 +69,9 @@ class SeamTeleportTest {
         ChunkPos to = new ChunkPos(0, NEAR_SEAM_CHUNK + STEP_CHUNKS);
         ChunkTrackingView view = ChunkTrackingView.of(from, VIEW_RADIUS_CHUNKS);
 
-        assertEquals(List.of(), SeamTeleport.flipped(CYLINDER_X, from, to, view));
+        assertEquals(List.of(), SeamTeleport.flipped(new ClientPosition(), CYLINDER_X, from, to, view));
         assertEquals(viewChunks(view, pos -> pos.z() <= LAST_FLIPPED_CHUNK),
-                new HashSet<>(SeamTeleport.flipped(TORUS, from, to, view)));
+                new HashSet<>(SeamTeleport.flipped(new ClientPosition(), TORUS, from, to, view)));
     }
 
     @Test
@@ -80,7 +80,7 @@ class SeamTeleportTest {
         ChunkPos to = new ChunkPos(SKEW_CHUNKS, LATTICE_WIDTH_CHUNKS);
         ChunkTrackingView view = ChunkTrackingView.of(from, VIEW_RADIUS_CHUNKS);
 
-        assertEquals(viewChunks(view, pos -> true), new HashSet<>(SeamTeleport.flipped(SKEWED, from, to, view)));
+        assertEquals(viewChunks(view, pos -> true), new HashSet<>(SeamTeleport.flipped(new ClientPosition(), SKEWED, from, to, view)));
     }
 
     @Test

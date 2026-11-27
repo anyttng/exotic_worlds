@@ -48,7 +48,8 @@ class ClientboundPacketRewritersTurnTest {
             (proxy, method, arguments) -> switch (method.getName()) {
                 case "isPreservingLocalIndices" -> false;
                 case "nearestCopy" -> SEAT_CHUNK;
-                case "deckTransformation" -> new DeckTransformation(CLOCKWISE_TO_THE_SEAT);
+                case "deckTransformation", "nearestCopyTransformation" -> new DeckTransformation(CLOCKWISE_TO_THE_SEAT);
+                case "foldTransformationAlong" -> DeckTransformation.IDENTITY;
                 case "reseat" -> CLOCKWISE_TO_THE_SEAT.apply((BlockPos) arguments[0]);
                 default -> throw new UnsupportedOperationException(method.getName());
             });

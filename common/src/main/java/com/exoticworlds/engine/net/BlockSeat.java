@@ -1,5 +1,6 @@
 package com.exoticworlds.engine.net;
 
+import com.exoticworlds.core.fold.DeckTransformation;
 import com.exoticworlds.core.fold.FoldOrientation;
 import com.exoticworlds.core.fold.WorldFold;
 
@@ -13,9 +14,7 @@ record BlockSeat(BlockPos pos, FoldOrientation orientation) {
             return new BlockSeat(context.toClient(pos), FoldOrientation.IDENTITY);
         }
 
-        ChunkPos serverChunk = ChunkPos.containing(pos);
-        ChunkPos clientChunk = context.toClient(serverChunk);
-        return new BlockSeat(fold.reseat(pos, clientChunk),
-                fold.deckTransformation(serverChunk, clientChunk).getOrientation());
+        DeckTransformation move = context.toClientMove(ChunkPos.containing(pos));
+        return new BlockSeat(move.apply(pos), move.getOrientation());
     }
 }

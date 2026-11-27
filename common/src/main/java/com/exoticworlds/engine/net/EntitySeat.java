@@ -1,7 +1,6 @@
 package com.exoticworlds.engine.net;
 
 import com.exoticworlds.core.fold.FoldOrientation;
-import com.exoticworlds.engine.seam.ClientPosition;
 
 import net.minecraft.world.phys.Vec3;
 
@@ -24,7 +23,7 @@ record EntitySeat(Vec3 position, FoldOrientation orientation) {
     }
 
     static FoldOrientation orientationAt(TranslationContext context, Vec3 clientPosition) {
-        return ClientPosition.orientationAt(context.fold(), clientPosition);
+        return context.clientPosition().orientationAt(context.fold(), clientPosition);
     }
 
     private static EntitySeat at(TranslationContext context, Vec3 clientPosition) {

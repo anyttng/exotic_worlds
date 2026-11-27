@@ -24,7 +24,7 @@ public final class SeamMove {
         }
 
         mirror.set(clampedX, clampedZ, MirrorWriter.PLAYER_MOVE);
-        Vec3 unwrapped = fold.nearestCopy(player.position(), clamped);
+        Vec3 unwrapped = fold.nearestCopy(player.position(), mirror.toServerFrame(fold, clamped));
         reseatCheckpoints(checkpoints, fold, unwrapped);
         return unwrapped;
     }
@@ -36,9 +36,11 @@ public final class SeamMove {
     }
 
     public static Vec3 vehicle(ServerPlayer player, WorldFold fold, double clampedX, double clampedZ) {
-        ClientPosition.of(player).set(clampedX, clampedZ, MirrorWriter.VEHICLE_MOVE);
+        ClientPosition mirror = ClientPosition.of(player);
+        mirror.set(clampedX, clampedZ, MirrorWriter.VEHICLE_MOVE);
         Entity vehicle = player.getRootVehicle();
-        return fold.nearestCopy(vehicle.position(), new Vec3(clampedX, vehicle.getY(), clampedZ));
+        return fold.nearestCopy(vehicle.position(),
+                mirror.toServerFrame(fold, new Vec3(clampedX, vehicle.getY(), clampedZ)));
     }
 
     public static float playerYaw(ServerPlayer player, ServerboundMovePlayerPacket packet, float yaw) {
@@ -46,7 +48,7 @@ public final class SeamMove {
             return yaw;
         }
 
-        return yawFrom(player, player.position(), packet.hasPosition() ? clientPointOf(packet) : null, yaw);
+        return yawFrom(player, packet.hasPosition() ? clientPointOf(packet) : null, yaw);
     }
 
     private static Vec3 clientPointOf(ServerboundMovePlayerPacket packet) {
@@ -54,14 +56,14 @@ public final class SeamMove {
     }
 
     public static float vehicleYaw(ServerPlayer player, Vec3 clientPoint, float yaw) {
-        return yawFrom(player, player.getRootVehicle().position(), clientPoint, yaw);
+        return yawFrom(player, clientPoint, yaw);
     }
 
     public static float heldYaw(ServerPlayer player, float yaw) {
-        return yawFrom(player, player.position(), null, yaw);
+        return yawFrom(player, null, yaw);
     }
 
-    private static float yawFrom(ServerPlayer player, Vec3 serverPosition, @Nullable Vec3 clientPoint, float yaw) {
+    private static float yawFrom(ServerPlayer player, @Nullable Vec3 clientPoint, float yaw) {
         WorldFold fold = WorldLoopAttachments.getFold(player.level());
         ClientPosition mirror = ClientPosition.of(player);
         if (fold.isPreservingLocalIndices() || !mirror.isForDimension(player.level().dimension())) {
@@ -69,11 +71,11 @@ public final class SeamMove {
         }
 
         Vec3 seen = clientPoint == null ? new Vec3(mirror.getX(), 0.0, mirror.getZ()) : clientPoint;
-        return serverYaw(fold, serverPosition, seen, yaw);
+        return serverYaw(fold, mirror, seen, yaw);
     }
 
-    static float serverYaw(WorldFold fold, Vec3 serverPosition, Vec3 clientPoint, float yaw) {
-        return fold.nearestCopyTransformation(serverPosition, clientPoint).getOrientation().applyToYaw(yaw);
+    static float serverYaw(WorldFold fold, ClientPosition mirror, Vec3 clientPoint, float yaw) {
+        return mirror.orientationAt(fold, clientPoint).inverse().applyToYaw(yaw);
     }
 
     public static void playerIntoBounds(ServerPlayer player, MoveCheckpoints checkpoints) {

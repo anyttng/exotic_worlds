@@ -129,6 +129,20 @@ final class CuboidUnfoldings {
         return nearest == null ? SeamTransform.IDENTITY : nearest.move();
     }
 
+    List<SeamTransform> straightMoves(int anchorFace, int targetFace, double anchorX, double anchorZ, double x,
+            double z) {
+        List<SeamTransform> straight = new ArrayList<>();
+        for (Unfolding unfolding : this.moves[anchorFace][targetFace]) {
+            double dx = unfolding.move().applyX(x, z) - anchorX;
+            double dz = unfolding.move().applyZ(x, z) - anchorZ;
+            if (isCrossingEveryEdge(unfolding.edges(), anchorX, anchorZ, dx, dz)) {
+                straight.add(unfolding.move());
+            }
+        }
+
+        return straight;
+    }
+
     @Nullable SeamTransform moveAlongLine(int anchorFace, double anchorX, double anchorZ, double x, double z,
             int blockX, int blockZ) {
         for (int targetFace = 0; targetFace < this.faces.length; targetFace++) {

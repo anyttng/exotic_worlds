@@ -36,7 +36,8 @@ class SeamMoveTest {
                 WorldFold.class.getClassLoader(),
                 new Class<?>[] {WorldFold.class},
                 (proxy, method, arguments) -> switch (method.getName()) {
-                    case "nearestCopyTransformation" -> new DeckTransformation(toTheServer);
+                    case "isPreservingLocalIndices" -> false;
+                    case "foldTransformation" -> new DeckTransformation(toTheServer);
                     default -> throw new UnsupportedOperationException(method.getName());
                 });
     }
@@ -44,17 +45,18 @@ class SeamMoveTest {
     @Test
     void aHeadingSentFromAQuarterTurnCopyIsTurnedIntoTheServersFrame() {
         assertEquals(YAW + 90.0F,
-                SeamMove.serverYaw(seatingThrough(QUARTER_TURN_TO_THE_SERVER), SERVER_POSITION, CLIENT_POINT, YAW));
+                SeamMove.serverYaw(seatingThrough(QUARTER_TURN_TO_THE_SERVER), new ClientPosition(), CLIENT_POINT, YAW));
     }
 
     @Test
     void aHeadingSentFromAMirroredCopyIsReflectedIntoTheServersFrame() {
         assertEquals(180.0F - YAW,
-                SeamMove.serverYaw(seatingThrough(MIRROR_ON_Z_TO_THE_SERVER), SERVER_POSITION, CLIENT_POINT, YAW));
+                SeamMove.serverYaw(seatingThrough(MIRROR_ON_Z_TO_THE_SERVER), new ClientPosition(), CLIENT_POINT, YAW));
     }
 
     @Test
     void aHeadingSentFromALappedCopyIsLeftAsSent() {
-        assertEquals(YAW, SeamMove.serverYaw(TORUS, SERVER_POSITION, SERVER_POSITION.add(TORUS_WIDTH_BLOCKS, 0.0, 0.0), YAW));
+        assertEquals(YAW,
+                SeamMove.serverYaw(TORUS, new ClientPosition(), SERVER_POSITION.add(TORUS_WIDTH_BLOCKS, 0.0, 0.0), YAW));
     }
 }

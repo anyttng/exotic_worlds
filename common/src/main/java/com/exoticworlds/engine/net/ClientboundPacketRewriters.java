@@ -11,9 +11,9 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.function.UnaryOperator;
 
+import com.exoticworlds.core.fold.DeckTransformation;
 import com.exoticworlds.core.fold.FoldOrientation;
 import com.exoticworlds.core.fold.WorldFold;
-import com.exoticworlds.engine.fold.SeamDelta;
 import com.exoticworlds.engine.seam.ClientPosition;
 import com.exoticworlds.engine.seam.ClientPosition.BorderCenter;
 import com.exoticworlds.engine.seam.MirrorWriter;
@@ -105,8 +105,9 @@ final class ClientboundPacketRewriters {
 
     static ClientboundLevelChunkWithLightPacket levelChunk(ClientboundLevelChunkWithLightPacket packet, TranslationContext context) {
         ChunkPos serverPos = new ChunkPos(packet.x(), packet.z());
-        ChunkPos clientPos = context.toClient(serverPos);
-        FoldOrientation orientation = orientation(context, serverPos, clientPos);
+        DeckTransformation move = context.toClientMove(serverPos);
+        ChunkPos clientPos = move.apply(serverPos);
+        FoldOrientation orientation = move.getOrientation();
         return new ClientboundLevelChunkWithLightPacket(
                 clientPos.x(), clientPos.z(),
                 TurnedChunkData.turned(packet.chunkData(), orientation, () -> buffer(context).registryAccess()),
@@ -115,13 +116,10 @@ final class ClientboundPacketRewriters {
 
     static ClientboundLightUpdatePacket lightUpdate(ClientboundLightUpdatePacket packet, TranslationContext context) {
         ChunkPos serverPos = new ChunkPos(packet.x(), packet.z());
-        ChunkPos clientPos = context.toClient(serverPos);
+        DeckTransformation move = context.toClientMove(serverPos);
+        ChunkPos clientPos = move.apply(serverPos);
         return new ClientboundLightUpdatePacket(clientPos.x(), clientPos.z(),
-                TurnedChunkData.turned(packet.lightData(), orientation(context, serverPos, clientPos)));
-    }
-
-    private static FoldOrientation orientation(TranslationContext context, ChunkPos serverPos, ChunkPos clientPos) {
-        return context.fold().deckTransformation(serverPos, clientPos).getOrientation();
+                TurnedChunkData.turned(packet.lightData(), move.getOrientation()));
     }
 
     static Packet<?> forgetChunk(ClientboundForgetLevelChunkPacket packet, TranslationContext context) {
@@ -161,7 +159,7 @@ final class ClientboundPacketRewriters {
         Vec3 clientDestination = clientPosition.destinationOf(fold, position, relatives);
         FoldOrientation arriving = relatives.contains(Relative.X) || relatives.contains(Relative.Z)
                 ? standing
-                : ClientPosition.orientationAt(fold, clientDestination);
+                : clientPosition.orientationAt(fold, clientDestination);
         clientPosition.set(clientDestination.x, clientDestination.z, MirrorWriter.POSITION_PACKET);
 
         Vec3 sentPosition = sentPosition(fold, position, relatives, clientDestination, mirror, standing);
@@ -217,7 +215,7 @@ final class ClientboundPacketRewriters {
         boolean isRelativeX = relatives.contains(Relative.X);
         boolean isRelativeZ = relatives.contains(Relative.Z);
         return isRelativeX && isRelativeZ
-                ? standing.applyToDelta(SeamDelta.fold(fold, position))
+                ? standing.applyToDelta(ClientPosition.foldStep(fold, position))
                 : new Vec3(
                         isRelativeX ? clientDestination.x - mirror.x : clientDestination.x,
                         position.y,
@@ -285,7 +283,8 @@ final class ClientboundPacketRewriters {
     static Packet<?> moveVehicle(ClientboundMoveVehiclePacket packet, TranslationContext context) {
         PositionAndRotation movingTo = packet.movingTo();
         Vec3 clientPos = context.toClient(movingTo.position(), context.getTrackedReach());
-        float clientYaw = ClientPosition.orientationAt(context.fold(), clientPos).applyToYaw(movingTo.yRot());
+        float clientYaw = context.clientPosition().orientationAt(context.fold(), clientPos)
+                .applyToYaw(movingTo.yRot());
         return new ClientboundMoveVehiclePacket(PositionAndRotation.of(clientPos, clientYaw, movingTo.xRot()));
     }
 
@@ -296,7 +295,8 @@ final class ClientboundPacketRewriters {
 
     static ClientboundSectionBlocksUpdatePacket sectionBlocksUpdate(ClientboundSectionBlocksUpdatePacket packet, TranslationContext context) {
         ChunkPos serverPos = ((SectionBlocksUpdatePacketAccessor) packet).exotic_worlds$getSectionPos().chunk();
-        ChunkPos clientPos = context.toClient(serverPos);
+        DeckTransformation move = context.toClientMove(serverPos);
+        ChunkPos clientPos = move.apply(serverPos);
         ClientboundSectionBlocksUpdatePacket seated = rewritePosition(
                 (sectionPacket, output) -> ((SectionBlocksUpdatePacketAccessor) sectionPacket).exotic_worlds$write(output),
                 SectionBlocksUpdatePacketAccessor::exotic_worlds$create,
@@ -304,7 +304,7 @@ final class ClientboundPacketRewriters {
                 section -> SectionPos.of(clientPos, section.y()));
         SectionBlocksUpdatePacketAccessor changes = (SectionBlocksUpdatePacketAccessor) seated;
         TurnedChunkData.turnSectionChanges(changes.exotic_worlds$getPositions(), changes.exotic_worlds$getStates(),
-                orientation(context, serverPos, clientPos));
+                move.getOrientation());
         return seated;
     }
 
@@ -430,7 +430,7 @@ final class ClientboundPacketRewriters {
             Vec3 clientOrigin) {
         return switch (particle) {
             case TrailParticleOption trail -> new TrailParticleOption(
-                    context.fold().nearestCopy(clientOrigin, trail.target()),
+                    context.clientPosition().nearestCopy(context.fold(), clientOrigin, trail.target()),
                     trail.color(), trail.duration());
             case VibrationParticleOption vibration -> {
                 if (!(vibration.getDestination() instanceof BlockPositionSource destination)) {
@@ -524,7 +524,8 @@ final class ClientboundPacketRewriters {
 
     static BorderCenter nearestCopyCenter(WorldFold fold, ClientPosition clientPosition,
             BorderCenter center) {
-        Vec3 nearest = fold.nearestCopy(clientPosition.anchor(0.0), new Vec3(center.x(), 0.0, center.z()));
+        Vec3 nearest = clientPosition.nearestCopy(fold, clientPosition.anchor(0.0),
+                new Vec3(center.x(), 0.0, center.z()));
         return new BorderCenter(nearest.x, nearest.z);
     }
 
@@ -578,9 +579,9 @@ final class ClientboundPacketRewriters {
 
     private static ClientboundChunksBiomesPacket.ChunkBiomeData chunkBiomeData(
             ClientboundChunksBiomesPacket.ChunkBiomeData data, TranslationContext context) {
-        ChunkPos clientPos = context.toClient(data.pos());
-        return new ClientboundChunksBiomesPacket.ChunkBiomeData(clientPos, TurnedChunkData.turnedBiomes(
-                data.buffer(), orientation(context, data.pos(), clientPos), () -> buffer(context).registryAccess()));
+        DeckTransformation move = context.toClientMove(data.pos());
+        return new ClientboundChunksBiomesPacket.ChunkBiomeData(move.apply(data.pos()), TurnedChunkData.turnedBiomes(
+                data.buffer(), move.getOrientation(), () -> buffer(context).registryAccess()));
     }
 
     private static <T, P> T rewritePosition(BiConsumer<T, RegistryFriendlyByteBuf> writer,

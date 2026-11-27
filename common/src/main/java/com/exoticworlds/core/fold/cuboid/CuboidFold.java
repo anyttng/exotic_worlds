@@ -1,6 +1,9 @@
 package com.exoticworlds.core.fold.cuboid;
 
+import java.util.ArrayList;
 import java.util.List;
+
+import org.jspecify.annotations.Nullable;
 
 import com.exoticworlds.core.fold.DeckTransformation;
 import com.exoticworlds.core.fold.SeamBoxes;
@@ -95,6 +98,8 @@ public final class CuboidFold implements WorldFold {
 
     private final CuboidRegions regions;
 
+    private final int smallestEdgeChunks;
+
     private final int maxViewDistanceChunks;
 
     private final int netSideBlocks;
@@ -113,6 +118,7 @@ public final class CuboidFold implements WorldFold {
         this.crossings = crossingsOf(atlasFaces, atlas.edges());
         this.unfoldings = CuboidUnfoldings.of(this.faces, this.crossings);
         this.regions = new CuboidRegions(this.faces, this.crossings);
+        this.smallestEdgeChunks = smallestEdge;
         this.maxViewDistanceChunks = Math.max(1, smallestEdge / 2 - CoordinateConstants.VIEW_DISTANCE_MARGIN_CHUNKS);
         this.netSideBlocks = netSideBlocks(this.faces);
     }
@@ -486,6 +492,23 @@ public final class CuboidFold implements WorldFold {
     }
 
     @Override
+    public @Nullable DeckTransformation foldTransformationAlong(Vec3 from, Vec3 to) {
+        int fromFace = faceOf(Mth.floor(from.x), Mth.floor(from.z));
+        if (fromFace == NO_FACE) {
+            return null;
+        }
+
+        int toBlockX = Mth.floor(to.x);
+        int toBlockZ = Mth.floor(to.z);
+        if (this.faces[fromFace].contains(toBlockX, toBlockZ)) {
+            return DeckTransformation.IDENTITY;
+        }
+
+        SeamTransform back = this.unfoldings.moveAlongLine(fromFace, from.x, from.z, to.x, to.z, toBlockX, toBlockZ);
+        return back == null ? null : carried(back);
+    }
+
+    @Override
     public DeckTransformation deckTransformation(ChunkPos chunk, ChunkPos copy) {
         if (chunk.equals(copy)) {
             return DeckTransformation.IDENTITY;
@@ -558,6 +581,11 @@ public final class CuboidFold implements WorldFold {
     }
 
     @Override
+    public DeckTransformation nearestCopyTransformation(ChunkPos ref, ChunkPos target) {
+        return carried(nearestMoveOfChunk(ref.x(), ref.z(), target.x(), target.z()));
+    }
+
+    @Override
     public double sqrDistanceBlocks(double xFrom, double yFrom, double zFrom, double xTo, double yTo, double zTo) {
         SeamTransform move = nearestMoveOfCoord(xFrom, zFrom, xTo, zTo);
         double dx = move.applyX(xTo, zTo) - xFrom;
@@ -607,6 +635,47 @@ public final class CuboidFold implements WorldFold {
     @Override
     public boolean isFoldedOntoItself(BoundingBox region) {
         return this.regions.isFoldedOntoItself(region);
+    }
+
+    @Override
+    public List<ChunkPos> copiesInReach(ChunkPos ref, ChunkPos target, int reachChunks) {
+        List<ChunkPos> copies = new ArrayList<>();
+        copies.add(nearestCopy(ref, target));
+        int refBlockX = SectionPos.sectionToBlockCoord(ref.x());
+        int refBlockZ = SectionPos.sectionToBlockCoord(ref.z());
+        int blockX = SectionPos.sectionToBlockCoord(target.x());
+        int blockZ = SectionPos.sectionToBlockCoord(target.z());
+        SeamTransform refMove = moveOf(refBlockX + CHUNK_CENTER, refBlockZ + CHUNK_CENTER, refBlockX, refBlockZ);
+        SeamTransform targetMove = moveOf(blockX + CHUNK_CENTER, blockZ + CHUNK_CENTER, blockX, blockZ);
+        int refFace = faceOf(refMove.applyCellX(refBlockX, refBlockZ), refMove.applyCellZ(refBlockX, refBlockZ));
+        int targetFace = faceOf(targetMove.applyCellX(blockX, blockZ), targetMove.applyCellZ(blockX, blockZ));
+        if (refFace == NO_FACE || targetFace == NO_FACE) {
+            return copies;
+        }
+
+        List<SeamTransform> straight = this.unfoldings.straightMoves(refFace, targetFace,
+                refMove.applyX(refBlockX + CHUNK_CENTER, refBlockZ + CHUNK_CENTER),
+                refMove.applyZ(refBlockX + CHUNK_CENTER, refBlockZ + CHUNK_CENTER),
+                targetMove.applyX(blockX + CHUNK_CENTER, blockZ + CHUNK_CENTER),
+                targetMove.applyZ(blockX + CHUNK_CENTER, blockZ + CHUNK_CENTER));
+        for (SeamTransform unfolding : straight) {
+            ChunkPos copy = carried(targetMove.then(unfolding).then(refMove.inverse())).apply(target);
+            if (ref.getChessboardDistance(copy) <= reachChunks && !copies.contains(copy)) {
+                copies.add(copy);
+            }
+        }
+
+        return copies;
+    }
+
+    @Override
+    public boolean canFitInHalfBlocks(Direction.Axis axis, double spanBlocks) {
+        return 2 * spanBlocks <= (double) this.smallestEdgeChunks * CoordinateConstants.CHUNK_WIDTH_BLOCKS;
+    }
+
+    @Override
+    public boolean canFitInHalfChunks(Direction.Axis axis, double spanChunks) {
+        return 2 * spanChunks <= this.smallestEdgeChunks;
     }
 
     @Override

@@ -14,6 +14,7 @@ import org.jspecify.annotations.Nullable;
 import com.exoticworlds.core.fold.DeckTransformation;
 import com.exoticworlds.core.fold.WorldFold;
 import com.exoticworlds.engine.fold.FoldedCopies;
+import com.exoticworlds.engine.seam.ClientPosition;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.GlobalPos;
@@ -43,7 +44,13 @@ public final class FoldedValue {
     }
 
     static Leaves towardLeaves(TranslationContext context, Supplier<Vec3> anchor) {
-        return towardLeaves(context.fold(), anchor);
+        WorldFold fold = context.fold();
+        ClientPosition mirror = context.clientPosition();
+        return new Leaves(
+                pos -> mirror.nearestCopy(fold, BlockPos.containing(anchor.get()), pos),
+                position -> mirror.nearestCopy(fold, anchor.get(), position),
+                chunkPos -> mirror.nearestCopy(fold, ChunkPos.containing(BlockPos.containing(anchor.get())), chunkPos),
+                center -> mirror.nearestCopyTransformation(fold, anchor.get(), center));
     }
 
     private static Leaves towardLeaves(WorldFold fold, Supplier<Vec3> anchor) {
@@ -83,7 +90,7 @@ public final class FoldedValue {
     }
 
     static BlockPos nearestCopy(TranslationContext context, Vec3 anchor, BlockPos pos) {
-        return context.fold().nearestCopy(BlockPos.containing(anchor), pos);
+        return context.clientPosition().nearestCopy(context.fold(), BlockPos.containing(anchor), pos);
     }
 
     @Contract("_, _, !null, _ -> !null")

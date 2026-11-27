@@ -83,8 +83,8 @@ class ReachSlackTest {
     class TheAxisCarriesTheGuard {
         @Test
         void theWorldFromTheLogCarriesNeitherViewDistanceItWasSeenWith() {
-            assertFalse(TranslationContext.hasReach(BLOCKS_OF_A_512_WIDE_WORLD, PacketReach.tracked(13)));
-            assertFalse(TranslationContext.hasReach(BLOCKS_OF_A_512_WIDE_WORLD, PacketReach.tracked(12)));
+            assertFalse(BLOCKS_OF_A_512_WIDE_WORLD.canFitInHalf(TranslationContext.reachSpanBlocks(PacketReach.tracked(13))));
+            assertFalse(BLOCKS_OF_A_512_WIDE_WORLD.canFitInHalf(TranslationContext.reachSpanBlocks(PacketReach.tracked(12))));
         }
 
         @Test
@@ -94,21 +94,21 @@ class ReachSlackTest {
 
         @Test
         void twiceTheBudgetPlusTheMarginIsWhereTheAxisStartsCarrying() {
-            assertTrue(TranslationContext.hasReach(BLOCKS_OF_A_576_WIDE_WORLD, PacketReach.tracked(13)));
-            assertTrue(TranslationContext.hasReach(BLOCKS_OF_A_4096_WIDE_WORLD, PacketReach.tracked(13)));
+            assertTrue(BLOCKS_OF_A_576_WIDE_WORLD.canFitInHalf(TranslationContext.reachSpanBlocks(PacketReach.tracked(13))));
+            assertTrue(BLOCKS_OF_A_4096_WIDE_WORLD.canFitInHalf(TranslationContext.reachSpanBlocks(PacketReach.tracked(13))));
         }
 
         @Test
         void anUnboundedAxisCarriesEveryReach() {
-            assertTrue(TranslationContext.hasReach(UNBOUNDED_AXIS, PacketReach.tracked(13)));
-            assertTrue(TranslationContext.hasReach(UNBOUNDED_AXIS, FORCED_PARTICLE));
+            assertTrue(UNBOUNDED_AXIS.canFitInHalf(TranslationContext.reachSpanBlocks(PacketReach.tracked(13))));
+            assertTrue(UNBOUNDED_AXIS.canFitInHalf(TranslationContext.reachSpanBlocks(FORCED_PARTICLE)));
         }
 
         @Test
         void theChunkViewGoesSilentInsideTheBandTheWorldReserved() {
-            assertFalse(TranslationContext.hasView(CHUNKS_OF_A_512_WIDE_WORLD, 14));
-            assertTrue(TranslationContext.hasView(CHUNKS_OF_A_512_WIDE_WORLD, 10));
-            assertTrue(TranslationContext.hasView(UNBOUNDED_AXIS, 14));
+            assertFalse(CHUNKS_OF_A_512_WIDE_WORLD.canFitInHalf(TranslationContext.viewSpanChunks(14)));
+            assertTrue(CHUNKS_OF_A_512_WIDE_WORLD.canFitInHalf(TranslationContext.viewSpanChunks(10)));
+            assertTrue(UNBOUNDED_AXIS.canFitInHalf(TranslationContext.viewSpanChunks(14)));
         }
     }
 }

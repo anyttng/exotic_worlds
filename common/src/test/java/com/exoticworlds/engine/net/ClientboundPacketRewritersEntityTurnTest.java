@@ -3,7 +3,6 @@ package com.exoticworlds.engine.net;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertSame;
 
-import java.lang.reflect.Proxy;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -11,8 +10,6 @@ import java.util.UUID;
 
 import org.junit.jupiter.api.Test;
 
-import com.exoticworlds.core.fold.DeckTransformation;
-import com.exoticworlds.core.fold.SeamTransform;
 import com.exoticworlds.core.world.ShapeFixtures;
 import com.exoticworlds.core.fold.WorldFold;
 import com.exoticworlds.core.fold.WorldFolds;
@@ -59,21 +56,8 @@ import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.phys.Vec3;
 
 class ClientboundPacketRewritersEntityTurnTest {
-    private static final int FACE_WIDTH_BLOCKS = 64;
-    private static final int VIEW_DISTANCE_CHUNKS = 12;
+    private static final int VIEW_DISTANCE_CHUNKS = 5;
     private static final int TORUS_WIDTH_IN_CHUNKS = 32;
-
-    private static final SeamTransform CLOCKWISE_TO_THE_SEAT = new SeamTransform(-1, 1, FACE_WIDTH_BLOCKS, -FACE_WIDTH_BLOCKS, true);
-
-    private static final WorldFold TURNED = (WorldFold) Proxy.newProxyInstance(
-            WorldFold.class.getClassLoader(),
-            new Class<?>[] {WorldFold.class},
-            (proxy, method, arguments) -> switch (method.getName()) {
-                case "isPreservingLocalIndices" -> false;
-                case "nearestCopy" -> CLOCKWISE_TO_THE_SEAT.apply((Vec3) arguments[1]);
-                case "foldTransformation" -> new DeckTransformation(CLOCKWISE_TO_THE_SEAT.inverse());
-                default -> throw new UnsupportedOperationException(method.getName());
-            });
 
     private static final WorldFold TORUS =
             WorldFolds.of(ShapeFixtures.torus(WorldLoopBounds.ofWidth(TORUS_WIDTH_IN_CHUNKS)));
@@ -82,10 +66,13 @@ class ClientboundPacketRewritersEntityTurnTest {
     private static final int ENTITY_ID = 11;
     private static final UUID ENTITY_UUID = new UUID(1L, 2L);
 
-    private static final BlockPos SERVER_BLOCK = new BlockPos(58, 70, 2);
-    private static final BlockPos SEAT_BLOCK = new BlockPos(61, 70, -6);
-    private static final Vec3 SERVER_POSITION = new Vec3(58.5, 70.0, 2.5);
-    private static final Vec3 SEAT_POSITION = new Vec3(61.5, 70.0, -5.5);
+    private static final WalkedMirrors.Walked TURNED_WORLD = WalkedMirrors.acrossAQuarterTurn();
+    private static final Vec3 SERVER_POSITION = TURNED_WORLD.serverPoint().add(-1.5, 70.0, 2.5);
+    private static final Vec3 SEAT_POSITION = TURNED_WORLD.seatOf(SERVER_POSITION);
+    private static final BlockPos SERVER_BLOCK = BlockPos.containing(SERVER_POSITION);
+    private static final BlockPos SEAT_BLOCK = TURNED_WORLD.seatOf(SERVER_BLOCK);
+    private static final Vec3 TORUS_POSITION = new Vec3(58.5, 70.0, 2.5);
+    private static final BlockPos TORUS_BLOCK = BlockPos.containing(TORUS_POSITION);
 
     private static final Vec3 MOVEMENT = new Vec3(1.0, 0.5, 2.0);
     private static final Vec3 TURNED_MOVEMENT = new Vec3(-2.0, 0.5, 1.0);
@@ -102,9 +89,8 @@ class ClientboundPacketRewritersEntityTurnTest {
     private static final VecDelta STEP = new VecDelta.Linear((short) 100, (short) 7, (short) 300);
     private static final VecDelta TURNED_STEP = new VecDelta.Linear((short) -300, (short) 7, (short) 100);
 
-    private static TranslationContext context(WorldFold fold, Class<?> entityClass) {
-        ClientPosition clientPosition = new ClientPosition();
-        clientPosition.rebase(ANCHOR_X, 0.0, Level.OVERWORLD, fold);
+    private static TranslationContext context(WorldFold fold, ClientPosition clientPosition, Vec3 entityPosition,
+            Class<?> entityClass) {
         return new TranslationContext(
                 fold,
                 clientPosition,
@@ -112,14 +98,21 @@ class ClientboundPacketRewritersEntityTurnTest {
                 Level.OVERWORLD,
                 VIEW_DISTANCE_CHUNKS,
                 VIEW_DISTANCE_CHUNKS,
-                entityId -> SERVER_POSITION,
+                entityId -> entityPosition,
                 entityId -> new TagPositions.Subject(entityClass, null),
                 () -> {
                 });
     }
 
+    private static TranslationContext torus(Class<?> entityClass) {
+        ClientPosition clientPosition = new ClientPosition();
+        clientPosition.rebase(ANCHOR_X, 0.0, Level.OVERWORLD, TORUS);
+        return context(TORUS, clientPosition, TORUS_POSITION, entityClass);
+    }
+
     private static TranslationContext turned(Class<?> entityClass) {
-        return context(TURNED, entityClass);
+        WalkedMirrors.Walked walked = WalkedMirrors.acrossAQuarterTurn();
+        return context(walked.fold(), walked.mirror(), SERVER_POSITION, entityClass);
     }
 
     private static ClientboundAddEntityPacket spawn(Vec3 position, int data) {
@@ -316,10 +309,10 @@ class ClientboundPacketRewritersEntityTurnTest {
     @Test
     void aTranslationSeamLeavesAnAddedEntityAsSent() {
         ClientboundAddEntityPacket seated = ClientboundPacketRewriters.addEntity(
-                spawn(Vec3.atLowerCornerOf(SERVER_BLOCK), Direction.NORTH.get3DDataValue()), context(TORUS, ItemFrame.class));
+                spawn(Vec3.atLowerCornerOf(TORUS_BLOCK), Direction.NORTH.get3DDataValue()), torus(ItemFrame.class));
 
         assertEquals(Direction.NORTH.get3DDataValue(), seated.getData());
-        assertEquals(Vec3.atLowerCornerOf(SERVER_BLOCK), new Vec3(seated.getX(), seated.getY(), seated.getZ()));
+        assertEquals(Vec3.atLowerCornerOf(TORUS_BLOCK), new Vec3(seated.getX(), seated.getY(), seated.getZ()));
         assertEquals(YAW, seated.getYRot());
         assertEquals(HEAD_YAW, seated.getYHeadRot());
         assertSame(MOVEMENT, seated.getMovement());
@@ -327,7 +320,7 @@ class ClientboundPacketRewritersEntityTurnTest {
 
     @Test
     void aTranslationSeamHandsTheFrequentEntityPacketsOnUntouched() {
-        TranslationContext context = context(TORUS, Pig.class);
+        TranslationContext context = torus(Pig.class);
         List<Packet<?>> sent = List.of(
                 new ClientboundMoveEntityPacket.PosRot(ENTITY_ID, STEP, Mth.packDegrees(YAW), Mth.packDegrees(PITCH), true),
                 new ClientboundMoveEntityPacket.Pos(ENTITY_ID, STEP, true),

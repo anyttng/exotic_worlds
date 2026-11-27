@@ -1,5 +1,6 @@
 package com.exoticworlds.core.fold;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.jspecify.annotations.Nullable;
@@ -128,11 +129,19 @@ public interface WorldFold {
 
     DeckTransformation foldTransformation(Vec3 pos);
 
+    default @Nullable DeckTransformation foldTransformationAlong(Vec3 from, Vec3 to) {
+        return foldTransformation(to);
+    }
+
     DeckTransformation deckTransformation(ChunkPos chunk, ChunkPos copy);
 
     DeckTransformation nearestCopyTransformation(Vec3 ref, Vec3 target);
 
     DeckTransformation nearestCopyTransformation(BlockPos ref, BlockPos target);
+
+    default DeckTransformation nearestCopyTransformation(ChunkPos ref, ChunkPos target) {
+        return deckTransformation(target, nearestCopy(ref, target));
+    }
 
     BlockPos reseat(BlockPos pos, ChunkPos copy);
 
@@ -196,6 +205,39 @@ public interface WorldFold {
     boolean isFoldedOntoItself(BoundingBox region);
 
     int stepsToCoverTheWorld(int step);
+
+    default List<ChunkPos> copiesInReach(ChunkPos ref, ChunkPos target, int reachChunks) {
+        ChunkPos nearest = nearestCopy(ref, target);
+        TranslationLattice lattice = getChunkLattice();
+        int[] xLaps = candidateLaps(lattice.getX(), nearest.x() - ref.x(), reachChunks);
+        int[] zLaps = candidateLaps(lattice.getZ(), nearest.z() - ref.z(), reachChunks);
+        List<ChunkPos> copies = new ArrayList<>(xLaps.length * zLaps.length);
+        for (int xLap : xLaps) {
+            for (int zLap : zLaps) {
+                copies.add(new ChunkPos(
+                        nearest.x() + xLap * lattice.getX().domainLength + zLap * lattice.getSkew(),
+                        nearest.z() + zLap * lattice.getZ().domainLength));
+            }
+        }
+
+        return copies;
+    }
+
+    private static int[] candidateLaps(WrapDomain domain, int delta, int reachChunks) {
+        if (Math.abs(delta) <= reachChunks || !domain.isLooped()) {
+            return new int[] {0};
+        }
+
+        return new int[] {0, delta > 0 ? -1 : 1};
+    }
+
+    default boolean canFitInHalfBlocks(Direction.Axis axis, double spanBlocks) {
+        return getBlockLattice().getAxis(axis).canFitInHalf(spanBlocks);
+    }
+
+    default boolean canFitInHalfChunks(Direction.Axis axis, double spanChunks) {
+        return getChunkLattice().getAxis(axis).canFitInHalf(spanChunks);
+    }
 
     private AxisBounds.Looped looped(Direction.Axis axis) {
         if (isLooped(axis) && getBounds().getAxis(axis) instanceof AxisBounds.Looped looped) {
