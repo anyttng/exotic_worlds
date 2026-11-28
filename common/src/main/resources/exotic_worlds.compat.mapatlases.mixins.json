@@ -5,7 +5,11 @@
   "compatibilityLevel": "JAVA_25",
   "plugin": "com.exoticworlds.compat.mapatlases.MapAtlasesMixinPlugin",
   "mixins": [
-    "MapCollectionMixin"
+    "MapAtlasesServerEventsMixin",
+    "MapAtlasItemMixin",
+    "MapCollectionMixin",
+    "MapsNeighborhoodMixin",
+    "UpdateTicketMixin"
   ],
   "client": [
     "AbstractAtlasDisplayMixin",
