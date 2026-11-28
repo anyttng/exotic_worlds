@@ -41,8 +41,10 @@ public final class AtlasTileCopies {
         }
 
         int half = mapBlocks / 2;
-        AABB near = new AABB(lower(fold, Direction.Axis.X, x) - half, 0.0, lower(fold, Direction.Axis.Z, z) - half,
-                upper(fold, Direction.Axis.X, x) + half, 1.0, upper(fold, Direction.Axis.Z, z) + half);
+        AABB near = new AABB(heldMapsMin(fold, Direction.Axis.X, x, mapBlocks) - half, 0.0,
+                heldMapsMin(fold, Direction.Axis.Z, z, mapBlocks) - half,
+                heldMapsMax(fold, Direction.Axis.X, x, mapBlocks) + half, 1.0,
+                heldMapsMax(fold, Direction.Axis.Z, z, mapBlocks) + half);
         List<TileCenter> centers = new ArrayList<>();
         centers.add(request);
         List<WorldFold.Folded<BlockPos>> inside =
@@ -138,13 +140,13 @@ public final class AtlasTileCopies {
     }
 
     private static int firstCenter(WorldFold fold, Direction.Axis axis, int viewMin, int mapBlocks) {
-        int past = Math.max(viewMin, lower(fold, axis, viewMin)) - mapBlocks / 2;
+        int past = Math.max(viewMin, heldMapsMin(fold, axis, viewMin, mapBlocks)) - mapBlocks / 2;
         int center = gridCenter(past, mapBlocks);
         return center > past ? center : center + mapBlocks;
     }
 
     private static int lastCenter(WorldFold fold, Direction.Axis axis, int viewMax, int mapBlocks) {
-        int before = Math.min(viewMax, upper(fold, axis, viewMax)) + mapBlocks / 2;
+        int before = Math.min(viewMax, heldMapsMax(fold, axis, viewMax, mapBlocks)) + mapBlocks / 2;
         int center = gridCenter(before, mapBlocks);
         return center < before ? center : center - mapBlocks;
     }
@@ -164,12 +166,12 @@ public final class AtlasTileCopies {
         return null;
     }
 
-    private static int lower(WorldFold fold, Direction.Axis axis, int coord) {
-        return fold.isLooped(axis) ? fold.getMinBlock(axis) : coord;
+    private static int heldMapsMin(WorldFold fold, Direction.Axis axis, int coord, int mapBlocks) {
+        return fold.isLooped(axis) ? fold.getMinBlock(axis) - mapBlocks : coord;
     }
 
-    private static int upper(WorldFold fold, Direction.Axis axis, int coord) {
-        return fold.isLooped(axis) ? fold.getMinBlock(axis) + fold.getWidthBlocks(axis) : coord;
+    private static int heldMapsMax(WorldFold fold, Direction.Axis axis, int coord, int mapBlocks) {
+        return fold.isLooped(axis) ? fold.getMinBlock(axis) + fold.getWidthBlocks(axis) + mapBlocks : coord;
     }
 
     private AtlasTileCopies() {
