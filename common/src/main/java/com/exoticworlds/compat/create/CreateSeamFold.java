@@ -102,7 +102,7 @@ public final class CreateSeamFold {
                 : position;
     }
 
-    // Off the server thread the write is the viewer's frame, and canonicalising it jumps the carriage a world width.
+    // Off the server thread the write is the viewer's frame, and canonicalizing it jumps the carriage a world width.
     public static Vec3 canonicalOnServer(@Nullable ResourceKey<Level> dimension, Vec3 position) {
         MinecraftServer server = CurrentServer.get();
         if (server == null || !server.isSameThread() || dimension == null) {

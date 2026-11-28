@@ -28,7 +28,7 @@ public abstract class FactoryPanelBlockEntityMixin implements SeamKeyedBlockEnti
         }
 
         for (ServerFactoryPanelBehaviour panel : panelBE.panels.values()) {
-            CreateFactoryPanelFold.canonicalise(serverLevel, panel);
+            CreateFactoryPanelFold.canonicalize(serverLevel, panel);
         }
     }
 }
