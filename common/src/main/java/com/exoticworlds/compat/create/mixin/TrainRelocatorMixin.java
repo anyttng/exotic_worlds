@@ -23,12 +23,12 @@ public abstract class TrainRelocatorMixin {
             require = 2,
             allow = 2)
     private static Object exotic_worlds$previewPointInTheViewerFrame(Object point,
-            @Local(argsOnly = true) List<Vec3> toVisualise) {
+            @Local(argsOnly = true) List<Vec3> toVisualize) {
         if (!(point instanceof Vec3 raw)) {
             return point;
         }
 
-        Vec3 anchor = toVisualise.isEmpty() ? exotic_worlds$getViewer() : toVisualise.get(toVisualise.size() - 1);
+        Vec3 anchor = toVisualize.isEmpty() ? exotic_worlds$getViewer() : toVisualize.get(toVisualize.size() - 1);
         return anchor == null ? point : CreateClientFrame.nearestCopy(anchor, raw);
     }
 
