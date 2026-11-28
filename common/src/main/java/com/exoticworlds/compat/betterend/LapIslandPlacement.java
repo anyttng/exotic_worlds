@@ -18,6 +18,7 @@ public final class LapIslandPlacement {
     }
 
     public record Center(boolean isIsland, int biomesSize, long innerVoidSquared) {
+        public static final Center NONE = new Center(false, 0, 0L);
     }
 
     public record Grid(IslandLapAxis x, IslandLapAxis z, LapFrame frame) {

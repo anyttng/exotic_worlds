@@ -1,4 +1,4 @@
-package com.exoticworlds.compat.betterend.mixin;
+package com.exoticworlds.compat.betterend.betterx.mixin;
 
 import org.betterx.betterend.noise.OpenSimplexNoise;
 import org.betterx.betterend.world.surface.SplitNoiseCondition;

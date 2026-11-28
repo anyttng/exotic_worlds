@@ -8,6 +8,9 @@ public final class WoverInjectionTargets {
 
     public static final String GET_NUMBER = NUMBER + NUMBER_DESCRIPTOR;
 
+    public static final String SURFACE_RULES_GET_NUMBER =
+            "getNumber(Lde/ambertation/wover/surface/api/conditions/SurfaceRulesContext;)I";
+
     private WoverInjectionTargets() {
     }
 }

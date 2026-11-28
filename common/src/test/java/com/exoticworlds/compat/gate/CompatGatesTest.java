@@ -4,9 +4,12 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Reader;
+import java.net.URL;
+import java.net.URLClassLoader;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
@@ -18,10 +21,12 @@ import java.util.Set;
 import java.util.TreeSet;
 import java.util.stream.Stream;
 
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 
+import com.google.common.base.Splitter;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -37,6 +42,66 @@ class CompatGatesTest {
     private static final String GATE_PACKAGE = "com/exoticworlds/compat/gate/";
     private static final String SHIPPED_CLASS = "ModPresence.class";
     private static final String CLASS_SUFFIX = ".class";
+    private static final String BETTER_END_CONFIG = "exotic_worlds.compat.betterend.mixins.json";
+    private static final Set<String> ORIGINAL_BETTER_END_CONFIGS =
+            Set.of("exotic_worlds.compat.betterend.ambertation.mixins.json");
+    private static final String GET_GATES_METHOD = "getGates";
+    private static final String IS_ADMITTED_METHOD = "isAdmitted";
+
+    private static final class OriginalBuildLoader extends URLClassLoader {
+        private static final String JARS_PROPERTY = "toroidal.betterEndOriginal";
+        private static final List<String> OWNED_PACKAGES =
+                List.of("org/betterx/betterend/", "org/betterx/bclib/", "com/exoticworlds/");
+
+        static {
+            registerAsParallelCapable();
+        }
+
+        private OriginalBuildLoader(URL[] urls, ClassLoader parent) {
+            super(urls, parent);
+        }
+
+        static OriginalBuildLoader ofOriginalBetterEnd() throws Exception {
+            String jars = System.getProperty(JARS_PROPERTY);
+            assertNotNull(jars, JARS_PROPERTY + " names no jar: the suite runs from common's test task");
+            List<URL> urls = new ArrayList<>();
+            for (String jar : Splitter.on(File.pathSeparatorChar).omitEmptyStrings().split(jars)) {
+                urls.add(Path.of(jar).toUri().toURL());
+            }
+
+            urls.add(ModPresence.class.getProtectionDomain().getCodeSource().getLocation());
+            return new OriginalBuildLoader(urls.toArray(URL[]::new), CompatGatesTest.class.getClassLoader());
+        }
+
+        private static boolean isOwned(String internalName) {
+            return OWNED_PACKAGES.stream().anyMatch(internalName::startsWith);
+        }
+
+        @Override
+        protected Class<?> loadClass(String name, boolean resolve) throws ClassNotFoundException {
+            if (!isOwned(name.replace('.', '/'))) {
+                return super.loadClass(name, resolve);
+            }
+
+            synchronized (getClassLoadingLock(name)) {
+                Class<?> loaded = findLoadedClass(name);
+                if (loaded == null) {
+                    loaded = findClass(name);
+                }
+
+                if (resolve) {
+                    resolveClass(loaded);
+                }
+
+                return loaded;
+            }
+        }
+
+        @Override
+        public @Nullable URL getResource(String name) {
+            return isOwned(name) ? findResource(name) : super.getResource(name);
+        }
+    }
 
     static List<Path> configs() throws IOException {
         List<Path> configs = new ArrayList<>();
@@ -66,9 +131,33 @@ class CompatGatesTest {
     @ParameterizedTest
     @MethodSource("configs")
     void everyGateAdmitsTheModBuildTheSuiteCarries(Path config) throws Exception {
-        for (ModPresence gate : pluginOf(read(config)).getGates()) {
+        JsonObject json = read(config);
+        if (ORIGINAL_BETTER_END_CONFIGS.contains(config.getFileName().toString())) {
+            assertAdmittedOnTheOriginalBetterEnd(json, config);
+            return;
+        }
+
+        for (ModPresence gate : pluginOf(json).getGates()) {
             assertTrue(gate.isAdmitted(), config.getFileName() + ": a gate refuses the build this suite runs against; "
                     + "the refusal line in the test log names the mixin and the member");
+        }
+    }
+
+    @Test
+    void theSharedBetterEndGateAdmitsTheOriginalBuildToo() throws Exception {
+        Path config = Path.of(System.getProperty(REPO_ROOT_PROPERTY)).resolve(RESOURCES).resolve(BETTER_END_CONFIG);
+        assertAdmittedOnTheOriginalBetterEnd(read(config), config);
+    }
+
+    private static void assertAdmittedOnTheOriginalBetterEnd(JsonObject json, Path config) throws Exception {
+        try (OriginalBuildLoader loader = OriginalBuildLoader.ofOriginalBetterEnd()) {
+            Object plugin = Class.forName(json.get(PLUGIN_KEY).getAsString(), true, loader)
+                    .getDeclaredConstructor().newInstance();
+            for (Object gate : (List<?>) plugin.getClass().getMethod(GET_GATES_METHOD).invoke(plugin)) {
+                assertTrue((Boolean) gate.getClass().getMethod(IS_ADMITTED_METHOD).invoke(gate),
+                        config.getFileName() + ": a gate refuses the original BetterEnd build; the refusal line in"
+                                + " the test log names the mixin and the member");
+            }
         }
     }
 

@@ -8,11 +8,8 @@
     "ColorBlockPlacementMixin",
     "IslandLayerMixin",
     "OpenSimplexNoiseMixin",
-    "SplitNoiseConditionMixin",
-    "SulphuricSurfaceNoiseConditionMixin",
     "TerrainGeneratorAccessor",
-    "TerrainGeneratorMixin",
-    "TunelCaveFeatureMixin"
+    "TerrainGeneratorMixin"
   ],
   "injectors": {
     "defaultRequire": 1

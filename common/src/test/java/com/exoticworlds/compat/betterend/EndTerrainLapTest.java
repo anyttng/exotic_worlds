@@ -38,7 +38,8 @@ class EndTerrainLapTest {
     void theLapReadsTheStandInsOfBetterEndsNoiseObjects() {
         OpenSimplexStandIn first = new OpenSimplexStandIn(FIRST_SEED);
         OpenSimplexStandIn second = new OpenSimplexStandIn(SECOND_SEED);
-        EndTerrainLap lap = new EndTerrainLap(WorldFolds.of(ShapeFixtures.torus(BOUNDS)), () -> first, () -> second);
+        EndTerrainLap lap = new EndTerrainLap(WorldFolds.of(ShapeFixtures.torus(BOUNDS)), () -> first, () -> second,
+                LapIslandPlacement.Center.NONE);
         assertSame(first, lap.getFirst());
         assertSame(second, lap.getSecond());
     }
@@ -133,7 +134,7 @@ class EndTerrainLapTest {
     private static EndTerrainLap lapOn(WorldFold fold) {
         OpenSimplexStandIn first = new OpenSimplexStandIn(FIRST_SEED);
         OpenSimplexStandIn second = new OpenSimplexStandIn(SECOND_SEED);
-        return new EndTerrainLap(fold, () -> first, () -> second);
+        return new EndTerrainLap(fold, () -> first, () -> second, LapIslandPlacement.Center.NONE);
     }
 
     private static TranslationLattice lattice() {

@@ -134,6 +134,12 @@ config="exotic_worlds.compat.betterend.mixins.json"
 config="exotic_worlds.compat.betterend.neoforge.mixins.json"
 
 [[mixins]]
+config="exotic_worlds.compat.betterend.betterx.mixins.json"
+
+[[mixins]]
+config="exotic_worlds.compat.betterend.ambertation.mixins.json"
+
+[[mixins]]
 config="exotic_worlds.compat.sodium.mixins.json"
 
 [[mixins]]

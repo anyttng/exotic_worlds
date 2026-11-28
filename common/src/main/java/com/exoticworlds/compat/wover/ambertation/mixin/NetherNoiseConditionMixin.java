@@ -9,6 +9,7 @@ import org.spongepowered.asm.mixin.injection.At;
 
 import com.exoticworlds.compat.worldgen.LapNoise;
 import com.exoticworlds.compat.worldgen.StandInHolder;
+import com.exoticworlds.compat.wover.WoverInjectionTargets;
 import com.exoticworlds.core.fold.WorldFold;
 import com.exoticworlds.engine.noise.GenerationFoldContext;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
@@ -17,7 +18,7 @@ import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 @Mixin(NetherNoiseCondition.class)
 public class NetherNoiseConditionMixin {
     @WrapOperation(
-            method = "getNumber(Lde/ambertation/wover/surface/api/conditions/SurfaceRulesContext;)I",
+            method = WoverInjectionTargets.SURFACE_RULES_GET_NUMBER,
             at = @At(value = "INVOKE", target = "Lde/ambertation/wover/math/api/noise/OpenSimplexNoise;eval(DDD)D"))
     private double exotic_worlds$lapNoise(OpenSimplexNoise noise, double x, double y, double z,
             Operation<Double> original) {
