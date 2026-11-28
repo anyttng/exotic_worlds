@@ -145,6 +145,13 @@ class ChunkFrameTest {
         }
 
         @Test
+        void aStateWrittenThroughTheMovesOrientationLandsTurnedIntoTheChunk() {
+            assertEquals(facing(Direction.NORTH),
+                    ChunkFrame.toChunk(facing(Direction.WEST), CLOCKWISE_OVER_THE_EAST_EDGE.getOrientation()),
+                    "the written state kept the writer's frame");
+        }
+
+        @Test
         void aStateWrittenAndReadBackIsTheStateWritten() {
             BlockState written = facing(Direction.SOUTH);
             BlockState[] cells = chunkHolding(SEATED, ChunkFrame.toChunk(TURNED, PAST_THE_EDGE, written));

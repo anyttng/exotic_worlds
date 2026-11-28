@@ -198,7 +198,7 @@ class CuboidFoldTest {
     }
 
     @Test
-    void aCopyIsReseatedByTheMoveBackFromItsChunk() {
+    void aCopyIsReachedByTheMoveBackFromItsChunk() {
         forEveryCrossing((crossing, inside, outside) -> {
             WorldFold fold = crossing.fold();
             ChunkPos copy = ChunkPos.containing(outside);
@@ -211,7 +211,8 @@ class CuboidFoldTest {
 
             assertEquals(copy, toCopy.apply(chunk));
             assertEquals(crossing.transform().getOrientation().inverse(), toCopy.getOrientation());
-            assertEquals(outside, fold.reseat(fold.fold(outside), copy));
+            BlockPos folded = fold.fold(outside);
+            assertEquals(outside, fold.deckTransformation(ChunkPos.containing(folded), copy).apply(folded));
             assertSame(DeckTransformation.IDENTITY, fold.deckTransformation(chunk, chunk));
         });
     }

@@ -601,7 +601,7 @@ class DeckGroupFoldMatrixTest {
     }
 
     @Nested
-    class Reseat {
+    class CarriedOntoACopy {
         @Test
         void landsInTheCopyAtTheOrbitImage() {
             for (Case testCase : cases()) {
@@ -615,23 +615,13 @@ class DeckGroupFoldMatrixTest {
                     ChunkPos copy = copyOf(testCase.group(), chunkOf(x, z), first, second);
                     int[] image = testCase.group().cell(x, z, first, second);
 
-                    BlockPos reseated = fold.reseat(new BlockPos(x, 64, z), copy);
-                    assertEquals(new BlockPos(image[0], 64, image[1]), reseated,
-                            testCase.name() + ": reseat of (" + x + ", " + z + ") into " + copy
+                    BlockPos carried = fold.deckTransformation(chunkOf(x, z), copy).apply(new BlockPos(x, 64, z));
+                    assertEquals(new BlockPos(image[0], 64, image[1]), carried,
+                            testCase.name() + ": the move of (" + x + ", " + z + ") onto " + copy
                                     + " is not the orbit image");
-                    assertEquals(copy, chunkOf(reseated.getX(), reseated.getZ()),
-                            testCase.name() + ": reseat left the copy");
+                    assertEquals(copy, chunkOf(carried.getX(), carried.getZ()),
+                            testCase.name() + ": the move left the copy");
                 }
-            }
-        }
-
-        @Test
-        void aPositionReseatedIntoItsOwnChunkComesBackAsTheSameObject() {
-            for (Case testCase : cases()) {
-                DeckGroupFold fold = testCase.fold();
-                BlockPos pos = new BlockPos(LOWER + 5, 64, LOWER + 7);
-                assertSame(pos, fold.reseat(pos, chunkOf(pos.getX(), pos.getZ())),
-                        testCase.name() + ": a reseat into the own chunk rebuilt the position");
             }
         }
 
@@ -639,11 +629,8 @@ class DeckGroupFoldMatrixTest {
         void aChunkOutsideTheOrbitIsRefused() {
             for (Case testCase : cases()) {
                 DeckGroupFold fold = testCase.fold();
-                BlockPos pos = new BlockPos(LOWER + 5, 64, LOWER + 7);
-                ChunkPos chunk = chunkOf(pos.getX(), pos.getZ());
+                ChunkPos chunk = chunkOf(LOWER + 5, LOWER + 7);
                 ChunkPos neighbor = new ChunkPos(chunk.x() + 1, chunk.z());
-                assertThrows(IllegalArgumentException.class, () -> fold.reseat(pos, neighbor),
-                        testCase.name() + ": a neighboring chunk passed as a copy");
                 assertThrows(IllegalArgumentException.class, () -> fold.deckTransformation(chunk, neighbor),
                         testCase.name() + ": a deck transformation onto a neighboring chunk");
             }
@@ -664,9 +651,6 @@ class DeckGroupFoldMatrixTest {
                     DeckTransformation move = fold.deckTransformation(chunk, copy);
 
                     assertEquals(copy, move.apply(chunk), testCase.name() + ": the chunk is not carried onto the copy");
-                    BlockPos pos = new BlockPos(x, 64, z);
-                    assertEquals(fold.reseat(pos, copy), move.apply(pos),
-                            testCase.name() + ": the transformation and the reseat disagree");
 
                     BoundingBox box = new BoundingBox(x, 60, z, x + random.nextInt(40), 68, z + random.nextInt(40));
                     int[] low = testCase.group().cell(box.minX(), box.minZ(), first, second);
@@ -692,11 +676,11 @@ class DeckGroupFoldMatrixTest {
 
                 assertEquals(group.mirrorOrientation(), move.getOrientation(),
                         testCase.name() + ": one lap across the mirrored seam did not report the flip");
-                BlockPos reseated = fold.reseat(pos, copy);
-                assertEquals(localIndex(pos, group.keptAxis()), localIndex(reseated, group.keptAxis()),
+                BlockPos carried = move.apply(pos);
+                assertEquals(localIndex(pos, group.keptAxis()), localIndex(carried, group.keptAxis()),
                         testCase.name() + ": the unmirrored local index moved");
                 assertEquals(UNIT - 1 - localIndex(pos, group.mirroredAxis()),
-                        localIndex(reseated, group.mirroredAxis()),
+                        localIndex(carried, group.mirroredAxis()),
                         testCase.name() + ": the mirrored local index is not reversed");
             }
         }
@@ -1241,7 +1225,7 @@ class DeckGroupFoldMatrixTest {
         }
 
         @Test
-        void theDecomposableShapesAgreeWithThePerAxisFoldOnTheReseat() {
+        void theDecomposableShapesAgreeWithThePerAxisFoldOnTheDeckTransformation() {
             for (Case testCase : decomposableCases()) {
                 DeckGroupFold generic = testCase.fold();
                 WorldFold perAxis = new WorldLoopFold(testCase.shape().bounds(), ShapeOptions.DEFAULT);
@@ -1251,10 +1235,8 @@ class DeckGroupFoldMatrixTest {
                     int z = sample(random);
                     ChunkPos chunk = chunkOf(x, z);
                     ChunkPos copy = copyOf(testCase.group(), chunk, orbitStep(random), orbitStep(random));
-                    BlockPos pos = new BlockPos(x, 64, z);
                     BoundingBox box = new BoundingBox(x, 60, z, x + random.nextInt(40), 68, z + random.nextInt(40));
 
-                    assertEquals(perAxis.reseat(pos, copy), generic.reseat(pos, copy), testCase.name() + ": reseat");
                     assertEquals(perAxis.deckTransformation(chunk, copy), generic.deckTransformation(chunk, copy),
                             testCase.name() + ": deck transformation");
                     assertEquals(perAxis.deckTransformation(chunk, copy).apply(box),

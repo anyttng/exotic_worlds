@@ -9,6 +9,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
 
 import com.exoticworlds.accessors.LevelHolder;
+import com.exoticworlds.core.fold.DeckTransformation;
 import com.exoticworlds.core.fold.WorldFold;
 import com.exoticworlds.core.fold.WorldLoopAttachments;
 import com.exoticworlds.engine.fold.ChunkFrame;
@@ -37,6 +38,7 @@ import net.minecraft.world.level.chunk.status.ChunkStatus;
 import net.minecraft.world.level.chunk.status.ChunkStep;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.material.Fluid;
+import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.ticks.LevelTickAccess;
 
 @Mixin(WorldGenRegion.class)
@@ -95,11 +97,11 @@ public abstract class WorldGenRegionMixin implements LevelHolder {
 
     @WrapMethod(method = "ensureCanWrite")
     private boolean exotic_worlds$writeGateThroughTheSeam(BlockPos pos, Operation<Boolean> original) {
-        ChunkPos nearest = this.exotic_worlds$nearestPastTheReach(
-                SectionPos.blockToSectionCoord(pos.getX()), SectionPos.blockToSectionCoord(pos.getZ()));
-        return nearest == null
+        WorldFold fold = WorldLoopAttachments.getWrappedFold(this.level);
+        ChunkPos raw = ChunkPos.containing(pos);
+        return fold == null || this.exotic_worlds$nearestPastTheReach(raw.x(), raw.z()) == null
                 ? original.call(pos)
-                : original.call(WorldLoopAttachments.getFold(this.level).reseat(pos, nearest));
+                : original.call(fold.nearestCopyTransformation(this.center.getPos(), raw).apply(pos));
     }
 
     @WrapMethod(method = "hasChunk")
@@ -112,13 +114,86 @@ public abstract class WorldGenRegionMixin implements LevelHolder {
     }
 
     @Unique
+    private DeckTransformation exotic_worlds$slotMove(int chunkX, int chunkZ) {
+        return RegionReach.moveToAnsweredChunk(WorldLoopAttachments.getWrappedFold(this.level),
+                this.center.getPos(), this.generatingStep.directDependencies().size(), chunkX, chunkZ);
+    }
+
+    @Unique
+    private DeckTransformation exotic_worlds$moveInto(ChunkAccess chunk, int blockX, int blockZ) {
+        ChunkPos raw = new ChunkPos(SectionPos.blockToSectionCoord(blockX), SectionPos.blockToSectionCoord(blockZ));
+        DeckTransformation move = this.exotic_worlds$slotMove(raw.x(), raw.z());
+        return move.isIdentity() || !move.apply(raw).equals(chunk.getPos()) ? DeckTransformation.IDENTITY : move;
+    }
+
+    @Unique
+    private DeckTransformation exotic_worlds$cellMoveInto(ChunkAccess chunk, int blockX, int blockZ) {
+        return WorldLoopAttachments.getFold(this.level).isPreservingLocalIndices()
+                ? DeckTransformation.IDENTITY
+                : this.exotic_worlds$moveInto(chunk, blockX, blockZ);
+    }
+
+    @Unique
     private BlockPos exotic_worlds$keyIn(ChunkAccess chunk, BlockPos pos) {
-        return WorldLoopAttachments.getFold(this.level).reseat(pos, chunk.getPos());
+        return this.exotic_worlds$moveInto(chunk, pos.getX(), pos.getZ()).apply(pos);
+    }
+
+    @Unique
+    private BlockPos exotic_worlds$cellIn(ChunkAccess chunk, BlockPos pos) {
+        return this.exotic_worlds$cellMoveInto(chunk, pos.getX(), pos.getZ()).apply(pos);
     }
 
     @ModifyVariable(method = "setBlock", at = @At("HEAD"), argsOnly = true)
     private BlockState exotic_worlds$turnPlacedState(BlockState state, @Local(argsOnly = true) BlockPos pos) {
-        return ChunkFrame.toChunk(WorldLoopAttachments.getFold(this.level), pos, state);
+        if (WorldLoopAttachments.getFold(this.level).isPreservingLocalIndices()) {
+            return state;
+        }
+
+        DeckTransformation move = this.exotic_worlds$slotMove(
+                SectionPos.blockToSectionCoord(pos.getX()), SectionPos.blockToSectionCoord(pos.getZ()));
+        return ChunkFrame.toChunk(state, move.getOrientation());
+    }
+
+    @WrapOperation(
+            method = {"getBlockState", "getBlockEntity"},
+            at = @At(
+                    value = "INVOKE",
+                    target = "Lnet/minecraft/world/level/chunk/ChunkAccess;getBlockState(Lnet/minecraft/core/BlockPos;)Lnet/minecraft/world/level/block/state/BlockState;"))
+    private BlockState exotic_worlds$readStateInChunkFrame(ChunkAccess chunk, BlockPos pos,
+            Operation<BlockState> original) {
+        DeckTransformation move = this.exotic_worlds$cellMoveInto(chunk, pos.getX(), pos.getZ());
+        return move.isIdentity()
+                ? original.call(chunk, pos)
+                : ChunkFrame.toReader(original.call(chunk, move.apply(pos)), move.getOrientation());
+    }
+
+    @WrapOperation(
+            method = "getFluidState",
+            at = @At(
+                    value = "INVOKE",
+                    target = "Lnet/minecraft/world/level/chunk/ChunkAccess;getFluidState(Lnet/minecraft/core/BlockPos;)Lnet/minecraft/world/level/material/FluidState;"))
+    private FluidState exotic_worlds$readFluidInChunkFrame(ChunkAccess chunk, BlockPos pos,
+            Operation<FluidState> original) {
+        return original.call(chunk, this.exotic_worlds$cellIn(chunk, pos));
+    }
+
+    @WrapOperation(
+            method = "setBlock",
+            at = @At(
+                    value = "INVOKE",
+                    target = "Lnet/minecraft/world/level/chunk/ChunkAccess;setBlockState(Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/state/BlockState;I)Lnet/minecraft/world/level/block/state/BlockState;"))
+    private @Nullable BlockState exotic_worlds$writeStateInChunkFrame(ChunkAccess chunk, BlockPos pos,
+            BlockState state, int flags, Operation<@Nullable BlockState> original) {
+        return original.call(chunk, this.exotic_worlds$cellIn(chunk, pos), state, flags);
+    }
+
+    @WrapOperation(
+            method = "markPosForPostProcessing",
+            at = @At(
+                    value = "INVOKE",
+                    target = "Lnet/minecraft/world/level/chunk/ChunkAccess;markPosForPostProcessing(Lnet/minecraft/core/BlockPos;)V"))
+    private void exotic_worlds$markInChunkFrame(ChunkAccess chunk, BlockPos pos, Operation<Void> original) {
+        original.call(chunk, this.exotic_worlds$cellIn(chunk, pos));
     }
 
     @WrapOperation(
@@ -129,9 +204,14 @@ public abstract class WorldGenRegionMixin implements LevelHolder {
     private int exotic_worlds$heightInChunkFrame(ChunkAccess chunk, Heightmap.Types type, int localX, int localZ,
             Operation<Integer> original, @Local(argsOnly = true, ordinal = 0) int x,
             @Local(argsOnly = true, ordinal = 1) int z) {
-        long seated = ChunkFrame.seatColumn(WorldLoopAttachments.getFold(this.level), chunk.getPos(), x, z);
+        DeckTransformation move = this.exotic_worlds$cellMoveInto(chunk, x, z);
+        if (move.isIdentity()) {
+            return original.call(chunk, type, localX, localZ);
+        }
+
+        BlockPos seated = move.apply(new BlockPos(x, 0, z));
         return original.call(chunk, type,
-                SectionPos.sectionRelative(BlockPos.getX(seated)), SectionPos.sectionRelative(BlockPos.getZ(seated)));
+                SectionPos.sectionRelative(seated.getX()), SectionPos.sectionRelative(seated.getZ()));
     }
 
     @WrapOperation(
@@ -254,9 +334,9 @@ public abstract class WorldGenRegionMixin implements LevelHolder {
                     value = "INVOKE",
                     target = "Lnet/minecraft/world/level/chunk/ChunkAccess;addEntity(Lnet/minecraft/world/entity/Entity;)V"))
     private void exotic_worlds$addEntityInChunkFrame(ChunkAccess chunk, Entity entity, Operation<Void> original) {
-        WorldFold fold = WorldLoopAttachments.getWrappedFold(this.level);
-        if (fold != null && fold.isOver(entity.position())) {
-            entity.setPos(fold.fold(entity.position()));
+        DeckTransformation move = this.exotic_worlds$moveInto(chunk, entity.getBlockX(), entity.getBlockZ());
+        if (!move.isIdentity()) {
+            entity.setPos(move.apply(entity.position()));
         }
 
         original.call(chunk, entity);

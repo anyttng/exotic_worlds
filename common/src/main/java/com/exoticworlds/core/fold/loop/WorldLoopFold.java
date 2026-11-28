@@ -505,18 +505,6 @@ public final class WorldLoopFold implements WorldFold {
                 SectionPos.sectionToBlockCoord(deltaX), SectionPos.sectionToBlockCoord(deltaZ)));
     }
 
-    @Override
-    public BlockPos reseat(BlockPos pos, ChunkPos copy) {
-        int deltaX = copy.x() - SectionPos.blockToSectionCoord(pos.getX());
-        int deltaZ = copy.z() - SectionPos.blockToSectionCoord(pos.getZ());
-        if (deltaX == 0 && deltaZ == 0) {
-            return pos;
-        }
-
-        requireCopy(ChunkPos.containing(pos), copy, deltaX, deltaZ);
-        return pos.offset(SectionPos.sectionToBlockCoord(deltaX), 0, SectionPos.sectionToBlockCoord(deltaZ));
-    }
-
     private void requireCopy(ChunkPos chunk, ChunkPos copy, int deltaX, int deltaZ) {
         if (!chunks.x.isWholeLaps(deltaX) || !chunks.z.isWholeLaps(deltaZ)) {
             throw new IllegalArgumentException(copy + " is not a copy of " + chunk + " in " + this);

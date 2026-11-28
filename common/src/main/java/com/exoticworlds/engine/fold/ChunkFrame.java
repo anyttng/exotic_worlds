@@ -39,7 +39,11 @@ public final class ChunkFrame {
     }
 
     public static BlockState toChunk(WorldFold fold, BlockPos pos, BlockState state) {
-        return fold.isPreservingLocalIndices() ? state : fold.foldOriented(pos).orientation().applyToState(state);
+        return fold.isPreservingLocalIndices() ? state : toChunk(state, fold.foldOriented(pos).orientation());
+    }
+
+    public static BlockState toChunk(BlockState state, FoldOrientation orientation) {
+        return orientation.applyToState(state);
     }
 
     private ChunkFrame() {

@@ -299,24 +299,6 @@ class IdentityFastPathTest {
     }
 
     @Test
-    void reseatKeepsTheLowBitsAndReturnsTheArgumentUntouchedInItsOwnChunk() {
-        forEach(FOLDS, (fold, random) -> {
-            BlockPos pos = sampleBlockPos(random, fold);
-            ChunkPos chunk = ChunkPos.containing(pos);
-            ChunkPos copy = fold.isDecomposedPerAxis()
-                    ? new ChunkPos(chunk.x() + lapsOf(random, fold.getBounds().x()), chunk.z() + lapsOf(random, fold.getBounds().z()))
-                    : chunk;
-            BlockPos reseated = fold.reseat(pos, copy);
-
-            assertEquals(new BlockPos(
-                    copy.getMinBlockX() + Math.floorMod(pos.getX(), CHUNK_BLOCKS), pos.getY(),
-                    copy.getMinBlockZ() + Math.floorMod(pos.getZ(), CHUNK_BLOCKS)),
-                    reseated, () -> "reseat(" + pos + ", " + copy + ") " + in(fold));
-            assertUntouched(pos, reseated, copy.equals(chunk), fold);
-        });
-    }
-
-    @Test
     void theDeckTransformationOfAChunkOntoItselfIsTheIdentityInstance() {
         forEach(FOLDS, (fold, random) -> {
             ChunkPos chunk = sampleChunkPos(random, fold);
@@ -496,10 +478,6 @@ class IdentityFastPathTest {
         if (mustBeUnmoved || result.equals(argument)) {
             assertSame(argument, result, () -> "an unmoved " + argument + " must come back as itself " + in(fold));
         }
-    }
-
-    private static int lapsOf(Random random, AxisBounds axis) {
-        return axis instanceof AxisBounds.Looped looped ? (random.nextInt(5) - 2) * looped.getWidthChunks() : 0;
     }
 
     private static double nearestCopy(WrapDomain domain, double ref, double coord) {

@@ -155,8 +155,6 @@ public interface WorldFold {
         return deckTransformation(target, nearestCopy(ref, target));
     }
 
-    BlockPos reseat(BlockPos pos, ChunkPos copy);
-
     default Vec3 foldDelta(Vec3 from, Vec3 to) {
         return nearestCopy(from, to).subtract(from);
     }

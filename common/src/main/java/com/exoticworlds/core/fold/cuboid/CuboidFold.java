@@ -548,11 +548,6 @@ public final class CuboidFold implements WorldFold {
     }
 
     @Override
-    public BlockPos reseat(BlockPos pos, ChunkPos copy) {
-        return deckTransformation(ChunkPos.containing(pos), copy).apply(pos);
-    }
-
-    @Override
     public Vec3 nearestCopy(Vec3 ref, Vec3 target) {
         return nearestMoveOfCoord(ref.x, ref.z, target.x, target.z).apply(target);
     }

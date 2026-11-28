@@ -305,11 +305,6 @@ public final class DeckGroupFold implements WorldFold {
     }
 
     @Override
-    public BlockPos reseat(BlockPos pos, ChunkPos copy) {
-        return deckTransformation(ChunkPos.containing(pos), copy).apply(pos);
-    }
-
-    @Override
     public double sqrDistanceBlocks(double xFrom, double yFrom, double zFrom, double xTo, double yTo, double zTo) {
         double dy = yTo - yFrom;
         return this.blocks.nearestCoordsSqrDistance(xFrom, zFrom, xTo, zTo) + dy * dy;
