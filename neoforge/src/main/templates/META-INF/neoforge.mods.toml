@@ -149,6 +149,9 @@ config="exotic_worlds.compat.moonlight.mixins.json"
 config="exotic_worlds.compat.mapfrontiers.mixins.json"
 
 [[mixins]]
+config="exotic_worlds.compat.mapatlases.mixins.json"
+
+[[mixins]]
 config="exotic_worlds.compat.immersiveoverlays.mixins.json"
 
 [[mixins]]
