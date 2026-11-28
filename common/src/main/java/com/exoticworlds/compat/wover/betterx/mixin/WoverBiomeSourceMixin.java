@@ -1,4 +1,4 @@
-package com.exoticworlds.compat.wover.mixin;
+package com.exoticworlds.compat.wover.betterx.mixin;
 
 import org.betterx.wover.generator.impl.biomesource.end.WoverEndBiomeSource;
 import org.betterx.wover.generator.impl.biomesource.nether.WoverNetherBiomeSource;

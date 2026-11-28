@@ -4,8 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
-import org.betterx.wover.generator.api.map.BiomeMap;
-
 import com.exoticworlds.core.fold.WorldFold;
 
 public final class StackLayers<T> {
@@ -18,9 +16,9 @@ public final class StackLayers<T> {
     }
 
     @SuppressWarnings("unchecked")
-    public List<LapMap<T>> of(BiomeMap[] maps, WorldFold fold) {
+    public <M> List<LapMap<T>> of(M[] maps, WorldFold fold) {
         List<LapMap<T>> layers = new ArrayList<>(maps.length);
-        for (BiomeMap map : maps) {
+        for (M map : maps) {
             if (!(map instanceof LapMapHolder<?> holder)) {
                 report(map);
                 return List.of();
@@ -32,7 +30,7 @@ public final class StackLayers<T> {
         return layers;
     }
 
-    private void report(BiomeMap map) {
+    private void report(Object map) {
         if (!this.isReported) {
             this.isReported = true;
             this.unclosed.accept(map.getClass());

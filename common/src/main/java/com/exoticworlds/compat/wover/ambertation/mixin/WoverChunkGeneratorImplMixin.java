@@ -1,6 +1,6 @@
-package com.exoticworlds.compat.wover.mixin;
+package com.exoticworlds.compat.wover.ambertation.mixin;
 
-import org.betterx.wover.generator.impl.chunkgenerator.WoverChunkGeneratorImpl;
+import de.ambertation.wover.generator.impl.chunkgenerator.WoverChunkGeneratorImpl;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;

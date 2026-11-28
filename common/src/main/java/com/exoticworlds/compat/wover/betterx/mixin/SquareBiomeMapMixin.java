@@ -1,4 +1,4 @@
-package com.exoticworlds.compat.wover.mixin;
+package com.exoticworlds.compat.wover.betterx.mixin;
 
 import org.betterx.wover.generator.api.biomesource.WoverBiomePicker;
 import org.betterx.wover.generator.impl.map.square.SquareBiomeMap;
@@ -16,8 +16,8 @@ import com.exoticworlds.compat.wover.EdgeBiomes;
 import com.exoticworlds.compat.wover.LapMap;
 import com.exoticworlds.compat.wover.LapMapHolder;
 import com.exoticworlds.compat.wover.LapMapMemo;
-import com.exoticworlds.compat.wover.LapPicker;
 import com.exoticworlds.compat.wover.SquareLapMap;
+import com.exoticworlds.compat.wover.betterx.PickableBiomeTraits;
 import com.exoticworlds.core.fold.WorldFold;
 import com.exoticworlds.engine.noise.GenerationFoldContext;
 
@@ -47,7 +47,7 @@ public class SquareBiomeMapMixin implements LapMapHolder<WoverBiomePicker.Pickab
             CallbackInfoReturnable<WoverBiomePicker.PickableBiome> cir) {
         WorldFold fold = GenerationFoldContext.getContext().getWrappedFold();
         if (fold != null) {
-            cir.setReturnValue(EdgeBiomes.square(exotic_worlds$lapMap(fold), x, z));
+            cir.setReturnValue(EdgeBiomes.square(exotic_worlds$lapMap(fold), PickableBiomeTraits.INSTANCE, x, z));
         }
     }
 
@@ -64,6 +64,6 @@ public class SquareBiomeMapMixin implements LapMapHolder<WoverBiomePicker.Pickab
     public LapMap<WoverBiomePicker.PickableBiome> exotic_worlds$lapMap(WorldFold fold) {
         LapMap<WoverBiomePicker.PickableBiome> lapMap = this.exotic_worlds$lapMaps.getCovering(fold);
         return lapMap != null ? lapMap : this.exotic_worlds$lapMaps.keep(new SquareLapMap<>(fold, this.sizeXZ,
-                FoldCompression.of(fold), this.exotic_worlds$seed, LapPicker.of(this.picker)));
+                FoldCompression.of(fold), this.exotic_worlds$seed, PickableBiomeTraits.toLapPicker(this.picker)));
     }
 }

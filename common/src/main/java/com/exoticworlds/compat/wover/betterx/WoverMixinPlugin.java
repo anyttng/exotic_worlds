@@ -1,4 +1,4 @@
-package com.exoticworlds.compat.wover;
+package com.exoticworlds.compat.wover.betterx;
 
 import org.slf4j.Logger;
 

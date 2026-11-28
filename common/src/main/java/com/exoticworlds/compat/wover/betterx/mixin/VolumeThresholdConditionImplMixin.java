@@ -1,0 +1,58 @@
+package com.exoticworlds.compat.wover.betterx.mixin;
+
+import org.betterx.wover.surface.impl.conditions.VolumeThresholdConditionImpl;
+import org.spongepowered.asm.mixin.Final;
+import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.Unique;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+
+import com.exoticworlds.compat.worldgen.LapNoise;
+import com.exoticworlds.compat.worldgen.OpenSimplexStandIn;
+import com.exoticworlds.compat.worldgen.StandInHolder;
+import com.exoticworlds.core.fold.WorldFold;
+import com.exoticworlds.engine.noise.GenerationFoldContext;
+import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
+import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
+
+import net.minecraft.util.valueproviders.FloatProvider;
+
+@Mixin(VolumeThresholdConditionImpl.class)
+public class VolumeThresholdConditionImplMixin implements StandInHolder {
+    @Shadow
+    @Final
+    public double scaleX;
+
+    @Shadow
+    @Final
+    public double scaleZ;
+
+    @Unique
+    private OpenSimplexStandIn exotic_worlds$standIn;
+
+    @Inject(method = "<init>", at = @At("RETURN"))
+    private void exotic_worlds$buildStandIn(long noiseSeed, double threshold, FloatProvider roughness, double scaleX,
+            double scaleY, double scaleZ, CallbackInfo ci) {
+        this.exotic_worlds$standIn = new OpenSimplexStandIn(noiseSeed);
+    }
+
+    @WrapOperation(
+            method = "getValue(III)D",
+            at = @At(value = "INVOKE",
+                    target = "Lorg/betterx/wover/surface/impl/conditions/VolumeThresholdConditionImpl$Context;"
+                            + "eval(DDD)D"))
+    private double exotic_worlds$lapNoise(VolumeThresholdConditionImpl.Context noise, double x, double y, double z,
+            Operation<Double> original) {
+        WorldFold fold = GenerationFoldContext.getContext().getWrappedFold();
+        return fold == null
+                ? original.call(noise, x, y, z)
+                : LapNoise.eval(this.exotic_worlds$standIn, fold, x, y, z, this.scaleX, this.scaleZ);
+    }
+
+    @Override
+    public OpenSimplexStandIn exotic_worlds$getStandIn() {
+        return this.exotic_worlds$standIn;
+    }
+}

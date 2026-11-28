@@ -1,15 +1,14 @@
-package com.exoticworlds.compat.wover.mixin;
+package com.exoticworlds.compat.wover.ambertation.mixin;
 
-import org.betterx.wover.math.api.noise.OpenSimplexNoise;
-import org.betterx.wover.surface.api.Conditions;
-import org.betterx.wover.surface.api.conditions.VolumeThresholdCondition;
-import org.betterx.wover.surface.impl.numeric.NetherNoiseCondition;
+import de.ambertation.wunderlib.math.noise.OpenSimplexNoise;
+import de.ambertation.wover.surface.api.Conditions;
+import de.ambertation.wover.surface.api.conditions.VolumeThresholdCondition;
+import de.ambertation.wover.surface.impl.numeric.NetherNoiseCondition;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 
 import com.exoticworlds.compat.worldgen.LapNoise;
 import com.exoticworlds.compat.worldgen.StandInHolder;
-import com.exoticworlds.compat.wover.WoverInjectionTargets;
 import com.exoticworlds.core.fold.WorldFold;
 import com.exoticworlds.engine.noise.GenerationFoldContext;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
@@ -18,8 +17,8 @@ import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 @Mixin(NetherNoiseCondition.class)
 public class NetherNoiseConditionMixin {
     @WrapOperation(
-            method = WoverInjectionTargets.GET_NUMBER,
-            at = @At(value = "INVOKE", target = "Lorg/betterx/wover/math/api/noise/OpenSimplexNoise;eval(DDD)D"))
+            method = "getNumber(Lde/ambertation/wover/surface/api/conditions/SurfaceRulesContext;)I",
+            at = @At(value = "INVOKE", target = "Lde/ambertation/wunderlib/math/noise/OpenSimplexNoise;eval(DDD)D"))
     private double exotic_worlds$lapNoise(OpenSimplexNoise noise, double x, double y, double z,
             Operation<Double> original) {
         WorldFold fold = GenerationFoldContext.getContext().getWrappedFold();

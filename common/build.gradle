@@ -123,10 +123,12 @@ var journeymapApiJars = tasks.register('unpackJourneyMapApi', Sync) {
 // types. Unpacked the same way, compile and test classpath alone.
 configurations {
     woverModules
+    woverOriginalModules
 }
 
 dependencies {
     woverModules "maven.modrinth:worldweaver-neoforge:${worldweaver_version}"
+    woverOriginalModules "maven.modrinth:worldweaver:${worldweaver_original_version}"
 }
 
 var woverModuleJars = tasks.register('unpackWoverModules', Sync) {
@@ -136,6 +138,15 @@ var woverModuleJars = tasks.register('unpackWoverModules', Sync) {
     }
     includeEmptyDirs = false
     into layout.buildDirectory.dir('wover-modules')
+}
+
+var woverOriginalModuleJars = tasks.register('unpackWoverOriginalModules', Sync) {
+    from(zipTree(configurations.woverOriginalModules.singleFile)) {
+        include 'META-INF/jars/*.jar'
+        eachFile { it.relativePath = new RelativePath(true, it.name) }
+    }
+    includeEmptyDirs = false
+    into layout.buildDirectory.dir('wover-original-modules')
 }
 
 // BetterEnd, BCLib and Distant Horizons annotate classes with Fabric's @Environment, and javac warns unconditionally
@@ -177,6 +188,7 @@ dependencies {
     compileOnly "curse.maven:ultraterraforged-${ultraterraforged_cf_project}:${ultraterraforged_cf_file}"
     compileOnly files(xaeroLibJars).asFileTree.matching { include '*.jar' }
     compileOnly files(woverModuleJars).asFileTree.matching { include '*.jar' }
+    compileOnly files(woverOriginalModuleJars).asFileTree.matching { include '*.jar' }
     compileOnly files(fabricEnvTypeClass)
     compileOnly "maven.modrinth:betterend-neoforge:${betterend_version}"
     compileOnly "maven.modrinth:bclib-neoforge:${bclib_version}"
@@ -211,6 +223,7 @@ dependencies {
     testRuntimeOnly "curse.maven:ultraterraforged-${ultraterraforged_cf_project}:${ultraterraforged_cf_file}"
     testCompileOnly files(woverModuleJars).asFileTree.matching { include '*.jar' }
     testRuntimeOnly files(woverModuleJars).asFileTree.matching { include '*.jar' }
+    testRuntimeOnly files(woverOriginalModuleJars).asFileTree.matching { include '*.jar' }
     testCompileOnly "maven.modrinth:betterend-neoforge:${betterend_version}"
     testRuntimeOnly "maven.modrinth:betterend-neoforge:${betterend_version}"
     testCompileOnly "maven.modrinth:bclib-neoforge:${bclib_version}"

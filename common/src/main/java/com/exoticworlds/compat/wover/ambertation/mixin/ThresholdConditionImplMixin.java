@@ -1,0 +1,73 @@
+package com.exoticworlds.compat.wover.ambertation.mixin;
+
+import de.ambertation.wunderlib.math.MathHelper;
+import de.ambertation.wover.surface.api.conditions.SurfaceRulesContext;
+import de.ambertation.wover.surface.impl.conditions.ThresholdConditionImpl;
+import org.spongepowered.asm.mixin.Final;
+import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.Unique;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+
+import com.exoticworlds.compat.worldgen.LapNoise;
+import com.exoticworlds.compat.worldgen.OpenSimplexStandIn;
+import com.exoticworlds.core.fold.WorldFold;
+import com.exoticworlds.engine.noise.GenerationFoldContext;
+import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
+import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
+
+import net.minecraft.util.RandomSource;
+import net.minecraft.util.valueproviders.FloatProvider;
+
+@Mixin(ThresholdConditionImpl.class)
+public class ThresholdConditionImplMixin {
+    @Unique
+    private static final int ROUGHNESS_Y = 0;
+
+    @Shadow
+    @Final
+    private double threshold;
+
+    @Shadow
+    @Final
+    private FloatProvider roughness;
+
+    @Shadow
+    @Final
+    private double scaleX;
+
+    @Shadow
+    @Final
+    private double scaleZ;
+
+    @Unique
+    private long exotic_worlds$seed;
+
+    @Unique
+    private OpenSimplexStandIn exotic_worlds$standIn;
+
+    @Inject(method = "<init>", at = @At("RETURN"))
+    private void exotic_worlds$buildStandIn(long noiseSeed, double threshold, FloatProvider roughness, double scaleX,
+            double scaleZ, CallbackInfo ci) {
+        this.exotic_worlds$seed = noiseSeed;
+        this.exotic_worlds$standIn = new OpenSimplexStandIn(noiseSeed);
+    }
+
+    @WrapMethod(method = "test")
+    private boolean exotic_worlds$lapTest(SurfaceRulesContext context, Operation<Boolean> original) {
+        WorldFold fold = GenerationFoldContext.getContext().getWrappedFold();
+        if (fold == null) {
+            return original.call(context);
+        }
+
+        int x = context.getBlockX();
+        int z = context.getBlockZ();
+        double noise = LapNoise.eval(this.exotic_worlds$standIn, fold, x * this.scaleX, z * this.scaleZ, this.scaleX,
+                this.scaleZ);
+        RandomSource random = RandomSource.create(
+                MathHelper.getSeed(Long.hashCode(this.exotic_worlds$seed), x, ROUGHNESS_Y, z));
+        return noise + this.roughness.sample(random) > this.threshold;
+    }
+}
