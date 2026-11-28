@@ -101,11 +101,11 @@ class ChunkFrameTest {
     @Nested
     class AcrossATurnedEdge {
         @Test
-        void aBlockReadAnswersTheNeighbouringFaceTurnedToTheReader() {
+        void aBlockReadAnswersTheNeighboringFaceTurnedToTheReader() {
             BlockState[] cells = chunkHolding(SEATED, facing(Direction.NORTH));
 
             assertEquals(facing(Direction.WEST), read(cells, TURNED, OWN, PAST_THE_EDGE),
-                    "the read past the edge missed the block the neighbouring face holds, or left it unturned");
+                    "the read past the edge missed the block the neighboring face holds, or left it unturned");
         }
 
         @Test
@@ -131,11 +131,11 @@ class ChunkFrameTest {
         }
 
         @Test
-        void aPostProcessingMarkIsPackedAtTheNeighboursOwnLocalPosition() {
+        void aPostProcessingMarkIsPackedAtTheNeighborsOwnLocalPosition() {
             short packed = ProtoChunk.packOffsetCoordinates(ChunkFrame.seatPos(TURNED, OWN, PAST_THE_EDGE));
 
             assertEquals(SEATED, ProtoChunk.unpackOffsetCoordinates(packed, SectionPos.blockToSectionCoord(Y), OWN),
-                    "the mark was packed at another block of the neighbouring chunk");
+                    "the mark was packed at another block of the neighboring chunk");
         }
 
         @Test

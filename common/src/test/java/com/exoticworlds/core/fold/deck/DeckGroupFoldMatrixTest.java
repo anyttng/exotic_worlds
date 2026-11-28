@@ -386,7 +386,7 @@ class DeckGroupFoldMatrixTest {
     @Nested
     class NearestCopy {
         @Test
-        void minimisesOverTheWholeOrbitOnTheBlockGrid() {
+        void minimizesOverTheWholeOrbitOnTheBlockGrid() {
             for (Case testCase : cases()) {
                 DeckGroupFold fold = testCase.fold();
                 Random random = new Random(SEED + 1);
@@ -414,7 +414,7 @@ class DeckGroupFoldMatrixTest {
         }
 
         @Test
-        void minimisesOverTheWholeOrbitOnTheCoordinateGrid() {
+        void minimizesOverTheWholeOrbitOnTheCoordinateGrid() {
             for (Case testCase : cases()) {
                 DeckGroupFold fold = testCase.fold();
                 Random random = new Random(SEED + 2);
@@ -1062,14 +1062,14 @@ class DeckGroupFoldMatrixTest {
     }
 
     @Nested
-    class Normalisation {
+    class Normalization {
         @Test
         void theSkewIsFoldedIntoHalfTheWorld() {
             int halfWorldChunks = (MAX_CHUNK - MIN_CHUNK) / 2;
             for (int skew : new int[] {0, 3, 8, 9, 17, 1000, -1000, -9}) {
-                int normalised = FlatShape.latticeTorus(BOTH, skew).skewChunks();
-                assertTrue(Math.abs(normalised) <= halfWorldChunks,
-                        "a skew of " + skew + " normalised to " + normalised + ", past half the world");
+                int normalized = FlatShape.latticeTorus(BOTH, skew).skewChunks();
+                assertTrue(Math.abs(normalized) <= halfWorldChunks,
+                        "a skew of " + skew + " normalized to " + normalized + ", past half the world");
             }
         }
 

@@ -51,8 +51,8 @@ class FormerPlayerFilesTest {
     private static final int DATA_VERSION = 4790;
     private static final String LAP_X_KEY = "x";
     private static final String LAP_Z_KEY = "z";
-    private static final double TRAVELLED_X = 504.24;
-    private static final double TRAVELLED_Z = 0.65;
+    private static final double TRAVELED_X = 504.24;
+    private static final double TRAVELED_Z = 0.65;
     private static final String GRANTED_AT = "2026-09-23 12:36:31 +0300";
 
     private static HolderLookup.Provider registries;
@@ -83,7 +83,7 @@ class FormerPlayerFilesTest {
             assertEquals(SELECTED_SLOT, player.getIntOr(VANILLA_KEY, -1), file);
             SeamTravel travel = TagValueInput.create(ProblemReporter.DISCARDING, registries, player)
                     .read(TRAVEL_KEY, SeamTravel.CODEC).orElseThrow();
-            assertEquals(new SeamTravel.LapProgress(TRAVELLED_X, TRAVELLED_Z), travel.getProgressIn(Level.OVERWORLD), file);
+            assertEquals(new SeamTravel.LapProgress(TRAVELED_X, TRAVELED_Z), travel.getProgressIn(Level.OVERWORLD), file);
         }
 
         String written = Files.readString(advancements.resolve(ADVANCEMENTS), StandardCharsets.UTF_8);
@@ -129,8 +129,8 @@ class FormerPlayerFilesTest {
 
     private static CompoundTag formerPlayer() {
         CompoundTag lap = new CompoundTag();
-        lap.putDouble(LAP_X_KEY, TRAVELLED_X);
-        lap.putDouble(LAP_Z_KEY, TRAVELLED_Z);
+        lap.putDouble(LAP_X_KEY, TRAVELED_X);
+        lap.putDouble(LAP_Z_KEY, TRAVELED_Z);
         CompoundTag laps = new CompoundTag();
         laps.put(Level.OVERWORLD.identifier().toString(), lap);
         CompoundTag player = new CompoundTag();

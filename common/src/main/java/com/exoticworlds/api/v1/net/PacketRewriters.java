@@ -15,7 +15,7 @@ import net.minecraft.network.protocol.game.ServerGamePacketListener;
  * rewritten between the server's frame and the client's; a payload, a game packet or a particle type this mod never
  * heard of is not, because nothing but its author knows which of its fields is a position.
  *
- * <p>Register from the mod's initialiser. The table closes at {@code MinecraftServer.runServer}, before the levels
+ * <p>Register from the mod's initializer. The table closes at {@code MinecraftServer.runServer}, before the levels
  * load, and a later registration throws rather than being silently half-effective. A registered rewriter runs for
  * every payload or packet of that exact class, on a folding level and nowhere else.</p>
  *

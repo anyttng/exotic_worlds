@@ -193,9 +193,6 @@ dependencies {
     compileOnly rootProject.ext.ascendiaCoreModule
 }
 
-// Plain JUnit on the NeoForm vanilla classpath: NeoForm mode has no FML, hence no junit run-type and no applied
-// mixins — a test that needs a mixin at runtime belongs to a loader module. The registries are filled by the
-// launcher-session listener under src/test, ahead of any test class initialisation.
 neoForge.addModdingDependenciesTo(sourceSets.test)
 sourceSets.test.java.srcDir 'src/testFixtures/java'
 

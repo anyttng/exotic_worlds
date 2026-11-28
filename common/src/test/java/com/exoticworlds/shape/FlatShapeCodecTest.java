@@ -89,7 +89,7 @@ class FlatShapeCodecTest {
     }
 
     @Test
-    void aSkewNormalisesIntoHalfAWorldOnRead() {
+    void aSkewNormalizesIntoHalfAWorldOnRead() {
         FlatShape read = FlatShape.CODEC.parse(JsonOps.INSTANCE,
                 JsonParser.parseString("{\"x\":{\"min_chunk\":-16,\"max_chunk\":16},"
                         + "\"z\":{\"min_chunk\":-16,\"max_chunk\":16},\"skew_chunks\":37}")).getOrThrow();

@@ -44,8 +44,8 @@ public abstract class BezierConnectionMixin implements BezierCurveFold {
             return;
         }
 
-        exotic_worlds$canonicaliseEnd(fold, true);
-        exotic_worlds$canonicaliseEnd(fold, false);
+        exotic_worlds$canonicalizeEnd(fold, true);
+        exotic_worlds$canonicalizeEnd(fold, false);
 
         Vec3 ownerCenter = Vec3.atCenterOf(this.bePositions.getFirst());
         Vec3 rawNearEnd = this.starts.getFirst();
@@ -62,7 +62,7 @@ public abstract class BezierConnectionMixin implements BezierCurveFold {
     }
 
     @Unique
-    private void exotic_worlds$canonicaliseEnd(WorldFold fold, boolean isFirst) {
+    private void exotic_worlds$canonicalizeEnd(WorldFold fold, boolean isFirst) {
         BlockPos rawEnd = this.bePositions.get(isFirst);
         BlockPos end = fold.fold(rawEnd);
         if (end != rawEnd) {
