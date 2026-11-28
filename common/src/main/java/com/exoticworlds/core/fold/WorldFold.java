@@ -143,6 +143,10 @@ public interface WorldFold {
 
     DeckTransformation deckTransformation(ChunkPos chunk, ChunkPos copy);
 
+    default DeckTransformation deckTransformationFrom(ChunkPos ref, ChunkPos chunk) {
+        return deckTransformation(chunk, fold(chunk));
+    }
+
     DeckTransformation nearestCopyTransformation(Vec3 ref, Vec3 target);
 
     DeckTransformation nearestCopyTransformation(BlockPos ref, BlockPos target);

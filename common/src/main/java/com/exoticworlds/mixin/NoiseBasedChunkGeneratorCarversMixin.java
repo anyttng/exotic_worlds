@@ -8,10 +8,12 @@ import com.exoticworlds.core.fold.WorldFold;
 import com.exoticworlds.engine.noise.check.CarverRecording;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
+import com.llamalad7.mixinextras.sugar.Local;
 
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.chunk.CarverOutput;
+import net.minecraft.world.level.chunk.ChunkAccess;
 import net.minecraft.world.level.levelgen.NoiseBasedChunkGenerator;
 import net.minecraft.world.level.levelgen.WorldGenerationContext;
 import net.minecraft.world.level.levelgen.WorldgenRandom;
@@ -25,7 +27,8 @@ public class NoiseBasedChunkGeneratorCarversMixin {
                     value = "INVOKE",
                     target = "Lnet/minecraft/world/level/levelgen/WorldgenRandom;setLargeFeatureSeed(JII)V"))
     private void exotic_worlds$seedCarverFromCanonicalSource(
-            WorldgenRandom random, long seed, int sourceChunkX, int sourceChunkZ, Operation<Void> original) {
+            WorldgenRandom random, long seed, int sourceChunkX, int sourceChunkZ, Operation<Void> original,
+            @Local(argsOnly = true) ChunkAccess chunk) {
         WorldFold fold =
                 GeneratorShapes.getWrappedFold((NoiseBasedChunkGenerator) (Object) this);
         if (fold == null) {
@@ -33,7 +36,7 @@ public class NoiseBasedChunkGeneratorCarversMixin {
             return;
         }
 
-        long folded = fold.foldChunkKey(ChunkPos.pack(sourceChunkX, sourceChunkZ));
+        long folded = fold.foldChunkKeyFrom(chunk.getPos().pack(), ChunkPos.pack(sourceChunkX, sourceChunkZ));
         original.call(random, seed,
                 ChunkPos.getX(folded), ChunkPos.getZ(folded));
     }

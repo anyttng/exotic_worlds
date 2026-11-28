@@ -441,21 +441,29 @@ public final class CuboidFold implements WorldFold {
     public long foldChunkKeyFrom(long refKey, long chunkKey) {
         int x = ChunkPos.getX(chunkKey);
         int z = ChunkPos.getZ(chunkKey);
-        int blockX = SectionPos.sectionToBlockCoord(x);
-        int blockZ = SectionPos.sectionToBlockCoord(z);
+        SeamTransform move = moveOfChunkFrom(ChunkPos.getX(refKey), ChunkPos.getZ(refKey), x, z);
+        return move.isIdentity() ? chunkKey : ChunkPos.pack(carriedChunkX(move, x, z), carriedChunkZ(move, x, z));
+    }
+
+    @Override
+    public DeckTransformation deckTransformationFrom(ChunkPos ref, ChunkPos chunk) {
+        return carried(moveOfChunkFrom(ref.x(), ref.z(), chunk.x(), chunk.z()));
+    }
+
+    private SeamTransform moveOfChunkFrom(int refChunkX, int refChunkZ, int chunkX, int chunkZ) {
+        int blockX = SectionPos.sectionToBlockCoord(chunkX);
+        int blockZ = SectionPos.sectionToBlockCoord(chunkZ);
         if (faceOf(blockX, blockZ) != NO_FACE) {
-            return chunkKey;
+            return SeamTransform.IDENTITY;
         }
 
-        int refBlockX = SectionPos.sectionToBlockCoord(ChunkPos.getX(refKey));
-        int refBlockZ = SectionPos.sectionToBlockCoord(ChunkPos.getZ(refKey));
+        int refBlockX = SectionPos.sectionToBlockCoord(refChunkX);
+        int refBlockZ = SectionPos.sectionToBlockCoord(refChunkZ);
         int refFace = faceOf(refBlockX, refBlockZ);
         SeamTransform move = refFace == NO_FACE ? null : this.unfoldings.moveAlongLine(refFace,
                 refBlockX + CHUNK_CENTER, refBlockZ + CHUNK_CENTER,
                 blockX + CHUNK_CENTER, blockZ + CHUNK_CENTER, blockX, blockZ);
-        return move == null
-                ? foldChunkKey(chunkKey)
-                : ChunkPos.pack(carriedChunkX(move, x, z), carriedChunkZ(move, x, z));
+        return move == null ? moveOfChunk(chunkX, chunkZ) : move;
     }
 
     @Override

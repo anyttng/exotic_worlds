@@ -41,8 +41,9 @@ public class ChunkGeneratorReferencesMixin {
             return original.call(sourceChunk);
         }
 
+        ChunkPos center = centerChunk.getPos();
         ChunkPos source = new ChunkPos(sourceX, sourceZ);
-        if (!fold.nearestCopy(centerChunk.getPos(), fold.fold(source)).equals(source)) {
+        if (!fold.nearestCopy(center, fold.foldFrom(center, source)).equals(source)) {
             return Map.of();
         }
 
@@ -65,8 +66,8 @@ public class ChunkGeneratorReferencesMixin {
             return original.call(box, minX, minZ, maxX, maxZ);
         }
 
-        ChunkPos foldedCenter = fold.deckTransformation(new ChunkPos(sourceX, sourceZ), physical)
-                .apply(centerChunk.getPos());
+        ChunkPos center = centerChunk.getPos();
+        ChunkPos foldedCenter = fold.deckTransformationFrom(center, new ChunkPos(sourceX, sourceZ)).apply(center);
         return original.call(box, foldedCenter.getMinBlockX(), foldedCenter.getMinBlockZ(),
                 foldedCenter.getMaxBlockX(), foldedCenter.getMaxBlockZ());
     }

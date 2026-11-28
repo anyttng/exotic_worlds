@@ -21,7 +21,12 @@ public class AquiferSeamMixin {
                     target = InjectionTargets.POSITIONAL_RANDOM_FACTORY_AT))
     private RandomSource exotic_worlds$seedAquiferCellFromCanonical(
             PositionalRandomFactory factory, int gridX, int gridY, int gridZ, Operation<RandomSource> original) {
-        long canonical = GenerationFoldContext.getContext().getFold().foldChunkKey(ChunkPos.pack(gridX, gridZ));
+        GenerationFoldContext.Context context = GenerationFoldContext.getContext();
+        ChunkPos asking = context.getAskingChunk();
+        long cell = ChunkPos.pack(gridX, gridZ);
+        long canonical = asking == null
+                ? context.getFold().foldChunkKey(cell)
+                : context.getFold().foldChunkKeyFrom(asking.pack(), cell);
         return original.call(factory, ChunkPos.getX(canonical), gridY, ChunkPos.getZ(canonical));
     }
 }

@@ -22,6 +22,7 @@ import net.minecraft.world.level.ChunkPos;
 class CuboidFoldFromTest {
     private static final int GENERATION_RADIUS_CHUNKS = 11;
     private static final int NEIGHBOR_STEP_CHUNKS = 1;
+    private static final int SOURCE_RADIUS_CHUNKS = 8;
     private static final int TORUS_REACH_CHUNKS = 40;
     private static final int TORUS_STEP_CHUNKS = 7;
     private static final int SECTION_Y = -3;
@@ -185,6 +186,33 @@ class CuboidFoldFromTest {
     }
 
     @Test
+    void everyChunkOfASquareIsCarriedOntoTheChunkItFoldsTo() {
+        for (WorldFold fold : PLAYABLE) {
+            for (long chunk : netChunksBesideAnEdge(fold)) {
+                ChunkPos center = ChunkPos.unpack(chunk);
+                for (int x = center.x() - SOURCE_RADIUS_CHUNKS; x <= center.x() + SOURCE_RADIUS_CHUNKS; x++) {
+                    for (int z = center.z() - SOURCE_RADIUS_CHUNKS; z <= center.z() + SOURCE_RADIUS_CHUNKS; z++) {
+                        ChunkPos raw = new ChunkPos(x, z);
+
+                        assertEquals(fold.foldFrom(center, raw), fold.deckTransformationFrom(center, raw).apply(raw),
+                                raw + " of " + center);
+                    }
+                }
+            }
+        }
+    }
+
+    @Test
+    void theChunkPastTheVertexIsCarriedOverTheEdgeItsLineCrosses() {
+        ChunkPos diagonal = new ChunkPos(-17, -17);
+
+        assertEquals(new ChunkPos(-16, -17),
+                CUBE_32.deckTransformationFrom(new ChunkPos(-17, -16), diagonal).apply(diagonal));
+        assertEquals(new ChunkPos(-17, -16),
+                CUBE_32.deckTransformationFrom(new ChunkPos(-16, -17), diagonal).apply(diagonal));
+    }
+
+    @Test
     void aTorusFoldsFromAnyChunkAsItFoldsAlone() {
         for (WorldFold fold : List.of(CompatFoldFixture.PER_AXIS, CompatFoldFixture.DECK_TORUS)) {
             long ref = key(0, 0);
@@ -197,6 +225,8 @@ class CuboidFoldFromTest {
                     assertEquals(fold.foldChunkKey(key(x, z)), fold.foldChunkKeyFrom(ref, key(x, z)));
                     assertEquals(fold.fold(new ChunkPos(x, z)), fold.foldFrom(refPos, new ChunkPos(x, z)));
                     assertEquals(fold.foldSectionNode(section), fold.foldSectionNodeFrom(refSection, section));
+                    assertEquals(fold.deckTransformation(new ChunkPos(x, z), fold.fold(new ChunkPos(x, z))),
+                            fold.deckTransformationFrom(refPos, new ChunkPos(x, z)));
                 }
             }
         }

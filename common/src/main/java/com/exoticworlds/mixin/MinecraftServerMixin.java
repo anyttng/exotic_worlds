@@ -98,8 +98,8 @@ public class MinecraftServerMixin implements SeamDetailsPendingHolder, SeamCheck
                     value = "INVOKE",
                     target = "Lnet/minecraft/server/level/PlayerSpawnFinder;getSpawnPosInChunk(Lnet/minecraft/server/level/ServerLevel;Lnet/minecraft/world/level/ChunkPos;)Lnet/minecraft/core/BlockPos;"))
     private static @Nullable BlockPos exotic_worlds$searchWrappedChunk(ServerLevel level, ChunkPos chunkPos,
-            Operation<@Nullable BlockPos> original) {
-        return original.call(level, WorldLoopAttachments.getFold(level).fold(chunkPos));
+            Operation<@Nullable BlockPos> original, @Local(name = "spawnChunk") ChunkPos spawnChunk) {
+        return original.call(level, WorldLoopAttachments.getFold(level).foldFrom(spawnChunk, chunkPos));
     }
 
     @WrapOperation(
