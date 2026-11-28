@@ -28,7 +28,7 @@ public abstract class LargeMapScreenMixin {
     @ModifyReturnValue(method = "getRegionTileSize", at = @At("RETURN"))
     private int exotic_worlds$floorTileToWorld(int original) {
         Window window = Minecraft.getInstance().getWindow();
-        return Math.max(original, FtbChunksFold.tileFloor(((LargeMapScreen) (Object) this).currentDimension(),
+        return Math.max(original, FtbChunksFold.tileFloorPixels(((LargeMapScreen) (Object) this).currentDimension(),
                 window.getGuiScaledWidth(), window.getGuiScaledHeight()));
     }
 }

@@ -39,8 +39,8 @@ class FtbChunksFoldTest {
     private static final int WIDTH = 512;
 
     private static final WorldFold LATTICE = MapFolds.latticeTorus(0, 32, SKEW_CHUNKS);
-    private static final WorldFold CENTRED_LATTICE = MapFolds.latticeTorus(-16, 16, SKEW_CHUNKS);
-    private static final WorldFold CENTRED_TORUS = MapFolds.torus(-16, 16);
+    private static final WorldFold CENTERED_LATTICE = MapFolds.latticeTorus(-16, 16, SKEW_CHUNKS);
+    private static final WorldFold CENTERED_TORUS = MapFolds.torus(-16, 16);
 
     @Test
     void anUnboundedAxisKeepsTheCutsFtbMade() {
@@ -87,18 +87,18 @@ class FtbChunksFoldTest {
 
     @Test
     void everyPieceOfALappedWindowIsOneRunInOneRegion() {
-        int centreX = 24;
-        int centreZ = -18;
-        int[] cutsX = FtbChunksFold.minimapSplits(CENTRED_LATTICE, Direction.Axis.X, centreX, centreZ,
-                ftbRegionSplits(centreX));
-        int[] cutsZ = FtbChunksFold.minimapSplits(CENTRED_LATTICE, Direction.Axis.Z, centreX, centreZ,
-                ftbRegionSplits(centreZ));
+        int centerX = 24;
+        int centerZ = -18;
+        int[] cutsX = FtbChunksFold.minimapSplits(CENTERED_LATTICE, Direction.Axis.X, centerX, centerZ,
+                ftbRegionSplits(centerX));
+        int[] cutsZ = FtbChunksFold.minimapSplits(CENTERED_LATTICE, Direction.Axis.Z, centerX, centerZ,
+                ftbRegionSplits(centerZ));
         for (int ix = 0; ix < cutsX.length - 1; ix++) {
             for (int iz = 0; iz < cutsZ.length - 1; iz++) {
-                ChunkPos origin = CENTRED_LATTICE.fold(new ChunkPos(centreX + cutsX[ix] - 7, centreZ + cutsZ[iz] - 7));
+                ChunkPos origin = CENTERED_LATTICE.fold(new ChunkPos(centerX + cutsX[ix] - 7, centerZ + cutsZ[iz] - 7));
                 for (int x = cutsX[ix]; x < cutsX[ix + 1]; x++) {
                     for (int z = cutsZ[iz]; z < cutsZ[iz + 1]; z++) {
-                        ChunkPos folded = CENTRED_LATTICE.fold(new ChunkPos(centreX + x - 7, centreZ + z - 7));
+                        ChunkPos folded = CENTERED_LATTICE.fold(new ChunkPos(centerX + x - 7, centerZ + z - 7));
                         assertEquals(new ChunkPos(origin.x() + x - cutsX[ix], origin.z() + z - cutsZ[iz]), folded,
                                 "window chunk (" + x + ", " + z + ") is not one run from its piece's origin");
                         assertEquals(Math.floorDiv(origin.x(), 32), Math.floorDiv(folded.x(), 32),
@@ -130,7 +130,7 @@ class FtbChunksFoldTest {
     void aRepeatedMapDrawsEveryCopyTheViewMeets() {
         assertEquals(Set.of(WorldCopies.IDENTITY, new WorldCopies.Copy(0, WIDTH), new WorldCopies.Copy(WIDTH, 0),
                 new WorldCopies.Copy(WIDTH, WIDTH)),
-                new HashSet<>(FtbChunksFold.drawnCopies(CENTRED_TORUS, 0, 0, 300, 300, MapCopies.REPEATED)),
+                new HashSet<>(FtbChunksFold.drawnCopies(CENTERED_TORUS, 0, 0, 300, 300, MapCopies.REPEATED)),
                 "a view over the north-east corner of a 512-block torus does not meet the four copies there");
     }
 
@@ -138,17 +138,17 @@ class FtbChunksFoldTest {
     void theRowPastASkewedSeamIsDrawnMovedSideways() {
         assertEquals(Set.of(WorldCopies.IDENTITY, new WorldCopies.Copy(SKEW, WIDTH),
                 new WorldCopies.Copy(SKEW - WIDTH, WIDTH)),
-                new HashSet<>(FtbChunksFold.drawnCopies(CENTRED_LATTICE, -256, 200, 256, 400, MapCopies.REPEATED)),
+                new HashSet<>(FtbChunksFold.drawnCopies(CENTERED_LATTICE, -256, 200, 256, 400, MapCopies.REPEATED)),
                 "the row above the world is not moved 128 blocks east");
     }
 
     @Test
     void aSingleCopyMapDrawsTheCanonicalCopyAlone() {
         assertEquals(List.of(WorldCopies.IDENTITY),
-                FtbChunksFold.drawnCopies(CENTRED_LATTICE, -1500, -1500, 1500, 1500, MapCopies.SINGLE),
+                FtbChunksFold.drawnCopies(CENTERED_LATTICE, -1500, -1500, 1500, 1500, MapCopies.SINGLE),
                 "the copies beside the world were drawn under SINGLE");
         assertEquals(List.of(),
-                FtbChunksFold.drawnCopies(CENTRED_LATTICE, 3000, 3000, 3100, 3100, MapCopies.SINGLE),
+                FtbChunksFold.drawnCopies(CENTERED_LATTICE, 3000, 3000, 3100, 3100, MapCopies.SINGLE),
                 "a view past the world drew a copy under SINGLE");
     }
 
@@ -170,11 +170,11 @@ class FtbChunksFoldTest {
                 200);
         assertEquals(Set.of(new SeamLine(true, -256, 200, 256),
                 new SeamLine(true, -256 + SKEW, 256, 400)),
-                verticalLines(FtbChunksFold.seamLines(CENTRED_LATTICE, view)),
+                verticalLines(FtbChunksFold.seamLines(CENTERED_LATTICE, view)),
                 "the X seam of the row above the world is not 128 blocks east of the world's own");
         assertEquals(Set.of(new SeamLine(true, -256, 200, 256),
                 new SeamLine(true, -256, 256, 400)),
-                verticalLines(FtbChunksFold.seamLines(CENTRED_TORUS, view)),
+                verticalLines(FtbChunksFold.seamLines(CENTERED_TORUS, view)),
                 "a plain torus moved its X seam between rows");
     }
 
@@ -301,21 +301,21 @@ class FtbChunksFoldTest {
     @Test
     void aViewInsideTheWorldKeepsItsScroll() {
         assertEquals(48.0, FtbChunksFold.clampScroll(AxisCopies.looped(-256, 512), 48.0, -1, 64, 32), 1e-9,
-                "the 256-block view already sits on the world's centre, half a view from either edge");
+                "the 256-block view already sits on the world's center, half a view from either edge");
     }
 
     @Test
     void aViewDraggedPastTheEdgeComesBackToIt() {
         assertEquals(64.0, FtbChunksFold.clampScroll(AxisCopies.looped(-256, 512), 100.0, -1, 64, 32), 1e-9,
-                "a drag east puts the view centre at block 416, and the eastern edge allows 128");
+                "a drag east puts the view center at block 416, and the eastern edge allows 128");
         assertEquals(32.0, FtbChunksFold.clampScroll(AxisCopies.looped(-256, 512), 0.0, -1, 64, 32), 1e-9,
-                "a drag west puts the view centre at block -384, and the western edge allows -128");
+                "a drag west puts the view center at block -384, and the western edge allows -128");
     }
 
     @Test
-    void aWorldNarrowerThanTheViewIsCentred() {
+    void aWorldNarrowerThanTheViewIsCentered() {
         assertEquals(48.0, FtbChunksFold.clampScroll(AxisCopies.looped(-64, 128), 200.0, -1, 64, 32), 1e-9,
-                "a 128-block world cannot fill a 256-block view, so the view sits on its centre, block 0");
+                "a 128-block world cannot fill a 256-block view, so the view sits on its center, block 0");
     }
 
     @Test
@@ -324,10 +324,10 @@ class FtbChunksFoldTest {
                 "an unbounded axis has no edge to stop at");
     }
 
-    private static int[] ftbRegionSplits(int centreChunk) {
-        int firstRegion = (centreChunk - 7) >> 5;
+    private static int[] ftbRegionSplits(int centerChunk) {
+        int firstRegion = (centerChunk - 7) >> 5;
         for (int m = 1; m < 15; m++) {
-            if ((centreChunk + m - 7) >> 5 != firstRegion) {
+            if ((centerChunk + m - 7) >> 5 != firstRegion) {
                 return new int[] {0, m, 15};
             }
         }

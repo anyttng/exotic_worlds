@@ -162,7 +162,7 @@ final class SeamCauseSearch {
 
     private static List<DensityFunction> childrenOf(DensityFunction node) {
         if (node instanceof InterpretedDensity compiled) {
-            DensityFunction interpreted = compiled.exotic_worlds$interpreted();
+            DensityFunction interpreted = compiled.exotic_worlds$getInterpreted();
             return interpreted != null ? List.of(interpreted) : List.of();
         }
 

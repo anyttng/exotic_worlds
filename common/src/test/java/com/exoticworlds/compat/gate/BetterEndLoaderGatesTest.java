@@ -30,26 +30,27 @@ class BetterEndLoaderGatesTest {
 
     @Test
     void theSharedConfigHoldsAgainstBothBuilds() throws IOException {
-        assertTrue(admitted(SHARED_CONFIG, FABRIC, null), "the shared config refuses the Fabric BetterEnd");
-        assertTrue(admitted(SHARED_CONFIG, NEOFORGE, neoForgeJar()), "the shared config refuses the NeoForge BetterEnd");
+        assertTrue(isAdmitted(SHARED_CONFIG, FABRIC, null), "the shared config refuses the Fabric BetterEnd");
+        assertTrue(isAdmitted(SHARED_CONFIG, NEOFORGE, neoForgeJar()),
+                "the shared config refuses the NeoForge BetterEnd");
     }
 
     @Test
     void eachLoaderConfigHoldsAgainstItsOwnBuild() throws IOException {
-        assertTrue(admitted(loaderConfig(FABRIC), FABRIC, null), "the Fabric config refuses the Fabric BetterEnd");
-        assertTrue(admitted(loaderConfig(NEOFORGE), NEOFORGE, neoForgeJar()),
+        assertTrue(isAdmitted(loaderConfig(FABRIC), FABRIC, null), "the Fabric config refuses the Fabric BetterEnd");
+        assertTrue(isAdmitted(loaderConfig(NEOFORGE), NEOFORGE, neoForgeJar()),
                 "the NeoForge config refuses the NeoForge BetterEnd");
     }
 
     @Test
     void eachLoaderConfigIsRefusedByTheOtherBuild() throws IOException {
-        assertFalse(admitted(loaderConfig(FABRIC), FABRIC, neoForgeJar()),
+        assertFalse(isAdmitted(loaderConfig(FABRIC), FABRIC, neoForgeJar()),
                 "the Fabric overloads hold on the NeoForge BetterEnd, so the split is not needed");
-        assertFalse(admitted(loaderConfig(NEOFORGE), NEOFORGE, null),
+        assertFalse(isAdmitted(loaderConfig(NEOFORGE), NEOFORGE, null),
                 "the NeoForge overloads hold on the Fabric BetterEnd, so the split is not needed");
     }
 
-    private static boolean admitted(String config, String loader, @Nullable Path betterEndJar) throws IOException {
+    private static boolean isAdmitted(String config, String loader, @Nullable Path betterEndJar) throws IOException {
         List<URL> first = new ArrayList<>();
         if (betterEndJar != null) {
             first.add(betterEndJar.toUri().toURL());

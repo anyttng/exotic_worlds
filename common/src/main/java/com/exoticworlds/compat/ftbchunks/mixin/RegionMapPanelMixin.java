@@ -41,7 +41,7 @@ import dev.ftb.mods.ftblibrary.icon.Color4I;
 @Mixin(value = RegionMapPanel.class, remap = false)
 public abstract class RegionMapPanelMixin extends Panel {
     @Unique
-    private static final int SEAM_LINE_WIDTH = 1;
+    private static final int SEAM_LINE_WIDTH_PIXELS = 1;
 
     @Shadow
     @Final
@@ -105,8 +105,8 @@ public abstract class RegionMapPanelMixin extends Panel {
                 Mth.ceil((x + w - originX) / pixelsPerBlock), Mth.ceil((y + h - originY) / pixelsPerBlock), mapCopies);
 
         // Copies draw before the canonical pass, which draws the icons, so an icon on the seam stays above them.
-        boolean scissor = panel.getOnlyRenderWidgetsInside();
-        if (scissor) {
+        boolean shouldScissor = panel.getOnlyRenderWidgetsInside();
+        if (shouldScissor) {
             graphics.enableScissor(x, y, x + w, y + h);
         }
 
@@ -119,7 +119,7 @@ public abstract class RegionMapPanelMixin extends Panel {
                     (int) Math.round(copy.dx() * pixelsPerBlock), (int) Math.round(copy.dz() * pixelsPerBlock));
         }
 
-        if (scissor) {
+        if (shouldScissor) {
             graphics.disableScissor();
         }
 
@@ -140,7 +140,7 @@ public abstract class RegionMapPanelMixin extends Panel {
         }
 
         for (SeamLine line : FtbChunksFold.seamLines(this.largeMapScreen.currentDimension(), view)) {
-            line.fill(graphics, SEAM_LINE_WIDTH);
+            line.fill(graphics, SEAM_LINE_WIDTH_PIXELS);
         }
     }
 

@@ -27,15 +27,15 @@ public abstract class MinimapRegionCutoutTextureMixin {
             "Ldev/ftb/mods/ftbchunks/client/minimap/MinimapRegionCutoutTexture;regionSplits(I)[I";
 
     @WrapOperation(method = UPDATE, at = @At(value = "INVOKE", target = REGION_SPLITS, ordinal = 0))
-    private int[] exotic_worlds$splitMinimapAlongX(int centreChunk, Operation<int[]> original,
+    private int[] exotic_worlds$splitMinimapAlongX(int centerChunk, Operation<int[]> original,
             @Local(argsOnly = true) XZ chunkPos) {
-        return FtbChunksFold.minimapSplits(Direction.Axis.X, chunkPos, original.call(centreChunk));
+        return FtbChunksFold.minimapSplits(Direction.Axis.X, chunkPos, original.call(centerChunk));
     }
 
     @WrapOperation(method = UPDATE, at = @At(value = "INVOKE", target = REGION_SPLITS, ordinal = 1))
-    private int[] exotic_worlds$splitMinimapAlongZ(int centreChunk, Operation<int[]> original,
+    private int[] exotic_worlds$splitMinimapAlongZ(int centerChunk, Operation<int[]> original,
             @Local(argsOnly = true) XZ chunkPos) {
-        return FtbChunksFold.minimapSplits(Direction.Axis.Z, chunkPos, original.call(centreChunk));
+        return FtbChunksFold.minimapSplits(Direction.Axis.Z, chunkPos, original.call(centerChunk));
     }
 
     @WrapOperation(method = UPDATE,

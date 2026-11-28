@@ -6,5 +6,5 @@ import net.minecraft.world.level.levelgen.DensityFunction;
 
 public interface InterpretedDensity {
     @Nullable
-    DensityFunction exotic_worlds$interpreted();
+    DensityFunction exotic_worlds$getInterpreted();
 }

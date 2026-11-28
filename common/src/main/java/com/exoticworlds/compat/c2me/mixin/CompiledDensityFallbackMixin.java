@@ -15,7 +15,7 @@ public abstract class CompiledDensityFallbackMixin implements InterpretedDensity
     protected abstract DensityFunction getFallback();
 
     @Override
-    public @Nullable DensityFunction exotic_worlds$interpreted() {
+    public @Nullable DensityFunction exotic_worlds$getInterpreted() {
         return this.getFallback();
     }
 }

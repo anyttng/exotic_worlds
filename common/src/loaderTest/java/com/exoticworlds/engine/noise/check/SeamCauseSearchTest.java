@@ -80,7 +80,7 @@ class SeamCauseSearchTest {
         }
 
         @Override
-        public DensityFunction exotic_worlds$interpreted() {
+        public DensityFunction exotic_worlds$getInterpreted() {
             return this.interpreted;
         }
 

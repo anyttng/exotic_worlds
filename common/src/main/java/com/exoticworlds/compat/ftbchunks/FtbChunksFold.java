@@ -40,7 +40,7 @@ public final class FtbChunksFold {
     private static final int TILE_PIXELS_PER_ZOOM = 2;
 
     private static final int MINIMAP_CHUNKS = 15;
-    private static final int MINIMAP_CENTRE_CHUNK = 7;
+    private static final int MINIMAP_CENTER_CHUNK = 7;
 
     public static XZ chunkOf(int chunkX, int chunkZ) {
         ChunkPos folded = foldedChunk(ClientFolds.getCurrent(), chunkX, chunkZ);
@@ -152,30 +152,31 @@ public final class FtbChunksFold {
         return lines;
     }
 
-    public static double clampScroll(ResourceKey<Level> dimension, Direction.Axis axis, double scroll, int regionMin,
-            int regionTilePixels, int panelPixels) {
-        return clampScroll(copies(dimension, axis), scroll, regionMin, regionTilePixels, panelPixels);
+    public static double clampScroll(ResourceKey<Level> dimension, Direction.Axis axis, double scrollPixels,
+            int regionMin, int regionTilePixels, int panelPixels) {
+        return clampScroll(copies(dimension, axis), scrollPixels, regionMin, regionTilePixels, panelPixels);
     }
 
-    static double clampScroll(AxisCopies copies, double scroll, int regionMin, int regionTilePixels, int panelPixels) {
+    static double clampScroll(AxisCopies copies, double scrollPixels, int regionMin, int regionTilePixels,
+            int panelPixels) {
         double pixelsPerBlock = regionTilePixels / (double) REGION_BLOCKS;
-        double centre = regionMin * (double) REGION_BLOCKS + (scroll + panelPixels / 2.0) / pixelsPerBlock;
-        double clamped = copies.clampView(centre, panelPixels / 2.0 / pixelsPerBlock);
-        return scroll + (clamped - centre) * pixelsPerBlock;
+        double center = regionMin * (double) REGION_BLOCKS + (scrollPixels + panelPixels / 2.0) / pixelsPerBlock;
+        double clamped = copies.clampView(center, panelPixels / 2.0 / pixelsPerBlock);
+        return scrollPixels + (clamped - center) * pixelsPerBlock;
     }
 
-    public static int tileFloor(ResourceKey<Level> dimension, int windowWidth, int windowHeight) {
-        return zoomFloor(dimension, windowWidth, windowHeight) * TILE_PIXELS_PER_ZOOM;
+    public static int tileFloorPixels(ResourceKey<Level> dimension, int windowWidthPixels, int windowHeightPixels) {
+        return zoomFloor(dimension, windowWidthPixels, windowHeightPixels) * TILE_PIXELS_PER_ZOOM;
     }
 
-    public static int zoomFloor(ResourceKey<Level> dimension, int windowWidth, int windowHeight) {
+    public static int zoomFloor(ResourceKey<Level> dimension, int windowWidthPixels, int windowHeightPixels) {
         WorldFold fold = ClientFolds.of(dimension);
         if (fold == null) {
             return 0;
         }
 
         return MapCopies.getCurrent() == MapCopies.SINGLE
-                ? FullscreenZoomFloor.ftbChunksCoverZoom(fold, windowWidth, windowHeight)
+                ? FullscreenZoomFloor.ftbChunksCoverZoom(fold, windowWidthPixels, windowHeightPixels)
                 : FullscreenZoomFloor.ftbChunksZoom(fold);
     }
 
@@ -233,7 +234,7 @@ public final class FtbChunksFold {
             int from = regionIndex(pixel.sourceX(), pixel.sourceZ());
             int to = regionIndex(pixel.haloX(), pixel.haloZ());
             MapRegionData targetData = target.getDataBlocking();
-            if (!samePixel(source, from, targetData, to)) {
+            if (!isSamePixel(source, from, targetData, to)) {
                 copyPixel(source, from, targetData, to);
                 changed.add(target);
             }
@@ -256,7 +257,7 @@ public final class FtbChunksFold {
         List<HaloPixel> halo = new ArrayList<>();
         for (int z = chunkMinZ; z < chunkMinZ + CHUNK_BLOCKS; z++) {
             for (int x = chunkMinX; x < chunkMinX + CHUNK_BLOCKS; x++) {
-                if (!onWorldEdge(fold, Direction.Axis.X, x) && !onWorldEdge(fold, Direction.Axis.Z, z)) {
+                if (!isOnWorldEdge(fold, Direction.Axis.X, x) && !isOnWorldEdge(fold, Direction.Axis.Z, z)) {
                     continue;
                 }
 
@@ -280,7 +281,7 @@ public final class FtbChunksFold {
         return fold.isLooped(axis) ? fold.getMaxBlock(axis) + 1 : chunkMin + CHUNK_BLOCKS;
     }
 
-    private static boolean onWorldEdge(WorldFold fold, Direction.Axis axis, int coord) {
+    private static boolean isOnWorldEdge(WorldFold fold, Direction.Axis axis, int coord) {
         return fold.isLooped(axis) && (coord == fold.getMinBlock(axis) || coord == fold.getMaxBlock(axis) - 1);
     }
 
@@ -288,7 +289,7 @@ public final class FtbChunksFold {
         return Math.floorMod(x, REGION_BLOCKS) + Math.floorMod(z, REGION_BLOCKS) * REGION_BLOCKS;
     }
 
-    private static boolean samePixel(MapRegionData source, int from, MapRegionData target, int to) {
+    private static boolean isSamePixel(MapRegionData source, int from, MapRegionData target, int to) {
         return target.height[to] == source.height[from]
                 && target.waterLightAndBiome[to] == source.waterLightAndBiome[from]
                 && target.foliage[to] == source.foliage[from]
@@ -311,11 +312,11 @@ public final class FtbChunksFold {
         return fold == null ? AxisCopies.UNBOUNDED : AxisCopies.of(fold, axis);
     }
 
-    public static int[] minimapSplits(Direction.Axis axis, XZ centreChunk, int[] unfolded) {
-        return minimapSplits(ClientFolds.getCurrent(), axis, centreChunk.x(), centreChunk.z(), unfolded);
+    public static int[] minimapSplits(Direction.Axis axis, XZ centerChunk, int[] unfolded) {
+        return minimapSplits(ClientFolds.getCurrent(), axis, centerChunk.x(), centerChunk.z(), unfolded);
     }
 
-    static int[] minimapSplits(@Nullable WorldFold fold, Direction.Axis axis, int centreChunkX, int centreChunkZ,
+    static int[] minimapSplits(@Nullable WorldFold fold, Direction.Axis axis, int centerChunkX, int centerChunkZ,
             int[] unfolded) {
         if (fold == null || !fold.isLooped(axis)) {
             return unfolded;
@@ -325,7 +326,8 @@ public final class FtbChunksFold {
         int count = 0;
         cuts[count++] = 0;
         for (int along = 1; along < MINIMAP_CHUNKS; along++) {
-            if (runBreaks(fold, axis, centreChunkX - MINIMAP_CENTRE_CHUNK, centreChunkZ - MINIMAP_CENTRE_CHUNK, along)) {
+            if (isRunBreaking(fold, axis, centerChunkX - MINIMAP_CENTER_CHUNK, centerChunkZ - MINIMAP_CENTER_CHUNK,
+                    along)) {
                 cuts[count++] = along;
             }
         }
@@ -334,7 +336,7 @@ public final class FtbChunksFold {
         return Arrays.copyOf(cuts, count);
     }
 
-    private static boolean runBreaks(WorldFold fold, Direction.Axis axis, int firstChunkX, int firstChunkZ,
+    private static boolean isRunBreaking(WorldFold fold, Direction.Axis axis, int firstChunkX, int firstChunkZ,
             int along) {
         int stepX = axis == Direction.Axis.X ? 1 : 0;
         int stepZ = 1 - stepX;
