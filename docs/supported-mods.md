@@ -47,6 +47,7 @@ Exotic Worlds ships for Minecraft 26.3, 26.2, 26.1.2 and 1.21.1, on NeoForge and
 | [MapFrontiers](https://modrinth.com/mod/mapfrontiers) | All | NeoForge, Fabric | Supported | |
 | [Immersive Overlays](https://modrinth.com/mod/immersive-overlays) | All | NeoForge, Fabric | Supported | |
 | [Ultimate Map Atlases](https://modrinth.com/mod/ultimate_map_atlases) | 26.3, 26.2, 26.1.2 | Fabric | Supported | |
+| [Map Atlases](https://modrinth.com/mod/map-atlases) | 26.1.2, 1.21.1 | NeoForge, Fabric | Supported | |
 
 ## Machines and vehicles
 
@@ -83,7 +84,12 @@ Exotic Worlds ships for Minecraft 26.3, 26.2, 26.1.2 and 1.21.1, on NeoForge and
 | [TerraBlender](https://modrinth.com/mod/terrablender) | All | NeoForge | Supported | |
 | [Biolith](https://modrinth.com/mod/biolith) | All | NeoForge, Fabric | Supported | |
 | MTChunkGeneration | 1.21.1 | NeoForge | Supported | |
-| BetterEnd and BetterNether | All | NeoForge, Fabric | Supported | |
+| [WorldWeaver](https://modrinth.com/mod/worldweaver) | 26.3, 26.2, 26.1.2 | Fabric | Supported | |
+| [WorldWeaver: New Dawn](https://modrinth.com/mod/worldweaver-neoforge) | All | NeoForge, Fabric | Supported | |
+| [BetterNether](https://modrinth.com/mod/betternether) | 26.3, 26.2, 26.1.2 | Fabric | Supported | |
+| [BetterNether: New Dawn](https://modrinth.com/mod/betternether-neoforge) | All | NeoForge, Fabric | Supported | |
+| [BetterEnd](https://modrinth.com/mod/betterend) | 26.3, 26.2, 26.1.2 | Fabric | Supported | |
+| [BetterEnd: New Dawn](https://modrinth.com/mod/betterend-neoforge) | All | NeoForge, Fabric | Supported | |
 | Northbound | 26.2, 26.1.2, 1.21.1 | NeoForge, Fabric | Supported | A toroidal world is cold at its north and south edges and warm in the middle |
 | [Natural Temperature](https://modrinth.com/mod/natural-temperature) | 26.3, 26.2 | Fabric | Supported | With the mod's `looping_world` on, a toroidal world is cold at its north and south edges and warm in the middle |
 | [ReTerraForged](https://www.curseforge.com/minecraft/mc-mods/reterraforged-unofficial) | 1.21.1 | NeoForge, Fabric | Supported | Small worlds get smaller rivers |
