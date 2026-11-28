@@ -1,0 +1,17 @@
+{
+  "required": false,
+  "minVersion": "0.8",
+  "package": "com.exoticworlds.compat.betterend.betterx.mixin",
+  "compatibilityLevel": "JAVA_25",
+  "plugin": "com.exoticworlds.compat.betterend.betterx.BetterxMixinPlugin",
+  "mixins": [
+    "SplitNoiseConditionMixin",
+    "SulphuricSurfaceNoiseConditionMixin",
+    "TerrainGeneratorConfigAccessor",
+    "TerrainGeneratorMixin",
+    "TunelCaveFeatureMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

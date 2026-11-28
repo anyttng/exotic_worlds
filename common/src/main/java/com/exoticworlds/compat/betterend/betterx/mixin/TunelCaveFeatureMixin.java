@@ -1,4 +1,4 @@
-package com.exoticworlds.compat.betterend.mixin;
+package com.exoticworlds.compat.betterend.betterx.mixin;
 
 import org.betterx.betterend.noise.OpenSimplexNoise;
 import org.betterx.betterend.world.features.terrain.caves.TunelCaveFeature;
@@ -11,6 +11,7 @@ import com.exoticworlds.compat.worldgen.LapNoise;
 import com.exoticworlds.compat.worldgen.OpenSimplexStandIn;
 import com.exoticworlds.compat.worldgen.StandInHolder;
 import com.exoticworlds.compat.betterend.BetterEndInjectionTargets;
+import com.exoticworlds.compat.betterend.TunnelNoiseScales;
 import com.exoticworlds.core.fold.WorldFold;
 import com.exoticworlds.core.fold.WorldLoopAttachments;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
@@ -24,15 +25,6 @@ public class TunelCaveFeatureMixin {
     @Unique
     private static final String CARVE_COLUMN = "lambda$generate$0";
 
-    @Unique
-    private static final double HORIZONTAL_SCALE = 0.02;
-
-    @Unique
-    private static final double VERTICAL_SCALE = 0.01;
-
-    @Unique
-    private static final double DISTORTION_SCALE = 0.1;
-
     @WrapOperation(
             method = CARVE_COLUMN,
             at = @At(value = "INVOKE", target = BetterEndInjectionTargets.NOISE_EVAL_3D, ordinal = 0))
@@ -41,7 +33,8 @@ public class TunelCaveFeatureMixin {
         WorldFold fold = exotic_worlds$getFold(world);
         return fold == null
                 ? original.call(noise, x, y, z)
-                : LapNoise.eval(exotic_worlds$standIn(noise), fold, x, y, z, HORIZONTAL_SCALE, HORIZONTAL_SCALE);
+                : LapNoise.eval(exotic_worlds$standIn(noise), fold, x, y, z, TunnelNoiseScales.HORIZONTAL,
+                        TunnelNoiseScales.HORIZONTAL);
     }
 
     @WrapOperation(
@@ -52,7 +45,8 @@ public class TunelCaveFeatureMixin {
         WorldFold fold = exotic_worlds$getFold(world);
         return fold == null
                 ? original.call(noise, x, z)
-                : LapNoise.eval(exotic_worlds$standIn(noise), fold, x, z, VERTICAL_SCALE, VERTICAL_SCALE);
+                : LapNoise.eval(exotic_worlds$standIn(noise), fold, x, z, TunnelNoiseScales.VERTICAL,
+                        TunnelNoiseScales.VERTICAL);
     }
 
     @WrapOperation(
@@ -63,7 +57,8 @@ public class TunelCaveFeatureMixin {
         WorldFold fold = exotic_worlds$getFold(world);
         return fold == null
                 ? original.call(noise, x, y, z)
-                : LapNoise.eval(exotic_worlds$standIn(noise), fold, x, y, z, DISTORTION_SCALE, DISTORTION_SCALE);
+                : LapNoise.eval(exotic_worlds$standIn(noise), fold, x, y, z, TunnelNoiseScales.DISTORTION,
+                        TunnelNoiseScales.DISTORTION);
     }
 
     // The columns run on ForkJoin threads, where GenerationFoldContext holds no fold.

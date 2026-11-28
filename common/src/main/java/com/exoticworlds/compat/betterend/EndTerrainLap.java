@@ -28,25 +28,32 @@ public final class EndTerrainLap {
 
     private final OpenSimplexStandIn second;
 
-    EndTerrainLap(WorldFold fold, StandInHolder first, StandInHolder second) {
+    private final LapIslandPlacement.Center center;
+
+    EndTerrainLap(WorldFold fold, StandInHolder first, StandInHolder second, LapIslandPlacement.Center center) {
         this.fold = fold;
         this.lattice = fold.getBlockLattice();
         this.frame = new LapFrame(this.lattice);
         this.first = first.exotic_worlds$getStandIn();
         this.second = second.exotic_worlds$getStandIn();
+        this.center = center;
     }
 
-    public static void capture(ServerLevel level) {
+    public static void capture(ServerLevel level, LapIslandPlacement.Center center) {
         WorldFold fold = GeneratorShapes.getWrappedFold(level.getChunkSource().getGenerator());
         OpenSimplexNoise first = TerrainGeneratorAccessor.exotic_worlds$getNoise1();
         OpenSimplexNoise second = TerrainGeneratorAccessor.exotic_worlds$getNoise2();
         current = fold == null || first == null || second == null
                 ? null
-                : new EndTerrainLap(fold, (StandInHolder) (Object) first, (StandInHolder) (Object) second);
+                : new EndTerrainLap(fold, (StandInHolder) (Object) first, (StandInHolder) (Object) second, center);
     }
 
     public static @Nullable EndTerrainLap getCurrent() {
         return current;
+    }
+
+    public LapIslandPlacement.Center getCenter() {
+        return this.center;
     }
 
     public WorldFold getFold() {

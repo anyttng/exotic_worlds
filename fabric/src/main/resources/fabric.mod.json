@@ -38,6 +38,8 @@
     "exotic_worlds.compat.ultraterraforged.mixins.json",
     "exotic_worlds.compat.ultraterraforged.preview.mixins.json",
     "exotic_worlds.compat.betterend.mixins.json",
+    "exotic_worlds.compat.betterend.betterx.mixins.json",
+    "exotic_worlds.compat.betterend.ambertation.mixins.json",
     "exotic_worlds.compat.sodium.mixins.json",
     "exotic_worlds.compat.simpleatlas.mixins.json",
     "exotic_worlds.compat.seedviewer.mixins.json",

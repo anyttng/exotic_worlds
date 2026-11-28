@@ -1,4 +1,4 @@
-package com.exoticworlds.compat.betterend.mixin;
+package com.exoticworlds.compat.betterend.ambertation.mixin;
 
 import org.betterx.betterend.noise.OpenSimplexNoise;
 import org.betterx.betterend.world.surface.SulphuricSurfaceNoiseCondition;
@@ -24,7 +24,7 @@ public class SulphuricSurfaceNoiseConditionMixin {
     private static final double FINE_SCALE = 0.1;
 
     @WrapOperation(
-            method = WoverInjectionTargets.GET_NUMBER,
+            method = WoverInjectionTargets.SURFACE_RULES_GET_NUMBER,
             at = @At(value = "INVOKE", target = BetterEndInjectionTargets.NOISE_EVAL_2D, ordinal = 0))
     private double exotic_worlds$lapBroadNoise(OpenSimplexNoise noise, double x, double z, Operation<Double> original) {
         WorldFold fold = GenerationFoldContext.getContext().getWrappedFold();
@@ -35,7 +35,7 @@ public class SulphuricSurfaceNoiseConditionMixin {
     }
 
     @WrapOperation(
-            method = WoverInjectionTargets.GET_NUMBER,
+            method = WoverInjectionTargets.SURFACE_RULES_GET_NUMBER,
             at = @At(value = "INVOKE", target = BetterEndInjectionTargets.NOISE_EVAL_2D, ordinal = 1))
     private double exotic_worlds$lapFineNoise(OpenSimplexNoise noise, double x, double z, Operation<Double> original) {
         WorldFold fold = GenerationFoldContext.getContext().getWrappedFold();
