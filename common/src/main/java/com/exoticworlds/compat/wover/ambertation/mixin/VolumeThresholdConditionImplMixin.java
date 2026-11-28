@@ -1,6 +1,6 @@
-package com.exoticworlds.compat.wover.mixin;
+package com.exoticworlds.compat.wover.ambertation.mixin;
 
-import org.betterx.wover.surface.impl.conditions.VolumeThresholdConditionImpl;
+import de.ambertation.wover.surface.impl.conditions.VolumeThresholdConditionImpl;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -41,7 +41,7 @@ public class VolumeThresholdConditionImplMixin implements StandInHolder {
     @WrapOperation(
             method = "getValue(III)D",
             at = @At(value = "INVOKE",
-                    target = "Lorg/betterx/wover/surface/impl/conditions/VolumeThresholdConditionImpl$Context;"
+                    target = "Lde/ambertation/wover/surface/impl/conditions/VolumeThresholdConditionImpl$Context;"
                             + "eval(DDD)D"))
     private double exotic_worlds$lapNoise(VolumeThresholdConditionImpl.Context noise, double x, double y, double z,
             Operation<Double> original) {

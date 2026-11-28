@@ -119,6 +119,9 @@ config="exotic_worlds.compat.biolith.mixins.json"
 config="exotic_worlds.compat.wover.mixins.json"
 
 [[mixins]]
+config="exotic_worlds.compat.wover.ambertation.mixins.json"
+
+[[mixins]]
 config="exotic_worlds.compat.ultraterraforged.mixins.json"
 
 [[mixins]]

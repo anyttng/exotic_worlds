@@ -1,6 +1,6 @@
 package com.exoticworlds.compat.wover;
 
-import org.betterx.wover.generator.api.biomesource.WoverBiomePicker.PickableBiome;
+import org.jspecify.annotations.Nullable;
 
 public final class EdgeBiomes {
     private static final int HEX_RING_POINTS = 8;
@@ -21,13 +21,14 @@ public final class EdgeBiomes {
         }
     }
 
-    public static PickableBiome hex(LapMap<PickableBiome> map, double x, double z) {
-        PickableBiome biome = map.biomeAt(x, z);
-        PickableBiome edge = biome.edge;
-        int edgeSize = biome.edgeSize;
-        if (edge == null && biome.getParentBiome() != null) {
-            edge = biome.getParentBiome().edge;
-            edgeSize = biome.getParentBiome().edgeSize;
+    public static <T> T hex(LapMap<T> map, PickedBiomeTraits<T> traits, double x, double z) {
+        T biome = map.biomeAt(x, z);
+        T edge = traits.getEdge(biome);
+        int edgeSize = traits.getEdgeSize(biome);
+        T parent = traits.getParent(biome);
+        if (edge == null && parent != null) {
+            edge = traits.getEdge(parent);
+            edgeSize = traits.getEdgeSize(parent);
         }
 
         if (edge == null) {
@@ -36,7 +37,8 @@ public final class EdgeBiomes {
 
         double radius = radius(map, edgeSize);
         for (int point = 0; point < HEX_RING_POINTS; point++) {
-            if (!map.biomeAt(x + radius * HEX_RING_X[point], z + radius * HEX_RING_Z[point]).isSame(biome)) {
+            T ringBiome = map.biomeAt(x + radius * HEX_RING_X[point], z + radius * HEX_RING_Z[point]);
+            if (!traits.isSame(ringBiome, biome)) {
                 return edge;
             }
         }
@@ -44,25 +46,25 @@ public final class EdgeBiomes {
         return biome;
     }
 
-    public static PickableBiome square(LapMap<PickableBiome> map, double x, double z) {
-        PickableBiome biome = map.biomeAt(x, z);
-        PickableBiome parent = biome.getParentBiome();
-        if (biome.getEdge() == null && (parent == null || parent.getEdge() == null)) {
+    public static <T> @Nullable T square(LapMap<T> map, PickedBiomeTraits<T> traits, double x, double z) {
+        T biome = map.biomeAt(x, z);
+        T parent = traits.getParent(biome);
+        if (traits.getEdge(biome) == null && (parent == null || traits.getEdge(parent) == null)) {
             return biome;
         }
 
-        PickableBiome search = parent != null ? parent : biome;
-        double radius = radius(map, search.edgeSize);
+        T search = parent != null ? parent : biome;
+        double radius = radius(map, traits.getEdgeSize(search));
         double step = SQUARE_NEIGHBOR_BLOCKS / map.getFactor();
-        boolean isEdge = !search.isSame(map.biomeAt(x + radius, z))
-                || !search.isSame(map.biomeAt(x - radius, z))
-                || !search.isSame(map.biomeAt(x, z + radius))
-                || !search.isSame(map.biomeAt(x, z - radius))
-                || !search.isSame(map.biomeAt(x - step, z - step))
-                || !search.isSame(map.biomeAt(x - step, z + step))
-                || !search.isSame(map.biomeAt(x + step, z - step))
-                || !search.isSame(map.biomeAt(x + step, z + step));
-        return isEdge ? search.getEdge() : biome;
+        boolean isEdge = !traits.isSame(search, map.biomeAt(x + radius, z))
+                || !traits.isSame(search, map.biomeAt(x - radius, z))
+                || !traits.isSame(search, map.biomeAt(x, z + radius))
+                || !traits.isSame(search, map.biomeAt(x, z - radius))
+                || !traits.isSame(search, map.biomeAt(x - step, z - step))
+                || !traits.isSame(search, map.biomeAt(x - step, z + step))
+                || !traits.isSame(search, map.biomeAt(x + step, z - step))
+                || !traits.isSame(search, map.biomeAt(x + step, z + step));
+        return isEdge ? traits.getEdge(search) : biome;
     }
 
     private static double radius(LapMap<?> map, int edgeSize) {
