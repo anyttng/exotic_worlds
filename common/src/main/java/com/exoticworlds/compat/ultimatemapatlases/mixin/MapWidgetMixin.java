@@ -10,9 +10,10 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
+import com.exoticworlds.compat.map.AtlasWorldView;
+import com.exoticworlds.compat.map.AtlasWorldWidget;
 import com.exoticworlds.compat.map.ClientFolds;
 import com.exoticworlds.compat.map.MapCopies;
-import com.exoticworlds.compat.ultimatemapatlases.AtlasWorldView;
 import com.exoticworlds.compat.ultimatemapatlases.BrowsedDimension;
 import com.exoticworlds.core.fold.WorldFold;
 import com.llamalad7.mixinextras.injector.ModifyReturnValue;
@@ -29,7 +30,7 @@ import net.nanaky.ultimate_map_atlases.client.screen.AtlasOverviewScreen;
 import net.nanaky.ultimate_map_atlases.client.screen.MapWidget;
 
 @Mixin(MapWidget.class)
-public abstract class MapWidgetMixin implements BrowsedDimension {
+public abstract class MapWidgetMixin implements BrowsedDimension, AtlasWorldWidget {
     @Shadow
     @Final
     private AtlasOverviewScreen mapScreen;
@@ -57,6 +58,70 @@ public abstract class MapWidgetMixin implements BrowsedDimension {
     @Override
     public ResourceKey<Level> exotic_worlds$getBrowsedDimension() {
         return this.mapScreen.getSelectedSlice().dimension();
+    }
+
+    @Override
+    public int exotic_worlds$getMapBlocks() {
+        return this.exotic_worlds$getWidget().exotic_worlds$getMapSizeBlocks();
+    }
+
+    @Override
+    public int exotic_worlds$getWidthPixels() {
+        return this.width;
+    }
+
+    @Override
+    public int exotic_worlds$getHeightPixels() {
+        return this.height;
+    }
+
+    @Override
+    public float exotic_worlds$getZoom() {
+        return this.exotic_worlds$getWidget().exotic_worlds$getZoomLevel();
+    }
+
+    @Override
+    public void exotic_worlds$setZoom(float zoom) {
+        this.exotic_worlds$getWidget().exotic_worlds$setZoomLevel(zoom);
+    }
+
+    @Override
+    public float exotic_worlds$getTargetZoom() {
+        return this.targetZoomLevel;
+    }
+
+    @Override
+    public void exotic_worlds$setTargetZoom(float zoom) {
+        this.targetZoomLevel = zoom;
+    }
+
+    @Override
+    public void exotic_worlds$setZoomSteps(float steps) {
+        this.cumulativeZoomValue = steps;
+    }
+
+    @Override
+    public Vec3 exotic_worlds$getCenter() {
+        AbstractAtlasWidgetAccessor widget = this.exotic_worlds$getWidget();
+        return new Vec3(widget.exotic_worlds$getCurrentXCenter(), 0.0, widget.exotic_worlds$getCurrentZCenter());
+    }
+
+    @Override
+    public void exotic_worlds$setCenter(Vec3 center) {
+        AbstractAtlasWidgetAccessor widget = this.exotic_worlds$getWidget();
+        widget.exotic_worlds$setCurrentXCenter(center.x);
+        widget.exotic_worlds$setCurrentZCenter(center.z);
+    }
+
+    @Override
+    public Vec3 exotic_worlds$getTargetCenter() {
+        return new Vec3(this.targetXCenter, 0.0, this.targetZCenter);
+    }
+
+    @Override
+    public void exotic_worlds$setTargetCenter(Vec3 center) {
+        this.targetXCenter = center.x;
+        this.targetZCenter = center.z;
     }
 
     @Inject(method = "extractRenderState", at = @At("HEAD"))
@@ -109,43 +174,12 @@ public abstract class MapWidgetMixin implements BrowsedDimension {
 
     @Unique
     private void exotic_worlds$hold(boolean shouldFold) {
-        WorldFold worldFold = ClientFolds.of(this.exotic_worlds$getBrowsedDimension());
-        if (worldFold == null) {
-            return;
-        }
-
-        AbstractAtlasWidgetAccessor widget = (AbstractAtlasWidgetAccessor) (Object) this;
-        MapCopies copies = MapCopies.getCurrent();
-        int mapBlocks = widget.exotic_worlds$getMapSizeBlocks();
-        exotic_worlds$capZoom(widget, AtlasWorldView.zoomCeiling(worldFold, copies, this.width, this.height, mapBlocks));
-        if (copies == MapCopies.SINGLE) {
-            exotic_worlds$holdCenters(widget, worldFold, mapBlocks, shouldFold);
-        }
+        AtlasWorldView.hold(ClientFolds.of(this.exotic_worlds$getBrowsedDimension()), MapCopies.getCurrent(), this,
+                shouldFold);
     }
 
     @Unique
-    private void exotic_worlds$capZoom(AbstractAtlasWidgetAccessor widget, float ceiling) {
-        if (this.targetZoomLevel > ceiling) {
-            this.targetZoomLevel = ceiling;
-            this.cumulativeZoomValue = AtlasWorldView.discreteZoomSteps(ceiling);
-        }
-
-        if (widget.exotic_worlds$getZoomLevel() > ceiling) {
-            widget.exotic_worlds$setZoomLevel(ceiling);
-        }
-    }
-
-    @Unique
-    private void exotic_worlds$holdCenters(AbstractAtlasWidgetAccessor widget, WorldFold worldFold, int mapBlocks,
-            boolean shouldFold) {
-        Vec3 current = AtlasWorldView.held(worldFold,
-                new Vec3(widget.exotic_worlds$getCurrentXCenter(), 0.0, widget.exotic_worlds$getCurrentZCenter()),
-                widget.exotic_worlds$getZoomLevel(), this.width, this.height, mapBlocks, shouldFold);
-        widget.exotic_worlds$setCurrentXCenter(current.x);
-        widget.exotic_worlds$setCurrentZCenter(current.z);
-        Vec3 target = AtlasWorldView.held(worldFold, new Vec3(this.targetXCenter, 0.0, this.targetZCenter),
-                this.targetZoomLevel, this.width, this.height, mapBlocks, shouldFold);
-        this.targetXCenter = target.x;
-        this.targetZCenter = target.z;
+    private AbstractAtlasWidgetAccessor exotic_worlds$getWidget() {
+        return (AbstractAtlasWidgetAccessor) (Object) this;
     }
 }

@@ -40,14 +40,14 @@ public final class FullscreenZoomFloor {
                 windowSidePixels(axis, viewWidthPixels, viewHeightPixels), blocksPerTile, tilePixels));
     }
 
-    public static float ultimateMapAtlasesZoom(WorldFold fold, float viewWidthPixels, int mapBlocks) {
+    public static float atlasZoom(WorldFold fold, float viewWidthPixels, int mapBlocks) {
         return (float) minOverLoopedAxes(fold,
-                axis -> ultimateMapAtlasesZoom(fold.getWidthBlocks(axis), viewWidthPixels, mapBlocks));
+                axis -> atlasZoom(fold.getWidthBlocks(axis), viewWidthPixels, mapBlocks));
     }
 
-    public static float ultimateMapAtlasesCoverZoom(WorldFold fold, float viewWidthPixels, float viewHeightPixels,
+    public static float atlasCoverZoom(WorldFold fold, float viewWidthPixels, float viewHeightPixels,
             int mapBlocks) {
-        return (float) minOverLoopedAxes(fold, axis -> ultimateMapAtlasesCoverZoom(fold.getWidthBlocks(axis), viewWidthPixels,
+        return (float) minOverLoopedAxes(fold, axis -> atlasCoverZoom(fold.getWidthBlocks(axis), viewWidthPixels,
                 windowSidePixels(axis, viewWidthPixels, viewHeightPixels), mapBlocks));
     }
 
@@ -103,11 +103,11 @@ public final class FullscreenZoomFloor {
         return viewPixels * blocksPerTile / (tilePixels * widthBlocks);
     }
 
-    static float ultimateMapAtlasesZoom(int widthBlocks, float viewWidthPixels, int mapBlocks) {
+    static float atlasZoom(int widthBlocks, float viewWidthPixels, int mapBlocks) {
         return widthBlocks * viewWidthPixels / (MIN_WORLD_PIXELS * mapBlocks);
     }
 
-    static float ultimateMapAtlasesCoverZoom(int widthBlocks, float viewWidthPixels, float sidePixels, int mapBlocks) {
+    static float atlasCoverZoom(int widthBlocks, float viewWidthPixels, float sidePixels, int mapBlocks) {
         return widthBlocks * viewWidthPixels / (sidePixels * mapBlocks);
     }
 

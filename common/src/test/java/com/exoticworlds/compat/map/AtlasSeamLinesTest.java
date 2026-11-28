@@ -16,6 +16,12 @@ class AtlasSeamLinesTest {
     }
 
     @Test
+    void aWideWorldsSeamCrossesATileOffItsMiddle() {
+        assertEquals(List.of(new SeamLine(true, 96, 0, 128)), AtlasSeamLines.of(MapFolds.torus(-937, 938), 14976, 0, 128),
+                "the map at 14976 spans 14912..15040 and meets the +X edge at 15008, 96 px from its edge");
+    }
+
+    @Test
     void aTileInsideTheWorldCarriesNoEdge() {
         assertEquals(List.of(), AtlasSeamLines.of(MapFolds.torus(-16, 16), 0, 0, 128),
                 "no seam crosses the map at the world's middle");
