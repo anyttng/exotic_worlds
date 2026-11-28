@@ -1,0 +1,23 @@
+package com.exoticworlds.compat.wover.ambertation;
+
+import org.slf4j.Logger;
+
+import com.mojang.logging.LogUtils;
+import com.exoticworlds.compat.gate.ModPresence;
+import com.exoticworlds.compat.gate.ModPresenceGatePlugin;
+
+public class WoverMixinPlugin extends ModPresenceGatePlugin {
+    private static final Logger LOGGER = LogUtils.getLogger();
+    private static final String WOVER_PACKAGE = "de/ambertation/wover/";
+    private static final String WUNDERLIB_PACKAGE = "de/ambertation/wunderlib/";
+
+    private static final ModPresence WOVER = ModPresence.gate(LOGGER, "[ew/wover-compat] gate wover_ambertation_present")
+            .probing("de/ambertation/wover/generator/impl/map/hex/HexBiomeMap.class")
+            .checking("exotic_worlds.compat.wover.ambertation.mixins.json")
+            .modPackages(WOVER_PACKAGE, WUNDERLIB_PACKAGE)
+            .build();
+
+    public WoverMixinPlugin() {
+        super(WOVER);
+    }
+}

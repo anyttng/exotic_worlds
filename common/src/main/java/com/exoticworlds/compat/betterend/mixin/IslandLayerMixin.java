@@ -6,11 +6,8 @@ import java.util.List;
 import org.betterx.bclib.sdf.SDF;
 import org.betterx.bclib.sdf.operator.SDFRadialNoiseMap;
 import org.betterx.betterend.noise.OpenSimplexNoise;
-import org.betterx.betterend.world.generator.GeneratorOptions;
 import org.betterx.betterend.world.generator.IslandLayer;
 import org.betterx.betterend.world.generator.LayerOptions;
-import org.betterx.betterend.world.generator.TerrainGenerator;
-import org.betterx.wover.generator.api.biomesource.end.WoverEndConfig;
 import org.jspecify.annotations.Nullable;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -96,7 +93,7 @@ public abstract class IslandLayerMixin implements LapIslands {
         this.exotic_worlds$lastZ = cellZ;
         this.exotic_worlds$lastHeight = maxHeight;
         LapIslandPlacement.place(this.exotic_worlds$islands, grid, cellX, cellZ, maxHeight, this.options, this::getSeed,
-                this.density, exotic_worlds$getCenter());
+                this.density, lap.getCenter());
     }
 
     @Override
@@ -115,14 +112,5 @@ public abstract class IslandLayerMixin implements LapIslands {
         this.noise.setIntensity(height);
         this.noise.setRadius(NOISE_RADIUS / (1.0F + height));
         return exotic_worlds$densityOnLap(x, y, z);
-    }
-
-    @Unique
-    private static LapIslandPlacement.Center exotic_worlds$getCenter() {
-        WoverEndConfig config = TerrainGenerator.config;
-        return config == null
-                ? new LapIslandPlacement.Center(false, 0, 0L)
-                : new LapIslandPlacement.Center(GeneratorOptions.hasCentralIsland(), config.centerBiomesSize,
-                        config.innerVoidRadiusSquared);
     }
 }

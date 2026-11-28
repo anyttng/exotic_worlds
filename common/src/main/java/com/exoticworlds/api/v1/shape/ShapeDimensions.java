@@ -11,8 +11,8 @@ import net.minecraft.world.level.levelgen.WorldDimensions;
 
 /**
  * The one door a shape has into the world's dimensions: it writes the declared spans into the generators of the three
- * vanilla stems, and reads them back out of an existing world. Everything a folding world then does — the wrapped
- * noise, the packet rewriting, the seam behaviour — is derived from what is written here and is not reachable from
+ * vanilla stems, and reads them back out of an existing world. Everything a folding world then does (the wrapped
+ * noise, the packet rewriting, the seam behavior) is derived from what is written here and is not reachable from
  * this package.
  *
  * <p>A shape declared through {@code api.v2} writes nothing here itself: it answers its spans and Exotic Worlds

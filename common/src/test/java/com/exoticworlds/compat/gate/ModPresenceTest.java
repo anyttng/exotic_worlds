@@ -102,6 +102,62 @@ class ModPresenceTest {
     }
 
     @Test
+    void aGateRequiringAnyOpensOnTheOneThatPassesWhileThatOneRequiresIt() {
+        ModPresence[] root = new ModPresence[1];
+        ModPresence absent = ModPresence.gate(LOGGER, "[test-compat] gate any_absent_present")
+                .probing(ABSENT_CLASS)
+                .build();
+        ModPresence shared = ModPresence.gate(LOGGER, "[test-compat] gate any_shared_present")
+                .probing(SHIPPED_CLASS)
+                .checking(CONFIG, (MIXIN_PREFIX + WRAP_PRESENT)::equals)
+                .requiringAny(List.of(() -> absent, () -> root[0]))
+                .build();
+        root[0] = ModPresence.gate(LOGGER, "[test-compat] gate any_root_present")
+                .probing(SHIPPED_CLASS)
+                .checking(CONFIG, (MIXIN_PREFIX + INJECT_PRESENT)::equals)
+                .requiring(shared)
+                .build();
+
+        assertTrue(root[0].isAdmitted(), "the root's own mixin holds and the shared gate it requires opens");
+        assertTrue(shared.isAdmitted(), "one of the gates it requires any of passes its own checks");
+    }
+
+    @Test
+    void aGateRequiringAnyClosesWhenNoneOfThemPasses() {
+        ModPresence absent = ModPresence.gate(LOGGER, "[test-compat] gate none_absent_present")
+                .probing(ABSENT_CLASS)
+                .build();
+        ModPresence refusing = ModPresence.gate(LOGGER, "[test-compat] gate none_refusing_present")
+                .probing(SHIPPED_CLASS)
+                .checking(CONFIG, (MIXIN_PREFIX + SHADOW_MISSING)::equals)
+                .build();
+
+        assertFalse(ModPresence.gate(LOGGER, "[test-compat] gate none_shared_present")
+                .probing(SHIPPED_CLASS)
+                .checking(CONFIG, (MIXIN_PREFIX + WRAP_PRESENT)::equals)
+                .requiringAny(List.of(() -> absent, () -> refusing))
+                .build().isAdmitted(), "one gate's mod is absent and the other's mixin lost a member");
+    }
+
+    @Test
+    void aRootRefusedByItsOwnMemberClosesTheGateRequiringAnyOfIt() {
+        ModPresence[] root = new ModPresence[1];
+        ModPresence shared = ModPresence.gate(LOGGER, "[test-compat] gate refused_shared_present")
+                .probing(SHIPPED_CLASS)
+                .checking(CONFIG, (MIXIN_PREFIX + WRAP_PRESENT)::equals)
+                .requiringAny(List.of(() -> root[0]))
+                .build();
+        root[0] = ModPresence.gate(LOGGER, "[test-compat] gate refused_root_present")
+                .probing(SHIPPED_CLASS)
+                .checking(CONFIG, (MIXIN_PREFIX + SHADOW_MISSING)::equals)
+                .requiring(shared)
+                .build();
+
+        assertFalse(shared.isAdmitted(), "the only gate it requires any of shadows a field its target lacks");
+        assertFalse(root[0].isAdmitted(), "the root refuses on its own member");
+    }
+
+    @Test
     void aGateWithoutAConfigIsTheBareProbe() {
         assertTrue(ModPresence.gate(LOGGER, "[test-compat] gate shipped_present").probing(SHIPPED_CLASS).build()
                 .isAdmitted(), "the mod's own class file resolves through the loader the builder picks");

@@ -1,5 +1,6 @@
 package com.exoticworlds.shape.feature.floatingcrumbs;
 
+import java.util.Arrays;
 import java.util.BitSet;
 
 import org.jspecify.annotations.Nullable;
@@ -26,6 +27,8 @@ public final class TerrainMask implements ChunkWriteListener {
 
     private static final String HIGHEST_Y_KEY = "highest_y";
 
+    private static final String BORDER_KEY = "border";
+
     private static final int NO_VALUE = Integer.MIN_VALUE;
 
     private final ChunkPos pos;
@@ -42,10 +45,12 @@ public final class TerrainMask implements ChunkWriteListener {
 
     private final @Nullable WorldFold turning;
 
+    private final int @Nullable [] borderCells;
+
     private @Nullable BitSet written;
 
     private TerrainMask(ChunkPos pos, int minY, CellGrid grid, BitSet solid, int lowestY, int highestY,
-            @Nullable WorldFold turning) {
+            @Nullable WorldFold turning, int @Nullable [] borderCells) {
         this.pos = pos;
         this.minY = minY;
         this.grid = grid;
@@ -53,9 +58,11 @@ public final class TerrainMask implements ChunkWriteListener {
         this.lowestY = lowestY;
         this.highestY = highestY;
         this.turning = turning;
+        this.borderCells = borderCells;
     }
 
-    static TerrainMask of(boolean[] solid, ChunkPos pos, int minY, CellGrid grid, @Nullable WorldFold turning) {
+    static TerrainMask of(boolean[] solid, ChunkPos pos, int minY, CellGrid grid, @Nullable WorldFold turning,
+            int @Nullable [] borderCells) {
         BitSet bits = new BitSet(grid.getCellCount());
         int lowestY = Integer.MAX_VALUE;
         int highestY = Integer.MIN_VALUE;
@@ -71,7 +78,32 @@ public final class TerrainMask implements ChunkWriteListener {
             highestY = Math.max(highestY, y);
         }
 
-        return new TerrainMask(pos, minY, grid, bits, lowestY, highestY, turning);
+        return new TerrainMask(pos, minY, grid, bits, lowestY, highestY, turning, sortedCopy(borderCells));
+    }
+
+    private static int @Nullable [] loadBorder(CompoundTag tag, CellGrid grid) {
+        int[] cells = tag.getIntArray(BORDER_KEY).orElse(null);
+        if (cells == null) {
+            return null;
+        }
+
+        for (int cell : cells) {
+            if (cell < 0 || cell >= grid.getCellCount()) {
+                return null;
+            }
+        }
+
+        return cells;
+    }
+
+    private static int @Nullable [] sortedCopy(int @Nullable [] cells) {
+        if (cells == null) {
+            return null;
+        }
+
+        int[] sorted = cells.clone();
+        Arrays.sort(sorted);
+        return sorted;
     }
 
     static @Nullable TerrainMask load(CompoundTag tag, ChunkPos pos, int minY, int heightBlocks,
@@ -85,7 +117,7 @@ public final class TerrainMask implements ChunkWriteListener {
 
         TerrainMask mask = new TerrainMask(pos, minY, grid, BitSet.valueOf(solid),
                 tag.getIntOr(LOWEST_Y_KEY, Integer.MAX_VALUE), tag.getIntOr(HIGHEST_Y_KEY, Integer.MIN_VALUE),
-                turning);
+                turning, sortedCopy(loadBorder(tag, grid)));
         tag.getLongArray(WRITTEN_KEY).ifPresent(written -> mask.written = BitSet.valueOf(written));
         return mask;
     }
@@ -97,6 +129,11 @@ public final class TerrainMask implements ChunkWriteListener {
         tag.putLongArray(SOLID_KEY, this.solid.toLongArray());
         tag.putInt(LOWEST_Y_KEY, this.lowestY);
         tag.putInt(HIGHEST_Y_KEY, this.highestY);
+        int[] border = this.borderCells;
+        if (border != null) {
+            tag.putIntArray(BORDER_KEY, border);
+        }
+
         BitSet overwritten = this.written;
         if (overwritten != null) {
             tag.putLongArray(WRITTEN_KEY, overwritten.toLongArray());
@@ -134,6 +171,18 @@ public final class TerrainMask implements ChunkWriteListener {
 
     int getHighestY() {
         return this.highestY;
+    }
+
+    int getMinY() {
+        return this.minY;
+    }
+
+    CellGrid getGrid() {
+        return this.grid;
+    }
+
+    int @Nullable [] getBorderCells() {
+        return this.borderCells;
     }
 
     boolean isSolidAt(int localX, int y, int localZ) {

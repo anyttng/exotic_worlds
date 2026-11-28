@@ -51,7 +51,7 @@ public class ServerGamePacketListenerImplMixin implements ClientPositionHolder, 
     @Shadow
     public ServerPlayer player;
 
-    // Keep this the last field with an initialiser: mixin splices declaration initialisers by line-number range.
+    // Keep this the last field with an initializer: mixin splices declaration initializers by line-number range.
     @Unique
     private final ClientPosition exotic_worlds$clientPosition = new ClientPosition();
 

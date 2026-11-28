@@ -123,10 +123,24 @@ var journeymapApiJars = tasks.register('unpackJourneyMapApi', Sync) {
 // types. Unpacked the same way, compile and test classpath alone.
 configurations {
     woverModules
+    woverOriginalModules
 }
 
 dependencies {
     woverModules "maven.modrinth:worldweaver-neoforge:${worldweaver_version}"
+    woverOriginalModules "maven.modrinth:worldweaver:${worldweaver_original_version}"
+}
+
+// Never on a classpath: the original BetterEnd and BCLib share class names with New Dawn's.
+configurations {
+    betterEndOriginal {
+        transitive = false
+    }
+}
+
+dependencies {
+    betterEndOriginal "maven.modrinth:betterend:${betterend_original_version}"
+    betterEndOriginal "maven.modrinth:bclib:${bclib_original_version}"
 }
 
 var woverModuleJars = tasks.register('unpackWoverModules', Sync) {
@@ -136,6 +150,15 @@ var woverModuleJars = tasks.register('unpackWoverModules', Sync) {
     }
     includeEmptyDirs = false
     into layout.buildDirectory.dir('wover-modules')
+}
+
+var woverOriginalModuleJars = tasks.register('unpackWoverOriginalModules', Sync) {
+    from(zipTree(configurations.woverOriginalModules.singleFile)) {
+        include 'META-INF/jars/*.jar'
+        eachFile { it.relativePath = new RelativePath(true, it.name) }
+    }
+    includeEmptyDirs = false
+    into layout.buildDirectory.dir('wover-original-modules')
 }
 
 // BetterEnd, BCLib and Distant Horizons annotate classes with Fabric's @Environment, and javac warns unconditionally
@@ -177,6 +200,7 @@ dependencies {
     compileOnly "curse.maven:ultraterraforged-${ultraterraforged_cf_project}:${ultraterraforged_cf_file}"
     compileOnly files(xaeroLibJars).asFileTree.matching { include '*.jar' }
     compileOnly files(woverModuleJars).asFileTree.matching { include '*.jar' }
+    compileOnly files(woverOriginalModuleJars).asFileTree.matching { include '*.jar' }
     compileOnly files(fabricEnvTypeClass)
     compileOnly "maven.modrinth:betterend-neoforge:${betterend_version}"
     compileOnly "maven.modrinth:bclib-neoforge:${bclib_version}"
@@ -193,9 +217,6 @@ dependencies {
     compileOnly rootProject.ext.ascendiaCoreModule
 }
 
-// Plain JUnit on the NeoForm vanilla classpath: NeoForm mode has no FML, hence no junit run-type and no applied
-// mixins — a test that needs a mixin at runtime belongs to a loader module. The registries are filled by the
-// launcher-session listener under src/test, ahead of any test class initialisation.
 neoForge.addModdingDependenciesTo(sourceSets.test)
 sourceSets.test.java.srcDir 'src/testFixtures/java'
 
@@ -214,6 +235,7 @@ dependencies {
     testRuntimeOnly "curse.maven:ultraterraforged-${ultraterraforged_cf_project}:${ultraterraforged_cf_file}"
     testCompileOnly files(woverModuleJars).asFileTree.matching { include '*.jar' }
     testRuntimeOnly files(woverModuleJars).asFileTree.matching { include '*.jar' }
+    testRuntimeOnly files(woverOriginalModuleJars).asFileTree.matching { include '*.jar' }
     testCompileOnly "maven.modrinth:betterend-neoforge:${betterend_version}"
     testRuntimeOnly "maven.modrinth:betterend-neoforge:${betterend_version}"
     testCompileOnly "maven.modrinth:bclib-neoforge:${bclib_version}"
@@ -317,6 +339,9 @@ test {
     systemProperty 'toroidal.reports', layout.buildDirectory.dir('reports').get().asFile.absolutePath
     // The datapack templates under docs/ are not on the classpath, so the test that gates them is given the repo root.
     systemProperty 'toroidal.repoRoot', rootDir.absolutePath
+    FileCollection betterEndOriginalJars = configurations.betterEndOriginal
+    inputs.files(betterEndOriginalJars)
+    jvmArgumentProviders.add({ ['-Dtoroidal.betterEndOriginal=' + betterEndOriginalJars.asPath] } as CommandLineArgumentProvider)
     jacoco {
         enabled = project.hasProperty('coverage')
         includes = ['com.exoticworlds.*']

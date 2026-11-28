@@ -10,6 +10,7 @@ import org.betterx.wover.generator.api.biomesource.WoverBiomePicker;
 import org.betterx.wover.generator.api.biomesource.WoverBiomePicker.PickableBiome;
 import org.junit.jupiter.api.Test;
 
+import com.exoticworlds.compat.wover.betterx.PickableBiomeTraits;
 import com.exoticworlds.core.world.ShapeFixtures;
 import com.exoticworlds.core.fold.WorldFold;
 import com.exoticworlds.core.fold.WorldFolds;
@@ -96,13 +97,13 @@ class EdgeBiomesTest {
     @Test
     void aHexEdgeRingShrinksWithItsRegionsUnderCompactBiomes() {
         assertEdgeShareKept((fold, factor, picker) -> new HexLapMap<>(fold, HEX_SCALE, factor, SEED, picker),
-                EdgeBiomes::hex);
+                (map, x, z) -> EdgeBiomes.hex(map, PickableBiomeTraits.INSTANCE, x, z));
     }
 
     @Test
     void aSquareEdgeRingShrinksWithItsRegionsUnderCompactBiomes() {
         assertEdgeShareKept((fold, factor, picker) -> new SquareLapMap<>(fold, SQUARE_SIZE, factor, SEED, picker),
-                EdgeBiomes::square);
+                (map, x, z) -> EdgeBiomes.square(map, PickableBiomeTraits.INSTANCE, x, z));
     }
 
     private static void assertEdgeShareKept(MapMaker maker, EdgeReader reader) {

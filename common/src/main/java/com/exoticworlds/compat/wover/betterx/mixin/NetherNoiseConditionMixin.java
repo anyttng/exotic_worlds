@@ -1,4 +1,4 @@
-package com.exoticworlds.compat.wover.mixin;
+package com.exoticworlds.compat.wover.betterx.mixin;
 
 import org.betterx.wover.math.api.noise.OpenSimplexNoise;
 import org.betterx.wover.surface.api.Conditions;

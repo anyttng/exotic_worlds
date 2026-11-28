@@ -65,7 +65,7 @@ class CreateFactoryPanelFoldTest {
     }
 
     @Test
-    void canonicalisingTwiceGivesTheSameInstanceBack() {
+    void canonicalizingTwiceGivesTheSameInstanceBack() {
         for (WorldFold fold : ALL) {
             FactoryPanelPosition once = CreateFactoryPanelFold.canonical(fold, panel(ONE_LAP_AWAY));
 

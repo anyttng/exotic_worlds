@@ -40,6 +40,8 @@ public final class ModPresence {
     private static final String GATE_PLUGIN = ModPresenceGatePlugin.class.getName().replace('.', '/');
     private static final char PACKAGE_SEPARATOR = '/';
 
+    private static final Object EVALUATION = new Object();
+
     private static volatile @Nullable Side runningSide;
 
     private final Logger logger;
@@ -51,12 +53,14 @@ public final class ModPresence {
     private final Map<String, String> bodySources;
     private final Map<String, BooleanSupplier> withheld;
     private final List<ModPresence> required;
+    private final List<Supplier<ModPresence>> requiredAny;
     private final List<String> modPackages;
     private final Set<String> optional;
     private final @Nullable Predicate<String> scanning;
     private final Supplier<@Nullable Side> side;
 
     private @Nullable MixinConfig mixinConfig;
+    private @Nullable OwnChecks ownChecks;
     private boolean isProbed;
     private boolean isAdmitted;
 
@@ -86,6 +90,7 @@ public final class ModPresence {
         this.bodySources = Map.copyOf(builder.bodySources);
         this.withheld = Map.copyOf(builder.withheld);
         this.required = List.copyOf(builder.required);
+        this.requiredAny = List.copyOf(builder.requiredAny);
         this.modPackages = List.copyOf(builder.modPackages);
         this.optional = Set.copyOf(builder.optional);
         this.scanning = builder.scanning;
@@ -110,24 +115,49 @@ public final class ModPresence {
         return condition != null && condition.getAsBoolean();
     }
 
-    public synchronized boolean isAdmitted() {
-        if (!this.isProbed) {
-            this.isAdmitted = areAllResourcesPresent();
-            this.isProbed = true;
-        }
+    public boolean isAdmitted() {
+        synchronized (EVALUATION) {
+            if (!this.isProbed) {
+                this.isAdmitted = admit();
+                this.isProbed = true;
+            }
 
-        return this.isAdmitted;
+            return this.isAdmitted;
+        }
     }
 
-    private boolean areAllResourcesPresent() {
-        for (String resource : this.resources) {
-            if (!hasResource(this.classLoader, resource)) {
-                this.logger.info("{}=false", this.gateLabel);
-                return false;
-            }
+    private boolean admit() {
+        if (!hasAllResources()) {
+            this.logger.info("{}=false", this.gateLabel);
+            return false;
         }
 
-        return areRequiredAdmitted() && isAdmitting(getCoveredMixins());
+        if (!areRequiredAdmitted() || !isAnyRequiredPassing()) {
+            return false;
+        }
+
+        OwnChecks checks = getOwnChecks();
+        for (Refusal refusal : checks.refusals()) {
+            this.logger.warn("{}=true admitted=false mixin={} member={} reason={}", this.gateLabel,
+                    refusal.mixin(), refusal.member(), refusal.reason());
+        }
+
+        if (checks.refusals().isEmpty()) {
+            this.logger.info("{}=true admitted=true mixins={} classes={}", this.gateLabel, checks.mixinCount(),
+                    checks.classCount());
+        }
+
+        return checks.refusals().isEmpty();
+    }
+
+    private boolean isPassing() {
+        synchronized (EVALUATION) {
+            return hasAllResources() && getOwnChecks().refusals().isEmpty();
+        }
+    }
+
+    private boolean hasAllResources() {
+        return this.resources.stream().allMatch(resource -> hasResource(this.classLoader, resource));
     }
 
     private boolean areRequiredAdmitted() {
@@ -141,7 +171,28 @@ public final class ModPresence {
         return true;
     }
 
-    private boolean isAdmitting(List<String> covered) {
+    private boolean isAnyRequiredPassing() {
+        List<ModPresence> gates = this.requiredAny.stream().map(Supplier::get).toList();
+        if (gates.isEmpty() || gates.stream().anyMatch(ModPresence::isPassing)) {
+            return true;
+        }
+
+        this.logger.warn("{}=true admitted=false requires_any={}", this.gateLabel,
+                gates.stream().map(gate -> gate.gateLabel).toList());
+        return false;
+    }
+
+    private OwnChecks getOwnChecks() {
+        OwnChecks checks = this.ownChecks;
+        if (checks == null) {
+            checks = checkOwn(getCoveredMixins());
+            this.ownChecks = checks;
+        }
+
+        return checks;
+    }
+
+    private OwnChecks checkOwn(List<String> covered) {
         Map<String, String> bodySourcesByClass = new HashMap<>();
         this.bodySources.forEach((mixin, owner) -> bodySourcesByClass.put(getMixinPackage() + "." + mixin, owner));
         ClassFiles classFiles = new ClassFiles(this.classLoader);
@@ -158,17 +209,10 @@ public final class ModPresence {
             refusals.addAll(references.check(scannedClass));
         }
 
-        for (Refusal refusal : refusals) {
-            this.logger.warn("{}=true admitted=false mixin={} member={} reason={}", this.gateLabel,
-                    refusal.mixin(), refusal.member(), refusal.reason());
-        }
+        return new OwnChecks(covered.size(), scanned.size(), List.copyOf(refusals));
+    }
 
-        if (refusals.isEmpty()) {
-            this.logger.info("{}=true admitted=true mixins={} classes={}", this.gateLabel, covered.size(),
-                    scanned.size());
-        }
-
-        return refusals.isEmpty();
+    private record OwnChecks(int mixinCount, int classCount, List<Refusal> refusals) {
     }
 
     List<String> scanOwnedClasses() {
@@ -394,6 +438,7 @@ public final class ModPresence {
         private final Map<String, String> bodySources = new HashMap<>();
         private final Map<String, BooleanSupplier> withheld = new HashMap<>();
         private final List<ModPresence> required = new ArrayList<>();
+        private final List<Supplier<ModPresence>> requiredAny = new ArrayList<>();
         private final List<String> modPackages = new ArrayList<>();
         private final Set<String> optional = new HashSet<>();
 
@@ -433,6 +478,11 @@ public final class ModPresence {
 
         public Builder requiring(ModPresence gate) {
             this.required.add(gate);
+            return this;
+        }
+
+        public Builder requiringAny(List<Supplier<ModPresence>> gates) {
+            this.requiredAny.addAll(gates);
             return this;
         }
 

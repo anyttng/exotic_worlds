@@ -15,11 +15,11 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 
 public final class CreateFactoryPanelFold {
-    public static void canonicalise(ServerLevel level, ServerFactoryPanelBehaviour panel) {
+    public static void canonicalize(ServerLevel level, ServerFactoryPanelBehaviour panel) {
         WorldFold fold = WorldLoopAttachments.getFoldOfReader(level);
-        canonicalisePanels(fold, panel.targetedBy);
-        canonicaliseLinks(fold, panel.targetedByLinks);
-        canonicaliseTargets(fold, panel.targeting);
+        canonicalizePanels(fold, panel.targetedBy);
+        canonicalizeLinks(fold, panel.targetedByLinks);
+        canonicalizeTargets(fold, panel.targeting);
     }
 
     static FactoryPanelPosition canonical(WorldFold fold, FactoryPanelPosition position) {
@@ -27,7 +27,7 @@ public final class CreateFactoryPanelFold {
         return canonical.equals(position.pos()) ? position : new FactoryPanelPosition(canonical, position.slot());
     }
 
-    private static void canonicalisePanels(WorldFold fold,
+    private static void canonicalizePanels(WorldFold fold,
             Map<FactoryPanelPosition, FactoryPanelConnection> connections) {
         if (connections.isEmpty()) {
             return;
@@ -48,7 +48,7 @@ public final class CreateFactoryPanelFold {
         }
     }
 
-    private static void canonicaliseLinks(WorldFold fold, Map<BlockPos, FactoryPanelConnection> connections) {
+    private static void canonicalizeLinks(WorldFold fold, Map<BlockPos, FactoryPanelConnection> connections) {
         if (connections.isEmpty()) {
             return;
         }
@@ -68,7 +68,7 @@ public final class CreateFactoryPanelFold {
         }
     }
 
-    private static void canonicaliseTargets(WorldFold fold, Set<FactoryPanelPosition> targets) {
+    private static void canonicalizeTargets(WorldFold fold, Set<FactoryPanelPosition> targets) {
         if (targets.isEmpty()) {
             return;
         }
