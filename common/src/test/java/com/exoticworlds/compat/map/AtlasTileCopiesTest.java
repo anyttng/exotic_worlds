@@ -124,8 +124,21 @@ class AtlasTileCopiesTest {
         assertEquals(128, Math.abs(canonical.getX()), "a lap in Z moves X by the 128-block skew");
         assertTrue(centers.contains(new TileCenter(canonical.getX(), canonical.getZ())),
                 "a skew of one whole map keeps the canonical center");
-        assertEquals(List.of(new TileCenter(0, 512)), AtlasTileCopies.of(shape, 0, 512, 2 * MAP_BLOCKS),
-                "a skew of half a map leaves no whole move");
+        List<TileCenter> wide = AtlasTileCopies.of(shape, 0, 512, 2 * MAP_BLOCKS);
+        assertFalse(wide.contains(new TileCenter(canonical.getX(), canonical.getZ())),
+                "one lap moves X by half a 256-block map");
+        assertTrue(wide.contains(new TileCenter(2 * canonical.getX(), canonical.getZ() - 512)),
+                "two laps move it a whole map and land a map past the lower bound, as far as the ring of neighbors"
+                        + " reaches");
+    }
+
+    @Test
+    void aRequestInsideAWholeMapWorldFindsTheNeighborMadePastEitherBound() {
+        WorldFold shape = MapFolds.torus(-32, 32);
+        assertTrue(AtlasTileCopies.of(shape, 384, 0, MAP_BLOCKS).contains(new TileCenter(-640, 0)),
+                "the map at -640 lies wholly past the lower bound at -512, a lap along X from 384");
+        assertTrue(AtlasTileCopies.of(shape, -384, 0, MAP_BLOCKS).contains(new TileCenter(640, 0)),
+                "and the map at 640 wholly past the upper bound at 512, a lap from -384");
     }
 
     @Test
@@ -237,5 +250,26 @@ class AtlasTileCopiesTest {
         assertEquals(6, ring.size(), "the ring around it meets two columns past the seam, three rows each");
         assertTrue(ring.stream().allMatch(copy -> copy.at().x() - copy.map().x() == 30000
                 && copy.at().z() == copy.map().z()), "every one moved a lap along X");
+    }
+
+    @Test
+    void aMapWhollyPastTheLowerBoundCoversATileBesideTheUpperBound() {
+        TileCenter edge = new TileCenter(14976, 0);
+        AtlasTileCopies.TileLookup<TileCenter> held = holding(new TileCenter(-15104, 0), new TileCenter(-14976, 0));
+        assertEquals(List.of(new AtlasTileCopies.Placed<>(new TileCenter(-15104, 0), new TileCenter(14896, 0)),
+                new AtlasTileCopies.Placed<>(new TileCenter(-14976, 0), new TileCenter(15024, 0))),
+                AtlasTileCopies.shifted(OFF_GRID, edge, 0, MAP_BLOCKS, held),
+                "blocks -15168 to -15040 lie wholly past the lower bound at -14992, and a lap along X they hold"
+                        + " 14832 to 14960");
+        assertTrue(AtlasTileCopies.isCoveredByShifted(OFF_GRID, edge, MAP_BLOCKS, held),
+                "together the two maps hold the tile from 14912 to 15040");
+    }
+
+    @Test
+    void theRingBesideTheUpperBoundTakesTheNeighborMadePastTheLowerBound() {
+        assertEquals(List.of(new AtlasTileCopies.Placed<>(new TileCenter(-15104, 0), new TileCenter(14896, 0))),
+                AtlasTileCopies.shifted(OFF_GRID, new TileCenter(14976, 0), 1, MAP_BLOCKS,
+                        holding(new TileCenter(-15104, 0))),
+                "the atlas makes it as the neighbor of the key at -14976, one map past the bound");
     }
 }
