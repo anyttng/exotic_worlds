@@ -12,6 +12,7 @@
     "MapCollectionMixin",
     "MapsNeighborhoodMixin",
     "MoonlightCompatMixin",
+    "OpenAtlasScreenPacketAccessor",
     "UpdateTicketMixin"
   ],
   "client": [

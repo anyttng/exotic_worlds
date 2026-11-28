@@ -1,5 +1,6 @@
 package com.exoticworlds;
 
+import com.exoticworlds.compat.mapatlases.OpenAtlasScreenTranslation;
 import com.exoticworlds.compat.moonlight.MoonlightParticles;
 import com.exoticworlds.compat.northbound.NorthboundLatitude;
 import com.exoticworlds.engine.gen.LegacyGenerators;
@@ -44,6 +45,7 @@ public final class WorldLoop {
         AuxiliaryLightTranslation.register();
         BlockParticleTranslation.register();
         SpawnBufferTranslation.register();
+        OpenAtlasScreenTranslation.register();
         if (Platforms.get().isClient()) {
             SettingsService.set(SettingsService.load(Platforms.get().configDir()));
             SettingsScreenFactory.register(modContainer);
