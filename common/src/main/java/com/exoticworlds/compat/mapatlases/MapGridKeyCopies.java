@@ -34,8 +34,11 @@ public final class MapGridKeyCopies {
     }
 
     public static List<MapGridKey> copies(Level level, MapGridKey key) {
-        List<AtlasTileCopies.TileCenter> centers =
-                AtlasTileCopies.of(getFold(level), key.mapX, key.mapZ, key.gridWidth);
+        return copies(getFold(level), key);
+    }
+
+    public static List<MapGridKey> copies(@Nullable WorldFold fold, MapGridKey key) {
+        List<AtlasTileCopies.TileCenter> centers = AtlasTileCopies.of(fold, key.mapX, key.mapZ, key.gridWidth);
         List<MapGridKey> keys = new ArrayList<>(centers.size());
         for (AtlasTileCopies.TileCenter center : centers) {
             keys.add(moved(key, center));
@@ -46,7 +49,12 @@ public final class MapGridKeyCopies {
 
     public static @Nullable AtlasMap getShiftedUnder(Level level, MapCollection maps, MapGridKey key, double x,
             double z) {
-        return shiftedUnder(getFold(level), new AtlasTileCopies.TileCenter(key.mapX, key.mapZ), x, z, key.gridWidth,
+        return getShiftedUnder(getFold(level), maps, key, x, z);
+    }
+
+    public static @Nullable AtlasMap getShiftedUnder(@Nullable WorldFold fold, MapCollection maps, MapGridKey key,
+            double x, double z) {
+        return shiftedUnder(fold, new AtlasTileCopies.TileCenter(key.mapX, key.mapZ), x, z, key.gridWidth,
                 lookup(maps, key));
     }
 

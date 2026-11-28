@@ -16,9 +16,15 @@
   ],
   "client": [
     "AbstractAtlasDisplayMixin",
+    "AtlasOverviewScreenMixin",
+    "ClientMarkersMixin",
+    "DecorationBookmarkButtonAccessor",
+    "DecorationHolderMixin",
+    "DecorationListPanelMixin",
     "MapAtlasesHUDMixin",
     "MapGridKeyMixin",
-    "MapWidgetAccessor"
+    "MapWidgetAccessor",
+    "MapWidgetMixin"
   ],
   "injectors": {
     "defaultRequire": 1
