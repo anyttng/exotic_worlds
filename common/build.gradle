@@ -131,6 +131,18 @@ dependencies {
     woverOriginalModules "maven.modrinth:worldweaver:${worldweaver_original_version}"
 }
 
+// Never on a classpath: the original BetterEnd and BCLib share class names with New Dawn's.
+configurations {
+    betterEndOriginal {
+        transitive = false
+    }
+}
+
+dependencies {
+    betterEndOriginal "maven.modrinth:betterend:${betterend_original_version}"
+    betterEndOriginal "maven.modrinth:bclib:${bclib_original_version}"
+}
+
 var woverModuleJars = tasks.register('unpackWoverModules', Sync) {
     from(zipTree(configurations.woverModules.singleFile)) {
         include 'META-INF/jars/*.jar'
@@ -327,6 +339,9 @@ test {
     systemProperty 'toroidal.reports', layout.buildDirectory.dir('reports').get().asFile.absolutePath
     // The datapack templates under docs/ are not on the classpath, so the test that gates them is given the repo root.
     systemProperty 'toroidal.repoRoot', rootDir.absolutePath
+    FileCollection betterEndOriginalJars = configurations.betterEndOriginal
+    inputs.files(betterEndOriginalJars)
+    jvmArgumentProviders.add({ ['-Dtoroidal.betterEndOriginal=' + betterEndOriginalJars.asPath] } as CommandLineArgumentProvider)
     jacoco {
         enabled = project.hasProperty('coverage')
         includes = ['com.exoticworlds.*']
