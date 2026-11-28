@@ -2,6 +2,7 @@ package com.exoticworlds.core.fold.cuboid;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.ArrayDeque;
@@ -16,8 +17,10 @@ import com.exoticworlds.compat.CompatFoldFixture;
 import com.exoticworlds.core.fold.WorldFold;
 import com.exoticworlds.core.world.CuboidShape;
 
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.SectionPos;
 import net.minecraft.world.level.ChunkPos;
+import net.minecraft.world.phys.Vec3;
 
 class CuboidFoldFromTest {
     private static final int GENERATION_RADIUS_CHUNKS = 11;
@@ -27,6 +30,9 @@ class CuboidFoldFromTest {
     private static final int TORUS_STEP_CHUNKS = 7;
     private static final int SECTION_Y = -3;
     private static final int REF_SECTION_Y = 5;
+    private static final int BLOCK_Y = 64;
+    private static final int TORUS_REACH_BLOCKS = 640;
+    private static final int TORUS_STEP_BLOCKS = 97;
     private static final WorldFold CUBE_32 = CuboidFixtures.cuboidFold(new CuboidShape(32, 32, 32).atlas());
     private static final List<WorldFold> PLAYABLE = List.of(
             CuboidFixtures.cuboidFold(new CuboidShape(16, 16, 16).atlas()),
@@ -210,6 +216,50 @@ class CuboidFoldFromTest {
                 CUBE_32.deckTransformationFrom(new ChunkPos(-17, -16), diagonal).apply(diagonal));
         assertEquals(new ChunkPos(-17, -16),
                 CUBE_32.deckTransformationFrom(new ChunkPos(-16, -17), diagonal).apply(diagonal));
+    }
+
+    @Test
+    void aBlockOnTheDiagonalOfAnEmptyCornerTakesTheEdgeItsLineCrosses() {
+        BlockPos diagonal = new BlockPos(-262, BLOCK_Y, -262);
+        ChunkPos diagonalChunk = new ChunkPos(-17, -17);
+        Vec3 onWest = new Vec3(-264.0, BLOCK_Y, -248.0);
+        Vec3 onNorth = new Vec3(-248.0, BLOCK_Y, -264.0);
+
+        assertTrue(CUBE_32.isOver(CUBE_32.fold(diagonal)));
+        assertEquals(CUBE_32.deckTransformationFrom(new ChunkPos(-17, -16), diagonalChunk).apply(diagonal),
+                CUBE_32.foldFrom(onWest, diagonal));
+        assertEquals(CUBE_32.deckTransformationFrom(new ChunkPos(-16, -17), diagonalChunk).apply(diagonal),
+                CUBE_32.foldFrom(onNorth, diagonal));
+        assertFalse(CUBE_32.isOver(CUBE_32.foldFrom(onWest, diagonal)));
+        assertFalse(CUBE_32.isOver(CUBE_32.foldFrom(onNorth, diagonal)));
+    }
+
+    @Test
+    void aBlockOnTheNetComesBackAsGiven() {
+        BlockPos onNet = new BlockPos(-250, BLOCK_Y, -262);
+
+        assertSame(onNet, CUBE_32.foldFrom(new Vec3(-264.0, BLOCK_Y, -248.0), onNet));
+    }
+
+    @Test
+    void aBlockFromAPointOffTheNetFoldsAlone() {
+        BlockPos diagonal = new BlockPos(-262, BLOCK_Y, -262);
+
+        assertEquals(CUBE_32.fold(diagonal), CUBE_32.foldFrom(new Vec3(-270.0, BLOCK_Y, -270.0), diagonal));
+    }
+
+    @Test
+    void aTorusFoldsABlockFromAnyPointAsItFoldsAlone() {
+        Vec3 ref = new Vec3(0.5, BLOCK_Y, 0.5);
+        for (WorldFold fold : List.of(CompatFoldFixture.PER_AXIS, CompatFoldFixture.DECK_TORUS)) {
+            for (int x = -TORUS_REACH_BLOCKS; x <= TORUS_REACH_BLOCKS; x += TORUS_STEP_BLOCKS) {
+                for (int z = -TORUS_REACH_BLOCKS; z <= TORUS_REACH_BLOCKS; z += TORUS_STEP_BLOCKS) {
+                    BlockPos pos = new BlockPos(x, BLOCK_Y, z);
+
+                    assertEquals(fold.fold(pos), fold.foldFrom(ref, pos), pos.toString());
+                }
+            }
+        }
     }
 
     @Test

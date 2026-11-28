@@ -36,6 +36,6 @@ public class LongDistancePatrolGoalMixin {
                             + "setPatrolTarget(Lnet/minecraft/core/BlockPos;)V"))
     private void exotic_worlds$companionTargetInBounds(PatrollingMonster companion, BlockPos legEnd,
             Operation<Void> original) {
-        original.call(companion, WorldLoopAttachments.getFold(this.mob.level()).fold(legEnd));
+        original.call(companion, WorldLoopAttachments.getFold(this.mob.level()).foldFrom(this.mob.position(), legEnd));
     }
 }

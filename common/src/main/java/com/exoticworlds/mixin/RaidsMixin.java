@@ -21,6 +21,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.ai.village.poi.PoiRecord;
 import net.minecraft.world.entity.raid.Raids;
+import net.minecraft.world.phys.Vec3;
 
 @Mixin(Raids.class)
 public class RaidsMixin implements LevelBindable {
@@ -57,7 +58,8 @@ public class RaidsMixin implements LevelBindable {
                     value = "INVOKE",
                     target = "Lnet/minecraft/core/BlockPos;containing(Lnet/minecraft/core/Position;)Lnet/minecraft/core/BlockPos;"))
     private BlockPos exotic_worlds$centerIntoBounds(Position mean, Operation<BlockPos> original,
-            @Local(argsOnly = true) ServerPlayer player) {
-        return WorldLoopAttachments.getFold(player.level()).fold(original.call(mean));
+            @Local(argsOnly = true) ServerPlayer player, @Local(argsOnly = true) BlockPos raidPosition) {
+        return WorldLoopAttachments.getFold(player.level())
+                .foldFrom(Vec3.atCenterOf(raidPosition), original.call(mean));
     }
 }

@@ -474,6 +474,16 @@ public final class CuboidFold implements WorldFold {
     }
 
     @Override
+    public BlockPos foldFrom(Vec3 ref, BlockPos pos) {
+        if (faceOf(pos.getX(), pos.getZ()) != NO_FACE) {
+            return pos;
+        }
+
+        DeckTransformation along = foldTransformationAlong(ref, Vec3.atCenterOf(pos));
+        return along == null ? fold(pos) : along.apply(pos);
+    }
+
+    @Override
     public long foldSectionNodeFrom(long refNode, long sectionNode) {
         long chunkKey = ChunkPos.pack(SectionPos.x(sectionNode), SectionPos.z(sectionNode));
         long folded = foldChunkKeyFrom(ChunkPos.pack(SectionPos.x(refNode), SectionPos.z(refNode)), chunkKey);

@@ -43,12 +43,15 @@ public class BeePollinateGoalMixin {
             return byRawPos;
         }
 
-        return (pos, state) -> byRawPos.test(fold.fold(pos), state);
+        Vec3 scanOrigin = Vec3.atCenterOf(this.bee.blockPosition());
+        return (pos, state) -> byRawPos.test(fold.foldFrom(scanOrigin, pos), state);
     }
 
     @ModifyReturnValue(method = "findNearbyFlower", at = @At("RETURN"))
     private Optional<BlockPos> exotic_worlds$foundFlowerCanonical(Optional<BlockPos> found) {
-        return found.map(WorldLoopAttachments.getFold(this.bee.level())::fold);
+        WorldFold fold = WorldLoopAttachments.getFold(this.bee.level());
+        Vec3 scanOrigin = Vec3.atCenterOf(this.bee.blockPosition());
+        return found.map(flower -> fold.foldFrom(scanOrigin, flower));
     }
 
     @ModifyExpressionValue(

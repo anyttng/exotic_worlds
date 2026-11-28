@@ -12,7 +12,6 @@ import com.exoticworlds.core.fold.WorldFold;
 import com.exoticworlds.core.fold.WorldLoopAttachments;
 import com.exoticworlds.engine.fold.FoldedOrder;
 import com.exoticworlds.engine.fold.NearestCopy;
-import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.llamalad7.mixinextras.sugar.Local;
@@ -38,12 +37,14 @@ public class PrepareRamNearestTargetMixin {
         return FoldedOrder.around(original, fold, body.blockPosition());
     }
 
-    @ModifyExpressionValue(
+    @WrapOperation(
             method = "tick(Lnet/minecraft/server/level/ServerLevel;Lnet/minecraft/world/entity/PathfinderMob;J)V",
             at = @At(value = "INVOKE",
                     target = "Lnet/minecraft/world/entity/ai/behavior/PrepareRamNearestTarget$RamCandidate;getStartPosition()Lnet/minecraft/core/BlockPos;"))
-    private BlockPos exotic_worlds$ramStartThroughSeam(BlockPos startPos, @Local(argsOnly = true) PathfinderMob body) {
-        return WorldLoopAttachments.getFold(body.level()).fold(startPos);
+    private BlockPos exotic_worlds$ramStartThroughSeam(PrepareRamNearestTarget.RamCandidate candidate,
+            Operation<BlockPos> original, @Local(argsOnly = true) PathfinderMob body) {
+        return WorldLoopAttachments.getFold(body.level())
+                .foldFrom(Vec3.atCenterOf(candidate.getTargetPosition()), original.call(candidate));
     }
 
     @WrapOperation(

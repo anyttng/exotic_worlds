@@ -13,6 +13,7 @@ import net.minecraft.world.entity.animal.sniffer.Sniffer;
 public class SnifferMixin {
     @ModifyVariable(method = "canDig(Lnet/minecraft/core/BlockPos;)Z", at = @At("HEAD"), argsOnly = true)
     private BlockPos exotic_worlds$canonicalDigCandidate(BlockPos position) {
-        return WorldLoopAttachments.getFold(((Sniffer) (Object) this).level()).fold(position);
+        Sniffer sniffer = (Sniffer) (Object) this;
+        return WorldLoopAttachments.getFold(sniffer.level()).foldFrom(sniffer.position(), position);
     }
 }

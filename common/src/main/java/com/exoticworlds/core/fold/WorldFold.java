@@ -109,6 +109,10 @@ public interface WorldFold {
         return fold(pos);
     }
 
+    default BlockPos foldFrom(Vec3 ref, BlockPos pos) {
+        return fold(pos);
+    }
+
     default long foldSectionNodeFrom(long refNode, long sectionNode) {
         return foldSectionNode(sectionNode);
     }
