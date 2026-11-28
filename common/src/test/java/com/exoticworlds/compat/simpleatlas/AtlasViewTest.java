@@ -10,8 +10,8 @@ class AtlasViewTest {
     private static final float ONE_PIXEL_PER_BLOCK = 1.0F;
 
     @Test
-    void aZoomChangeKeepsTheMapUnderTheViewCentre() {
-        assertEquals(-40.0, AtlasView.panKeepingCentre(10.0, 100.0F, 20.0F, 64.0F, 0.0F, 128.0F));
+    void aZoomChangeKeepsTheMapUnderTheViewCenter() {
+        assertEquals(-40.0, AtlasView.panKeepingCenter(10.0, 100.0F, 20.0F, 64.0F, 0.0F, 128.0F));
     }
 
     @Test

@@ -7,7 +7,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import com.llamalad7.mixinextras.sugar.Local;
 import com.exoticworlds.InjectionTargets;
-import com.exoticworlds.compat.simpleatlas.MapCentreSeat;
+import com.exoticworlds.compat.simpleatlas.MapCenterSeat;
 
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.saveddata.maps.MapItemSavedData;
@@ -23,7 +23,7 @@ public class ModNetworkingMixin {
                     opcode = Opcodes.GETFIELD))
     private static int exotic_worlds$centerXNearWaypoint(int centerX, @Local(argsOnly = true) MapItemSavedData data,
             @Local(argsOnly = true) AtlasContents.WaypointData waypoint) {
-        return MapCentreSeat.towardWaypoint(Direction.Axis.X, centerX, waypoint, data);
+        return MapCenterSeat.towardWaypoint(Direction.Axis.X, centerX, waypoint, data);
     }
 
     @ModifyExpressionValue(
@@ -32,6 +32,6 @@ public class ModNetworkingMixin {
                     opcode = Opcodes.GETFIELD))
     private static int exotic_worlds$centerZNearWaypoint(int centerZ, @Local(argsOnly = true) MapItemSavedData data,
             @Local(argsOnly = true) AtlasContents.WaypointData waypoint) {
-        return MapCentreSeat.towardWaypoint(Direction.Axis.Z, centerZ, waypoint, data);
+        return MapCenterSeat.towardWaypoint(Direction.Axis.Z, centerZ, waypoint, data);
     }
 }

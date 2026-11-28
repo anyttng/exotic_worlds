@@ -59,7 +59,7 @@ class AtlasLayoutFoldTest {
     }
 
     @Test
-    void theCentresStayAsTheServerSentThem() {
+    void theCentersStayAsTheServerSentThem() {
         List<AtlasTilePayload> relaid = AtlasLayoutFold.relaid(ACROSS_THE_EDGE, AtlasLayoutFoldTest::getBlocksPerTile,
                 folds(TORUS), MapCopies.REPEATED);
 

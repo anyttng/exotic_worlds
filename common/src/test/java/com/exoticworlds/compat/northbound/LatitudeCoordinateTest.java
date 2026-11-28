@@ -42,13 +42,13 @@ class LatitudeCoordinateTest {
 
     @ParameterizedTest
     @EnumSource(NorthboundLatitude.Variant.class)
-    void handsNorthboundItsPoleAtTheSeamAndItsEquatorAtTheCentre(NorthboundLatitude.Variant variant) {
+    void handsNorthboundItsPoleAtTheSeamAndItsEquatorAtTheCenter(NorthboundLatitude.Variant variant) {
         LatitudeCoordinate coordinate = NorthboundLatitude.coordinate(MEDIUM, variant, NO_COMPRESSION);
         double seam = sample(coordinate, MEDIUM.lowerBound);
-        double centre = sample(coordinate, MEDIUM.lowerBound + MEDIUM.domainLength / 2);
+        double center = sample(coordinate, MEDIUM.lowerBound + MEDIUM.domainLength / 2);
 
         assertEquals(1.0, northboundLatitude(seam, variant), EPSILON);
-        assertEquals(0.0, northboundLatitude(centre, variant), EPSILON);
+        assertEquals(0.0, northboundLatitude(center, variant), EPSILON);
     }
 
     @ParameterizedTest

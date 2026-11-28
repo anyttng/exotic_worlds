@@ -7,7 +7,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import com.llamalad7.mixinextras.sugar.Local;
 import com.exoticworlds.InjectionTargets;
-import com.exoticworlds.compat.simpleatlas.MapCentreSeat;
+import com.exoticworlds.compat.simpleatlas.MapCenterSeat;
 import com.exoticworlds.core.fold.WorldLoopAttachments;
 
 import net.minecraft.core.Direction;
@@ -25,7 +25,7 @@ public class AtlasMapSelectorMixin {
     private static int exotic_worlds$centerXNearPosition(int centerX, @Local(argsOnly = true) Level level,
             @Local(argsOnly = true, ordinal = 0) double x, @Local(argsOnly = true, ordinal = 1) double z,
             @Local(name = "mapData") MapItemSavedData mapData) {
-        return MapCentreSeat.toward(WorldLoopAttachments.getWrappedFold(level), Direction.Axis.X, centerX, x, z,
+        return MapCenterSeat.toward(WorldLoopAttachments.getWrappedFold(level), Direction.Axis.X, centerX, x, z,
                 mapData);
     }
 
@@ -36,7 +36,7 @@ public class AtlasMapSelectorMixin {
     private static int exotic_worlds$centerZNearPosition(int centerZ, @Local(argsOnly = true) Level level,
             @Local(argsOnly = true, ordinal = 0) double x, @Local(argsOnly = true, ordinal = 1) double z,
             @Local(name = "mapData") MapItemSavedData mapData) {
-        return MapCentreSeat.toward(WorldLoopAttachments.getWrappedFold(level), Direction.Axis.Z, centerZ, x, z,
+        return MapCenterSeat.toward(WorldLoopAttachments.getWrappedFold(level), Direction.Axis.Z, centerZ, x, z,
                 mapData);
     }
 }
