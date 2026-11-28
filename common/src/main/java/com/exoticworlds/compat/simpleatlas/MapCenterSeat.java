@@ -12,7 +12,7 @@ import net.minecraft.world.phys.Vec3;
 
 import rubbertoe.simple_atlas.component.AtlasContents;
 
-public final class MapCentreSeat {
+public final class MapCenterSeat {
     public static int toward(@Nullable WorldFold fold, Direction.Axis axis, int center, double x, double z,
             MapItemSavedData data) {
         return toward(fold, axis, centerX(axis, center, data), centerZ(axis, center, data), x, z);
@@ -36,6 +36,6 @@ public final class MapCentreSeat {
         return axis == Direction.Axis.Z ? center : data.centerZ;
     }
 
-    private MapCentreSeat() {
+    private MapCenterSeat() {
     }
 }

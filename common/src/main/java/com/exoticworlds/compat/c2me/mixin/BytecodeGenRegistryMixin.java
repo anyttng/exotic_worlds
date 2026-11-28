@@ -9,7 +9,7 @@ import com.exoticworlds.compat.c2me.C2meFoldedNoiseEmitter;
 import com.exoticworlds.compat.c2me.C2meFoldedNoiseNode;
 import com.ishland.c2me.opts.dfc.common.gen.jvm.BytecodeGenRegistry;
 
-// Registered from C2ME's own static initialiser: the registry freezes on first read, and a later arrival is rejected.
+// Registered from C2ME's own static initializer: the registry freezes on first read, and a later arrival is rejected.
 @Mixin(BytecodeGenRegistry.class)
 public class BytecodeGenRegistryMixin {
     @Inject(method = "<clinit>", at = @At("TAIL"))

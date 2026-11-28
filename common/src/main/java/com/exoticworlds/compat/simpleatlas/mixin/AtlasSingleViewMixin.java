@@ -171,9 +171,9 @@ public abstract class AtlasSingleViewMixin implements AtlasViews {
         float originX = this.exotic_worlds$heldOriginX;
         float tileBefore = this.exotic_worlds$tileBeforeHold;
         if (tileBefore != tile) {
-            this.panX = AtlasView.panKeepingCentre(this.panX, view.contentX() + view.contentWidth() / 2.0F,
+            this.panX = AtlasView.panKeepingCenter(this.panX, view.contentX() + view.contentWidth() / 2.0F,
                     this.exotic_worlds$originBeforeHoldX, tileBefore, originX, tile);
-            this.panY = AtlasView.panKeepingCentre(this.panY, view.contentY() + view.contentHeight() / 2.0F,
+            this.panY = AtlasView.panKeepingCenter(this.panY, view.contentY() + view.contentHeight() / 2.0F,
                     originBeforeY, tileBefore, originY, tile);
         }
 
@@ -206,8 +206,8 @@ public abstract class AtlasSingleViewMixin implements AtlasViews {
     }
 
     @Unique
-    private static float exotic_worlds$worldStart(float mapOrigin, int localTile, int tileCentre, int minBlock, float tile,
+    private static float exotic_worlds$worldStart(float mapOrigin, int localTile, int tileCenter, int minBlock, float tile,
             int blocksPerTile) {
-        return mapOrigin + localTile * tile + (minBlock - (tileCentre - blocksPerTile / 2)) * tile / blocksPerTile;
+        return mapOrigin + localTile * tile + (minBlock - (tileCenter - blocksPerTile / 2)) * tile / blocksPerTile;
     }
 }
