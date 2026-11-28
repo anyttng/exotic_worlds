@@ -12,9 +12,11 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import com.exoticworlds.compat.map.AtlasPointSeat;
+import com.exoticworlds.compat.map.AtlasSeamLines;
 import com.exoticworlds.compat.map.AtlasTileCopies;
 import com.exoticworlds.compat.map.AtlasTileMemo;
 import com.exoticworlds.compat.map.ClientFolds;
+import com.exoticworlds.compat.map.MapCopies;
 import com.exoticworlds.core.fold.WorldFold;
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
@@ -52,16 +54,40 @@ public abstract class AbstractAtlasDisplayMixin {
     private @Nullable WorldFold exotic_worlds$copyFold;
 
     @Unique
+    private @Nullable WorldFold exotic_worlds$seamFold;
+
+    @Unique
     private final AtlasTileMemo exotic_worlds$tileMemo = new AtlasTileMemo();
 
     @Unique
-    private boolean exotic_worlds$isDrawingShiftedCopies;
+    private int exotic_worlds$gridCenterX;
+
+    @Unique
+    private int exotic_worlds$gridCenterZ;
+
+    @Unique
+    private AtlasTileCopies.@Nullable TileCenter exotic_worlds$drawnShiftedCopy;
 
     @Inject(method = "drawAtlas", at = @At("HEAD"))
     private void exotic_worlds$resolveFold(CallbackInfo ci) {
-        this.exotic_worlds$copyFold = (Object) this instanceof MapWidgetAccessor widget
-                ? ClientFolds.of(widget.exotic_worlds$getMapScreen().getSelectedSlice().dimension())
-                : ClientFolds.getCurrent();
+        if ((Object) this instanceof MapWidgetAccessor widget) {
+            WorldFold fold = ClientFolds.of(widget.exotic_worlds$getMapScreen().getSelectedSlice().dimension());
+            MapCopies copies = MapCopies.getCurrent();
+            this.exotic_worlds$copyFold = copies == MapCopies.SINGLE ? null : fold;
+            this.exotic_worlds$seamFold = copies.isDrawingSeamLines() ? fold : null;
+        } else {
+            this.exotic_worlds$copyFold = ClientFolds.getCurrent();
+            this.exotic_worlds$seamFold = null;
+        }
+    }
+
+    @Inject(
+            method = "drawAtlas",
+            at = @At(value = "INVOKE", target = "Lorg/joml/Matrix3x2fStack;translate(FF)Lorg/joml/Matrix3x2f;",
+                    ordinal = 1, shift = At.Shift.AFTER))
+    private void exotic_worlds$recordGridCenter(CallbackInfo ci, @Local ColumnPos centerMap) {
+        this.exotic_worlds$gridCenterX = centerMap.x();
+        this.exotic_worlds$gridCenterZ = centerMap.z();
     }
 
     @Inject(
@@ -81,9 +107,9 @@ public abstract class AbstractAtlasDisplayMixin {
 
         float blocksPerPixel = (float) this.mapBlocksSize / AtlasTileCopies.MAP_PIXELS;
         Matrix3x2fStack pose = graphics.pose();
-        this.exotic_worlds$isDrawingShiftedCopies = true;
         try {
             for (AtlasTileCopies.Placed<AtlasMap> copy : placed) {
+                this.exotic_worlds$drawnShiftedCopy = copy.at();
                 pose.pushMatrix();
                 pose.translate((copy.at().x() - centerMap.x()) / blocksPerPixel,
                         (copy.at().z() - centerMap.z()) / blocksPerPixel);
@@ -91,7 +117,7 @@ public abstract class AbstractAtlasDisplayMixin {
                 pose.popMatrix();
             }
         } finally {
-            this.exotic_worlds$isDrawingShiftedCopies = false;
+            this.exotic_worlds$drawnShiftedCopy = null;
         }
 
         for (AtlasTileCopies.Placed<AtlasMap> copy : placed) {
@@ -129,7 +155,24 @@ public abstract class AbstractAtlasDisplayMixin {
             method = "drawMap",
             at = @At(value = "INVOKE", target = "Lpepjebs/mapatlases/client/AbstractAtlasDisplay;showMapBorders()Z"))
     private boolean exotic_worlds$noBorderOnShiftedCopy(boolean shows) {
-        return shows && !this.exotic_worlds$isDrawingShiftedCopies;
+        return shows && this.exotic_worlds$drawnShiftedCopy == null;
+    }
+
+    @Inject(
+            method = "drawMap",
+            at = @At(value = "INVOKE", target = "Lorg/joml/Matrix3x2fStack;popMatrix()Lorg/joml/Matrix3x2fStack;"))
+    private void exotic_worlds$drawSeamLines(CallbackInfo ci, @Local(argsOnly = true) GuiGraphicsExtractor graphics,
+            @Local(argsOnly = true, ordinal = 0) int row, @Local(argsOnly = true, ordinal = 1) int column) {
+        if (this.exotic_worlds$seamFold == null) {
+            return;
+        }
+
+        AtlasTileCopies.TileCenter tile = this.exotic_worlds$drawnShiftedCopy != null
+                ? this.exotic_worlds$drawnShiftedCopy
+                : new AtlasTileCopies.TileCenter(this.exotic_worlds$gridCenterX + column * this.mapBlocksSize,
+                        this.exotic_worlds$gridCenterZ + row * this.mapBlocksSize);
+        AtlasSeamLines.draw(graphics, this.exotic_worlds$tileMemo.seamLines(this.exotic_worlds$seamFold, tile.x(),
+                tile.z(), this.mapBlocksSize));
     }
 
     @ModifyExpressionValue(
